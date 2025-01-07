@@ -1,3 +1,7 @@
+# License: GNU General Public License v3.0 with Additional Terms
+
+## GNU General Public License v3.0
+
                     GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
@@ -672,3 +676,27 @@ may consider it more useful to permit linking proprietary applications with
 the library.  If this is what you want to do, use the GNU Lesser General
 Public License instead of this License.  But first, please read
 <https://www.gnu.org/licenses/why-not-lgpl.html>.
+
+## Additional Terms: Non-Commercial Use
+
+As permitted under Section 7 of the GNU General Public License, the following additional terms apply:
+
+1. **Commercial Use Prohibited**:  
+   You may not use this software, or any derivative works, for commercial purposes. This includes, but is not limited to:
+   - Selling the software or derivatives.
+   - Using the software as part of a paid service or product.
+
+2. **Redistribution**:  
+   Redistribution of the software, whether modified or unmodified, must retain this license and these additional terms.
+
+3. **Attribution**:  
+   Any public use of this software must provide clear attribution to the original author(s) as follows:  
+
+ - "This software was created by Lorran Neves, available at https://github.com/lorranluiz/planificacaocconomica/."
+   - If distributed in a modified form, include the attribution in documentation or a visible location within the software.
+
+---
+
+## Disclaimer of Warranty
+
+This software is provided "as is", without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose, or non-infringement. In no event shall the authors be liable for any claim, damages, or other liability, whether in an action of contract, tort, or otherwise, arising from, out of, or in connection with the software or its use.
