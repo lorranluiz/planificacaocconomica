@@ -7184,8 +7184,8 @@
     "totalSocialWorkDessaJurisdicao": 0,
     "comiteAssociadoDeTrabalhador": "Comitê de Fábrica da Mercedes-Benz",
     "associacaoDeMoradoresAssociadaDeTrabalhador": "Associação de Moradores da Estrada União e Indústria",
-    "partipacaoIndividualEstimadaNoTrabalhoSocial": 5e-10,
-    "hoursAtElectronicPoint": 72,
+    "partipacaoIndividualEstimadaNoTrabalhoSocial": 0.01452722704066752,
+    "hoursAtElectronicPoint": 104,
     "effectivelyPlannedProductionTime": 0
   },
   "Conselho Popular Regional Estadual Metropolitano do Amazonas": {
