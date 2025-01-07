@@ -1,11 +1,20 @@
 const fs = require('fs');
 const http = require('http');
+const https = require('https');
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
-const hostname = '18.229.117.193';
+const hostname = '0.0.0.0';
 
 const app = express();
+
+const selfsigned = require('selfsigned');
+const attrs = [{ name: 'commonName', value: 'lit.org' }];
+const pems = selfsigned.generate(attrs, { days: 365 });
+
+require('fs').writeFileSync('key.pem', pems.private);
+require('fs').writeFileSync('cert.pem', pems.cert);
+console.log('Certificados gerados!');
 
 // Middleware para subrota
 const jsonServerApp = express();
@@ -46,12 +55,20 @@ jsonServerApp.put('/data', (req, res) => {
 // Montar o servidor JSON em uma subrota
 app.use('/jsonServer', jsonServerApp);
 
-// Criar servidores HTTP
+// Criar servidores HTTP e HTTPS
 const httpServer = http.createServer(app);
+const httpsServer = https.createServer({
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem')
+}, app);
 
 // Iniciar o servidor
 httpServer.listen(80, hostname, () => {
     console.log(`Servidor HTTP rodando em http://${hostname}`);
+});
+
+httpsServer.listen(443, hostname, () => {
+    console.log(`Servidor HTTPS rodando em https://${hostname}`);
 });
 
 process.on('uncaughtException', (err) => {
@@ -69,5 +86,9 @@ app.use((err, req, res, next) => {
 
 httpServer.on('error', (err) => {
     console.error('Erro no servidor HTTP:', err);
+});
+
+httpsServer.on('error', (err) => {
+    console.error('Erro no servidor HTTPS:', err);
 });
 
