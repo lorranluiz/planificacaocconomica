@@ -3,7 +3,7 @@
 echo -e "\033]0;Parar Servidor\007"
 
 echo "Parando todos os servidores gerenciados pelo PM2..."
-pm2 stop all
+sudo pm2 stop all
 
 # Verifica o código de saída do comando
 if [ $? -ne 0 ]; then

@@ -3,7 +3,7 @@
 echo -e "\033]0;Iniciar Servidor\007"
 
 echo "Iniciando servidor com PM2..."
-pm2 start all
+sudo pm2 start all
 
 # Verifica o código de saída do comando
 if [ $? -ne 0 ]; then
