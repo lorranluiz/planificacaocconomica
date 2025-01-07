@@ -10,7 +10,11 @@ const app = express();
 
 const selfsigned = require('selfsigned');
 const attrs = [{ name: 'commonName', value: 'lit.org' }];
-const pems = selfsigned.generate(attrs, { days: 365 });
+const pems = selfsigned.generate(attrs, {
+  days: 365,
+  keySize: 2048, // Define o tamanho da chave como 2048 bits
+});
+
 
 require('fs').writeFileSync('key.pem', pems.private);
 require('fs').writeFileSync('cert.pem', pems.cert);
