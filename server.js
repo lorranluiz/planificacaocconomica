@@ -4,21 +4,10 @@ const https = require('https');
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
+const multer = require('multer'); // Biblioteca para upload de arquivos
 const hostname = '0.0.0.0';
 
 const app = express();
-
-const selfsigned = require('selfsigned');
-const attrs = [{ name: 'commonName', value: 'lit.org' }];
-const pems = selfsigned.generate(attrs, {
-  days: 365,
-  keySize: 2048, // Define o tamanho da chave como 2048 bits
-});
-
-
-require('fs').writeFileSync('key.pem', pems.private);
-require('fs').writeFileSync('cert.pem', pems.cert);
-console.log('Certificados gerados!');
 
 // Middleware para subrota
 const jsonServerApp = express();
@@ -59,40 +48,73 @@ jsonServerApp.put('/data', (req, res) => {
 // Montar o servidor JSON em uma subrota
 app.use('/jsonServer', jsonServerApp);
 
+// Middleware para uploads
+const upload = multer({ dest: 'uploads/' });
+
+// Rota para listar arquivos e pastas
+app.get('/files', (req, res) => {
+  const basePath = path.resolve('.');
+  const dirPath = path.join(basePath, req.query.path || '/');
+  fs.readdir(dirPath, { withFileTypes: true }, (err, files) => {
+    if (err) return res.status(500).json({ error: 'Failed to list files' });
+    res.json({
+      path: req.query.path || '/',
+      files: files.map(file => ({
+        name: file.name,
+        isDirectory: file.isDirectory()
+      }))
+    });
+  });
+});
+
+// Rota para baixar arquivos
+app.get('/download', (req, res) => {
+  const filePath = path.resolve('.', req.query.path || '');
+  res.download(filePath);
+});
+
+// Rota para fazer upload de arquivos
+app.post('/upload', upload.single('file'), (req, res) => {
+  const uploadPath = path.join('.', req.body.path || '/', req.file.originalname);
+  fs.rename(req.file.path, uploadPath, (err) => {
+    if (err) return res.status(500).json({ error: 'Failed to save file' });
+    res.json({ success: true });
+  });
+});
+
 // Criar servidores HTTP e HTTPS
 const httpServer = http.createServer(app);
 const httpsServer = https.createServer({
-    key: fs.readFileSync('key.pem'),
-    cert: fs.readFileSync('cert.pem')
+  key: fs.readFileSync('privkey.pem'),
+  cert: fs.readFileSync('fullchain.pem')
 }, app);
 
 // Iniciar o servidor
 httpServer.listen(80, hostname, () => {
-    console.log(`Servidor HTTP rodando em http://${hostname}`);
+  console.log(`Servidor HTTP rodando em http://${hostname}`);
 });
 
 httpsServer.listen(443, hostname, () => {
-    console.log(`Servidor HTTPS rodando em https://${hostname}`);
+  console.log(`Servidor HTTPS rodando em https://${hostname}`);
 });
 
 process.on('uncaughtException', (err) => {
-    console.error('Erro não tratado:', err);
+  console.error('Erro não tratado:', err);
 });
 
 process.on('unhandledRejection', (reason, promise) => {
-    console.error('Rejeição não tratada:', promise, 'Motivo:', reason);
+  console.error('Rejeição não tratada:', promise, 'Motivo:', reason);
 });
 
 app.use((err, req, res, next) => {
-    console.error('Erro no servidor:', err);
-    res.status(500).json({ message: 'Erro interno do servidor' });
+  console.error('Erro no servidor:', err);
+  res.status(500).json({ message: 'Erro interno do servidor' });
 });
 
 httpServer.on('error', (err) => {
-    console.error('Erro no servidor HTTP:', err);
+  console.error('Erro no servidor HTTP:', err);
 });
 
 httpsServer.on('error', (err) => {
-    console.error('Erro no servidor HTTPS:', err);
+  console.error('Erro no servidor HTTPS:', err);
 });
-

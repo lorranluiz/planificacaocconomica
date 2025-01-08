@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 5px 0;
+        }
+        a {
+            text-decoration: none;
+            color: blue;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        button {
+            margin: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>File Manager</h1>
+    <div>
+        <button onclick="navigateTo('..')">Up</button>
+        <button onclick="navigateTo('/')">Root</button>
+    </div>
+    <ul id="file-list"></ul>
+    <h3>Upload File</h3>
+    <form id="upload-form" enctype="multipart/form-data">
+        <input type="file" name="file" required>
+        <button type="submit">Upload</button>
+    </form>
+
+    <script>
+        const fileList = document.getElementById('file-list');
+        const uploadForm = document.getElementById('upload-form');
+        let currentPath = '/';
+
+        // Function to fetch and display files/folders
+        async function fetchFiles(path) {
+            const response = await fetch(`/files?path=${encodeURIComponent(path)}`);
+            const data = await response.json();
+            currentPath = data.path;
+            fileList.innerHTML = '';
+
+            data.files.forEach(item => {
+                const listItem = document.createElement('li');
+                const link = document.createElement('a');
+                link.textContent = item.name;
+
+                if (item.isDirectory) {
+                    link.href = '#';
+                    link.onclick = () => {
+                        fetchFiles(`${currentPath}/${item.name}`);
+                        return false;
+                    };
+                } else {
+                    link.href = `/download?path=${encodeURIComponent(currentPath + '/' + item.name)}`;
+                }
+
+                listItem.appendChild(link);
+                fileList.appendChild(listItem);
+            });
+        }
+
+        // Navigate to a specific path
+        function navigateTo(path) {
+            fetchFiles(path);
+        }
+
+        // Handle file upload
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(uploadForm);
+            formData.append('path', currentPath);
+
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (response.ok) {
+                alert('File uploaded successfully!');
+                fetchFiles(currentPath);
+            } else {
+                alert('Failed to upload file.');
+            }
+        });
+
+        // Initialize with root directory
+        fetchFiles(currentPath);
+    </script>
+</body>
+</html>
