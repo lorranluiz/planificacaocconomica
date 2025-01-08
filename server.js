@@ -1,13 +1,16 @@
 const fs = require('fs');
 const http = require('http');
-const https = require('https');
 const express = require('express');
+const fsp = require('fs').promises; // Usa o módulo de promessas do fs
 const path = require('path');
 const cors = require('cors');
 const multer = require('multer'); // Biblioteca para upload de arquivos
 const hostname = '0.0.0.0';
 
 const app = express();
+
+// Middleware para interpretar JSON no corpo da requisição
+app.use(express.json());
 
 // Middleware para subrota
 const jsonServerApp = express();
@@ -69,9 +72,26 @@ app.get('/files', (req, res) => {
 
 // Rota para baixar arquivos
 app.get('/download', (req, res) => {
-  const filePath = path.resolve('.', req.query.path || '');
-  res.download(filePath);
+    try {
+        const filePath = path.join('.', req.query.path || '').replace(/\\/g, '/');
+
+        // Verifica se o arquivo existe antes de tentar baixá-lo
+        if (!fs.existsSync(filePath)) {
+            return res.status(404).json({ error: 'Arquivo não encontrado.' });
+        }
+
+        res.download(filePath, (err) => {
+            if (err) {
+                console.error('Erro ao fazer download:', err);
+                res.status(500).json({ error: 'Erro ao baixar o arquivo.' });
+            }
+        });
+    } catch (err) {
+        console.error('Erro no servidor:', err);
+        res.status(500).json({ error: 'Erro no servidor.' });
+    }
 });
+
 
 // Rota para fazer upload de arquivos
 app.post('/upload', upload.single('file'), (req, res) => {
@@ -82,21 +102,48 @@ app.post('/upload', upload.single('file'), (req, res) => {
   });
 });
 
+// Rota para deletar arquivos
+app.post('/delete', async (req, res) => {
+    try {
+        const { path: dirPath, name } = req.body;
+
+        // Valida se os parâmetros foram fornecidos
+        if (!dirPath || !name) {
+            return res.status(400).json({ error: 'Parâmetros inválidos: path ou name ausentes.' });
+        }
+
+        // Constrói o caminho relativo correto
+        const filePath = path.join('.', dirPath, name).replace(/\\/g, '/');
+
+        // Verifica se o arquivo existe
+        await fsp.access(filePath);
+
+        // Remove o arquivo
+        await fsp.unlink(filePath);
+
+        res.status(200).json({ message: 'Arquivo deletado com sucesso.' });
+    } catch (err) {
+        console.error('Erro ao deletar arquivo:', err);
+
+        if (err.code === 'ENOENT') {
+            // Arquivo não encontrado
+            return res.status(404).json({ error: 'Arquivo não encontrado.' });
+        }
+
+        res.status(500).json({ error: 'Erro ao deletar arquivo.' });
+    }
+});
+
+
 // Criar servidores HTTP e HTTPS
 const httpServer = http.createServer(app);
-const httpsServer = https.createServer({
-  key: fs.readFileSync('privkey.pem'),
-  cert: fs.readFileSync('fullchain.pem')
-}, app);
+
 
 // Iniciar o servidor
 httpServer.listen(80, hostname, () => {
   console.log(`Servidor HTTP rodando em http://${hostname}`);
 });
 
-httpsServer.listen(443, hostname, () => {
-  console.log(`Servidor HTTPS rodando em https://${hostname}`);
-});
 
 process.on('uncaughtException', (err) => {
   console.error('Erro não tratado:', err);
@@ -113,8 +160,4 @@ app.use((err, req, res, next) => {
 
 httpServer.on('error', (err) => {
   console.error('Erro no servidor HTTP:', err);
-});
-
-httpsServer.on('error', (err) => {
-  console.error('Erro no servidor HTTPS:', err);
 });

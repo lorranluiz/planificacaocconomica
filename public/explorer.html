@@ -56,7 +56,7 @@
             data.files.forEach(item => {
                 const listItem = document.createElement('li');
                 const link = document.createElement('a');
-                link.textContent = item.name;
+                link.textContent = item.name + (item.isDirectory ? '/' : '');
 
                 if (item.isDirectory) {
                     link.href = '#';
@@ -69,6 +69,18 @@
                 }
 
                 listItem.appendChild(link);
+
+                if (!item.isDirectory) {
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = '[-]';
+                    deleteButton.onclick = () => {
+                        if (confirm(`Are you sure you want to delete ${item.name}?`)) {
+                            deleteFile(item.name);
+                        }
+                    };
+                    listItem.appendChild(deleteButton);
+                }
+
                 fileList.appendChild(listItem);
             });
         }
@@ -76,6 +88,22 @@
         // Navigate to a specific path
         function navigateTo(path) {
             fetchFiles(path);
+        }
+
+        // Handle file deletion
+        async function deleteFile(fileName) {
+            const response = await fetch('/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ path: currentPath, name: fileName })
+            });
+
+            if (response.ok) {
+                alert('File deleted successfully!');
+                fetchFiles(currentPath);
+            } else {
+                alert('Failed to delete file.');
+            }
         }
 
         // Handle file upload
