@@ -1,11 +1,18 @@
 const fs = require('fs');
 const http = require('http');
+const https = require('https');
 const express = require('express');
 const fsp = require('fs').promises; // Usa o módulo de promessas do fs
 const path = require('path');
 const cors = require('cors');
 const multer = require('multer'); // Biblioteca para upload de arquivos
 const hostname = '0.0.0.0';
+
+// Caminhos para os certificados SSL
+const sslOptions = {
+  key: fs.readFileSync('/live/planecon.xyz/privkey.pem'),
+  cert: fs.readFileSync('/live/planecon.xyz/fullchain.pem'),
+};
 
 const app = express();
 
@@ -137,11 +144,15 @@ app.post('/delete', async (req, res) => {
 
 // Criar servidores HTTP e HTTPS
 const httpServer = http.createServer(app);
+const httpsServer = https.createServer(sslOptions, app);
 
 
 // Iniciar o servidor
 httpServer.listen(80, hostname, () => {
   console.log(`Servidor HTTP rodando em http://${hostname}`);
+});
+httpsServer.listen(443, hostname, () => {
+  console.log(`Servidor HTTPS rodando em https://${hostname}`);
 });
 
 
