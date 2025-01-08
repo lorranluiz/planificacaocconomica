@@ -10,8 +10,8 @@ const hostname = '0.0.0.0';
 
 // Caminhos para os certificados SSL
 const sslOptions = {
-  key: fs.readFileSync('/live/planecon.xyz/privkey.pem'),
-  cert: fs.readFileSync('/live/planecon.xyz/fullchain.pem'),
+  key: fs.readFileSync(path.join(__dirname, 'live/planecon.xyz/privkey.pem')),
+  cert: fs.readFileSync(path.join(__dirname, 'live/planecon.xyz/fullchain.pem')),
 };
 
 const app = express();
