@@ -6,12 +6,50 @@ const fsp = require('fs').promises; // Usa o módulo de promessas do fs
 const path = require('path');
 const cors = require('cors');
 const multer = require('multer'); // Biblioteca para upload de arquivos
+const selfsigned = require('selfsigned'); // Adicione esta linha
 const hostname = '0.0.0.0';
+const PRODUCTION_DOMAIN = 'planecon.xyz';
 
-// Caminhos para os certificados SSL
-const sslOptions = {
-  key: fs.readFileSync(path.join(__dirname, 'live/planecon.xyz/privkey.pem')),
-  cert: fs.readFileSync(path.join(__dirname, 'live/planecon.xyz/fullchain.pem')),
+// Função para gerar certificados auto-assinados
+function generateSelfSignedCerts() {
+  const attrs = [{ name: 'commonName', value: 'localhost' }];
+  const pems = selfsigned.generate(attrs, {
+    algorithm: 'sha256',
+    days: 30,
+    keySize: 2048,
+  });
+  return {
+    key: pems.private,
+    cert: pems.cert
+  };
+}
+
+// Função para determinar se está rodando em localhost
+function isLocalEnvironment(req) {
+  const host = req.get('host') || '';
+  return !host.includes(PRODUCTION_DOMAIN) && 
+         (host.includes('localhost') || 
+          host.includes('127.0.0.1') || 
+          process.env.NODE_ENV === 'development');
+}
+
+// Configure as opções SSL de forma dinâmica
+let productionSSL = null;
+try {
+  productionSSL = {
+    key: fs.readFileSync(path.join(__dirname, 'live/planecon.xyz/privkey.pem')),
+    cert: fs.readFileSync(path.join(__dirname, 'live/planecon.xyz/fullchain.pem')),
+  };
+} catch (error) {
+  console.log('Certificados de produção não encontrados, usando apenas certificados locais');
+}
+
+// Middleware para escolher o certificado baseado na requisição
+const getSSLOptions = (req) => {
+  if (isLocalEnvironment(req)) {
+    return generateSelfSignedCerts();
+  }
+  return productionSSL;
 };
 
 const app = express();
@@ -142,9 +180,16 @@ app.post('/delete', async (req, res) => {
 });
 
 
-// Criar servidores HTTP e HTTPS
+// Criar servidores HTTP e HTTPS com certificados dinâmicos
 const httpServer = http.createServer(app);
-const httpsServer = https.createServer(sslOptions, app);
+const httpsServer = https.createServer((req, socket, head) => {
+  const sslOptions = getSSLOptions(req);
+  const secureServer = https.createServer(sslOptions, app);
+  secureServer.emit('connection', socket);
+  socket.on('data', (data) => {
+    secureServer.emit('connection', socket);
+  });
+}, app);
 
 
 // Iniciar o servidor
