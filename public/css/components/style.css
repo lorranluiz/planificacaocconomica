@@ -7,9 +7,9 @@
 
 @font-face {
     font-family: 'Ethnocentric Rg';
-    src: url('Ethnocentric Rg.woff2') format('woff2'),
-         url('Ethnocentric Rg.woff') format('woff'),
-         url('Ethnocentric Rg.ttf') format('truetype');
+    src: url('fonts/Ethnocentric Rg.woff2') format('woff2'),
+         url('fonts/Ethnocentric Rg.woff') format('woff'),
+         url('fonts/Ethnocentric Rg.ttf') format('truetype');
     font-display: swap; /* Garante que o texto é exibido enquanto a fonte carrega */
 }
         
