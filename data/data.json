@@ -2058,7 +2058,7 @@
     "finalDemand": [
       1,
       10.65,
-      0,
+      555,
       6.57,
       5,
       2.17,
@@ -2079,7 +2079,7 @@
         "productionTime": 0.4,
         "nightShift": true,
         "weeklyScale": 1,
-        "productionGoal": 33980.79504968907
+        "productionGoal": 209337.90995107114
       },
       "3": {
         "workerLimit": 500,
@@ -2087,46 +2087,47 @@
         "productionTime": 0.3,
         "nightShift": true,
         "weeklyScale": 2,
-        "productionGoal": 38785.18069190055
+        "productionGoal": 249994.68989996598
       },
       "4": {
         "workerLimit": 1300,
         "workerHours": 3.42,
         "productionTime": 0.23,
         "nightShift": true,
-        "weeklyScale": 2
+        "weeklyScale": 2,
+        "productionGoal": 192925.2495024205
       }
     },
     "optimizationResults": {
       "1": {
-        "totalHours": 13592.318019875629,
-        "workersNeeded": 6797,
+        "totalHours": 83735.16398042846,
+        "workersNeeded": 41868,
         "factoriesNeeded": 1,
-        "totalShifts": 68,
-        "minimumProductionTime": 238,
-        "totalEmploymentPeriod": "1 mês, 4 dias",
+        "totalShifts": 419,
+        "minimumProductionTime": 1466,
+        "totalEmploymentPeriod": "7 meses",
         "weeklyScale": 1,
-        "plannedFinalDemand": 33980
+        "plannedFinalDemand": 209340
       },
       "3": {
-        "totalHours": 11635.554207570163,
-        "workersNeeded": 2909,
+        "totalHours": 74998.4069699898,
+        "workersNeeded": 18750,
         "factoriesNeeded": 2,
-        "totalShifts": 12,
-        "minimumProductionTime": 21,
-        "totalEmploymentPeriod": "6 dias",
+        "totalShifts": 75,
+        "minimumProductionTime": 132,
+        "totalEmploymentPeriod": "1 mês, 1 semana, 1 dia",
         "weeklyScale": 2,
-        "plannedFinalDemand": 38790
+        "plannedFinalDemand": 249990
       },
       "4": {
-        "totalHours": 6347.276093799499,
-        "workersNeeded": 928,
+        "totalHours": 44372.80738555672,
+        "workersNeeded": 6488,
         "factoriesNeeded": 2,
-        "totalShifts": 2,
-        "minimumProductionTime": 3,
-        "totalEmploymentPeriod": "1 dias",
+        "totalShifts": 10,
+        "minimumProductionTime": 18,
+        "totalEmploymentPeriod": "5 dias",
         "weeklyScale": 2,
-        "plannedFinalDemand": 27600
+        "plannedFinalDemand": 192930
       }
     },
     "setorUnidade": "",
@@ -2176,7 +2177,7 @@
       "0.2",
       "0.2"
     ],
-    "totalSocialWorkDessaJurisdicao": 699.4856000000001,
+    "totalSocialWorkDessaJurisdicao": 0,
     "comiteAssociadoDeTrabalhador": "",
     "associacaoDeMoradoresAssociadaDeTrabalhador": "",
     "partipacaoIndividualEstimadaNoTrabalhoSocial": 0,
@@ -7184,8 +7185,8 @@
     "totalSocialWorkDessaJurisdicao": 0,
     "comiteAssociadoDeTrabalhador": "Comitê de Fábrica da Mercedes-Benz",
     "associacaoDeMoradoresAssociadaDeTrabalhador": "Associação de Moradores da Estrada União e Indústria",
-    "partipacaoIndividualEstimadaNoTrabalhoSocial": 0.012571638785193046,
-    "hoursAtElectronicPoint": 90,
+    "partipacaoIndividualEstimadaNoTrabalhoSocial": 0.012711323660584079,
+    "hoursAtElectronicPoint": 91,
     "effectivelyPlannedProductionTime": 0
   },
   "Conselho Popular Regional Estadual Metropolitano do Amazonas": {
