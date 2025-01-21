@@ -721,7 +721,7 @@ if (!user.instancePrepositionJurisdictionUUID.includes("Distrital") && !user.ins
 				
                     // Cálculo da matriz tecnológica
                     matrix.inputTable[matrixProductIndex].forEach((value, sectorIndex) => {
-                        const sectorName = `Produção de ${matrix.productNames[sectorIndex]}`;
+                        const sectorName = matrix.productNames[sectorIndex].includes("Rede") ? matrix.productNames[sectorIndex] : `Produção de ${matrix.productNames[sectorIndex]}`;
                         const key = `${productName}:${sectorName}`;
                         if (!averagedMatrix[key]) {
                             averagedMatrix[key] = { sum: 0, count: 0 };
@@ -857,7 +857,7 @@ if (!user.instancePrepositionJurisdictionUUID.includes("Distrital") && !user.ins
             const sectorHeader = document.createElement('th');
             const sectorInput = document.createElement('input');
             sectorInput.type = 'text';
-            sectorInput.value = `Produção de ${productName}`;
+            sectorInput.value = productName.includes("Rede") ? productName : `Produção de ${productName}`;
             sectorInput.readOnly = true;
             addTooltipBehavior(sectorInput); // Adiciona o comportamento de tooltip
             sectorHeader.appendChild(sectorInput);
@@ -880,7 +880,7 @@ if (!user.instancePrepositionJurisdictionUUID.includes("Distrital") && !user.ins
                 const correspondingHeader = thead.querySelectorAll('th')[rowIndex + 1]; // +1 para ignorar a coluna de produtos
                 if (correspondingHeader) {
                     const headerInput = correspondingHeader.querySelector('input');
-                    headerInput.value = `Produção de ${productInput.value}`;
+                    headerInput.value = productInput.value.includes("Rede") ? productInput.value : `Produção de ${productInput.value}`;
                 }
             };
 
@@ -899,7 +899,7 @@ if (!user.instancePrepositionJurisdictionUUID.includes("Distrital") && !user.ins
                 input.type = 'number';
                 input.readOnly = true;
 
-                const key = `${productName}:Produção de ${targetProductName}`;
+                const key = `${productName}:${targetProductName.includes("Rede") ? targetProductName : `Produção de ${targetProductName}`}`;
                 input.value = averagedMatrix[key] !== undefined ? averagedMatrix[key].toFixed(2) : 0;
                 cell.appendChild(input);
                 addHighlightBehavior(cell); // Adiciona o comportamento de destaque

@@ -13,7 +13,7 @@ function populateInitialTable() {
         const sectorHeader = document.createElement('th');
         const sectorInput = document.createElement('input');
         sectorInput.type = 'text';
-        sectorInput.value = `Produção de ${colIndex < initialRows ? productNames[colIndex] : "Outro"}`; 
+        sectorInput.value = colIndex < initialRows && productNames[colIndex].includes("Rede") ? productNames[colIndex] : `Produção de ${colIndex < initialRows ? productNames[colIndex] : "Outro"}`;
         sectorInput.readOnly = true; // Define como apenas leitura
         addTooltipBehavior(sectorInput); // Adiciona o comportamento de tooltip
         sectorHeader.appendChild(sectorInput);
@@ -67,7 +67,7 @@ function resizeTable() {
         const sectorHeader = document.createElement('th');
         const sectorInput = document.createElement('input');
         sectorInput.type = 'text';
-        sectorInput.value = previousSectorNames[j] || `Produção de ${inputNames[j % inputNames.length]}`;
+        sectorInput.value = previousSectorNames[j] || (inputNames[j % inputNames.length].includes('Rede') ? `${inputNames[j % inputNames.length]}` : `Produção de ${inputNames[j % inputNames.length]}`);
         sectorInput.readOnly = true;
         addTooltipBehavior(sectorInput); // Adiciona o comportamento de tooltip
         sectorHeader.appendChild(sectorInput);
@@ -492,7 +492,7 @@ function populateTechMatrix(techMatrix, productNames) {
         const sectorHeader = document.createElement('th');
         const sectorInput = document.createElement('input');
         sectorInput.type = 'text';
-        sectorInput.value = `Produção de ${productName}`;
+        sectorInput.value = productName.includes('Rede') ? productName : `Produção de ${productName}`;
         sectorInput.readOnly = true; // Define como apenas leitura
         addTooltipBehavior(sectorInput); // Adiciona o comportamento de tooltip
         sectorHeader.appendChild(sectorInput);
@@ -572,7 +572,7 @@ function updateColumnTitles(productNames) {
         if (columnHeader) {
             const input = columnHeader.querySelector('input');
             if (input) {
-                input.value = `Produção de ${productName}`; // Atualiza o título
+                input.value = productName.includes('Rede') ? productName : `Produção de ${productName}`; // Atualiza o título
                 input.readOnly = true; // Configura como somente leitura
                 addTooltipBehavior(input); // Adiciona o comportamento de tooltip
             }

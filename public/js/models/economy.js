@@ -230,7 +230,7 @@ function updateDemandAndGoal() {
                     // Filtrar as unidades de produção do setor atual
                     const filteredRecords = Object.values(record).filter(item =>
                         item.conselhoPopularAssociadoDeComiteOuTrabalhador === instanceKey &&
-                        item.setorUnidade === `Produção de ${targetProduct}`
+                        item.setorUnidade === (targetProduct.includes('Rede') ? targetProduct : `Produção de ${targetProduct}`)
                     );
 
                     // Calcular o totalEffectiveWorkersLimit

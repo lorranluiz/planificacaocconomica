@@ -54,13 +54,17 @@ const getSSLOptions = (req) => {
 
 const app = express();
 
-// Middleware para interpretar JSON no corpo da requisição
-app.use(express.json());
+// Aumenta o limite do body-parser para o app principal
+app.use(express.json({limit: '50mb'}));
+app.use(express.urlencoded({limit: '50mb', extended: true}));
 
 // Middleware para subrota
 const jsonServerApp = express();
 jsonServerApp.use(cors());
-jsonServerApp.use(express.json({ limit: '1000mb' }));
+
+// Aumenta o limite também para o jsonServerApp
+jsonServerApp.use(express.json({limit: '50mb'}));
+jsonServerApp.use(express.urlencoded({limit: '50mb', extended: true}));
 
 // Servir arquivos estáticos da pasta "public"
 app.use(express.static(path.join(__dirname, 'public')));
