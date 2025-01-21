@@ -80,7 +80,7 @@ function fetchDataFromJsonBin() {
                 if(user.instancePrepositionJurisdictionUUID.includes("WorkerUUID")){
                     //Trabalhador não conselheiro
 
-                    document.getElementById("conselhoPopularAssociadoDeComiteOuTrabalhadorTelaTrabalhador").value = instanceData.conselhoPopularAssociadoDeComiteOuTrabalhador;
+                    document.getElementById("conselhoPopularAssociadoDeComiteOuTrabalhador").value = instanceData.conselhoPopularAssociadoDeComiteOuTrabalhador;
                     document.getElementById("comiteAssociadoDeTrabalhador").value = instanceData.comiteAssociadoDeTrabalhador;
                     document.getElementById("associacaoDeMoradoresAssociadaDeTrabalhador").value = instanceData.associacaoDeMoradoresAssociadaDeTrabalhador;
                     document.getElementById("hoursAtElectronicPoint").value = Number(instanceData.hoursAtElectronicPoint);
@@ -90,36 +90,30 @@ function fetchDataFromJsonBin() {
                     
                     document.getElementById("partipacaoIndividualEstimadaNoTrabalhoSocial").value = ((instanceData.hoursAtElectronicPoint/totalSocialWork)*Number("1e13")).toFixed(2);
                     
-                    // Pegue a tabela com "id=estoqueDemandaTable" e popule ela com os dados carregados no vetor "worldSectorNames"
+                    // Modificar a parte onde as tabelas são populadas
                     const bensDeConsumoTableBody = document.querySelector("#bensDeConsumoTable tbody");
                     const servicosTableBody = document.querySelector("#servicosTable tbody");
 
-                    // Limpar as tabelas antes de preencher
-                    bensDeConsumoTableBody.innerHTML = "";
-                    servicosTableBody.innerHTML = "";
+                    // Arrays para armazenar os itens disponíveis
+                    const bensDeConsumoItems = [];
+                    const servicosItems = [];
 
+                    // Separar os itens em suas respectivas categorias
                     worldSectorNames.forEach((item) => {
-                        const row = document.createElement("tr");
-
-                        const nameCell = document.createElement("td");
-                        // Remover "Produção de" se presente
-                        nameCell.textContent = item.includes("Produção") ? item.replace("Produção de ", "") : item;
-
-                        const demandaCell = document.createElement("td");
-                        const demandaInput = document.createElement("input");
-                        demandaInput.type = "number";
-                        demandaCell.appendChild(demandaInput);
-
-                        row.appendChild(nameCell);
-                        row.appendChild(demandaCell);
-
                         if (item.includes("Produção")) {
-                            bensDeConsumoTableBody.appendChild(row);
+                            bensDeConsumoItems.push(item);
                         } else {
-                            servicosTableBody.appendChild(row);
+                            servicosItems.push(item);
                         }
                     });
 
+                    // Limpar as tabelas
+                    bensDeConsumoTableBody.innerHTML = "";
+                    servicosTableBody.innerHTML = "";
+
+                    // Criar apenas os campos de busca para ambas as tabelas
+                    createSearchRow(bensDeConsumoTableBody, bensDeConsumoItems, true);
+                    createSearchRow(servicosTableBody, servicosItems, false);
 
                 }else{
                     //Conselheiro
@@ -570,4 +564,71 @@ function collectAllData() {
         optimizationResults, // Resultados da planificação (objeto global)
         instancePrepositionJurisdictionUUID			//Instância + Preposição + Jurisdição
     };
+}
+
+function createSearchRow(tableBody, items, isProducao) {
+    // Criar linha de busca
+    const searchRow = document.createElement("tr");
+    const searchCell = document.createElement("td");
+    const searchInput = document.createElement("input");
+    searchInput.type = "text";
+    searchInput.placeholder = "Digite para buscar...";
+    searchCell.appendChild(searchInput);
+    searchRow.appendChild(searchCell);
+    searchRow.appendChild(document.createElement("td")); // Célula vazia para manter alinhamento
+    tableBody.appendChild(searchRow);
+
+    // Array para armazenar itens já adicionados
+    const addedItems = new Set();
+
+    // Função para adicionar item na tabela
+    function addItemToTable(item) {
+        if (addedItems.has(item)) return;
+        
+        const row = document.createElement("tr");
+        
+        const nameCell = document.createElement("td");
+        const removeBtn = document.createElement("span");
+        removeBtn.textContent = "[-] ";
+        removeBtn.style.cursor = "pointer";
+        removeBtn.style.color = "red";
+        removeBtn.onclick = () => {
+            row.remove();
+            addedItems.delete(item);
+        };
+        
+        const itemName = item.includes("Produção") ? item.replace("Produção de ", "") : item;
+        nameCell.appendChild(removeBtn);
+        nameCell.appendChild(document.createTextNode(itemName));
+
+        const demandaCell = document.createElement("td");
+        const demandaInput = document.createElement("input");
+        demandaInput.type = "number";
+        demandaCell.appendChild(demandaInput);
+
+        row.appendChild(nameCell);
+        row.appendChild(demandaCell);
+        tableBody.appendChild(row);
+        addedItems.add(item);
+    }
+
+    // Filtrar e mostrar sugestões
+    let currentSuggestions = [];
+    searchInput.addEventListener("input", (e) => {
+        const searchText = e.target.value.toLowerCase();
+        currentSuggestions = items.filter(item => 
+            !addedItems.has(item) && 
+            (item.toLowerCase().includes(searchText) || 
+             item.replace("Produção de ", "").toLowerCase().includes(searchText))
+        );
+    });
+
+    // Lidar com tecla Enter
+    searchInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && currentSuggestions.length > 0) {
+            addItemToTable(currentSuggestions[0]);
+            searchInput.value = "";
+            currentSuggestions = [];
+        }
+    });
 }
