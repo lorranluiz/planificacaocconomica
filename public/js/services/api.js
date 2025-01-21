@@ -80,7 +80,7 @@ function fetchDataFromJsonBin() {
                 if(user.instancePrepositionJurisdictionUUID.includes("WorkerUUID")){
                     //Trabalhador não conselheiro
 
-                    document.getElementById("conselhoPopularAssociadoDeComiteOuTrabalhador").value = instanceData.conselhoPopularAssociadoDeComiteOuTrabalhador;
+                    document.getElementById("conselhoPopularAssociadoDeComiteOuTrabalhadorTelaTrabalhador").value = instanceData.conselhoPopularAssociadoDeComiteOuTrabalhador;
                     document.getElementById("comiteAssociadoDeTrabalhador").value = instanceData.comiteAssociadoDeTrabalhador;
                     document.getElementById("associacaoDeMoradoresAssociadaDeTrabalhador").value = instanceData.associacaoDeMoradoresAssociadaDeTrabalhador;
                     document.getElementById("hoursAtElectronicPoint").value = Number(instanceData.hoursAtElectronicPoint);
