@@ -570,18 +570,37 @@ function createSearchRow(tableBody, items, isProducao) {
     // Criar linha de busca
     const searchRow = document.createElement("tr");
     const searchCell = document.createElement("td");
+    const searchContainer = document.createElement("div");
+    searchContainer.style.position = "relative";
+    
     const searchInput = document.createElement("input");
     searchInput.type = "text";
     searchInput.placeholder = "Digite para buscar...";
-    searchCell.appendChild(searchInput);
+    
+    // Criar dropdown para autocomplete
+    const dropdown = document.createElement("div");
+    dropdown.style.cssText = `
+        position: absolute;
+        width: 100%;
+        max-height: 200px;
+        overflow-y: auto;
+        background: rgba(100, 0, 0, 0.8);
+        border: 1px solid rgba(255, 255, 255, 0.6);
+        border-top: none;
+        z-index: 1000;
+        display: none;
+    `;
+
+    searchContainer.appendChild(searchInput);
+    searchContainer.appendChild(dropdown);
+    searchCell.appendChild(searchContainer);
     searchRow.appendChild(searchCell);
-    searchRow.appendChild(document.createElement("td")); // Célula vazia para manter alinhamento
+    searchRow.appendChild(document.createElement("td")); // Célula vazia para alinhamento
     tableBody.appendChild(searchRow);
 
     // Array para armazenar itens já adicionados
     const addedItems = new Set();
 
-    // Função para adicionar item na tabela
     function addItemToTable(item) {
         if (addedItems.has(item)) return;
         
@@ -612,23 +631,67 @@ function createSearchRow(tableBody, items, isProducao) {
         addedItems.add(item);
     }
 
-    // Filtrar e mostrar sugestões
-    let currentSuggestions = [];
-    searchInput.addEventListener("input", (e) => {
-        const searchText = e.target.value.toLowerCase();
-        currentSuggestions = items.filter(item => 
+    // Atualizar dropdown com sugestões
+    function updateDropdown(searchText) {
+        const suggestions = items.filter(item => 
             !addedItems.has(item) && 
-            (item.toLowerCase().includes(searchText) || 
-             item.replace("Produção de ", "").toLowerCase().includes(searchText))
+            (item.toLowerCase().includes(searchText.toLowerCase()) || 
+             item.replace("Produção de ", "").toLowerCase().includes(searchText.toLowerCase()))
         );
+
+        if (suggestions.length > 0 && searchText) {
+            dropdown.innerHTML = "";
+            dropdown.style.display = "block";
+            
+            suggestions.forEach(suggestion => {
+                const div = document.createElement("div");
+                div.textContent = suggestion.includes("Produção") ? 
+                    suggestion.replace("Produção de ", "") : 
+                    suggestion;
+                div.style.cssText = `
+                    padding: 8px;
+                    cursor: pointer;
+                    hover: background-color: rgba(255, 255, 255, 0.6);
+                `;
+                div.onmouseover = () => div.style.backgroundColor = rgba(255, 255, 255, 0.6);
+                div.onmouseout = () => div.style.backgroundColor = rgba(100, 0, 0, 0.5);
+                div.onclick = () => {
+                    addItemToTable(suggestion);
+                    searchInput.value = "";
+                    dropdown.style.display = "none";
+                };
+                dropdown.appendChild(div);
+            });
+        } else {
+            dropdown.style.display = "none";
+        }
+    }
+
+    // Event listeners
+    searchInput.addEventListener("input", (e) => {
+        updateDropdown(e.target.value);
     });
 
-    // Lidar com tecla Enter
     searchInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" && currentSuggestions.length > 0) {
-            addItemToTable(currentSuggestions[0]);
-            searchInput.value = "";
-            currentSuggestions = [];
+        if (e.key === "Enter" && dropdown.children.length > 0) {
+            const firstSuggestion = dropdown.children[0].textContent;
+            const originalItem = items.find(item => 
+                item.includes("Produção") ? 
+                item.replace("Produção de ", "") === firstSuggestion : 
+                item === firstSuggestion
+            );
+            if (originalItem) {
+                addItemToTable(originalItem);
+                searchInput.value = "";
+                dropdown.style.display = "none";
+            }
+        }
+    });
+
+    // Fechar dropdown quando clicar fora
+    document.addEventListener("click", (e) => {
+        if (!searchContainer.contains(e.target)) {
+            dropdown.style.display = "none";
         }
     });
 }
