@@ -33,6 +33,7 @@ let userIsLoggedIn = false;
 			let modalContext = null;
 			let conselhoMundialKey = "Conselho Popular Intercontinental da Terra";
 			let totalSocialWork = 0;
+            let worldSectorNames = [];
 			let totalSocialWorkDessaJurisdicao = 0;
 			let effectivelyPlannedProductionTime = 0;
 			

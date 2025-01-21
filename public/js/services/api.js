@@ -60,6 +60,7 @@ function fetchDataFromJsonBin() {
                 }
 
                 totalSocialWork = record[conselhoMundialKey]?.totalSocialWorkDessaJurisdicao || "Ainda não há registro mundial de trabalho social total.";
+                worldSectorNames = record[conselhoMundialKey]?.sectorNames || "Ainda não há registro mundial de setores de produção.";
 
                 // Executar a função de redimensionar tabela
                 resizeTable();
@@ -89,6 +90,37 @@ function fetchDataFromJsonBin() {
                     
                     document.getElementById("partipacaoIndividualEstimadaNoTrabalhoSocial").value = ((instanceData.hoursAtElectronicPoint/totalSocialWork)*Number("1e13")).toFixed(2);
                     
+                    // Pegue a tabela com "id=estoqueDemandaTable" e popule ela com os dados carregados no vetor "worldSectorNames"
+                    const bensDeConsumoTableBody = document.querySelector("#bensDeConsumoTable tbody");
+                    const servicosTableBody = document.querySelector("#servicosTable tbody");
+
+                    // Limpar as tabelas antes de preencher
+                    bensDeConsumoTableBody.innerHTML = "";
+                    servicosTableBody.innerHTML = "";
+
+                    worldSectorNames.forEach((item) => {
+                        const row = document.createElement("tr");
+
+                        const nameCell = document.createElement("td");
+                        // Remover "Produção de" se presente
+                        nameCell.textContent = item.includes("Produção") ? item.replace("Produção de ", "") : item;
+
+                        const demandaCell = document.createElement("td");
+                        const demandaInput = document.createElement("input");
+                        demandaInput.type = "number";
+                        demandaCell.appendChild(demandaInput);
+
+                        row.appendChild(nameCell);
+                        row.appendChild(demandaCell);
+
+                        if (item.includes("Produção")) {
+                            bensDeConsumoTableBody.appendChild(row);
+                        } else {
+                            servicosTableBody.appendChild(row);
+                        }
+                    });
+
+
                 }else{
                     //Conselheiro
                     

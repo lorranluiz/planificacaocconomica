@@ -545,17 +545,35 @@
 
 	<div id="pedidosDeRetirada" class="input-section">
 		<h2>Pedidos de Retirada</h2>
-		<table id="estoqueDemandaTable">
-			<thead>
-				<tr>
-					<th>Bem de Consumo ou Serviço</th>
-					<th>Demanda (dividir por mil quando salvar e multiplicar por mil ao carregar na tela)</th>
-				</tr>
-			</thead>
-			<tbody>
-				<!-- Linhas preenchidas dinamicamente -->
-			</tbody>
-		</table>
+		
+		<div style="display: flex; align-items: flex-start; gap: 20px;">
+			<table id="bensDeConsumoTable" style="table-layout: auto; width: auto;">
+				<thead>
+					<tr>
+						<th style="padding: 5px;">Bem de Consumo</th>
+						<!-- ATENÇÃO: DEMANDA: Dividir por mil quando salvar e multiplicar por mil ao carregar na tela -->
+						<th style="padding: 5px;">Demanda</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!-- Linhas preenchidas dinamicamente -->
+				</tbody>
+			</table>
+
+			<table id="servicosTable" style="table-layout: auto; width: auto;">
+				<thead>
+					<tr>
+						<th style="padding: 5px;">Serviços</th>
+						<!-- ATENÇÃO: DEMANDA: Dividir por mil quando salvar e multiplicar por mil ao carregar na tela -->
+						<th style="padding: 5px;">Demanda</th>
+					</tr>
+				</thead>
+				<tbody>
+					<!-- Linhas preenchidas dinamicamente -->
+				</tbody>
+			</table>
+		</div>
+
 	</div>
 	
 	
