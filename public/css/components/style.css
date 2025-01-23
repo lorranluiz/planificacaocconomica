@@ -128,3 +128,24 @@ user-select: none; /* Desativa a seleção */
     margin-top:30px;
     border: 1px solid #ccc;
 }
+
+#bensDeConsumoTable, #servicosTable {
+    margin: 0 auto; /* Centraliza a tabela horizontalmente */
+    width: 50%; /* Define a largura da tabela para 50% da página */
+    table-layout: fixed; /* Garante que as células usem a largura total da tabela */
+}
+
+#bensDeConsumoTable th, #bensDeConsumoTable td, 
+#servicosTable th, #servicosTable td {
+    text-align: center; /* Centraliza o texto dentro das células */
+    padding: 10px; /* Adiciona espaçamento interno às células */
+    width: 50%; /* Define a largura das células */
+}
+
+#bensDeConsumoTable th, #servicosTable th {
+    width: 50%; /* Define a largura das células do cabeçalho */
+}
+
+#bensDeConsumoTable td, #servicosTable td {
+    width: 50%; /* Permite que as células usem a largura disponível */
+}

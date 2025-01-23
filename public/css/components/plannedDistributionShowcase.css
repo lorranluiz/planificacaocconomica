@@ -18,3 +18,8 @@
     justify-content: center;
     flex-wrap: wrap;
 }
+
+
+#card {
+    cursor: pointer;
+}

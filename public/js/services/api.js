@@ -84,7 +84,7 @@ function fetchDataFromJsonBin() {
                     document.getElementById("comiteAssociadoDeTrabalhador").value = instanceData.comiteAssociadoDeTrabalhador;
                     document.getElementById("associacaoDeMoradoresAssociadaDeTrabalhador").value = instanceData.associacaoDeMoradoresAssociadaDeTrabalhador;
                     document.getElementById("hoursAtElectronicPoint").value = Number(instanceData.hoursAtElectronicPoint);
-                    document.getElementById("totalSocialWork").value = totalSocialWork;
+                    //document.getElementById("totalSocialWork").value = totalSocialWork;
                     
                     console.log(`hoursAtElectronicPoint/totalSocialWork: ${instanceData.hoursAtElectronicPoint}/${totalSocialWork} = ${instanceData.hoursAtElectronicPoint/totalSocialWork}`);
                     
@@ -546,7 +546,11 @@ function createSearchRow(tableBody, items, isProducao) {
     const searchCell = document.createElement("td");
     const searchContainer = document.createElement("div");
     searchContainer.style.position = "relative";
-    
+    searchContainer.style.alignContent = "center";
+    searchContainer.style.alignItems = "center";
+    searchContainer.style.justifyContent = "center";
+    searchContainer.style.alignSelf = "center";
+    searchContainer.style.width = "500px";
     const searchInput = document.createElement("input");
     searchInput.type = "text";
     searchInput.placeholder = "Digite para buscar...";

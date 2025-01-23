@@ -487,26 +487,6 @@
 
 	<div id="trabalhador">
 	
-	Tela de Trabalhador <br/><br/>
-	Trabalho Social Total: <input id="totalSocialWork" /> <br/>
-	
-	Participação Social no Trabalho Social (0,01% 0,001: ${percentualTrabalhoSocialDoTrabalhador}
-	Lista de Produtos do Conselho Associado à sua Associação de Moradores: <br/>
-	<span id="produtosParaConsumoDoTrabalhador">
-	- Produto 1 (${percentualTrabalhoSocialProduto[1]}) <br/>
-	- Produto 2 (${percentualTrabalhoSocialProduto[2]}) <br/>
-	</span>
-	
-	<br/><br/>
-	
-	Onde<br/>
-	- ${percentualTrabalhoSocialDoTrabalhador} = ${horasTrabalhadasDoTrabalhador/totalSocialWork} <br/>
-	- ${percentualTrabalhoSocialProduto[1]} =  ${horaTrabalhadaPraProduzir1UnidadeDoProduto/totalSocialWork} <br/>
-	<br/>
-	- -${horasTrabalhadasDoTrabalhador} vir de um campo "Horas no Ponto Eletrônico: <input id="horasTrabalhadasDoTrabalhador" />".<br/>
-	
-	
-	
 	<div id="workCertificateSection">
 		
 		<div id="workCertificateSection">
@@ -551,8 +531,8 @@
 			<button id="tabServicos" class="btn btn-primary">Serviços</button>
 		</div>
 
-		<div style="display: flex; align-items: flex-start; gap: 20px;">
-			<table id="bensDeConsumoTable" style="table-layout: auto; width: auto;" class="bensDeConsumoDistribuicaoClass">
+		<div>
+			<table id="bensDeConsumoTable" class="bensDeConsumoDistribuicaoClass">
 				<thead>
 					<tr>
 						<th style="padding: 5px;">Bem de Consumo</th>
@@ -565,7 +545,7 @@
 				</tbody>
 			</table>
 
-			<table id="servicosTable" style="table-layout: auto; width: auto;" class="servicosDistribuicaoClass">
+			<table id="servicosTable" class="servicosDistribuicaoClass">
 				<thead>
 					<tr>
 						<th style="padding: 5px;">Serviços</th>

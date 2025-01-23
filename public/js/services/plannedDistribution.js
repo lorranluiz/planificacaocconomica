@@ -47,6 +47,7 @@ function plannedDistribution(worldSectorNames) {
             } else {
                 card.classList.add('card', 'servicosDistribuicaoClass');
             }
+            card.style.cursor = "pointer";
 
             const img = document.createElement("img");
             img.src = "https://http2.mlstatic.com/D_NQ_NP_994262-MLA78902848202_092024-O.webp";
@@ -65,7 +66,7 @@ function plannedDistribution(worldSectorNames) {
 
             const cardText = document.createElement("p");
             cardText.className = "card-text";
-            cardText.textContent = "Cost: $0.00"; // Valor simbólico
+            cardText.textContent = "Custo Social de Produção: ℳ 1,00"; // Valor de exemplo
 
             const button = document.createElement("button");
             button.className = "btn btn-primary";
