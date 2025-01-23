@@ -115,9 +115,6 @@ function fetchDataFromJsonBin() {
                     createSearchRow(bensDeConsumoTableBody, bensDeConsumoItems, true);
                     createSearchRow(servicosTableBody, servicosItems, false);
 
-                }else{
-                    //Conselheiro
-                    
                 }
 
                 // Ajustar o campo "Setor"
