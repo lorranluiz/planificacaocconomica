@@ -573,8 +573,8 @@ function createSearchRow(tableBody, items, isProducao) {
     tableBody.appendChild(searchRow);
 
     // Array para armazenar itens já adicionados
-    const addedItems = new Set();
-
+    //Por algum motivo essa mesma função em @plannedDistribution.js se chamada aqui não funciona corretamente, mesmo ajustando os parâmetros.
+    //Por isso está duplicada, existe aqui e lá.
     function addItemToTable(item) {
         if (addedItems.has(item)) return;
         
@@ -597,6 +597,7 @@ function createSearchRow(tableBody, items, isProducao) {
         const demandaCell = document.createElement("td");
         const demandaInput = document.createElement("input");
         demandaInput.type = "number";
+        demandaInput.value = 1;
         demandaCell.appendChild(demandaInput);
 
         row.appendChild(nameCell);

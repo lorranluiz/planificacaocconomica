@@ -1,3 +1,5 @@
+let addedItems = new Set();
+
 function plannedDistribution(worldSectorNames) {
     const bensDeConsumoTableBody = document.querySelector("#bensDeConsumoTable tbody");
     const servicosTableBody = document.querySelector("#servicosTable tbody");
@@ -100,11 +102,35 @@ function plannedDistribution(worldSectorNames) {
 
 // Função para adicionar item à tabela
 function addItemToTable(tableBody, item) {
-    const row = document.createElement("tr");
-    const cell = document.createElement("td");
-    cell.textContent = item.replace("Produção de", "");
-    row.appendChild(cell);
-    tableBody.appendChild(row);
+
+    if (addedItems.has(item)) return;
+        
+        const row = document.createElement("tr");
+        
+        const nameCell = document.createElement("td");
+        const removeBtn = document.createElement("span");
+        removeBtn.textContent = "[-] ";
+        removeBtn.style.cursor = "pointer";
+        removeBtn.style.color = "red";
+        removeBtn.onclick = () => {
+            row.remove();
+            addedItems.delete(item);
+        };
+        
+        const itemName = item.includes("Produção") ? item.replace("Produção de ", "") : item;
+        nameCell.appendChild(removeBtn);
+        nameCell.appendChild(document.createTextNode(itemName));
+
+        const demandaCell = document.createElement("td");
+        const demandaInput = document.createElement("input");
+        demandaInput.type = "number";
+        demandaInput.value = 1;
+        demandaCell.appendChild(demandaInput);
+
+        row.appendChild(nameCell);
+        row.appendChild(demandaCell);
+        tableBody.appendChild(row);
+        addedItems.add(item);
 }
 
 // Função para criar a linha de busca
