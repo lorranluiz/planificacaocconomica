@@ -5,7 +5,6 @@ document.write('<script src="js/utils/qrcode.js"></script>');
 
 // Importando services
 document.write('<script src="js/services/auth.js"></script>');
-document.write('<script src="js/services/plannedDistribution.js"></script>');
 document.write('<script src="js/services/api.js"></script>');
 document.write('<script src="js/services/geolocation.js"></script>');
 document.write('<script src="js/services/csv.js"></script>');
