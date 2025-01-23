@@ -41,7 +41,12 @@ function plannedDistribution(worldSectorNames) {
             col.style.marginLeft = "1%"; // Adicionar margem à esquerda para centralizar
 
             const card = document.createElement("div");
-            card.className = "card";
+            
+            if (isBensDeConsumo) {
+                card.classList.add('card', 'bensDeConsumoDistribuicaoClass');
+            } else {
+                card.classList.add('card', 'servicosDistribuicaoClass');
+            }
 
             const img = document.createElement("img");
             img.src = "https://http2.mlstatic.com/D_NQ_NP_994262-MLA78902848202_092024-O.webp";
@@ -98,6 +103,7 @@ function plannedDistribution(worldSectorNames) {
     // Criar o showcase para ambos os tipos de itens
     createProductShowcase(bensDeConsumoItems, true);
     createProductShowcase(servicosItems, false);
+    document.getElementById('tabBensDeConsumo').click(); //Por padrão inicia mostrando os bens de consumo
 }
 
 // Função para adicionar item à tabela
@@ -168,3 +174,21 @@ function updateTableWithSearchResults(tableBody, items, isBensDeConsumo) {
         tableBody.appendChild(row);
     });
 }
+
+document.getElementById('tabBensDeConsumo').addEventListener('click', function() {
+    document.querySelectorAll('.bensDeConsumoDistribuicaoClass').forEach(item => {
+        item.style.display = 'block';
+    });
+    document.querySelectorAll('.servicosDistribuicaoClass').forEach(item => {
+        item.style.display = 'none';
+    });
+});
+
+document.getElementById('tabServicos').addEventListener('click', function() {
+    document.querySelectorAll('.bensDeConsumoDistribuicaoClass').forEach(item => {
+        item.style.display = 'none';
+    });
+    document.querySelectorAll('.servicosDistribuicaoClass').forEach(item => {
+        item.style.display = 'block';
+    });
+});

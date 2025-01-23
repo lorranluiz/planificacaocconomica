@@ -546,8 +546,13 @@
 	<div id="pedidosDeRetirada">
 		<h2>Pedidos de Retirada</h2>
 		
+		<div class="tabs">
+			<button id="tabBensDeConsumo" class="btn btn-primary active">Bens de Consumo</button>
+			<button id="tabServicos" class="btn btn-primary">Serviços</button>
+		</div>
+
 		<div style="display: flex; align-items: flex-start; gap: 20px;">
-			<table id="bensDeConsumoTable" style="table-layout: auto; width: auto;">
+			<table id="bensDeConsumoTable" style="table-layout: auto; width: auto;" class="bensDeConsumoDistribuicaoClass">
 				<thead>
 					<tr>
 						<th style="padding: 5px;">Bem de Consumo</th>
@@ -560,7 +565,7 @@
 				</tbody>
 			</table>
 
-			<table id="servicosTable" style="table-layout: auto; width: auto;">
+			<table id="servicosTable" style="table-layout: auto; width: auto;" class="servicosDistribuicaoClass">
 				<thead>
 					<tr>
 						<th style="padding: 5px;">Serviços</th>
