@@ -1,5 +1,5 @@
 let addedProducts = new Set();
-let numeroAproximadoDeTrabalhadores = 80000; //Ordem de trabalhadores, de teste
+let numeroAproximadoDeTrabalhadores = 1600000; //Ordem de trabalhadores, de teste
 //let numeroAproximadoDeTrabalhadores = 4000000000; //Para quando forem 4 bilhões de trabalhadores
 //Quando tiver cerca de 4 bilhões (4*10^9) de trabalhadores "1e13", ou seja,
 // (nº trabalhadores /4)*10^4 = 1e13 (aproximadamente, quando 4 bilhões de trabalhadores)
@@ -7,14 +7,25 @@ let socialWorkAndCostScale = (numeroAproximadoDeTrabalhadores/4)*10^4;
 let unidade = "ℳ";
 
 class Product {
-  constructor(name = "Nome indefinido", type = "bemDeConsumo", socialCost = 2.00) {
+  constructor(name = "Nome indefinido", type = "bemDeConsumo", socialCost = 1.00, productionTimesOfProducts = 0.01) {
     this.name = name;
     this.type = type;
     this.socialCost = socialCost;
+    this.formatedSocialCost = formatProductSocialCost(socialCost);
+    this.productionTimesOfProducts = productionTimesOfProducts;
   }
 
   clone() {
     return new Product(this.name, this.type, this.socialCost);
+  }
+
+  setProductionTimesOfProducts(productionTimesOfProducts) {
+    this.productionTimesOfProducts = productionTimesOfProducts;
+    this.socialCost = productionTimesOfProducts/totalSocialWork;
+    this.formatedSocialCost = formatProductSocialCost(this.socialCost);
+
+    console.info("instancia de Product->socialCost: ");
+    console.log(this.socialCost);
   }
 }
 
@@ -36,13 +47,13 @@ function plannedDistribution(worldSectorNames, productionTimesOfProducts) {
             let bemDeConsumo = new Product();
             bemDeConsumo.type = "bemDeConsumo";
             bemDeConsumo.name = itemSectorName.replace("Produção de", "");
-            bemDeConsumo.socialCost = productionTimesOfProducts[index];
+            bemDeConsumo.setProductionTimesOfProducts(productionTimesOfProducts[index]);
             bensDeConsumoProducts.push(bemDeConsumo);
         } else {
             let servico = new Product();
             servico.type = "servico";
             servico.name = itemSectorName;
-            servico.socialCost = productionTimesOfProducts[index];
+            servico.setProductionTimesOfProducts(productionTimesOfProducts[index]);
             servicosProducts.push(servico);
         }
     });
@@ -95,7 +106,7 @@ function plannedDistribution(worldSectorNames, productionTimesOfProducts) {
 
             const cardText = document.createElement("p");
             cardText.className = "card-text";
-            cardText.textContent = `Custo Social de Produção: ${formatProductSocialCost(product.socialCost)}`; // Valor de exemplo
+            cardText.textContent = `Custo Social de Produção: ${product.formatedSocialCost}`; // Valor de exemplo
 
             const button = document.createElement("button");
             button.className = "btn btn-primary";
@@ -151,6 +162,7 @@ function addItemToTable(tableBody, product) {
         removeBtn.onclick = () => {
             row.remove();
             addedProducts.delete(product);
+            estornarCustoSocialNoSocialWork(product);
         };
         
         nameCell.appendChild(removeBtn);
@@ -166,6 +178,9 @@ function addItemToTable(tableBody, product) {
         row.appendChild(demandaCell);
         tableBody.appendChild(row);
         addedProducts.add(product);
+
+        descontarCustoSocialDoSocialWork(product);
+
 }
 
 // Função para criar a linha de busca
@@ -378,3 +393,21 @@ function formatToTwoDecimals(number) {
     return `${unidade} ${formatToTwoDecimals(number)}`;
 
   }
+
+  function descontarCustoSocialDoSocialWork(product){
+    if (isNaN(product.socialCost) || product.socialCost == null) {
+        return;
+    }
+    partipacaoIndividualEstimadaNoTrabalhoSocialAtual = parseFloat(document.getElementById("partipacaoIndividualEstimadaNoTrabalhoSocial").value)
+    document.getElementById("partipacaoIndividualEstimadaNoTrabalhoSocial").value = partipacaoIndividualEstimadaNoTrabalhoSocialAtual - parseFloat(product.formatedSocialCost.replace(",", ".").replace(`${unidade} `, ""));
+  }
+
+  function estornarCustoSocialNoSocialWork(product){
+    if (isNaN(product.socialCost) || product.socialCost == null) {
+        return;
+    }
+
+    partipacaoIndividualEstimadaNoTrabalhoSocialAtual = parseFloat(document.getElementById("partipacaoIndividualEstimadaNoTrabalhoSocial").value)
+    document.getElementById("partipacaoIndividualEstimadaNoTrabalhoSocial").value = partipacaoIndividualEstimadaNoTrabalhoSocialAtual + parseFloat(product.formatedSocialCost.replace(",", ".").replace(`${unidade} `, ""));
+  }
+
