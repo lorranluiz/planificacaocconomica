@@ -91,7 +91,10 @@ function fetchDataFromJsonBin() {
                     
                     console.log(`hoursAtElectronicPoint/totalSocialWork: ${instanceData.hoursAtElectronicPoint}/${totalSocialWork} = ${instanceData.hoursAtElectronicPoint/totalSocialWork}`);
                     
-                    document.getElementById("partipacaoIndividualEstimadaNoTrabalhoSocial").value = ((instanceData.hoursAtElectronicPoint/totalSocialWork)*Number("1e13")).toFixed(2);
+                    console.info("fetchDataFromJsonBin->socialWorkAndCostScale: ");
+                    console.log(socialWorkAndCostScale);
+
+                    document.getElementById("partipacaoIndividualEstimadaNoTrabalhoSocial").value = ((instanceData.hoursAtElectronicPoint/totalSocialWork)*Number(socialWorkAndCostScale)).toFixed(2);
                     
                     plannedDistribution(worldSectorNames, productionTimesOfProducts);
 

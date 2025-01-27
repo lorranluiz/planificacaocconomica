@@ -1,4 +1,10 @@
 let addedProducts = new Set();
+let numeroAproximadoDeTrabalhadores = 80000; //Ordem de trabalhadores, de teste
+//let numeroAproximadoDeTrabalhadores = 4000000000; //Para quando forem 4 bilhões de trabalhadores
+//Quando tiver cerca de 4 bilhões (4*10^9) de trabalhadores "1e13", ou seja,
+// (nº trabalhadores /4)*10^4 = 1e13 (aproximadamente, quando 4 bilhões de trabalhadores)
+let socialWorkAndCostScale = (numeroAproximadoDeTrabalhadores/4)*10^4;
+let unidade = "ℳ";
 
 class Product {
   constructor(name = "Nome indefinido", type = "bemDeConsumo", socialCost = 2.00) {
@@ -20,6 +26,9 @@ function plannedDistribution(worldSectorNames, productionTimesOfProducts) {
     // Arrays para armazenar os itens disponíveis
     const bensDeConsumoProducts = [];
     const servicosProducts = [];
+
+    document.getElementById("socialWorkAndCostScale").innerHTML = `${unidade} = %${socialWorkAndCostScale.toExponential(0).replace("+", "")}`;
+    document.getElementById("unidade").innerHTML = unidade;
 
     // Separar os itens em suas respectivas categorias
     worldSectorNames.forEach((itemSectorName, index) => {
@@ -357,12 +366,15 @@ function formatToTwoDecimals(number) {
   function formatProductSocialCost(number){
 
     if (isNaN(number) || number == null) {
-        return "0,00";
+        return `${unidade} 0,00`;
     }
 
-    number = number*Number("1e13").toFixed(2);
+    console.info("formatProductSocialCost->socialWorkAndCostScale: ");
+    console.log(socialWorkAndCostScale);
+
+    number = number*Number(socialWorkAndCostScale).toFixed(2);
     number = number/totalSocialWork;
 
-    return `ℳ ${formatToTwoDecimals(number)}`;
+    return `${unidade} ${formatToTwoDecimals(number)}`;
 
   }
