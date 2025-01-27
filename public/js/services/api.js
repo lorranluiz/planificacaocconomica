@@ -61,6 +61,9 @@ function fetchDataFromJsonBin() {
 
                 totalSocialWork = record[conselhoMundialKey]?.totalSocialWorkDessaJurisdicao || "Ainda não há registro mundial de trabalho social total.";
                 worldSectorNames = record[conselhoMundialKey]?.sectorNames || "Ainda não há registro mundial de setores de produção.";
+                let worldOptimizationInputsProductSector = record[conselhoMundialKey]?.optimizationInputs || "Ainda não há registro mundial de setores de produção.";
+                // Criando um vetor com os valores de productionTime
+                const productionTimesOfProducts = worldOptimizationInputsProductSector.map(optimizationInput => optimizationInput.productionTime);
 
                 // Executar a função de redimensionar tabela
                 resizeTable();
@@ -90,7 +93,7 @@ function fetchDataFromJsonBin() {
                     
                     document.getElementById("partipacaoIndividualEstimadaNoTrabalhoSocial").value = ((instanceData.hoursAtElectronicPoint/totalSocialWork)*Number("1e13")).toFixed(2);
                     
-                    plannedDistribution(worldSectorNames);
+                    plannedDistribution(worldSectorNames, productionTimesOfProducts);
 
                 }
 

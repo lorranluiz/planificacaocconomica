@@ -12,7 +12,7 @@ class Product {
   }
 }
 
-function plannedDistribution(worldSectorNames) {
+function plannedDistribution(worldSectorNames, productionTimesOfProducts) {
     const bensDeConsumoTableBody = document.querySelector("#bensDeConsumoTable tbody");
     const servicosTableBody = document.querySelector("#servicosTable tbody");
     const showcaseDiv = document.getElementById("plannedDistributionShowcase");
@@ -22,16 +22,18 @@ function plannedDistribution(worldSectorNames) {
     const servicosProducts = [];
 
     // Separar os itens em suas respectivas categorias
-    worldSectorNames.forEach((itemSectorName) => {
+    worldSectorNames.forEach((itemSectorName, index) => {
         if (itemSectorName.includes("Produção")) {
             let bemDeConsumo = new Product();
             bemDeConsumo.type = "bemDeConsumo";
             bemDeConsumo.name = itemSectorName.replace("Produção de", "");
+            bemDeConsumo.socialCost = productionTimesOfProducts[index];
             bensDeConsumoProducts.push(bemDeConsumo);
         } else {
             let servico = new Product();
             servico.type = "servico";
             servico.name = itemSectorName;
+            servico.socialCost = productionTimesOfProducts[index];
             servicosProducts.push(servico);
         }
     });
@@ -84,7 +86,7 @@ function plannedDistribution(worldSectorNames) {
 
             const cardText = document.createElement("p");
             cardText.className = "card-text";
-            cardText.textContent = `Custo Social de Produção: ℳ ${formatToTwoDecimals(product.socialCost)}`; // Valor de exemplo
+            cardText.textContent = `Custo Social de Produção: ${formatProductSocialCost(product.socialCost)}`; // Valor de exemplo
 
             const button = document.createElement("button");
             button.className = "btn btn-primary";
@@ -349,6 +351,18 @@ function createSearchRow(tableBody, products) {
 
 
 function formatToTwoDecimals(number) {
-    return number.toFixed(2).replace('.', ',');
+    return Number(number).toFixed(2).replace('.', ',');
   }
   
+  function formatProductSocialCost(number){
+
+    if (isNaN(number) || number == null) {
+        return "0,00";
+    }
+
+    number = number*Number("1e13").toFixed(2);
+    number = number/totalSocialWork;
+
+    return `ℳ ${formatToTwoDecimals(number)}`;
+
+  }
