@@ -5,14 +5,22 @@ let numeroAproximadoDeTrabalhadores = 1600000; //Ordem de trabalhadores, de test
 // (nº trabalhadores /4)*10^4 = 1e13 (aproximadamente, quando 4 bilhões de trabalhadores)
 let socialWorkAndCostScale = (numeroAproximadoDeTrabalhadores/4)*10^4;
 let unidade = "ℳ";
+let partipacaoIndividualEstimadaNoTrabalhoSocialOriginal = 0;
+let totalSocialCostDiscount = 0; //Sempre já formatado na escala
 
 class Product {
-  constructor(name = "Nome indefinido", type = "bemDeConsumo", socialCost = 1.00, productionTimesOfProducts = 0.01) {
+  constructor(name = "Nome indefinido", type = "bemDeConsumo", socialCost = null, productionTimesOfProducts = 0.01) {
     this.name = name;
     this.type = type;
     this.socialCost = socialCost;
-    this.formatedSocialCost = formatProductSocialCost(socialCost);
+    this.formatedSocialCost = `${unidade} 0,00`;
     this.productionTimesOfProducts = productionTimesOfProducts;
+    this.totalSocialCostWithDemmand = 0; //Sempre já formatado na escala
+    this.demmand = 0;
+    this.index = 0;
+    this.floatFormatProductSocialCost = 0;
+    this.formatProductSocialCost(); //popula formatedSocialCost
+    this.socialCostFormated = false;
   }
 
   clone() {
@@ -22,11 +30,45 @@ class Product {
   setProductionTimesOfProducts(productionTimesOfProducts) {
     this.productionTimesOfProducts = productionTimesOfProducts;
     this.socialCost = productionTimesOfProducts/totalSocialWork;
-    this.formatedSocialCost = formatProductSocialCost(this.socialCost);
-
-    console.info("instancia de Product->socialCost: ");
-    console.log(this.socialCost);
+    this.socialCostFormated = false;
+    this.formatProductSocialCost(); //popula formatedSocialCost
+    //console.info("instancia de Product->socialCost: ");
+    //console.log(this.socialCost);
   }
+
+  setDemmand(demmand) {
+
+    if(!this.socialCostFormated){
+        //Se o socialCost ainda não foi formatado na escala, formatamos ele na escala
+        this.formatProductSocialCost();
+    }
+
+    this.demmand = demmand;
+    this.totalSocialCostWithDemmand = demmand*this.socialCost;
+  }
+
+  formatProductSocialCost(){
+
+    if(this.socialCostFormated){
+        return;
+    }
+
+    this.socialCostFormated = true;
+
+    if (isNaN(this.socialCost) || this.socialCost == null) {
+        this.socialCost = 0.00;
+        return;
+    }
+
+    //console.info("formatProductSocialCost->socialWorkAndCostScale: ");
+    //console.log(socialWorkAndCostScale);
+
+    this.socialCost = this.socialCost*Number(socialWorkAndCostScale).toFixed(2);
+
+    this.formatedSocialCost = `${unidade} ${formatToTwoDecimals(this.socialCost)}`;
+
+  }
+
 }
 
 function plannedDistribution(worldSectorNames, productionTimesOfProducts) {
@@ -45,12 +87,14 @@ function plannedDistribution(worldSectorNames, productionTimesOfProducts) {
     worldSectorNames.forEach((itemSectorName, index) => {
         if (itemSectorName.includes("Produção")) {
             let bemDeConsumo = new Product();
+            bemDeConsumo.index = index;
             bemDeConsumo.type = "bemDeConsumo";
             bemDeConsumo.name = itemSectorName.replace("Produção de", "");
             bemDeConsumo.setProductionTimesOfProducts(productionTimesOfProducts[index]);
             bensDeConsumoProducts.push(bemDeConsumo);
         } else {
             let servico = new Product();
+            servico.index = index;
             servico.type = "servico";
             servico.name = itemSectorName;
             servico.setProductionTimesOfProducts(productionTimesOfProducts[index]);
@@ -160,9 +204,7 @@ function addItemToTable(tableBody, product) {
         removeBtn.style.cursor = "pointer";
         removeBtn.style.color = "red";
         removeBtn.onclick = () => {
-            row.remove();
-            addedProducts.delete(product);
-            estornarCustoSocialNoSocialWork(product);
+            removeItemFromTable(row, product); //Remove o item da tabela e atualiza o totalSocialCostDiscount
         };
         
         nameCell.appendChild(removeBtn);
@@ -171,7 +213,12 @@ function addItemToTable(tableBody, product) {
         const demandaCell = document.createElement("td");
         const demandaInput = document.createElement("input");
         demandaInput.type = "number";
+        demandaInput.id = product.index;
         demandaInput.value = 1;
+        demandaInput.onchange = () => {
+            demandaAlteradaRecalcular(product, demandaInput);
+        };
+
         demandaCell.appendChild(demandaInput);
 
         row.appendChild(nameCell);
@@ -179,7 +226,9 @@ function addItemToTable(tableBody, product) {
         tableBody.appendChild(row);
         addedProducts.add(product);
 
-        descontarCustoSocialDoSocialWork(product);
+        product.setDemmand(1); //Quando adicionar um produto pela primeira vez, automaticamente ele é adicionado com demanda 1
+            
+        atualizarTotalSocialCostDiscount(product); //Atualiza no calculo e na tela
 
 }
 
@@ -291,8 +340,7 @@ function createSearchRow(tableBody, products) {
         removeBtn.style.cursor = "pointer";
         removeBtn.style.color = "red";
         removeBtn.onclick = () => {
-            row.remove();
-            addedProducts.delete(product);
+            removeItemFromTable(row, product); //Remove o item da tabela e atualiza o totalSocialCostDiscount
         };
         
         const itemName = product.name;
@@ -303,12 +351,20 @@ function createSearchRow(tableBody, products) {
         const demandaInput = document.createElement("input");
         demandaInput.type = "number";
         demandaInput.value = 1;
+        demandaInput.onchange = () => {
+            demandaAlteradaRecalcular(product, demandaInput);
+        };
         demandaCell.appendChild(demandaInput);
 
         row.appendChild(nameCell);
         row.appendChild(demandaCell);
         tableBody.appendChild(row);
         addedProducts.add(product);
+
+        product.setDemmand(1); //Quando adicionar um produto pela primeira vez, automaticamente ele é adicionado com demanda 1
+            
+        atualizarTotalSocialCostDiscount(product); //Atualiza no calculo e na tela
+
     }
 
     // Atualizar dropdown com sugestões
@@ -330,8 +386,8 @@ function createSearchRow(tableBody, products) {
                     cursor: pointer;
                     hover: background-color: rgba(255, 255, 255, 0.6);
                 `;
-                div.onmouseover = () => div.style.backgroundColor = rgba(255, 255, 255, 0.6);
-                div.onmouseout = () => div.style.backgroundColor = rgba(100, 0, 0, 0.5);
+                //div.onmouseover = () => div.style.backgroundColor = rgba(255, 255, 255, 0.6);
+                //div.onmouseout = () => div.style.backgroundColor = rgba(100, 0, 0, 0.5);
                 div.onclick = () => {
                     addItemToTable(suggestion);
                     searchInput.value = "";
@@ -375,39 +431,46 @@ function createSearchRow(tableBody, products) {
 
 
 function formatToTwoDecimals(number) {
-    return Number(number).toFixed(2).replace('.', ',');
-  }
-  
-  function formatProductSocialCost(number){
-
-    if (isNaN(number) || number == null) {
-        return `${unidade} 0,00`;
-    }
-
-    console.info("formatProductSocialCost->socialWorkAndCostScale: ");
-    console.log(socialWorkAndCostScale);
-
-    number = number*Number(socialWorkAndCostScale).toFixed(2);
-    number = number/totalSocialWork;
-
-    return `${unidade} ${formatToTwoDecimals(number)}`;
-
+    return Number((number+"").replace(",", ".")).toFixed(2).replace('.', ',');
   }
 
-  function descontarCustoSocialDoSocialWork(product){
-    if (isNaN(product.socialCost) || product.socialCost == null) {
-        return;
-    }
-    partipacaoIndividualEstimadaNoTrabalhoSocialAtual = parseFloat(document.getElementById("partipacaoIndividualEstimadaNoTrabalhoSocial").value)
-    document.getElementById("partipacaoIndividualEstimadaNoTrabalhoSocial").value = partipacaoIndividualEstimadaNoTrabalhoSocialAtual - parseFloat(product.formatedSocialCost.replace(",", ".").replace(`${unidade} `, ""));
+  function atualizarTotalSocialCostDiscount(product){
+
+    totalSocialCostDiscount = 0;
+
+    addedProducts.forEach(product => {
+        totalSocialCostDiscount += product.totalSocialCostWithDemmand; //Sempre já formatados na escala
+    });
+
+    atualizarPartipacaoIndividualEstimadaNoTrabalhoSocial();
   }
 
-  function estornarCustoSocialNoSocialWork(product){
-    if (isNaN(product.socialCost) || product.socialCost == null) {
-        return;
-    }
-
-    partipacaoIndividualEstimadaNoTrabalhoSocialAtual = parseFloat(document.getElementById("partipacaoIndividualEstimadaNoTrabalhoSocial").value)
-    document.getElementById("partipacaoIndividualEstimadaNoTrabalhoSocial").value = partipacaoIndividualEstimadaNoTrabalhoSocialAtual + parseFloat(product.formatedSocialCost.replace(",", ".").replace(`${unidade} `, ""));
+  function getTotalSocialCostDiscount(){
+    return totalSocialCostDiscount;
   }
 
+  function atualizarPartipacaoIndividualEstimadaNoTrabalhoSocial(){
+    //partipacaoIndividualEstimadaNoTrabalhoSocialAtual = parseFloat(document.getElementById("partipacaoIndividualEstimadaNoTrabalhoSocial").value.replace(",", "."));
+    document.getElementById("partipacaoIndividualEstimadaNoTrabalhoSocial").value = `${formatToTwoDecimals(partipacaoIndividualEstimadaNoTrabalhoSocialOriginal - totalSocialCostDiscount)}`; //Sempre já formatados na escala
+  }
+
+  function removeItemFromTable(row, product){
+    row.remove();
+    addedProducts.delete(product);
+
+    product.setDemmand(0); //Definir a demanda atual do produto removido como zero
+    
+    atualizarTotalSocialCostDiscount(product); //Atualiza no calculo e na tela
+  }
+
+  function demandaAlteradaRecalcular(product, demandaInput){
+    //Quando alterar o valor da demanda do respectivo produto
+            //Tudo é recalculado e atualizado automaticamente
+            if (isNaN(product.socialCost) || product.socialCost == null) {
+                return;
+            }
+            
+            product.setDemmand(demandaInput.value);
+            
+            atualizarTotalSocialCostDiscount(product); //Atualiza no calculo e na tela
+  }
