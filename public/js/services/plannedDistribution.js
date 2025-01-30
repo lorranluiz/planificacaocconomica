@@ -21,6 +21,8 @@ class Product {
     this.floatFormatProductSocialCost = 0;
     this.formatProductSocialCost(); //popula formatedSocialCost
     this.socialCostFormated = false;
+    this.totalSocialCostWithDemmandTest = 0; //Sempre já formatado na escala
+    this.demmandTest = 0;
   }
 
   clone() {
@@ -45,6 +47,17 @@ class Product {
 
     this.demmand = demmand;
     this.totalSocialCostWithDemmand = demmand*this.socialCost;
+  }
+
+  setDemmandTest(demmandTest) {
+
+    if(!this.socialCostFormated){
+        //Se o socialCost ainda não foi formatado na escala, formatamos ele na escala
+        this.formatProductSocialCost();
+    }
+
+    this.demmandTest = demmandTest  ;
+    this.totalSocialCostWithDemmandTest = demmandTest*this.socialCost;
   }
 
   formatProductSocialCost(){
@@ -195,6 +208,13 @@ function plannedDistribution(worldSectorNames, productionTimesOfProducts) {
 function addItemToTable(tableBody, product) {
 
     if (addedProducts.has(product)) return;
+
+    //Testamos se a inclusão desse produto, com demanda inicial 1, não gera um custo social maior que a partipacao Individual Estimada No Trabalho Social
+    product.setDemmandTest(1);
+
+    if (!atualizarTotalSocialCostDiscountTest(product)) {
+        return; //Se o custo social gerado pela inclusão desse produto com demanda inicial 1 é maior que a partipacao Individual Estimada No Trabalho Social, não adicionamos o produto
+    }
         
         const row = document.createElement("tr");
         
@@ -215,8 +235,9 @@ function addItemToTable(tableBody, product) {
         demandaInput.type = "number";
         demandaInput.id = product.index;
         demandaInput.value = 1;
+        demandaInput.previousValue = demandaInput.value;
         demandaInput.onchange = () => {
-            demandaAlteradaRecalcular(product, demandaInput);
+            checkDemandAndRecalculate(product, demandaInput);
         };
 
         demandaCell.appendChild(demandaInput);
@@ -351,8 +372,9 @@ function createSearchRow(tableBody, products) {
         const demandaInput = document.createElement("input");
         demandaInput.type = "number";
         demandaInput.value = 1;
+        demandaInput.previousValue = demandaInput.value;
         demandaInput.onchange = () => {
-            demandaAlteradaRecalcular(product, demandaInput);
+            checkDemandAndRecalculate(product, demandaInput);
         };
         demandaCell.appendChild(demandaInput);
 
@@ -445,6 +467,26 @@ function formatToTwoDecimals(number) {
     atualizarPartipacaoIndividualEstimadaNoTrabalhoSocial();
   }
 
+/**
+* @description Verifica se a mudança na demanda vai gerar um custo social maior que a partipacao Individual Estimada No Trabalho Social
+* @param product    
+* @returns boolean
+*/
+function atualizarTotalSocialCostDiscountTest(product){
+
+    let totalSocialCostDiscountTest = 0;
+
+    addedProducts.forEach(productAdded => {
+        totalSocialCostDiscountTest += productAdded.totalSocialCostWithDemmandTest; //Sempre já formatados na escala
+    });
+
+    if(!addedProducts.has(product)){ //Produto que será incluido, ainda não existe no addedProducts
+        totalSocialCostDiscountTest += product.totalSocialCostWithDemmandTest;
+    }
+
+    return partipacaoIndividualEstimadaNoTrabalhoSocialOriginal - totalSocialCostDiscountTest >= 0.00;
+  }
+
   function getTotalSocialCostDiscount(){
     return totalSocialCostDiscount;
   }
@@ -463,14 +505,33 @@ function formatToTwoDecimals(number) {
     atualizarTotalSocialCostDiscount(product); //Atualiza no calculo e na tela
   }
 
-  function demandaAlteradaRecalcular(product, demandaInput){
+  function checkDemandAndRecalculate(product, demandaInput){
+
     //Quando alterar o valor da demanda do respectivo produto
-            //Tudo é recalculado e atualizado automaticamente
-            if (isNaN(product.socialCost) || product.socialCost == null) {
-                return;
-            }
-            
-            product.setDemmand(demandaInput.value);
-            
-            atualizarTotalSocialCostDiscount(product); //Atualiza no calculo e na tela
+    //Tudo é recalculado e atualizado automaticamente
+    if (isNaN(product.socialCost) || product.socialCost == null) {
+        return;
+    }
+
+    if(demandaInput.value <= 0){ //Não pode ser zero, para zerar tem que excluir o produto
+        demandaInput.value = demandaInput.previousValue;
+        return;
+    }
+
+    product.setDemmandTest(demandaInput.value);
+
+    if (atualizarTotalSocialCostDiscountTest(product)) {
+        // Se a condição for satisfeita, prosseguir com a lógica do recalculo considerando a nova demanda
+        
+        product.setDemmand(demandaInput.value);
+        
+        atualizarTotalSocialCostDiscount(product); //Atualiza no calculo e na tela
+
+        demandaInput.previousValue = demandaInput.value; // Atualize o valor anterior
+    } else {
+        // Se a condição não for satisfeita, retorna o valor anterior e não executa mudança nenhuma
+        demandaInput.value = demandaInput.previousValue; // Reverte o valor para o anterior
+        return;
+    }
+
   }
