@@ -360,8 +360,29 @@ let userIsLoggedIn = false;
 				}
 			}
 			function getProductNames() {
-				const rows = document.querySelectorAll('#inputTable tbody tr');
-				return Array.from(rows).map(row => row.querySelector('td:first-child input').value);
+
+				let productNames;
+				let rows;
+
+				if(){
+					//Distribuição
+					//Se for usuário com UUID etc. 
+					//Pegar das tabelas que ele inseriu os produtos que escolheu pra retirar
+					rows = document.querySelectorAll('#bensDeConsumoTable tbody tr');
+					productNames = Array.from(rows).map(row => row.querySelector('td:first-child input').value);
+					console.log("productNames do UUID: ");
+					console.log(productNames);
+
+				} else {
+					//Produção
+					rows = document.querySelectorAll('#inputTable tbody tr');
+					productNames = Array.from(rows).map(row => row.querySelector('td:first-child input').value);
+					console.log("productNames de Comitê: ");
+					console.log(productNames);
+				}
+
+
+				return productNames;
 			}
 
 			function setProductNames(productNames) {
@@ -394,6 +415,22 @@ let userIsLoggedIn = false;
 						const input = header.querySelector('input');
 						return input ? input.value : `Setor ${Array.from(headers).indexOf(header)}`;
 					});
+
+
+				if(){
+					//Se for usuário com UUID etc. 
+					//Pegar das tabelas que ele inseriu os produtos que escolheu pra retirar
+					//Se conter a palavra "Rede" é só pegar o nome inteiro, senão, incluir "Produção de " antes
+					//Usuário trabalhador consumidor nesse contexto de consumo não está produzindo, porém até que
+					//eu confirme que não será necessário para a planificação incluindo a damanda desse usuário,
+					// ainda vou manter, mas depois deverá ser retirado (confirmado que não afetará em nada, que não é usado em cálculo nenhum)
+					//Abaixo devo substituir pelo mesmo código que usar em "n getProductNames("
+					const rows = document.querySelectorAll('#inputTable tbody tr');
+					return Array.from(rows).map(row => row.querySelector('td:first-child input').value);
+
+				}
+
+
 			}
 
 
@@ -401,6 +438,16 @@ let userIsLoggedIn = false;
 				const tbody = document.querySelector('#finalDemandInputs');
 				const inputs = tbody.querySelectorAll('input[type="number"]');
 				return Array.from(inputs).map(input => parseFloat(input.value) || 0);
+
+				if(){
+					//Se for usuário com UUID etc.
+					//Pegar das tabelas que ele inseriu os produtos que escolheu pra retirar
+					const tbody = document.querySelector('#finalDemandInputs');
+					const inputs = tbody.querySelectorAll('input[type="number"]');
+					return Array.from(inputs).map(input => parseFloat(input.value) || 0);
+
+				}
+
 			}
 
 

@@ -546,3 +546,10 @@ function collectAllData() {
         instancePrepositionJurisdictionUUID			//Instância + Preposição + Jurisdição
     };
 }
+
+/**
+ * Verifica se o trabalhador não é conselheiro
+ */
+function trabalhadorNaoEConselheiro(){
+    return user.instancePrepositionJurisdictionUUID.includes("WorkerUUID");
+}
