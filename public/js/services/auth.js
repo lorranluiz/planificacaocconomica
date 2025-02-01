@@ -291,7 +291,7 @@ function logout() {
     document.getElementById('sendDataButton').style.display = 'none'; // Oculta o botão de enviar dados
 
     let title = "";
-    if(!user.instancePrepositionJurisdictionUUID.includes("WorkerUUID")){
+    if(!thisUserIsAWorkerNotCouncillor()) {
         if (user.pronoun === 'feminino') {
             title = 'Conselheira';
         } else if (user.pronoun === 'masculino') {
@@ -330,4 +330,11 @@ function logout() {
     const globeContainer = document.getElementById('globeContainer');
     globeContainer.classList.remove('logged-in'); // Remove a classe para voltar ao centro
     
+}
+
+/**
+ * Verifica se o trabalhador não é conselheiro
+ */
+function thisUserIsAWorkerNotCouncillor(){
+    return user.instancePrepositionJurisdictionUUID.includes("WorkerUUID");
 }

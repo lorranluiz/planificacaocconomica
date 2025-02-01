@@ -14932,19 +14932,19 @@
       ]
     ],
     "productNames": [
-      "Automóvel",
-      "Computador",
-      "Celular"
+      "Projetor",
+      "Jaleco",
+      "Rede de Educação"
     ],
     "sectorNames": [
-      "Produção de Automóvel",
-      "Produção de Computador",
-      "Produção de Celular"
+      "Produção de Projetor",
+      "Produção de Jaleco",
+      "Rede de Educação"
     ],
     "finalDemand": [
-      1,
-      0,
-      0
+      0.015,
+      0.025,
+      0.035
     ],
     "optimizationInputs": {},
     "optimizationResults": {},

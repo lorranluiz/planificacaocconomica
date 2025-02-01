@@ -65,7 +65,7 @@ let userLocation = null; // Variável para armazenar a localização do usuário
 				user = users.find(u => u.username === username && u.password === password);
 			}
 		
-			if (user.instancePrepositionJurisdictionUUID.includes("WorkerUUID")) {
+			if (thisUserIsAWorkerNotCouncillor()) {
 				//É trabalhador que não é conselheiro
 				
 				if (user.pronoun === 'feminino') {

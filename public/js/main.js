@@ -364,17 +364,27 @@ let userIsLoggedIn = false;
 				let productNames;
 				let rows;
 
-				if(){
-					//Distribuição
+				if(thisUserIsAWorkerNotCouncillor()){
+					//Distribuição - Retirada - Não é Conselheiro
 					//Se for usuário com UUID etc. 
 					//Pegar das tabelas que ele inseriu os produtos que escolheu pra retirar
 					rows = document.querySelectorAll('#bensDeConsumoTable tbody tr');
-					productNames = Array.from(rows).map(row => row.querySelector('td:first-child input').value);
+					productNames = Array.from(rows)
+						.map(row => row.querySelector('td:first-child').textContent.trim())
+						.filter(name => name !== "")
+						.map(name => name.replace("[-] ", "").trim());
+
+					rows = document.querySelectorAll('#servicosTable tbody tr');
+					const serviceNames = Array.from(rows)
+						.map(row => row.querySelector('td:first-child').textContent.trim())
+						.filter(name => name !== "");
+
+					productNames = productNames.concat(serviceNames).map(name => name.replace("[-] ", ""));
 					console.log("productNames do UUID: ");
 					console.log(productNames);
 
 				} else {
-					//Produção
+					//Produção ou Prestação de Serviço - É Conselheiro
 					rows = document.querySelectorAll('#inputTable tbody tr');
 					productNames = Array.from(rows).map(row => row.querySelector('td:first-child input').value);
 					console.log("productNames de Comitê: ");
@@ -408,16 +418,12 @@ let userIsLoggedIn = false;
 			}
 			
 			function getSectorNames() {
-				const headers = document.querySelectorAll('#inputTable thead tr th');
-				return Array.from(headers)
-					.slice(1) // Ignora a primeira coluna (nomes dos produtos)
-					.map(header => {
-						const input = header.querySelector('input');
-						return input ? input.value : `Setor ${Array.from(headers).indexOf(header)}`;
-					});
+				
+				let sectorNames;
+				let rows;
 
-
-				if(){
+				if(thisUserIsAWorkerNotCouncillor()){
+					//Distribuição - Retirada - Não é Conselheiro
 					//Se for usuário com UUID etc. 
 					//Pegar das tabelas que ele inseriu os produtos que escolheu pra retirar
 					//Se conter a palavra "Rede" é só pegar o nome inteiro, senão, incluir "Produção de " antes
@@ -425,28 +431,72 @@ let userIsLoggedIn = false;
 					//eu confirme que não será necessário para a planificação incluindo a damanda desse usuário,
 					// ainda vou manter, mas depois deverá ser retirado (confirmado que não afetará em nada, que não é usado em cálculo nenhum)
 					//Abaixo devo substituir pelo mesmo código que usar em "n getProductNames("
-					const rows = document.querySelectorAll('#inputTable tbody tr');
-					return Array.from(rows).map(row => row.querySelector('td:first-child input').value);
+					rows = document.querySelectorAll('#bensDeConsumoTable tbody tr');
+					sectorNames = Array.from(rows)
+						.map(row => row.querySelector('td:first-child').textContent.trim())
+						.filter(name => name !== "")
+						.map(name => name.replace("[-] ", "").trim())
+						.map(name => name.includes("Rede") ? name : `Produção de ${name}`);
+
+					rows = document.querySelectorAll('#servicosTable tbody tr');
+					const serviceNames = Array.from(rows)
+						.map(row => row.querySelector('td:first-child').textContent.trim())
+						.filter(name => name !== "")
+						.map(name => name.includes("Rede") ? name : `Produção de ${name}`);
+
+					sectorNames = sectorNames.concat(serviceNames).map(name => name.replace("[-] ", ""));
+					console.log("sectorNames do UUID: ");
+					console.log(sectorNames);
+
+				}else{
+					
+					//Produção ou Prestação de Serviço - É Conselheiro
+					const headers = document.querySelectorAll('#inputTable thead tr th');
+					sectorNames =  Array.from(headers)
+					.slice(1) // Ignora a primeira coluna (nomes dos produtos)
+					.map(header => {
+						const input = header.querySelector('input');
+						return input ? input.value : `Setor ${Array.from(headers).indexOf(header)}`;
+					});
+					console.log("sectorNames de Comitê: ");
+					console.log(sectorNames);
 
 				}
 
+				return sectorNames;
 
 			}
 
 
 			function getFinalDemand() {
-				const tbody = document.querySelector('#finalDemandInputs');
-				const inputs = tbody.querySelectorAll('input[type="number"]');
-				return Array.from(inputs).map(input => parseFloat(input.value) || 0);
+				
+				let finalDemand = [];
 
-				if(){
+				if(thisUserIsAWorkerNotCouncillor()){
 					//Se for usuário com UUID etc.
 					//Pegar das tabelas que ele inseriu os produtos que escolheu pra retirar
+					
+					let tbody = document.querySelector('#bensDeConsumoTable');
+					let inputs = tbody.querySelectorAll('input[type="number"]');
+					finalDemand.push(...Array.from(inputs).map(input => parseFloat(input.value*1e-3) || 0));
+
+					tbody = document.querySelector('#servicosTable');
+					inputs = tbody.querySelectorAll('input[type="number"]');
+					finalDemand.push(...Array.from(inputs).map(input => parseFloat(input.value*1e-3) || 0));
+
+					console.log("finalDemand do UUID: ");
+					console.log(finalDemand);
+
+				} else {
+					//Produção ou Prestação de Serviço - É Conselheiro
 					const tbody = document.querySelector('#finalDemandInputs');
 					const inputs = tbody.querySelectorAll('input[type="number"]');
-					return Array.from(inputs).map(input => parseFloat(input.value) || 0);
-
+					finalDemand = Array.from(inputs).map(input => parseFloat(input.value) || 0);
+					console.log("finalDemand de Comitê: ");
+					console.log(finalDemand);
 				}
+
+				return finalDemand;
 
 			}
 

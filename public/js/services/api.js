@@ -39,7 +39,7 @@ function fetchDataFromJsonBin() {
             const record = binData || {};
             const instanceData = record[instanceKey];
 
-            if(user.instancePrepositionJurisdictionUUID.includes("WorkerUUID")){
+            if(thisUserIsAWorkerNotCouncillor()){
                 //Trabalhador não conselheiro
                 document.getElementById("name").value = user.name;
                 generateQRCode(user.uuid);
@@ -80,7 +80,7 @@ function fetchDataFromJsonBin() {
                 planify(); // Executa a planificação automaticamente após carregar os dados
                 showNotification("Dados recebidos com sucesso!", true);
 
-                if(user.instancePrepositionJurisdictionUUID.includes("WorkerUUID")){
+                if(thisUserIsAWorkerNotCouncillor()){
                     //Trabalhador não conselheiro
 
                     document.getElementById("conselhoPopularAssociadoDeComiteOuTrabalhadorTelaTrabalhador").value = instanceData.conselhoPopularAssociadoDeComiteOuTrabalhador;
@@ -353,7 +353,7 @@ function sendDataToJsonBin() {
     
     let conselhoPopularAssociadoDeComiteOuTrabalhadorData;
     
-    if(user.instancePrepositionJurisdictionUUID.includes("WorkerUUID")){
+    if(thisUserIsAWorkerNotCouncillor()){
         conselhoPopularAssociadoDeComiteOuTrabalhadorData = document.getElementById("conselhoPopularAssociadoDeComiteOuTrabalhadorTelaTrabalhador").value.trim();
     } else{
         conselhoPopularAssociadoDeComiteOuTrabalhadorData = document.getElementById("conselhoPopularAssociadoDeComiteOuTrabalhador").value.trim();
@@ -545,11 +545,4 @@ function collectAllData() {
         optimizationResults, // Resultados da planificação (objeto global)
         instancePrepositionJurisdictionUUID			//Instância + Preposição + Jurisdição
     };
-}
-
-/**
- * Verifica se o trabalhador não é conselheiro
- */
-function trabalhadorNaoEConselheiro(){
-    return user.instancePrepositionJurisdictionUUID.includes("WorkerUUID");
 }
