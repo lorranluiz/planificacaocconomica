@@ -581,15 +581,17 @@ function updateColumnTitles(productNames) {
 }
 
 function synchronizeFinalDemandProducts() {
-    const productRows = document.querySelectorAll('#inputTable tbody tr');
-    const demandRows = document.querySelectorAll('#finalDemandInputs tr');
 
-    productRows.forEach((productRow, index) => {
-        const productName = productRow.querySelector('td:first-child input').value;
-        if (demandRows[index]) {
-            demandRows[index].querySelector('td:first-child').textContent = productName;
-        }
-    });
+    const productRows = document.querySelectorAll('#inputTable tbody tr');
+        const demandRows = document.querySelectorAll('#finalDemandInputs tr');
+
+        productRows.forEach((productRow, index) => {
+            const productName = productRow.querySelector('td:first-child input').value;
+            if (demandRows[index]) {
+                demandRows[index].querySelector('td:first-child').textContent = productName;
+            }
+        });
+        
 }
 
 function syncProductionNames() {

@@ -8,6 +8,14 @@ let unidade = "ℳ";
 let partipacaoIndividualEstimadaNoTrabalhoSocialOriginal = 0;
 let totalSocialCostDiscount = 0; //Sempre já formatado na escala
 
+let bensDeConsumoTableBody = document.querySelector("#bensDeConsumoTable tbody");
+let servicosTableBody = document.querySelector("#servicosTable tbody");
+let showcaseDiv = document.getElementById("plannedDistributionShowcase");
+
+// Arrays para armazenar os itens disponíveis
+let bensDeConsumoProducts = [];
+let servicosProducts = [];
+
 class Product {
   constructor(name = "Nome indefinido", type = "bemDeConsumo", socialCost = null, productionTimesOfProducts = 0.01) {
     this.name = name;
@@ -84,14 +92,7 @@ class Product {
 
 }
 
-function plannedDistribution(worldSectorNames, productionTimesOfProducts) {
-    const bensDeConsumoTableBody = document.querySelector("#bensDeConsumoTable tbody");
-    const servicosTableBody = document.querySelector("#servicosTable tbody");
-    const showcaseDiv = document.getElementById("plannedDistributionShowcase");
-
-    // Arrays para armazenar os itens disponíveis
-    const bensDeConsumoProducts = [];
-    const servicosProducts = [];
+function plannedDistribution(worldSectorNames, productionTimesOfProducts, instanceData) {
 
     document.getElementById("socialWorkAndCostScale").innerHTML = `${unidade} = %${socialWorkAndCostScale.toExponential(0).replace("+", "")}`;
     document.getElementById("unidade").innerHTML = unidade;
@@ -102,7 +103,7 @@ function plannedDistribution(worldSectorNames, productionTimesOfProducts) {
             let bemDeConsumo = new Product();
             bemDeConsumo.index = index;
             bemDeConsumo.type = "bemDeConsumo";
-            bemDeConsumo.name = itemSectorName.replace("Produção de", "");
+            bemDeConsumo.name = itemSectorName.replace("Produção de ", "");
             bemDeConsumo.setProductionTimesOfProducts(productionTimesOfProducts[index]);
             bensDeConsumoProducts.push(bemDeConsumo);
         } else {
@@ -202,6 +203,36 @@ function plannedDistribution(worldSectorNames, productionTimesOfProducts) {
     createProductShowcase(bensDeConsumoProducts);
     createProductShowcase(servicosProducts);
     document.getElementById('tabBensDeConsumo').click(); //Por padrão inicia mostrando os bens de consumo
+
+    //Agora carregamos os itens que o usuário tenha solicitado retirada (a serem retirados)
+    if(instanceData !== null){
+        instanceData.productNames.forEach((productName, index) => {
+            //Simula uma entrada em um campo, criando (depois limpo na memória) e por isso o .value
+            if (productName.includes("Rede")) {
+            let servico = servicosProducts.find(servico => servico.name === productName);
+            if (servico) {
+                //Adicionar item carregado
+                let demandaInput = addItemToTable(servicosTableBody, servico);
+
+                //Carregar a quantidade demandada
+                demandaInput.value = parseFloat(instanceData.finalDemand[index])*1000; //Fator da escala de produção usada nas contas (por mil, na planificação da produção). Lá não precisa multiplciar nem dividir, a conta já se considerando sendo 1 = 1000. Aqui que 1 não é 1000, é 0,001 (já que lá a conta é na escala de 1000)
+                checkDemandAndRecalculate(servico, demandaInput);
+            }
+            } else {
+            let bemDeConsumo = bensDeConsumoProducts.find(bem => bem.name === productName);
+            if (bemDeConsumo) {
+                //Adicionar item carregado
+                let demandaInput = addItemToTable(bensDeConsumoTableBody, bemDeConsumo);
+
+                //Carregar a quantidade demandada
+                demandaInput.value = parseFloat(instanceData.finalDemand[index])*1000; //Fator da escala de produção usada nas contas (por mil, na planificação da produção). Lá não precisa multiplciar nem dividir, a conta já se considerando sendo 1 = 1000. Aqui que 1 não é 1000, é 0,001 (já que lá a conta é na escala de 1000)
+                checkDemandAndRecalculate(bemDeConsumo, demandaInput);
+            }
+            }
+        });
+    }
+
+
 }
 
 // Função para adicionar item à tabela
@@ -250,6 +281,8 @@ function addItemToTable(tableBody, product) {
         product.setDemmand(1); //Quando adicionar um produto pela primeira vez, automaticamente ele é adicionado com demanda 1
             
         atualizarTotalSocialCostDiscount(product); //Atualiza no calculo e na tela
+
+        return demandaInput;
 
 }
 

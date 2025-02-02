@@ -97,7 +97,7 @@ function fetchDataFromJsonBin() {
                     partipacaoIndividualEstimadaNoTrabalhoSocialOriginal = ((instanceData.hoursAtElectronicPoint/totalSocialWork)*Number(socialWorkAndCostScale)).toFixed(2);
                     document.getElementById("partipacaoIndividualEstimadaNoTrabalhoSocial").value = formatToTwoDecimals(partipacaoIndividualEstimadaNoTrabalhoSocialOriginal);
                     
-                    plannedDistribution(worldSectorNames, productionTimesOfProducts);
+                    plannedDistribution(worldSectorNames, productionTimesOfProducts, instanceData);
 
                 }
 
