@@ -14931,21 +14931,9 @@
         0.2
       ]
     ],
-    "productNames": [
-      "Projetor",
-      "Jaleco",
-      "Rede de Educação"
-    ],
-    "sectorNames": [
-      "Produção de Projetor",
-      "Produção de Jaleco",
-      "Rede de Educação"
-    ],
-    "finalDemand": [
-      0.008,
-      0.011,
-      0.024
-    ],
+    "productNames": [],
+    "sectorNames": [],
+    "finalDemand": [],
     "optimizationInputs": {},
     "optimizationResults": {},
     "setorUnidade": "",
@@ -14971,8 +14959,8 @@
     "totalSocialWorkDessaJurisdicao": 0,
     "comiteAssociadoDeTrabalhador": "Comitê de Fábrica da Mercedes-Benz",
     "associacaoDeMoradoresAssociadaDeTrabalhador": "Associação de Moradores da Estrada União e Indústria",
-    "partipacaoIndividualEstimadaNoTrabalhoSocial": 0.025733195937128653,
-    "hoursAtElectronicPoint": 36,
+    "partipacaoIndividualEstimadaNoTrabalhoSocial": 0.02144432994760721,
+    "hoursAtElectronicPoint": 30,
     "effectivelyPlannedProductionTime": 0
   },
   "Conselho Popular Regional Estadual Metropolitano do Amazonas": {

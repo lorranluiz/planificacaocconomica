@@ -44,11 +44,21 @@ Existe trabalho acumulado na economia planificada.
 Porém, o trabalho só pode ser acumulado pela própria pessoa que trabalhou, não por outra, que é o que determina a exploração (isto é, não existe exploração).
 O Estado Operário apenas realoca obrigatoriamente parte do trabalho acumulado, de forma análoga ao imposto, mas essencialmente diferente, pois todo o realocado vai de volta para os próprios trabalhadores que obrigatoriamente só o recebem se trabalharem em um dos setores essenciais, não existe vantagem, privilégio, mordomia, sevidão, não vai para setor bancário, especulativo nem alimenta nenhum capital produtivo ou não, é a justiça final que se autojustifica, sem classes acima explorando as de baixo.
 
-
-3.4) Salvar e Carregar campo com o total que o usuário possui para gastar, já descontando o que já gastou. Não processar na hora, salvar e carregar dado já calculado salvo diretamente num campo do "comitê" que é o UUID do usuário. Incluir nos dados salvos no sendDataToJson etc.
-
-[~] 3.5) Mas trabalhador não conselheiro não tem vetor tecnológico, criar tbm em salvar (sendData) um vetor tecnológico, usar a mesma variável que já salva como vetor tecnológico do "comitê de fábrica em questão", no caso um trabalhador não conselheiro, onde esse vetor tecnológico tem todos os campos preenchidos com. Um símbolo, "uuid:UUID do usuário|\"product\":{\"name\": \"${product.name}\", \"type\": \"${product.type}\", \"socialCost\": ${product.socialCost}}" (uma pseudo-entrada para reconstruir o objeto depois, na leitura) com "destryngfying" ou algo equivalente.  O valor da damanda, propriamente dito, embora exista tbm no objeto product, estará no vetor demanda, na mesma ordem de índice que esse vetor aqui, "vetor tecnológico". Então só carregar (no fetchData, se usuário com UUID, trabalhador não conselheiro) ler o vetor demanda para atribuir na lista (setlist ou o que for) de produtos que o usuário adicionou e salvou na sua lista para retirada. Popular essa lista, carregar, de acordo como product.type de cada produto.  Na hora de somar pra fazer a média e contar para a média, ser valor conter a palavra "uuid", pular. Depois, isso pode ser usado para rastrear os produtos que um usuário solicitou (ou não, mas essa informação fica). O "comitê de fábrica" que é o usuário vai salvar e carregar essas informações no seu "vetor tecnológico" e no seu vetor demanda.
-
+"productNames": [
+      "Projetor",
+      "Jaleco",
+      "Rede de Educação"
+    ],
+    "sectorNames": [
+      "Produção de Projetor",
+      "Produção de Jaleco",
+      "Rede de Educação"
+    ],
+    "finalDemand": [
+      0.008,
+      0.011,
+      0.024
+    ],
 
 4) Segurança
 

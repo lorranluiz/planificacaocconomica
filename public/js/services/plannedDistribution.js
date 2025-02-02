@@ -204,6 +204,10 @@ function plannedDistribution(worldSectorNames, productionTimesOfProducts, instan
     createProductShowcase(servicosProducts);
     document.getElementById('tabBensDeConsumo').click(); //Por padrão inicia mostrando os bens de consumo
 
+    //Aguardar um segundo pra termianr de montar a página
+    setTimeout(() => {
+        // Código a ser executado após 2 segundos
+
     //Agora carregamos os itens que o usuário tenha solicitado retirada (a serem retirados)
     if(instanceData !== null){
         instanceData.productNames.forEach((productName, index) => {
@@ -232,6 +236,7 @@ function plannedDistribution(worldSectorNames, productionTimesOfProducts, instan
         });
     }
 
+    }, 2000);
 
 }
 
@@ -243,10 +248,13 @@ function addItemToTable(tableBody, product) {
     //Testamos se a inclusão desse produto, com demanda inicial 1, não gera um custo social maior que a partipacao Individual Estimada No Trabalho Social
     product.setDemmandTest(1);
 
+    //Se o custo social gerado pela inclusão desse produto com demanda inicial 1 é maior que a partipacao Individual Estimada No Trabalho Social, não adicionamos o produto
     if (!atualizarTotalSocialCostDiscountTest(product)) {
-        return; //Se o custo social gerado pela inclusão desse produto com demanda inicial 1 é maior que a partipacao Individual Estimada No Trabalho Social, não adicionamos o produto
+        return;
     }
-        
+    
+    //Senão, o produto é adicionado, o código segue abaixo
+
         const row = document.createElement("tr");
         
         const nameCell = document.createElement("td");
@@ -273,8 +281,27 @@ function addItemToTable(tableBody, product) {
 
         demandaCell.appendChild(demandaInput);
 
+        const actionCell = document.createElement("td");
+        const actionButton = document.createElement("button");
+        actionButton.textContent = "Recebido";
+        actionButton.onclick = () => {
+            
+            
+            //Antes de apenas excluir, alterar na hora do ponto eletrônico e recalcula o total e o coloca no campo
+            //Ao remover descontará demais itens corretamente com o novo valor
+            consumeRecordedWorkingTimeFromWorkTimeTracker(product);
+
+
+            //Agora pode exlcluir. ultimo parâmetro indica para não alterar o campo participação social no trabalho social
+            removeItemFromTable(row, product, false); //Remove o item da tabela e atualiza o totalSocialCostDiscount
+            
+        };
+        actionButton.className = "btn btn-secondary";
+        actionCell.appendChild(actionButton);
+
         row.appendChild(nameCell);
         row.appendChild(demandaCell);
+        row.appendChild(actionCell);
         tableBody.appendChild(row);
         addedProducts.add(product);
 
@@ -411,8 +438,25 @@ function createSearchRow(tableBody, products) {
         };
         demandaCell.appendChild(demandaInput);
 
+        const actionCell = document.createElement("td");
+        const actionButton = document.createElement("button");
+        actionButton.textContent = "Recebido";
+        actionButton.onclick = () => {
+
+            //Antes de apenas excluir, alterar na hora do ponto eletrônico e recalcula o total e o coloca no campo
+            //Ao remover descontará demais itens corretamente com o novo valor
+            consumeRecordedWorkingTimeFromWorkTimeTracker(product);
+
+
+            //Agora pode exlcluir
+            removeItemFromTable(row, product, false); //Remove o item da tabela e atualiza o totalSocialCostDiscount
+        };
+        actionButton.className = "btn btn-secondary";
+        actionCell.appendChild(actionButton);
+
         row.appendChild(nameCell);
         row.appendChild(demandaCell);
+        row.appendChild(actionCell);
         tableBody.appendChild(row);
         addedProducts.add(product);
 
@@ -489,7 +533,7 @@ function formatToTwoDecimals(number) {
     return Number((number+"").replace(",", ".")).toFixed(2).replace('.', ',');
   }
 
-  function atualizarTotalSocialCostDiscount(product){
+  function atualizarTotalSocialCostDiscount(product, updatePartipacaoIndividualEstimadaNoTrabalhoSocial = true){
 
     totalSocialCostDiscount = 0;
 
@@ -497,7 +541,9 @@ function formatToTwoDecimals(number) {
         totalSocialCostDiscount += product.totalSocialCostWithDemmand; //Sempre já formatados na escala
     });
 
-    atualizarPartipacaoIndividualEstimadaNoTrabalhoSocial();
+    if(updatePartipacaoIndividualEstimadaNoTrabalhoSocial){
+        atualizarPartipacaoIndividualEstimadaNoTrabalhoSocial();
+    }
   }
 
 /**
@@ -529,13 +575,13 @@ function atualizarTotalSocialCostDiscountTest(product){
     document.getElementById("partipacaoIndividualEstimadaNoTrabalhoSocial").value = `${formatToTwoDecimals(partipacaoIndividualEstimadaNoTrabalhoSocialOriginal - totalSocialCostDiscount)}`; //Sempre já formatados na escala
   }
 
-  function removeItemFromTable(row, product){
+  function removeItemFromTable(row, product, updatePartipacaoIndividualEstimadaNoTrabalhoSocial = true){
     row.remove();
     addedProducts.delete(product);
 
     product.setDemmand(0); //Definir a demanda atual do produto removido como zero
     
-    atualizarTotalSocialCostDiscount(product); //Atualiza no calculo e na tela
+    atualizarTotalSocialCostDiscount(product, updatePartipacaoIndividualEstimadaNoTrabalhoSocial); //Atualiza no calculo e na tela
   }
 
   function checkDemandAndRecalculate(product, demandaInput){
@@ -566,5 +612,19 @@ function atualizarTotalSocialCostDiscountTest(product){
         demandaInput.value = demandaInput.previousValue; // Reverte o valor para o anterior
         return;
     }
+
+  }
+
+  function consumeRecordedWorkingTimeFromWorkTimeTracker(product){
+    
+    let partipacaoIndividualEstimadaNoTrabalhoSocial = parseFloat(document.getElementById("partipacaoIndividualEstimadaNoTrabalhoSocial").value.replace(",", "."));
+
+    let horasDescontadasNoPtoEletrônicoDoMes = ((product.totalSocialCostWithDemmand*totalSocialWork)/socialWorkAndCostScale).toFixed(2); //Atualmente cerca de 100*4e-6 ou 100/4e6
+
+    document.getElementById('hoursAtElectronicPoint').value = (parseFloat(document.getElementById('hoursAtElectronicPoint').value) - horasDescontadasNoPtoEletrônicoDoMes).toFixed(2);
+
+    partipacaoIndividualEstimadaNoTrabalhoSocialOriginal = partipacaoIndividualEstimadaNoTrabalhoSocial;
+    //E falar pra não descontar quando apagar, senão vai descontar duas vezes, já que a gora o valor original já partirá do valor descontado
+
 
   }
