@@ -29,11 +29,11 @@
 [ok] - colocar if(ver se é usuário não conselheiro), se verdadeiro (se não é conselheiro) executa essa implementação, senão, a que já está lá
 [ok] - colocar if pra ver se productName contém a palavra "Rede", se sim chama a função para a tabela de serviços, se não, chama pra de produtos
 
-3.4) A Confirmação do Recebimento/Retirada
+[ok] 3.4) A Confirmação do Recebimento/Retirada
 
-- Botão que faça isso, ao lado do produto (Confirmar Recebimento/Retirada), que executa o mesmo que excluir, porém ele desconta na carga horária trabalhada do trabalhador (a função inversa da que calcula o valor que ele pode gastar, ver formula fazer sua inversa e ver se zera horas trabalhadas (acumuladas) quando deve zera, isto é, quando gasta tudo, como prova dos nove, teste final) 
+[ok] - Botão que faça isso, ao lado do produto (Confirmar Recebimento/Retirada), que executa o mesmo que excluir, porém ele desconta na carga horária trabalhada do trabalhador (a função inversa da que calcula o valor que ele pode gastar, ver formula fazer sua inversa e ver se zera horas trabalhadas (acumuladas) quando deve zera, isto é, quando gasta tudo, como prova dos nove, teste final) 
 
-Já vai descontar automaticamente.
+[ok] Já vai descontar automaticamente.
 Depois ver se vai salvar esse descontado e carrega-lo, ao inves de descontar na hora que carrega, mantendo o total trabalhado a vida toda sempre (pq não posso resetar por mês etc)
 E como vai tirar o produto ou serviço dessa lista de demanda do usuário, se será quando ele efetivamente receber na sua casa o item e confirmar o recebimento (ou confirmar a retirada)
         |----------- pode ter um botão que faça isso, ao lado do produto (Confirmar Recebimento/Retirada), que executa o mesmo que excluir, porém ele desconta na carga horária trabalhada do trabalhador (a função inversa da que calcula o valor que ele pode gastar, ver formula fazer sua inversa e ver se zera horas trabalhadas (acumuladas) quando deve zera, isto é, quando gasta tudo, como prova dos nove, teste final)
@@ -44,23 +44,8 @@ Existe trabalho acumulado na economia planificada.
 Porém, o trabalho só pode ser acumulado pela própria pessoa que trabalhou, não por outra, que é o que determina a exploração (isto é, não existe exploração).
 O Estado Operário apenas realoca obrigatoriamente parte do trabalho acumulado, de forma análoga ao imposto, mas essencialmente diferente, pois todo o realocado vai de volta para os próprios trabalhadores que obrigatoriamente só o recebem se trabalharem em um dos setores essenciais, não existe vantagem, privilégio, mordomia, sevidão, não vai para setor bancário, especulativo nem alimenta nenhum capital produtivo ou não, é a justiça final que se autojustifica, sem classes acima explorando as de baixo.
 
-"productNames": [
-      "Projetor",
-      "Jaleco",
-      "Rede de Educação"
-    ],
-    "sectorNames": [
-      "Produção de Projetor",
-      "Produção de Jaleco",
-      "Rede de Educação"
-    ],
-    "finalDemand": [
-      0.008,
-      0.011,
-      0.024
-    ],
 
-4) Segurança
+[~] 4) Segurança
 
 4.1) Colocar uma pseudo-criptografia no código enviado para o navegador, de modo que seja impossível alterar dados de campos manualmente por dentro do código fonte e mandar salvar.
 Faça isso colocando um "embaralhador de código" que embaralha aleatoriamente, cada vez que o código é embaralhado é única, sem chave que o permita ser desembaralhado, sem que nenhum dos campos de texto ou numérico possa ter seu valor identificado diretamente no código fonte do navegador,
@@ -75,7 +60,8 @@ A principio esse parâmetro não será uma chave que só funciona no servidor, a
 pra evitar enviar o código todo para o usuário, se ele tentar ver no navegador não vai ver nada além dessa função reduzida e já tbm toda embaralhada no meio de uma poluição (ruido) embaralhada tbm, impossível de ser decifrada.
 Pedir para ele inserir varias funções que não fazem nada no meio, só para confundir quem tentar desembaralhar;
 
-4.4) Ver se HTTPS é criptografado ou se pode ser acessado e quebrado por algum governo, se sim, ver se há protocolo alternativo reconhecido por todos os navegadores atuais.
+[ok] 4.4) Ver se HTTPS é criptografado ou se pode ser acessado e quebrado por algum governo, se sim, ver se há protocolo alternativo reconhecido por todos os navegadores atuais.
+    Sim. HTTPS critptografa a conexão e é praticamente impossível espionagem ou interceptação (a não por algo instalado no navegador que leia depois de descriptografado, mas não no meio do caminho, nem alteração de dados).
 
 4.5) Ver o código fonte não o torna vulnerável, pois o usuário pode tentar mudar o código fonte no repositório, mas não o muda no servidor, e saber como ele funciona não o ajuda a decifrar o misturador aleatório e alterar dados na camada front-end em tempo de execução e salvá-los, fraudando o sistema.
 É como se o sistema estivesse "compilado" e não dá pra mexer nele, mudar seu conteúdo nem nada, em tempo de execução, se "recompila-lo" com seu novo codigo fonte alterado (que seria uma atualização no repositório e deploy no servidor de produção, mas isso para qualquer aplicação em qualquer linguagem).
