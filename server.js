@@ -37,8 +37,8 @@ function isLocalEnvironment(req) {
 let productionSSL = null;
 try {
   productionSSL = {
-    key: fs.readFileSync(path.join(__dirname, 'cert.pem')),
-    cert: fs.readFileSync(path.join(__dirname, 'chain.pem')),
+    key: fs.readFileSync('/etc/letsencrypt/live/planecon.xyz-0003/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/planecon.xyz-0003/fullchain.pem'),
   };
 } catch (error) {
   console.log('Certificados de produção não encontrados, usando apenas certificados locais');
