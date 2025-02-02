@@ -22,15 +22,12 @@
 
 [ok] 3.2) Terminar salvamento. Só que a ordem que o usuário vai salvar não é a de sua matriz tecnológica pq ele não tem matriz tecnológica, usar a mesma lógica do comitê de fábrica, que tbm não tem matriz tecnológica e é usado na estimativa do conselho acima. Tem só um vetor tecnológico.
 
-3.3)  Carregar dados salvos (usar IA pra saber no código pras tabelas que salvam, para populá-las novamente);
+[ok] 3.3)  Carregar dados salvos (usar IA pra saber no código pras tabelas que salvam, para populá-las novamente);
 
-- iterar onde já é carregado o que já está corretamente salvo
-- chamar, para cada produto (que já está com o nome certo) a função que chama quando clica em "Retirar", e passar o nome do produto e passar o valor do campo numérico (ver se por dentro do objeto ou com parâmetro a mais, havendo um parâmetro padrão, caso não seja passado, de "1", que é quando adiciona pela primeira vez)
-- colocar if(ver se é usuário não conselheiro), se verdadeiro (se não é conselheiro) executa essa implementação, senão, a que já está lá
-- colocar if pra ver se productName contém a palavra "Rede", se sim chama a função para a tabela de serviços, se não, chama pra de produtos
-só isso.
-
-: 214
+[ok] - iterar onde já é carregado o que já está corretamente salvo
+[ok] - chamar, para cada produto (que já está com o nome certo) a função que chama quando clica em "Retirar", e passar o nome do produto e passar o valor do campo numérico (ver se por dentro do objeto ou com parâmetro a mais, havendo um parâmetro padrão, caso não seja passado, de "1", que é quando adiciona pela primeira vez)
+[ok] - colocar if(ver se é usuário não conselheiro), se verdadeiro (se não é conselheiro) executa essa implementação, senão, a que já está lá
+[ok] - colocar if pra ver se productName contém a palavra "Rede", se sim chama a função para a tabela de serviços, se não, chama pra de produtos
 
 3.4) A Confirmação do Recebimento/Retirada
 
