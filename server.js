@@ -32,8 +32,8 @@ function generateSelfSignedCerts() {
 // Função para obter as opções SSL
 function getSSLOptions() {
   return {
-    key: fs.readFileSync('/etc/letsencrypt/live/planecon.xyz-0003/privkey2.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/planecon.xyz-0003/fullchain2.pem')
+    key: fs.readFileSync('/etc/letsencrypt/live/planecon.xyz-0003/privkey.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/planecon.xyz-0003/fullchain.pem')
   };
 }
 
