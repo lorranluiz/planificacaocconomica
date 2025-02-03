@@ -31,18 +31,10 @@ function generateSelfSignedCerts() {
 
 // Função para obter as opções SSL
 function getSSLOptions() {
-  if (process.env.NODE_ENV === 'production' && !isLocalEnvironment({ get: () => PRODUCTION_DOMAIN })) {
-    return {
-      key: fs.readFileSync('/etc/letsencrypt/live/planecon.xyz-0003/privkey.pem'),
-      cert: fs.readFileSync('/etc/letsencrypt/live/planecon.xyz-0003/fullchain.pem')
-    };
-  } else {
-    const sslOptions = generateSelfSignedCerts();
-    return {
-      key: sslOptions.key,
-      cert: sslOptions.cert
-    };
-  }
+  return {
+    key: fs.readFileSync('/etc/letsencrypt/live/planecon.xyz-0003/privkey2.pem'),
+    cert: fs.readFileSync('/etc/letsencrypt/live/planecon.xyz-0003/fullchain2.pem')
+  };
 }
 
 const app = express();
