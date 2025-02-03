@@ -47,26 +47,28 @@ O Estado Operário apenas realoca obrigatoriamente parte do trabalho acumulado, 
 
 [~] 4) Segurança
 
-4.1) Colocar uma pseudo-criptografia no código enviado para o navegador, de modo que seja impossível alterar dados de campos manualmente por dentro do código fonte e mandar salvar.
+[ok] 4.1) Colocar HTTPS novamente para funcionar integralmente.
+
+4.2) Colocar uma pseudo-criptografia no código enviado para o navegador, de modo que seja impossível alterar dados de campos manualmente por dentro do código fonte e mandar salvar.
 Faça isso colocando um "embaralhador de código" que embaralha aleatoriamente, cada vez que o código é embaralhado é única, sem chave que o permita ser desembaralhado, sem que nenhum dos campos de texto ou numérico possa ter seu valor identificado diretamente no código fonte do navegador,
 mas que seja lido e funciuone normalmente no navegador, só está embaralhado.
 
-4.2) Colocar a leitura de parâmetro recebido pelo pm2 ao server direto na linha de comando, que informe ao server.js (chamdo pelo pm2) quando é para ele enviar o código embaralhado ou não.
+4.3) Colocar a leitura de parâmetro recebido pelo pm2 ao server direto na linha de comando, que informe ao server.js (chamdo pelo pm2) quando é para ele enviar o código embaralhado ou não.
 No desenvolvimento, suspenso o banco de dados real, para algum debug em tempo de produção, não envia embaralhado, mas via de regra envia embaralhado
 A função deve informa se "não envia embaralhado", pois se não for informado nada ou passado parâmetro nenhum ou inválido é para embaralhar.
 A principio esse parâmetro não será uma chave que só funciona no servidor, apenas um parâmetro, mas poderia ser.
 
-4.3) O código embaralhado não deve ser enviado diretamente, mas deve haver uma página intermediária que carrega todo o código fonte (o insere no DOM), essa intermediária inicial que é também embaralhada e enviada para o navegador, apenas com uma função pequena de carregar via AJAX todo o código fonte embaralhado da página e o iniciar.
+4.4) O código embaralhado não deve ser enviado diretamente, mas deve haver uma página intermediária que carrega todo o código fonte (o insere no DOM), essa intermediária inicial que é também embaralhada e enviada para o navegador, apenas com uma função pequena de carregar via AJAX todo o código fonte embaralhado da página e o iniciar.
 pra evitar enviar o código todo para o usuário, se ele tentar ver no navegador não vai ver nada além dessa função reduzida e já tbm toda embaralhada no meio de uma poluição (ruido) embaralhada tbm, impossível de ser decifrada.
 Pedir para ele inserir varias funções que não fazem nada no meio, só para confundir quem tentar desembaralhar;
 
-[ok] 4.4) Ver se HTTPS é criptografado ou se pode ser acessado e quebrado por algum governo, se sim, ver se há protocolo alternativo reconhecido por todos os navegadores atuais.
+[ok] 4.5) Ver se HTTPS é criptografado ou se pode ser acessado e quebrado por algum governo, se sim, ver se há protocolo alternativo reconhecido por todos os navegadores atuais.
     Sim. HTTPS critptografa a conexão e é praticamente impossível espionagem ou interceptação (a não por algo instalado no navegador que leia depois de descriptografado, mas não no meio do caminho, nem alteração de dados).
 
-4.5) Ver o código fonte não o torna vulnerável, pois o usuário pode tentar mudar o código fonte no repositório, mas não o muda no servidor, e saber como ele funciona não o ajuda a decifrar o misturador aleatório e alterar dados na camada front-end em tempo de execução e salvá-los, fraudando o sistema.
+4.6) Ver o código fonte não o torna vulnerável, pois o usuário pode tentar mudar o código fonte no repositório, mas não o muda no servidor, e saber como ele funciona não o ajuda a decifrar o misturador aleatório e alterar dados na camada front-end em tempo de execução e salvá-los, fraudando o sistema.
 É como se o sistema estivesse "compilado" e não dá pra mexer nele, mudar seu conteúdo nem nada, em tempo de execução, se "recompila-lo" com seu novo codigo fonte alterado (que seria uma atualização no repositório e deploy no servidor de produção, mas isso para qualquer aplicação em qualquer linguagem).
 
-4.6) Criar um arquivo secure.js, pois apesar de parecer vulnerável fazer isso, caso alguém mexa nessa lógica de segurança será visível, ficará explícito e poderá ser desfeito facilmente, restaurando ou aperfeiçoando os mecanismos de segurança a cada falha ou brecha.
+4.7) Criar um arquivo secure.js, pois apesar de parecer vulnerável fazer isso, caso alguém mexa nessa lógica de segurança será visível, ficará explícito e poderá ser desfeito facilmente, restaurando ou aperfeiçoando os mecanismos de segurança a cada falha ou brecha.
 
 -------------------
 

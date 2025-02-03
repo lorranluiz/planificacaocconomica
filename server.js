@@ -31,10 +31,23 @@ function generateSelfSignedCerts() {
 
 // Função para obter as opções SSL
 function getSSLOptions() {
-  return {
-    key: fs.readFileSync('/etc/letsencrypt/live/planecon.xyz-0003/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/planecon.xyz-0003/fullchain.pem')
-  };
+  const certPath = '/etc/letsencrypt/live/planecon.xyz-0003/fullchain.pem';
+  const keyPath = '/etc/letsencrypt/live/planecon.xyz-0003/privkey.pem';
+
+  if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+    console.log("Usando certificado Let’s Encrypt.");
+    return {
+      key: fs.readFileSync(keyPath),
+      cert: fs.readFileSync(certPath)
+    };
+  } else {
+    console.log("Certificado Let’s Encrypt não encontrado. Gerando certificado autoassinado.");
+    const sslOptions = generateSelfSignedCerts();
+    return {
+      key: sslOptions.key,
+      cert: sslOptions.cert
+    };
+  }
 }
 
 const app = express();
