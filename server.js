@@ -6,51 +6,36 @@ const fsp = require('fs').promises; // Usa o módulo de promessas do fs
 const path = require('path');
 const cors = require('cors');
 const multer = require('multer'); // Biblioteca para upload de arquivos
-const selfsigned = require('selfsigned'); // Adicione esta linha
+const selfsigned = require('selfsigned'); // Biblioteca para gerar certificados autoassinados
 const hostname = '0.0.0.0';
 const PRODUCTION_DOMAIN = 'planecon.xyz';
-
-// Função para gerar certificados auto-assinados
-function generateSelfSignedCerts() {
-  const attrs = [{ name: 'commonName', value: 'localhost' }];
-  const pems = selfsigned.generate(attrs, {
-    algorithm: 'sha256',
-    days: 30,
-    keySize: 2048,
-  });
-  return {
-    key: pems.private,
-    cert: pems.cert
-  };
-}
 
 // Função para determinar se está rodando em localhost
 function isLocalEnvironment(req) {
   const host = req.get('host') || '';
   return !host.includes(PRODUCTION_DOMAIN) && 
          (host.includes('localhost') || 
-          host.includes('127.0.0.1') || 
+          host.includes('127.0.0.1') ||
           process.env.NODE_ENV === 'development');
 }
 
-// Configure as opções SSL de forma dinâmica
-let productionSSL = null;
-try {
-  productionSSL = {
-    key: fs.readFileSync('/etc/letsencrypt/live/planecon.xyz-0003/privkey.pem'),
-    cert: fs.readFileSync('/etc/letsencrypt/live/planecon.xyz-0003/fullchain.pem'),
+// Função para gerar certificados autoassinados
+function generateSelfSignedCerts() {
+  const pems = selfsigned.generate(null, { days: 365 });
+  return {
+    key: pems.private,
+    cert: pems.cert
   };
-} catch (error) {
-  console.log('Certificados de produção não encontrados, usando apenas certificados locais');
 }
 
-// Middleware para escolher o certificado baseado na requisição
-const getSSLOptions = (req) => {
-  if (isLocalEnvironment(req)) {
-    return generateSelfSignedCerts();
-  }
-  return productionSSL;
-};
+// Função para obter as opções SSL
+function getSSLOptions() {
+  const sslOptions = generateSelfSignedCerts();
+  return {
+    key: sslOptions.key,
+    cert: sslOptions.cert
+  };
+}
 
 const app = express();
 
@@ -103,22 +88,6 @@ app.use('/jsonServer', jsonServerApp);
 // Middleware para uploads
 const upload = multer({ dest: 'uploads/' });
 
-// Rota para listar arquivos e pastas
-app.get('/files', (req, res) => {
-  const basePath = path.resolve('.');
-  const dirPath = path.join(basePath, req.query.path || '/');
-  fs.readdir(dirPath, { withFileTypes: true }, (err, files) => {
-    if (err) return res.status(500).json({ error: 'Failed to list files' });
-    res.json({
-      path: req.query.path || '/',
-      files: files.map(file => ({
-        name: file.name,
-        isDirectory: file.isDirectory()
-      }))
-    });
-  });
-});
-
 // Rota para baixar arquivos
 app.get('/download', (req, res) => {
     try {
@@ -141,7 +110,6 @@ app.get('/download', (req, res) => {
     }
 });
 
-
 // Rota para fazer upload de arquivos
 app.post('/upload', upload.single('file'), (req, res) => {
   const uploadPath = path.join('.', req.body.path || '/', req.file.originalname);
@@ -151,59 +119,21 @@ app.post('/upload', upload.single('file'), (req, res) => {
   });
 });
 
-// Rota para deletar arquivos
-app.post('/delete', async (req, res) => {
-    try {
-        const { path: dirPath, name } = req.body;
-
-        // Valida se os parâmetros foram fornecidos
-        if (!dirPath || !name) {
-            return res.status(400).json({ error: 'Parâmetros inválidos: path ou name ausentes.' });
-        }
-
-        // Constrói o caminho relativo correto
-        const filePath = path.join('.', dirPath, name).replace(/\\/g, '/');
-
-        // Verifica se o arquivo existe
-        await fsp.access(filePath);
-
-        // Remove o arquivo
-        await fsp.unlink(filePath);
-
-        res.status(200).json({ message: 'Arquivo deletado com sucesso.' });
-    } catch (err) {
-        console.error('Erro ao deletar arquivo:', err);
-
-        if (err.code === 'ENOENT') {
-            // Arquivo não encontrado
-            return res.status(404).json({ error: 'Arquivo não encontrado.' });
-        }
-
-        res.status(500).json({ error: 'Erro ao deletar arquivo.' });
-    }
-});
-
-
-// Criar servidores HTTP e HTTPS com certificados dinâmicos
+// Criar servidor HTTP
 const httpServer = http.createServer(app);
-const httpsServer = https.createServer((req, socket, head) => {
-  const sslOptions = getSSLOptions(req);
-  const secureServer = https.createServer(sslOptions, app);
-  secureServer.emit('connection', socket);
-  socket.on('data', (data) => {
-    secureServer.emit('connection', socket);
-  });
-}, app);
 
+// Criar servidor HTTPS
+const httpsServer = https.createServer(getSSLOptions(), app);
 
-// Iniciar o servidor
+// Iniciar o servidor HTTP
 httpServer.listen(80, hostname, () => {
   console.log(`Servidor HTTP rodando em http://${hostname}`);
 });
+
+// Iniciar o servidor HTTPS
 httpsServer.listen(443, hostname, () => {
   console.log(`Servidor HTTPS rodando em https://${hostname}`);
 });
-
 
 process.on('uncaughtException', (err) => {
   console.error('Erro não tratado:', err);
@@ -220,4 +150,8 @@ app.use((err, req, res, next) => {
 
 httpServer.on('error', (err) => {
   console.error('Erro no servidor HTTP:', err);
+});
+
+httpsServer.on('error', (err) => {
+  console.error('Erro no servidor HTTPS:', err);
 });
