@@ -120,15 +120,18 @@ app.post('/upload', upload.single('file'), (req, res) => {
   });
 });
 
-// Criar servidor HTTP
-const httpServer = http.createServer(app);
+// Criar servidor HTTP para redirecionar para HTTPS
+const httpServer = http.createServer((req, res) => {
+  res.writeHead(301, { "Location": `https://${req.headers.host.split(':')[0]}:8443${req.url}` });
+  res.end();
+});
 
 // Criar servidor HTTPS
 const httpsServer = https.createServer(getSSLOptions(), app);
 
-// Iniciar o servidor HTTP
+// Iniciar o servidor HTTP na porta 80
 httpServer.listen(80, hostname, () => {
-  console.log(`Servidor HTTP rodando em http://${hostname}`);
+  console.log(`Servidor HTTP redirecionando para HTTPS em http://${hostname}`);
 });
 
 // Iniciar o servidor HTTPS na porta 8443
