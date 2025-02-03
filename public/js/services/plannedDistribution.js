@@ -236,7 +236,7 @@ function plannedDistribution(worldSectorNames, productionTimesOfProducts, instan
         });
     }
 
-    }, 2000);
+    }, 4000);
 
 }
 
