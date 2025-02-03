@@ -205,38 +205,49 @@ function plannedDistribution(worldSectorNames, productionTimesOfProducts, instan
     document.getElementById('tabBensDeConsumo').click(); //Por padrão inicia mostrando os bens de consumo
 
     //Aguardar um segundo pra termianr de montar a página
-    setTimeout(() => {
-        // Código a ser executado após 2 segundos
+    let intervalId = setInterval(() => {
+        let allProductsLoaded = true;
 
-    //Agora carregamos os itens que o usuário tenha solicitado retirada (a serem retirados)
-    if(instanceData !== null){
-        instanceData.productNames.forEach((productName, index) => {
-            //Simula uma entrada em um campo, criando (depois limpo na memória) e por isso o .value
-            if (productName.includes("Rede")) {
-            let servico = servicosProducts.find(servico => servico.name === productName);
-            if (servico) {
-                //Adicionar item carregado
-                let demandaInput = addItemToTable(servicosTableBody, servico);
+        if (instanceData !== null) {
+            instanceData.productNames.forEach((productName, index) => {
+                if (productName.includes("Rede")) {
+                    let servico = servicosProducts.find(servico => servico.name === productName);
+                    if (servico) {
+                        let demandaInput = addItemToTable(servicosTableBody, servico);
 
-                //Carregar a quantidade demandada
-                demandaInput.value = parseFloat(instanceData.finalDemand[index])*1000; //Fator da escala de produção usada nas contas (por mil, na planificação da produção). Lá não precisa multiplciar nem dividir, a conta já se considerando sendo 1 = 1000. Aqui que 1 não é 1000, é 0,001 (já que lá a conta é na escala de 1000)
-                checkDemandAndRecalculate(servico, demandaInput);
-            }
-            } else {
-            let bemDeConsumo = bensDeConsumoProducts.find(bem => bem.name === productName);
-            if (bemDeConsumo) {
-                //Adicionar item carregado
-                let demandaInput = addItemToTable(bensDeConsumoTableBody, bemDeConsumo);
+                        if (demandaInput === undefined) {
+                            allProductsLoaded = false;
+                            return;
+                        }
 
-                //Carregar a quantidade demandada
-                demandaInput.value = parseFloat(instanceData.finalDemand[index])*1000; //Fator da escala de produção usada nas contas (por mil, na planificação da produção). Lá não precisa multiplciar nem dividir, a conta já se considerando sendo 1 = 1000. Aqui que 1 não é 1000, é 0,001 (já que lá a conta é na escala de 1000)
-                checkDemandAndRecalculate(bemDeConsumo, demandaInput);
-            }
-            }
-        });
-    }
+                        demandaInput.value = parseFloat(instanceData.finalDemand[index]) * 1000;
+                        checkDemandAndRecalculate(servico, demandaInput);
+                    } else {
+                        allProductsLoaded = false;
+                    }
+                } else {
+                    let bemDeConsumo = bensDeConsumoProducts.find(bem => bem.name === productName);
+                    if (bemDeConsumo) {
+                        let demandaInput = addItemToTable(bensDeConsumoTableBody, bemDeConsumo);
 
-    }, 4000);
+                        if (demandaInput === undefined) {
+                            allProductsLoaded = false;
+                            return;
+                        }
+
+                        demandaInput.value = parseFloat(instanceData.finalDemand[index]) * 1000;
+                        checkDemandAndRecalculate(bemDeConsumo, demandaInput);
+                    } else {
+                        allProductsLoaded = false;
+                    }
+                }
+            });
+        }
+
+        if (allProductsLoaded) {
+            clearInterval(intervalId);
+        }
+    }, 1000);
 
 }
 
