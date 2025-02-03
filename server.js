@@ -21,7 +21,8 @@ function isLocalEnvironment(req) {
 
 // Função para gerar certificados autoassinados
 function generateSelfSignedCerts() {
-  const pems = selfsigned.generate(null, { days: 365 });
+  const attrs = [{ name: 'commonName', value: 'localhost' }];
+  const pems = selfsigned.generate(attrs, { keySize: 2048, days: 365 });
   return {
     key: pems.private,
     cert: pems.cert
