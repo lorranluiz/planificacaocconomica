@@ -1,5 +1,4 @@
 const fs = require('fs');
-const http = require('http');
 const https = require('https');
 const express = require('express');
 const fsp = require('fs').promises; // Usa o módulo de promessas do fs
@@ -120,22 +119,11 @@ app.post('/upload', upload.single('file'), (req, res) => {
   });
 });
 
-// Criar servidor HTTP para redirecionar para HTTPS
-const httpServer = http.createServer((req, res) => {
-  res.writeHead(301, { "Location": `https://${req.headers.host}${req.url}` });
-  res.end();
-});
-
-// Criar servidor HTTPS na porta 80
+// Criar servidor HTTPS na porta 443
 const httpsServer = https.createServer(getSSLOptions(), app);
 
-// Iniciar o servidor HTTP na porta 8080 para redirecionar para HTTPS
-httpServer.listen(8080, hostname, () => {
-  console.log(`Servidor HTTP redirecionando para HTTPS em http://${hostname}:8080`);
-});
-
-// Iniciar o servidor HTTPS na porta 80
-httpsServer.listen(80, hostname, () => {
+// Iniciar o servidor HTTPS na porta 443
+httpsServer.listen(443, hostname, () => {
   console.log(`Servidor HTTPS rodando em https://${hostname}`);
 });
 
@@ -150,10 +138,6 @@ process.on('unhandledRejection', (reason, promise) => {
 app.use((err, req, res, next) => {
   console.error('Erro no servidor:', err);
   res.status(500).json({ message: 'Erro interno do servidor' });
-});
-
-httpServer.on('error', (err) => {
-  console.error('Erro no servidor HTTP:', err);
 });
 
 httpsServer.on('error', (err) => {
