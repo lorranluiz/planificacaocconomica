@@ -122,21 +122,21 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
 // Criar servidor HTTP para redirecionar para HTTPS
 const httpServer = http.createServer((req, res) => {
-  res.writeHead(301, { "Location": `https://${req.headers.host.split(':')[0]}:8443${req.url}` });
+  res.writeHead(301, { "Location": `https://${req.headers.host}${req.url}` });
   res.end();
 });
 
-// Criar servidor HTTPS
+// Criar servidor HTTPS na porta 80
 const httpsServer = https.createServer(getSSLOptions(), app);
 
-// Iniciar o servidor HTTP na porta 80
-httpServer.listen(80, hostname, () => {
-  console.log(`Servidor HTTP redirecionando para HTTPS em http://${hostname}`);
+// Iniciar o servidor HTTP na porta 8080 para redirecionar para HTTPS
+httpServer.listen(8080, hostname, () => {
+  console.log(`Servidor HTTP redirecionando para HTTPS em http://${hostname}:8080`);
 });
 
-// Iniciar o servidor HTTPS na porta 8443
-httpsServer.listen(8443, hostname, () => {
-  console.log(`Servidor HTTPS rodando em https://${hostname}:8443`);
+// Iniciar o servidor HTTPS na porta 80
+httpsServer.listen(80, hostname, () => {
+  console.log(`Servidor HTTPS rodando em https://${hostname}`);
 });
 
 process.on('uncaughtException', (err) => {
