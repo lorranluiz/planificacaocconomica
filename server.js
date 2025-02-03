@@ -130,9 +130,9 @@ httpServer.listen(80, hostname, () => {
   console.log(`Servidor HTTP rodando em http://${hostname}`);
 });
 
-// Iniciar o servidor HTTPS
-httpsServer.listen(443, hostname, () => {
-  console.log(`Servidor HTTPS rodando em https://${hostname}`);
+// Iniciar o servidor HTTPS na porta 8443
+httpsServer.listen(8443, hostname, () => {
+  console.log(`Servidor HTTPS rodando em https://${hostname}:8443`);
 });
 
 process.on('uncaughtException', (err) => {
