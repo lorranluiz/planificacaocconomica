@@ -1,3 +1,5 @@
+require('dotenv').config(); // Carregar variáveis de ambiente do arquivo .env
+
 const fs = require('fs');
 const http = require('http');
 const https = require('https');
@@ -7,8 +9,11 @@ const path = require('path');
 const cors = require('cors');
 const multer = require('multer'); // Biblioteca para upload de arquivos
 const selfsigned = require('selfsigned'); // Biblioteca para gerar certificados autoassinados
-const hostname = '0.0.0.0';
-const PRODUCTION_DOMAIN = 'planecon.xyz';
+const htmlObfuscator = require('html-obfuscator');
+
+const hostname = process.env.HOSTNAME || '0.0.0.0';
+const PRODUCTION_DOMAIN = process.env.PRODUCTION_DOMAIN || 'planecon.xyz';
+const OBFUSCATE_HTML = process.env.OBFUSCATE_HTML === 'true';
 
 // Função para determinar se está rodando em localhost
 function isLocalEnvironment(req) {
@@ -50,6 +55,33 @@ function getSSLOptions() {
   }
 }
 
+// Lógica para renomear pastas de acordo com OBFUSCATE_HTML
+const jsPath = path.join(__dirname, 'public', 'js');
+const jsObfuscatedPath = path.join(__dirname, 'public', 'js_obfuscated');
+const jsNotObfuscatedPath = path.join(__dirname, 'public', 'js_not_obfuscated');
+
+if (OBFUSCATE_HTML) {
+
+  console.log('Obfuscating HTML.');
+
+  if (fs.existsSync(jsObfuscatedPath)) {
+    if (fs.existsSync(jsPath)) {
+      fs.renameSync(jsPath, jsNotObfuscatedPath);
+    }
+    fs.renameSync(jsObfuscatedPath, jsPath);
+  }
+} else {
+
+  console.log('Not obfuscating HTML.');
+
+  if (fs.existsSync(jsNotObfuscatedPath)) {
+    if (fs.existsSync(jsPath)) {
+      fs.renameSync(jsPath, jsObfuscatedPath);
+    }
+    fs.renameSync(jsNotObfuscatedPath, jsPath);
+  }
+}
+
 const app = express();
 
 // Aumenta o limite do body-parser para o app principal
@@ -63,6 +95,22 @@ jsonServerApp.use(cors());
 // Aumenta o limite também para o jsonServerApp
 jsonServerApp.use(express.json({limit: '50mb'}));
 jsonServerApp.use(express.urlencoded({limit: '50mb', extended: true}));
+
+app.use((req, res, next) => {
+  if (OBFUSCATE_HTML && req.url === '/') {
+    const htmlPath = path.join(__dirname, 'public', 'index.html');
+    fs.readFile(htmlPath, 'utf8', (err, data) => {
+      if (err) return next(err);
+      
+      //const modifiedHtml = data.replace(/src=["']js\//g, 'src="js_obfuscated/');
+      const obfuscatedHTML = htmlObfuscator.obfuscate(data);
+      
+      res.type('text/html').send(obfuscatedHTML);
+    });
+  } else {
+    next();
+  }
+});
 
 // Servir arquivos estáticos da pasta "public"
 app.use(express.static(path.join(__dirname, 'public')));
