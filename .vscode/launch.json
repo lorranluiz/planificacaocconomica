@@ -1,0 +1,24 @@
+{
+    "configurations": [
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Launch Program",
+        "program": "${workspaceFolder}/${input:programPath}",
+        "args": [],
+        "envFile": "${workspaceFolder}/.env"
+      }
+    ],
+    "inputs": [
+      {
+        "type": "pickString",
+        "id": "programPath",
+        "description": "Select the program to launch",
+        "options": [
+          "server.js",
+          "build.js",
+          "public/js/app.js"
+        ]
+      }
+    ]
+  }

@@ -1,15 +1,16 @@
 require('dotenv').config(); // Carregar variáveis de ambiente do arquivo .env
 
+
 const fs = require('fs');
 const http = require('http');
 const https = require('https');
 const express = require('express');
-const fsp = require('fs').promises; // Usa o módulo de promessas do fs
 const path = require('path');
 const cors = require('cors');
 const multer = require('multer'); // Biblioteca para upload de arquivos
-const selfsigned = require('selfsigned'); // Biblioteca para gerar certificados autoassinados
-const htmlObfuscator = require('html-obfuscator');
+const { loadSecureEnvironment, manageObfuscatedFoldersAndFiles, getSSLOptions } = require('./public/js/secure/secure.js');
+
+loadSecureEnvironment(path, fs);
 
 const hostname = process.env.HOSTNAME || '0.0.0.0';
 const PRODUCTION_DOMAIN = process.env.PRODUCTION_DOMAIN || 'planecon.xyz';
@@ -24,65 +25,10 @@ function isLocalEnvironment(req) {
           process.env.NODE_ENV === 'development');
 }
 
-// Função para gerar certificados autoassinados
-function generateSelfSignedCerts() {
-  const attrs = [{ name: 'commonName', value: 'localhost' }];
-  const pems = selfsigned.generate(attrs, { keySize: 2048, days: 365 });
-  return {
-    key: pems.private,
-    cert: pems.cert
-  };
-}
-
-// Função para obter as opções SSL
-function getSSLOptions() {
-  const certPath = '/etc/letsencrypt/live/planecon.xyz-0003/fullchain.pem';
-  const keyPath = '/etc/letsencrypt/live/planecon.xyz-0003/privkey.pem';
-
-  if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
-    console.log("Usando certificado Let’s Encrypt.");
-    return {
-      key: fs.readFileSync(keyPath),
-      cert: fs.readFileSync(certPath)
-    };
-  } else {
-    console.log("Certificado Let’s Encrypt não encontrado. Gerando certificado autoassinado.");
-    const sslOptions = generateSelfSignedCerts();
-    return {
-      key: sslOptions.key,
-      cert: sslOptions.cert
-    };
-  }
-}
-
-// Lógica para renomear pastas de acordo com OBFUSCATE_HTML
-const jsPath = path.join(__dirname, 'public', 'js');
-const jsObfuscatedPath = path.join(__dirname, 'public', 'js_obfuscated');
-const jsNotObfuscatedPath = path.join(__dirname, 'public', 'js_not_obfuscated');
-
-if (OBFUSCATE_HTML) {
-
-  console.log('Obfuscating HTML.');
-
-  if (fs.existsSync(jsObfuscatedPath)) {
-    if (fs.existsSync(jsPath)) {
-      fs.renameSync(jsPath, jsNotObfuscatedPath);
-    }
-    fs.renameSync(jsObfuscatedPath, jsPath);
-  }
-} else {
-
-  console.log('Not obfuscating HTML.');
-
-  if (fs.existsSync(jsNotObfuscatedPath)) {
-    if (fs.existsSync(jsPath)) {
-      fs.renameSync(jsPath, jsObfuscatedPath);
-    }
-    fs.renameSync(jsNotObfuscatedPath, jsPath);
-  }
-}
-
 const app = express();
+
+//Gerenciamento de ofuscamento de código no navegador
+manageObfuscatedFoldersAndFiles(app, OBFUSCATE_HTML)
 
 // Aumenta o limite do body-parser para o app principal
 app.use(express.json({limit: '50mb'}));
@@ -95,22 +41,6 @@ jsonServerApp.use(cors());
 // Aumenta o limite também para o jsonServerApp
 jsonServerApp.use(express.json({limit: '50mb'}));
 jsonServerApp.use(express.urlencoded({limit: '50mb', extended: true}));
-
-app.use((req, res, next) => {
-  if (OBFUSCATE_HTML && req.url === '/') {
-    const htmlPath = path.join(__dirname, 'public', 'index.html');
-    fs.readFile(htmlPath, 'utf8', (err, data) => {
-      if (err) return next(err);
-      
-      //const modifiedHtml = data.replace(/src=["']js\//g, 'src="js_obfuscated/');
-      const obfuscatedHTML = htmlObfuscator.obfuscate(data);
-      
-      res.type('text/html').send(obfuscatedHTML);
-    });
-  } else {
-    next();
-  }
-});
 
 // Servir arquivos estáticos da pasta "public"
 app.use(express.static(path.join(__dirname, 'public')));
