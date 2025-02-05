@@ -14,7 +14,7 @@
 6. [Como Usar](#-como-usar)
     1. [Clonar o Repositório](#1-clonar-o-repositório)
     2. [Instalar](#2-instalar)
-7. [Contato](#contato)
+7. [Contato](#-contato)
 
 # 🚀 Introdução
 Planificação Econômica
