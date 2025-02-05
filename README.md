@@ -16,13 +16,14 @@
     2. [Instalar](#2-instalar)
 
 
-# planecon
+# Introdução
 Planificação Econômica
 
 Este projeto é uma ferramenta open-source para planificação econômica otimizada e democrática. Ele permite planificar uma economia de maneira democrática e otimizada, ajudando a classe trabalahdora a resolver o problema da planificação econômica em estados operários e no socialismo internacional.
 
-## O Que Fiz?
-Compilei tudo o que a classe trabalhadora desenvolveu social e tecnicamente para a organização de sua própria produção, parte disso que hoje é usado contra ela própria pela ínfima minoria burguesia que, por isso, extrai para si mesma lucros abismais em relação ao salário para a reprodução do trabalho dos trabalhadores e o desemprego de uma parte para formação do exército de reserva, que otimiza a exploração e os lucros. Em casos cíclicos apela para destruição de forças produtivas (guerras) e estimulo ideológico às opressões já existentes ou a criação de novas, divindo a classe trabalhadora para manter essas taxas de lucro.
+## O Que É Isso?
+
+Esse aplicativo é uma aplicação prática que reúne tudo o que a classe trabalhadora desenvolveu social e tecnicamente, tudo o que desenvolveu com suas lições históricas, para a organização de sua própria produção. Grande parte do que os próprios trabalhadores fizeram hoje ainda é usado contra eles próprios, em benefício de uma ínfima minoria que conforma a chamada burguesia que, para isso, extrai para si mesma lucros abismais em relação aos salários pagos para a reprodução do trabalho dos trabalhadores, além da manutenção do desemprego de uma parte dos trabalhadores para a manutenção do chamado exército de reserva, que permite otimizar a exploração dos trabalhadores e os lucros da burguesia. Uma nefasta caracterísitca endêmica disso são os ciclos nos quais a burguesia, para manter sua taxa de lucro, apela para a destruição de forças produtivas (por meio de guerras ou deixando rolar solta uma pandemia) ou por meio do estimulo à ideologias que estimulem divisões no seio da classe trabalhadora, por meio de polarizações políticas superficiais ou por meio do fomento a ideologias que embasam as opressões, novas ou já existentes (principalmente xenofobia, racismo, LGBTfobia, machismo e capacitismo).
 
 Não criei nada que a classe trabalhadora já não tenha criado, apenas compilei sua explêndida criação.
 
