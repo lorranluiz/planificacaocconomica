@@ -15,6 +15,7 @@
 7. [How to Use](#how-to-use)
     1. [Clone the Repository](#clone-the-repository)
     2. [Install](#install)
+8. [Contact](#contact)
 
 <a id="languages"></a>
 ## 🌐 Languages 
@@ -66,3 +67,7 @@ git clone https://github.com/lorranluiz/planificacaocconomica.git
 ```bash
 cd planificacaocconomica
 npm install
+
+<a id="contact"></a>
+## 📧 Contact
+If you have any questions, please raise an issue or contact us at lorranluiz@id.uff.br .

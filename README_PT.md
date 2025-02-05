@@ -14,6 +14,7 @@
 6. [Como Usar](#-como-usar)
     1. [Clonar o Repositório](#1-clonar-o-repositório)
     2. [Instalar](#2-instalar)
+7. [Contato](#contato)
 
 # 🚀 Introdução
 Planificação Econômica
@@ -52,3 +53,6 @@ git clone https://github.com/lorranluiz/planificacaocconomica.git
 ```bash
 cd planificacaocconomica
 npm install
+```
+## 📧 Contato
+Se você tiver alguma dúvida, por favor, poste um novo issue ou entre em contato conosco através de lorranluiz@id.uff.br .
