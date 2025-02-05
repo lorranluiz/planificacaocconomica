@@ -76,7 +76,7 @@ This project is open-source and built with dedication to help the community. If 
 
 🔹 Ways to support:
 - GitHub Sponsors
-- PayPal: your-email@example.com
+- Pix (Brazil): 21997427600
 Every contribution, big or small, makes a difference. Thank you for your support! 💙
 
 <a id="contact"></a>
