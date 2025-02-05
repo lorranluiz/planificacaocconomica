@@ -1,11 +1,9 @@
-```html
 <p align="center">
     <picture>
         <source srcset="./public/images/planEconLogoBranca1.png" media="(prefers-color-scheme: dark)">
         <img src="./public/images/planEconLogo1.png" alt="Planificação Econômica Logo">
     </picture>
 </p>
-```
 
 ## Índice
 1. [planecon](#planecon)
