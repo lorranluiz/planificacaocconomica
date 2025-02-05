@@ -8,7 +8,7 @@
 ## 📚 Index
 1. [Languages](#languages)
 2. [Introduction](#introduction)
-3. [What Did I Do?](#what-is-this)
+3. [What Is This?](#what-is-this)
 4. [How to Couple Production and Distribution](#how-to-couple-production-and-distribution)
 5. [Features](#features)
 6. [System Requirements](#system-requirements)
@@ -31,9 +31,11 @@ Economic Planning
 This project is an open-source tool for optimized and democratic economic planning. It allows planning an economy in a democratic and optimized way, helping the working class to solve the problem of economic planning in workers' states and international socialism.
 
 <a id="what-is-this"></a>
-## ℹ️ What Did I Do?
+## ℹ️ What Is This?
 
 This application is a practical tool that brings together everything the working class has developed socially and technically, everything it has developed with its historical lessons, for the organization of its own production. Much of what the workers themselves have done today is still used against them, for the benefit of a tiny minority that constitutes the so-called bourgeoisie, which, for this purpose, extracts for itself abysmal profits in relation to the wages paid for the reproduction of workers' labor, in addition to maintaining the unemployment of a portion of the workers to maintain the so-called reserve army, which optimizes the exploitation of workers and the profits of the bourgeoisie. A nefarious endemic characteristic of this is the cycles in which the bourgeoisie, to maintain its profit rate, resorts to the destruction of productive forces (through wars or by letting a pandemic run rampant) or by stimulating ideologies that promote divisions within the working class, through superficial political polarizations or by fostering ideologies that underpin oppressions, new or existing (mainly xenophobia, racism, LGBTphobia, sexism, and ableism).
+
+We haven't created anything that the working class hasn't already created; we have only compiled their splendid creation.
 
 <a id="how-to-couple-production-and-distribution"></a>
 ## 💡 How to Couple Production and Distribution
