@@ -7,7 +7,7 @@
 
 ## 📚 Índice
 1. [Introdução](#-introdução)
-2. [O Que É Isso?](#-o-que-é-isso)
+2. [O Que É Isso?](#ℹ️-o-que-é-isso)
 3. [Como Acoplar Produção e Distribuição](#-como-acoplar-produção-e-distribuição)
 4. [Funcionalidades](#-funcionalidades)
 5. [Requisitos do Sistema](#-requisitos-do-sistema)
