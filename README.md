@@ -1,4 +1,4 @@
-# planificacaocconomica
+# planecon
 Planificação Econômica
 
 Este projeto é uma ferramenta open-source para planificação econômica otimizada e democrática. Ele permite planificar uma economia de maneira democrática e otimizada, ajudando a classe trabalahdora a resolver o problema da planificação econômica em estados operários e no socialismo internacional.

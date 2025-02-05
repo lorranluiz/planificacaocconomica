@@ -110,6 +110,9 @@ app.post('/upload', upload.single('file'), (req, res) => {
   });
 });
 
+// Rota para servir arquivos estáticos da pasta "data/images"
+app.use('/data/images', express.static(path.join(__dirname, 'data', 'images')));
+
 // Criar servidor HTTP para redirecionar para HTTPS
 const httpServer = http.createServer((req, res) => {
   res.writeHead(301, { "Location": `https://planecon.xyz${req.url}` });

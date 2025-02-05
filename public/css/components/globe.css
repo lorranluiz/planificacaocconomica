@@ -47,7 +47,7 @@
     left: 50%;
     width: 350px; /* Ajuste para ser maior que o globo */
     height: 350px;
-    background: url('https://i.postimg.cc/TPs1T9y9/bordalogourss-transformed-removebg-preview.png') no-repeat center center;
+    background: url('../../images/bordalogourss.png') no-repeat center center;
     background-size: contain;
     transform: translate(-50%, -50%);
     z-index: 0; /* Garante que fique atrás do globo */
@@ -63,7 +63,7 @@
     width: 300px; /* Ajuste para o tamanho desejado da faixa */
     height: 290px;
     transform: translateX(-50%);
-    background: url('https://i.postimg.cc/m2s8BxFm/faixatrabalhadoresunivos-semfundo.png') no-repeat center center;
+    background: url('../../images/faixatrabalhadoresunivos.png') no-repeat center center;
     background-size: contain;
     z-index: 2; /* Garante que a faixa fique acima do globo e dos ramos */
     opacity: 0.9; /* Define a transparência */

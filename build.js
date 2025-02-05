@@ -8,6 +8,7 @@ const outputDir = path.join(__dirname, 'public', 'js_obfuscated');
 // Função para garantir que o diretório existe
 function ensureDirectoryExistence(dir) {
     if (!fs.existsSync(dir)) {
+        //Se p diretório não existe, ele é criado aqui
         fs.mkdirSync(dir, { recursive: true });
     }
 }
@@ -51,6 +52,17 @@ function processFilesRecursively(source, destination) {
     });
 }
 
-// Garantir que o diretório de saída existe antes de processar
-ensureDirectoryExistence(outputDir);
+function createEmptyObfuscatedFilesDirectory(){
+    //Apaga um direto antigo, caso exista
+    if (fs.existsSync(outputDir)) {
+        //Se existe, ele é apagado, para que seja criado um novo
+        fs.rmSync(outputDir, { recursive: true, force: true });
+    }
+
+    ensureDirectoryExistence(outputDir); //Cria o novo diretório
+}
+
+// Garantir que o diretório de saída exista esteja vazio antes de processar
+console.log('Creating obfuscated files...');
+createEmptyObfuscatedFilesDirectory();
 processFilesRecursively(sourceDir, outputDir);

@@ -14942,9 +14942,9 @@
       "Rede de Educação"
     ],
     "finalDemand": [
-      0.05,
-      0.022,
-      0.03
+      0.04,
+      0.025,
+      0.015
     ],
     "optimizationInputs": {},
     "optimizationResults": {},

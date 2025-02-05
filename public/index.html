@@ -5,9 +5,9 @@
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 		<title>Planificação Econômica Democrática com Otimização</title>
 		<link rel="icon" href="./favicon.ico" type="image/x-icon">
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.10.1/math.js"></script>
-		<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-		<script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+		<script src="./js/libraries/mathjs/11.10.1/math.js"></script>
+		<script src="./js/libraries/three.js/r128/three.min.js"></script>
+		<script src="./js/libraries/qrcodejs/qrcode.min.js"></script>
 		<link rel="stylesheet" href="css/components/style.css">
 	</head>
 	<body>
@@ -15,13 +15,13 @@
 		<div id="welcomeModal" class="modal">
 			<div class="modal-content">
 				<div class="modal-title-bar">
-					<img src="https://i.postimg.cc/TPhm79zs/pngwing-com-8.png" alt="Ícone de estrela">
+					<img src="./images/estrelaVermelha.png" alt="Ícone da Estrela Vermelha">
 					<span>Planificação Econômica Democrática e com Otimização</span>
-					&nbsp;<img src="https://i.postimg.cc/TPhm79zs/pngwing-com-8.png" alt="Ícone de estrela">
+					&nbsp;<img src="./images/estrelaVermelha.png" alt="Ícone de estrela">
 					<button class="close" onclick="closeWelcomeModal()">&times;</button>
 				</div>
 				<br>
-				<img src="https://s11.gifyu.com/images/Syrzl.gif" alt="Imagem de boas-vindas" class="welcome-image">
+				<img src="./images/animatedLenin.gif" alt="Imagem de boas-vindas" class="welcome-image">
 				<h2>Bem-Vindo à Ditadura do Proletariado, Companheiro!</h2>
 				<div id="welcomeTicker" class="welcome-ticker">
 					<span>É hora de arrumarmos a casa!</span>
@@ -53,13 +53,13 @@
 		<div id="infoBar" class="info-bar">
 			<!-- Linha com GIF e informações de localização, data e hora -->
 			<div class="info-row">
-				<img src="https://s11.gifyu.com/images/SyrSF.gif" alt="Foice e Martelo" class="info-gif">
+				<img src="./images/hammerAndSickle.gif" alt="Foice e Martelo" class="info-gif">
 				<span id="infoText"></span>
 			</div>
 			<!-- Letreiro com imagem -->
 		<div id="newsTicker" class="news-ticker">
 			<marquee id="newsMarquee" style="font-size: 16px; color: white;"></marquee>
-			<img src="https://images.emojiterra.com/twitter/v13.1/512px/1f4c8.png" alt="Ícone de gráfico" class="ticker-icon">
+			<img src="./images/graphIcon.png" alt="Ícone de gráfico" class="ticker-icon">
 		</div>
 		</div>
 
@@ -252,9 +252,9 @@
 		<div id="optimizationModal" class="modal">
 			<div class="modal-content">
 				<div class="modal-title-bar">
-					<img src="https://i.postimg.cc/TPhm79zs/pngwing-com-8.png" alt="Ícone de estrela">
+					<img src="./images/estrelaVermelha.png" alt="Ícone de estrela">
 					<span>Parâmetros de Otimização</span>
-					&nbsp;<img src="https://i.postimg.cc/TPhm79zs/pngwing-com-8.png" alt="Ícone de estrela">
+					&nbsp;<img src="./images/estrelaVermelha.png" alt="Ícone de estrela">
 					<button class="close" onclick="closeOptimizationModal()">&times;</button>
 				</div>
 				<p><strong>Produto:</strong> <span id="productName"></span></p>
@@ -278,9 +278,9 @@
 		<div id="optimizationResultModal" class="modal">
 			<div class="modal-content">
 				<div class="modal-title-bar">
-					<img src="https://i.postimg.cc/TPhm79zs/pngwing-com-8.png" alt="Ícone de estrela">
+					<img src="./images/estrelaVermelha.png" alt="Ícone de estrela">
 					<span>Plano de Produção do Setor</span>
-					&nbsp;<img src="https://i.postimg.cc/TPhm79zs/pngwing-com-8.png" alt="Ícone de estrela">
+					&nbsp;<img src="./images/estrelaVermelha.png" alt="Ícone de estrela">
 					<button class="close" onclick="closeOptimizationResultModal()">&times;</button>
 				</div>
 				<div id="optimizationResult"></div>
@@ -301,9 +301,9 @@
 	<div id="copyableDataModal" class="modal" style="display: none;">
 		<div class="modal-content">
 			<div class="modal-title-bar">
-				<img src="https://i.postimg.cc/TPhm79zs/pngwing-com-8.png" alt="Ícone de estrela">
+				<img src="./images/estrelaVermelha.png" alt="Ícone de estrela">
 				<span>Dados Copiáveis</span>
-				&nbsp;<img src="https://i.postimg.cc/TPhm79zs/pngwing-com-8.png" alt="Ícone de estrela">
+				&nbsp;<img src="./images/estrelaVermelha.png" alt="Ícone de estrela">
 				<button class="close" onclick="closeCopyableDataModal()">&times;</button>
 			</div>
 
@@ -413,9 +413,9 @@
 	<div id="propostaModal" class="modal" style="display: none;">
 		<div class="modal-content">
 			<div class="modal-title-bar">
-				<img src="https://i.postimg.cc/TPhm79zs/pngwing-com-8.png" alt="Ícone de estrela">
+				<img src="./images/estrelaVermelha.png" alt="Ícone de estrela">
 				<span>Proposta para demais Trabalhadores</span>
-				&nbsp;<img src="https://i.postimg.cc/TPhm79zs/pngwing-com-8.png" alt="Ícone de estrela">
+				&nbsp;<img src="./images/estrelaVermelha.png" alt="Ícone de estrela">
 				<button class="close" onclick="closePropostaModal()">&times;</button>
 			</div>
 			<p><strong>Nome da Unidade de Produção:</strong> <span id="unitName"></span></p>
@@ -461,9 +461,9 @@
 	<div id="producaoMetaModal" class="modal" style="display: none;">
 		<div class="modal-content">
 			<div class="modal-title-bar">
-				<img src="https://i.postimg.cc/TPhm79zs/pngwing-com-8.png" alt="Ícone de estrela">
+				<img src="./images/estrelaVermelha.png" alt="Ícone de estrela">
 				<span>Plano dessa Unidade de Produção</span>
-				&nbsp;<img src="https://i.postimg.cc/TPhm79zs/pngwing-com-8.png" alt="Ícone de estrela">
+				&nbsp;<img src="./images/estrelaVermelha.png" alt="Ícone de estrela">
 				<button class="close" onclick="closeProducaoMetaModal()">&times;</button>
 			</div>
 			<div id="producaoMetaContent">
