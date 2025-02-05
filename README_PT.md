@@ -6,12 +6,12 @@
 </p>
 
 ## 📚 Índice
-1. [Introdução](#introdução)
-2. [O Que Fiz?](#o-que-fiz)
-3. [Como Acoplar Produção e Distribuição](#como-acoplar-produção-e-distribuição)
-4. [Funcionalidades](#funcionalidades)
-5. [Requisitos do Sistema](#requisitos-do-sistema)
-6. [Como Usar](#como-usar)
+1. [Introdução](#-introdução)
+2. [O Que É Isso?](#ℹ️-o-que-é-isso)
+3. [Como Acoplar Produção e Distribuição](#-como-acoplar-produção-e-distribuição)
+4. [Funcionalidades](#-funcionalidades)
+5. [Requisitos do Sistema](#-requisitos-do-sistema)
+6. [Como Usar](#-como-usar)
     1. [Clonar o Repositório](#1-clonar-o-repositório)
     2. [Instalar](#2-instalar)
 
@@ -47,3 +47,8 @@ O Estado Operário apenas realoca obrigatoriamente parte do trabalho acumulado, 
 ### 1. Clonar o Repositório
 ```bash
 git clone https://github.com/lorranluiz/planificacaocconomica.git
+```
+### 2. Instalar
+```bash
+cd planificacaocconomica
+npm install
