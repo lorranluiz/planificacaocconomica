@@ -1,56 +1,56 @@
 <p align="center">
     <picture>
         <source srcset="./public/images/planEconLogoBranca1.png" media="(prefers-color-scheme: dark)">
-        <img src="./public/images/planEconLogo1.png" alt="Planificação Econômica Logo">
+        <img src="./public/images/planEconLogo1.png" alt="Economic Planning Logo">
     </picture>
 </p>
 
-## Índice
-1. [planecon](#planecon)
-2. [O Que Fiz?](#o-que-fiz)
-3. [Como Acoplar Produção e Distribuição](#como-acoplar-produção-e-distribuição)
-4. [Funcionalidades](#funcionalidades)
-5. [Requisitos do Sistema](#requisitos-do-sistema)
-6. [Como Usar](#como-usar)
-    1. [Clonar o Repositório](#1-clonar-o-repositório)
-    2. [Instalar](#2-instalar)
+## Index
+1. [Introduction](#introduction)
+2. [What Did I Do?](#what-is-this)
+3. [How to Couple Production and Distribution](#how-to-couple-production-and-distribution)
+4. [Features](#features)
+5. [System Requirements](#system-requirements)
+6. [How to Use](#how-to-use)
+    1. [Clone the Repository](#1-clone-the-repository)
+    2. [Install](#2-install)
 
+# Introduction
+Economic Planning
 
-# Introdução
-Planificação Econômica
+This project is an open-source tool for optimized and democratic economic planning. It allows planning an economy in a democratic and optimized way, helping the working class to solve the problem of economic planning in workers' states and international socialism.
 
-Este projeto é uma ferramenta open-source para planificação econômica otimizada e democrática. Ele permite planificar uma economia de maneira democrática e otimizada, ajudando a classe trabalahdora a resolver o problema da planificação econômica em estados operários e no socialismo internacional.
+## What Is This?
 
-## O Que É Isso?
+This application is a practical tool that brings together everything the working class has developed socially and technically, everything it has developed with its historical lessons, for the organization of its own production. Much of what the workers themselves have done today is still used against them, for the benefit of a tiny minority that constitutes the so-called bourgeoisie, which, for this purpose, extracts for itself abysmal profits in relation to the wages paid for the reproduction of workers' labor, in addition to maintaining the unemployment of a portion of the workers to maintain the so-called reserve army, which optimizes the exploitation of workers and the profits of the bourgeoisie. A nefarious endemic characteristic of this is the cycles in which the bourgeoisie, to maintain its profit rate, resorts to the destruction of productive forces (through wars or by letting a pandemic run rampant) or by stimulating ideologies that promote divisions within the working class, through superficial political polarizations or by fostering ideologies that underpin oppressions, new or existing (mainly xenophobia, racism, LGBTphobia, sexism, and ableism).
 
-Esse aplicativo é uma aplicação prática que reúne tudo o que a classe trabalhadora desenvolveu social e tecnicamente, tudo o que desenvolveu com suas lições históricas, para a organização de sua própria produção. Grande parte do que os próprios trabalhadores fizeram hoje ainda é usado contra eles próprios, em benefício de uma ínfima minoria que conforma a chamada burguesia que, para isso, extrai para si mesma lucros abismais em relação aos salários pagos para a reprodução do trabalho dos trabalhadores, além da manutenção do desemprego de uma parte dos trabalhadores para a manutenção do chamado exército de reserva, que permite otimizar a exploração dos trabalhadores e os lucros da burguesia. Uma nefasta caracterísitca endêmica disso são os ciclos nos quais a burguesia, para manter sua taxa de lucro, apela para a destruição de forças produtivas (por meio de guerras ou deixando rolar solta uma pandemia) ou por meio do estimulo à ideologias que estimulem divisões no seio da classe trabalhadora, por meio de polarizações políticas superficiais ou por meio do fomento a ideologias que embasam as opressões, novas ou já existentes (principalmente xenofobia, racismo, LGBTfobia, machismo e capacitismo).
+I did not create anything that the working class has not already created, I only compiled its splendid creation.
 
-Não criei nada que a classe trabalhadora já não tenha criado, apenas compilei sua explêndida criação.
+## How to Couple Production and Distribution
+Distribution does not exist independently of production.
+Capital is accumulated labor from the previous period.
+There is accumulated labor in the planned economy.
+However, labor can only be accumulated by the person who worked, not by another, which determines exploitation (that is, there is no exploitation).
+The Workers' State only compulsorily reallocates part of the accumulated labor, similar to a tax, but essentially different, as all the reallocated labor goes back to the workers themselves, who only receive it if they work in one of the essential sectors. There is no advantage, privilege, perks, servitude, it does not go to the banking sector, speculative sector, nor does it feed any productive or non-productive capital. It is the final justice that justifies itself, without classes above exploiting those below.
 
-## Como Acoplar Produção e Distribuição
-A distribuição não existe independente da produção.
-Capital é trabalho acumulado no período anterior.
-Existe trabalho acumulado na economia planificada.
-Porém, o trabalho só pode ser acumulado pela própria pessoa que trabalhou, não por outra, que é o que determina a exploração (isto é, não existe exploração).
-O Estado Operário apenas realoca obrigatoriamente parte do trabalho acumulado, de forma análoga ao imposto, mas essencialmente diferente, pois todo o realocado vai de volta para os próprios trabalhadores que obrigatoriamente só o recebem se trabalharem em um dos setores essenciais, não existe vantagem, privilégio, mordomia, sevidão, não vai para setor bancário, especulativo nem alimenta nenhum capital produtivo ou não, é a justiça final que se autojustifica, sem classes acima explorando as de baixo.
+## Features
+- User registration: Users register.
+- Residents' Association: Workers manage their places of residence.
+- Committees: Workers manage their workplaces and the services and distribution of the products they produce and consume.
+- Popular Councils: From the district jurisdictions of a municipality to the World Council (International, Intercontinental, or whatever name), the decisions of the workers form an interconnected totality.
 
-## Funcionalidades
-- Cadastro de usuários: Usuários se cadastram.
-- Associação de Moradores: Trabalhadores administram seus locais de moradia.
-- Comitês: Trabalhadores administram seus locais de trabalho e os serviços e distribuição dos produtos que produziram e consomem
-- Conselhos Populares: Desde as jurisdições distritais de um município ao Conselho Mundial (Internacional, Intercontinental ou o nome que for) as decisões dos trabalhadores formam uma totalidade interconectada.
+## System Requirements
+- JavaScript version 1.5 or higher.
+- Node.JS version 22.13.1 or compatible.
+- NPM version 10.9.2 or compatible.
 
-## Requisitos do Sistema
-- JavaScript versão 1.5 ou superior.
-- Node.JS versão 22.13.1 ou compatível
-- NPM versão 10.9.2 ou compatível
-
-## Como Usar
-### 1. Clonar o Repositório
+## How to Use
+### 1. Clone the Repository
 ```bash
 git clone https://github.com/lorranluiz/planificacaocconomica.git
-
-### 2. Instalar
+```
+### 2. Install
+```bash
 cd planificacaocconomica
 npm install
-
+```
