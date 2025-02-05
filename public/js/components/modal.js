@@ -1,1 +1,263 @@
-const _0x4ed22f=_0x5280;(function(_0x45b180,_0x59499d){const _0x23f94c=_0x5280,_0x378b88=_0x45b180();while(!![]){try{const _0x1e3011=-parseInt(_0x23f94c(0x133,']@LY'))/0x1*(-parseInt(_0x23f94c(0x161,'Pl*n'))/0x2)+-parseInt(_0x23f94c(0x121,'%cyY'))/0x3+parseInt(_0x23f94c(0xf4,'9uSE'))/0x4*(parseInt(_0x23f94c(0xee,'b^21'))/0x5)+-parseInt(_0x23f94c(0xf6,'a(bq'))/0x6*(-parseInt(_0x23f94c(0x17c,'iaEw'))/0x7)+-parseInt(_0x23f94c(0x14b,'4!$a'))/0x8+-parseInt(_0x23f94c(0x14f,'e#B0'))/0x9+-parseInt(_0x23f94c(0x12b,'S%#A'))/0xa;if(_0x1e3011===_0x59499d)break;else _0x378b88['push'](_0x378b88['shift']());}catch(_0x5ca3d1){_0x378b88['push'](_0x378b88['shift']());}}}(_0x309b,0xdfac0));function closeWelcomeModal(){const _0x3b56fa=_0x5280,_0x429eae=document['getElementById'](_0x3b56fa(0x189,'iaEw'));_0x429eae[_0x3b56fa(0xe9,'[xz$')][_0x3b56fa(0x16d,'aq$r')]=_0x3b56fa(0xf9,'Qa2]');}function openOptimizationModal(_0x20e27e){const _0x471d35=_0x5280;currentProductIndex=_0x20e27e;!optimizationInputs[_0x20e27e]&&(optimizationInputs[_0x20e27e]={});const _0x18d45a=optimizationInputs[_0x20e27e]||{},_0x28eded=getProductNames();document[_0x471d35(0x116,']IMr')](_0x471d35(0x13a,'ukOE'))[_0x471d35(0xf3,'Pl*n')]=_0x28eded[_0x20e27e],document['getElementById'](_0x471d35(0x181,'ukOE'))[_0x471d35(0x15d,'xhT8')]=_0x18d45a[_0x471d35(0x159,'i^oG')]||'',document[_0x471d35(0x14a,'e#B0')](_0x471d35(0x12e,'i^oG'))[_0x471d35(0x13b,'mQ)h')]=_0x18d45a['workerHours']||'',document[_0x471d35(0x18a,'j(jj')](_0x471d35(0x184,'JPJ$'))[_0x471d35(0xfb,']@LY')]=_0x18d45a[_0x471d35(0x141,'%cyY')]||'',document[_0x471d35(0x164,'JPJ$')](_0x471d35(0x145,'ukOE'))[_0x471d35(0x185,'Pl*n')]=_0x18d45a['nightShift']||![],document[_0x471d35(0x149,'7Gf*')](_0x471d35(0x157,'OsYR'))[_0x471d35(0x123,'7Gf*')]=_0x18d45a[_0x471d35(0x136,'G[ek')]||'';const _0x47551f=document[_0x471d35(0x118,'b^21')](_0x471d35(0x140,'@z8*'));_0x47551f[_0x471d35(0x143,'a(bq')][_0x471d35(0x187,'%cyY')]=_0x471d35(0x13c,'S%#A'),document[_0x471d35(0x16a,'OsYR')](_0x471d35(0x14d,'G[ek'))[_0x471d35(0x111,'zC6X')](),document[_0x471d35(0x155,'aYR#')]('keydown',handleEnterPress);}function closeOptimizationModal(){const _0x240023=_0x5280,_0x3f55ed=document[_0x240023(0xfe,'aq$r')](_0x240023(0x17b,'a(bq'));_0x3f55ed['style'][_0x240023(0x16d,'aq$r')]=_0x240023(0x142,']@LY'),document[_0x240023(0x113,'JPJ$')](_0x240023(0x115,'Oxt['),handleEnterPress);}function openCopyableDataModal(){const _0xc4901a=_0x5280;document[_0xc4901a(0x10b,'fufI')]('copyableDataModal')['style'][_0xc4901a(0x15a,'nMxe')]=_0xc4901a(0x186,'BW$e');}function closeCopyableDataModal(){const _0x51ebec=_0x5280;document[_0x51ebec(0x15e,'a(bq')]('copyableDataModal')[_0x51ebec(0x143,'a(bq')][_0x51ebec(0x151,'Oxt[')]='none';}document[_0x4ed22f(0x125,'g@j$')](_0x4ed22f(0x11f,'BW$e'))['addEventListener']('click',openCopyableDataModal);function _0x309b(){const _0x2f3dfd=['imorrmk7v0WupwLdogJcVmo+W4XyWRipW6BdOslcICk9o8kPWQBcVZdcMGtcOSogWQ95qwlcQSo1hSkGFHdcL8keW71fWPK','cIzKW6S','WQLfuhJcMCooW5STW4Lq','WQFcP8oLpqTuW5O+W5Txu11O','W7lcQ1VdU8kSnmoa','gY5UWO9musPlW7xdRCoFW7elW68','W4LUDmoqdv/dGmkLcI5JzbjCWPSZb8k0W7hdKmkbebHrW4pdKtCvzJldQqebwmoeav3cM3pcHXhdP8oftSkD','W6lcRvZdQSkShCowu8ocW7K','cc5IWR5JwYLAW77dT8oP','vSkja3NcPSkipG','WRvgW4ldH8oquCkSfZBdU8kjW58bEa','oSkpW7q0WRJdUXdcPJFdUCokCq','quyJWOBcMCkzW77dQSkaW5jSWRldTqZdI8oR','ifuvWQbzh8oakWhcQ8o4i8oM','o8kBkde','Db90W4LxwCovWR7cTSkjWPldVWTxWQ8i','W74/W4tdV8oL','y8onqGfa','CCobo2/cUa','zCkPW689W745vColqtDvW7D+wa','W5T2A3BdL8kFW63cR8oOxmoHW651','W5NdHu0KvtLe','FCojWQXNW77cOaVcNZtdOCoBFdnF','r0CZWOBcG8kzW73dU8kIW49DWR/dMqy','kSofbSooW7WzWQr5cYlcLWPliKhdNfi','oCkDkZ3cTCoqW7XHW5RdNYRdShhcUwpdUCoEj1TwzIddH0tcPCkE','hfiBWQdcSG','WOHWCSkdW50kAmkuomkkj8kNySk3W7JdUZvDCG','mHrTW5umW4lcUmkxW5G','DuWUWQFcJSkyW7xcVSkOW54/WPBdOG3dISoSWRhcKCot','W5uszCoHCCo7rmopgJhcNfTkWOyuWP3dJSk4','W6TjW5pdUXhcPmoqrSoGW4/dRSkdW6m','W7hcP1ZdJSkSmmouq8oEW74wWRzYW7C','W4elWOBdJeG','WQSUW5RdPCoKEItcNcqBW5yyw8o+bCkQDCkrW4PjcciaW6ahcSoItmoMW495W5tcK2pcO05yamkQW4GaWO3cQhXqWQhdSI0','W53cM05YWQtcI8kq','pKGuWRu','rbLhW5jbu8kr','mwldTCkDeW','W45gW5X/BaXUWPhcPmoqkNNdHCki','humpWQpcOCoehSo/W6uOm8kyW5qpcmkuW5ddMri','WRmlWP7cP07dVCksBCoyW6FdQ8kaW6FdMmk1WPZdUSk0FCoMomk/xW','W5WpWPpdNulcShq','W41gWO1CW43cHmoIBmowkGxdJmk5bW','W4zyu8odWOu','W7BdT8kLtLyfWOCbW6DkFwnnbW','zCoqnKBcStyismkiWPrEcSkFWOy','jCkgkstcRSogW41MW7ldHcFdP3i','W7FdVSk0CW','kCkdxKOVW5lcMHTBnsyJBCkzW4XHBCk/u8ohd8kjwI50W5afouNcNrrDbrdcRcnBWOmTW54YWQ3cOCoTteRdMudcQ3K','W6SqWOxcSCkmdCkQkIhdUSkEW5m','WPWwW40VWPddLCk/u8oQnYVdSSkC','W6xcU8kScGhdPLtdNSkoWPnotCo4WPPGWOhcJSktrCovEG','W47cL1HPWQtcK8k6aXFcJmoM','a0uYWOOob8k8WPZdNCkLWQRdRW','fvuiWR8wdCoBAI7cSCoViCoRlW3dRcPSy8otta/dRCooW5zgemolxSkPWOCFW7pcLSoDW6/dImoDcCoRAmkBxa','WRVdR8ovDZ0','W519F8oBcWVdI8oQrmkoyYOev8kunaBdOmoIW4lcLHbBvSonWPuBwMBcOSoJtqXzWOCpqmkCBSkfhmoPW5ip','W6VdMsKWyr1Za8kVWO7dOY4mFa','W45iW4v1Ca','rXLZW5bCrmkgWPxdS8kIWPNdRHO','W7aVWR4','WPCRDdJcSSomWRNdRSkfe8kLWQ85kG/cOfWyWQ4RW6dcNmojomoWWRrnl8kaWQ7dLbeJW5LqW7BdMr8nW60','W5FdV3tcLbXoW4NdRaRcPgGR','WQGLi8kdsXZcMmk1nSklzdetDW','W6buWPRdScNcTmoilmkmWQ7cPmooWPxcGCk2W5FcQSkZrmo7m8kWvajcWPLeW7ldL1Olf23dP8oYWQ3dKCooDmkxkK3cN2JcLmkuW4jjsbFdN33dTCoeCCkuW58MjG','W6pdJcKCybfKb8k1WPpdJJKxFCkEyh1iaX/dPCkmvG','W4jdwmoeWOuForJdMmoTxq','zCoEqrbqWPhdJNuAEgnW','kaDGW7uZW6xdOhXZdSkrlXCgjw5xvHf2WQNdOCkPvSoYWORcUtibmCkdW5pdVL3cPHjcedtcQwZdRh/cPSoDvmoQC3tdMmo6WPK','W4rhW59ZAIf5WRpcHa','W77cPmk9bs7dMKZdJSkjWOvr','WRK/W6tdR8oRwbi','W6DewglcJmoUWO9RW58AWQVdV8oYyXtcHmoYxu4RcmkPd8k/CJRcSmoBoSowgSonzmo2W48gWQSfzmo9WPBcKCkDWPpcGX3dGN5DWRJdR2FcSSoWW5e','pCoshCoVW6uFWQHZkdpcOrjpkq','WQuIaSotW4u0qHhcTmotWQy','W7RcRSkNacVdP0pdT8kDWP5gxCoFWO99WO/cRCkTvmovEe7cJdeA','W44nzCoPCmoxu8oEaJFcILH9WO0tWRJdH8k+tSktW78','zfP/WQ9mWQBcOtmEs8ofBNPvmteh','e8ocwCkTr0GbhwXbFq','W4WdFCo9Eq','W79WFSom','s8k6vCoQkf8xWRddTbJdIZhcN8kV','W4xcLWLjlCksW7qtemoGW4VdKCkAD0DXWRFdHG','WRr+W7pcSmkwqCkUdhbJzexcOCk6aSkUzgm5h3z8Cd/dI04enYjaW7FcRSopWRLPxIXEWO8d','rmkxrmkgymkIpmkBrCo5WOq4WRRdPSo9W4VcOG','qarUW59mvCkbWRldUCkPWQNdOHna','W6yXW4BdRW','FSopWRPVW64','n0ioWPvAcCozlYlcSmoEo8odoq','dCozuCkHrNGDoMTy','W4tcIbnf','emoWuCkrtHPAW7xcUKZcQwJdTSo3W5VcHSkZb014WO3dMmogW5LNywi+WP/cGmo9WOBcGM/cN8oGfbC/mCoOWOtdMvddMmoLCX4JW7H2uCoZBa','W7RcLSkeW5uuzCkZk3KbW6DvW7CAW6NcHGu','WQRdQ8onrZrmAHlcOmkJWOqIW6ae','cY91W5ynrSkAW6OXdMNcGbFcJW','nCkhEZBdR2nDz8kQWQf2hSka','W4/cK1f3WQ0','WQuOfCotW4W/xrVcUmowWRC','EfPXWP5J','vxKYWQbrgSkCW5CMd37cJa','h8ozhCopW7S','W5mdWPNdIuhcPMm','Bfr5WPi','WOKdwSkrW6PnuvFcJCk/dKBcPLNdRCo3DcrGWOGOW4n9amoJW7DoWQddLCkKgCoHW4rqlGauW7VdNmkkWPOfr8oYW6NdQrCyWRlcSvVcTxxcSSkDWP3dP8o4WRVcRa','W5arFSoM','W5hdJ00ewXnmWQVdOsGJWR5ZWQ08W5S','W47cJG5qlmkAW7C','W5XHyw3dLmkvW4RcRCoex8oG','yfrZWO4','W4jdwmoeWOuFpr7dGmo2wG','WPXRBSkxW4qiCa','WRzkW4xdSSoqvCk4','cmkvyIpdVxnfdCogW5XStCoQWPfEWOPyESo0WPBdHJ4Uwri2W7ldQ0lcSe7dUddcGd/cTLpcOuddImo6W5rgWRezBCooW6u+yMeBW7KUwmoJmtu','WQrcW5RdT8oz','ASoEWRDgW6FcPHlcKZxdU8onBbDE','W4W4W7BdVmoYdG','WOFcNX52hK5nWO/dGtCvWQ4','txiVW7Gudxv7W6ldSSoVW5O3','WR8uWOtcVuBdUmkay8o8W6hdTmkBW5NdNmk0WQJdPCkZx8oQnCk/v1nwWO5MW6FdLrmYWP9mW7VdI8kWWPddIhddMXjEWPrJWPm','eumlWQBcHmkRW4u','cemwWONcU8oenSoSW64YbCkTW7qy','W4BcSeFdR8k1iCowbSoEAtVdR1/dTNC3W5pcI8oSW4e','hYDUW7WvsW','W7PZDSoDde7dRmoQcmkzztaBvW','W755B8oXfe7dGSoGcSk5tJ0+vG','WQbjq1xcGCo4W54HW4fqW6pcPSkBjW','W4XHCepdLmkjW7tcQ8olr8ohW7zqCG','pgJdR8kmd8oLW6O','D3f0DsqnB8oyWONdLSoqxCoV','zSkLW6GiW749qq','W7NcV8kWccC','W55kW4n5DavLWPVcOCoJk3K','C01KWO5vWQdcRtK9wSoZDN5E','i8kvkIhcPa','W687W5ZdJ8oSAIRcMcuIW7evC8oo','W4FdI2RcKYNdP8kQWOuqW49KdXFcVGbWWPdcK3O','zva1WQZdJ8kDW7/cVSkUW45SWQxdSrdcJSo9nXBdK8kBAhZcNNVdNmkZd2pcINucna','C8ontqbkWOddK14iw2nMkCoaW5G','W5LxWOb1W4q','WO5JCCksW40','W4RdLH4P','W64mW4BcVmk2fmoHuNJcR8oRWOzOih7dOxXkeuZdMCkBlG/cVfldKXldH3b/WOhdIJJdRmkbWOCnWOxcMKRdVHSEaSkhW6PQW4mSWRBdRX1p','A8kHdCkKu0DpWOSjxL/cV3dcOW','ySolWRDQW6BcQGxcLY/dPSoGEXnvW4BdI2O','W6vdWQVcNgRdPCkPvG','W4pdN1aTsa','z8ohmgZcRW','W5NdJNVcId3dNCk1WOGbW4v/dJFcMH9P','W4xdHua1yXDpWRO','fmoFrmkIv1K5oMbfBa','dfLXWOuZfSovW7VcTSoNW53cQ14zWRfzW4WOFmkjW55Rxr1HrmkRW657bSoQWOXdBmkqWRNcVSkqy8ogW6Tj','EmkShmkp','h1qnWQJcOSocl8oGW68Oe8k9W5az','hYn/WQLlusm','W6ZcP8kSha','vb9YW4Tvv8km','eSkyi1FcISkSdZ3dOmoJhvxcVCoX','WQSEWOBcRuZdUCknqCodW6RdPCkc','W57cL0LhWQtcJ8kebrJcLmobW4XIWOi','gcjPWRPmvt4','WQKJWPNdP8k2nK7cRmkHo0XsWRJcVW','WOaPWOddH8o6pCoaWQBdRYTRtCkyWRxdK3GC','WQWjWOxcQLBdT8kCqSonW6pdOCkD','WPVcIc3dI3pcV8kzWQmVW4rCbq','zSkygCkuWOnAW6u2zMFdG0SMCvxcGWldMSkkjxhdSY9Gomk7WQfKacpcSSkxW6v2kCkOySktW5OcWPZcP3u0W6O','W5JcSmkiW6dcMG','oITHovD+kSkuW4ZcLCkeeSk9W6LyrvCCWQVdM1JcMg0nrCoJjbJdImokwmobk8oSumkJW4ZcQSk6WOfyWQ3cT8opgCoGWPldH3FcMSksWPBcR0BcLv/cNeGfiG'];_0x309b=function(){return _0x2f3dfd;};return _0x309b();}function openOptimizationModalEstimates(_0x2951e3,_0x7c004f){optimizationInputs=_0x7c004f,openOptimizationModal(_0x2951e3);}function openProducaoMetaModal(){const _0x3e09d2=_0x4ed22f,_0x4ef579=document[_0x3e09d2(0x169,'#a1@')](_0x3e09d2(0x148,'ikAs')),_0x2a9b6e=document[_0x3e09d2(0x144,'[AtD')](_0x3e09d2(0x167,'S%#A'))?.[_0x3e09d2(0x177,'nMxe')]||_0x3e09d2(0xe5,'6%%0'),_0x8766eb=document[_0x3e09d2(0x16c,'MFVm')](_0x3e09d2(0x10d,']@LY'))?.[_0x3e09d2(0xfc,'9Z2T')]||_0x3e09d2(0x165,'fufI'),_0x32ffc7=document[_0x3e09d2(0x168,'S%#A')](_0x3e09d2(0x104,'Qa2]'))?.[_0x3e09d2(0x171,'Qa2]')]||'0',_0x2917a3=document[_0x3e09d2(0x17a,'J1M[')]('producedQuantity')?.[_0x3e09d2(0x14c,'j(jj')]||'0',_0x2d3312=document[_0x3e09d2(0x135,')krG')](_0x3e09d2(0x137,'BW$e'))?.[_0x3e09d2(0x10c,'Oxt[')]||'0',_0x40ce60=document['getElementById'](_0x3e09d2(0x162,'iaEw'))?.[_0x3e09d2(0x14e,'PIwc')]||null;if(!_0x40ce60)return;if(null!==councilData&&null!==currentProductIndex&&null!==modalContext){populateModalContent(councilData,currentProductIndex,modalContext);return;}showNotification(_0x3e09d2(0xeb,'ukOE'),!![]),fetch(apiUrl,{'method':_0x3e09d2(0x128,'Oxt['),'headers':headers})[_0x3e09d2(0x183,'J1M[')](_0x1aff85=>_0x1aff85[_0x3e09d2(0x154,'mQ)h')]())['then'](_0x22368d=>{const _0x312fe2=_0x3e09d2,_0x2d114b=_0x22368d||{};councilData=_0x2d114b[_0x40ce60];if(!councilData||!councilData[_0x312fe2(0xe6,'iaEw')]){showNotification(_0x312fe2(0x124,'S%#A'),![]);return;}currentProductIndex=councilData[_0x312fe2(0x12f,'9Z2T')][_0x312fe2(0x100,'aYR#')](_0x8766eb);if(currentProductIndex===-0x1){showNotification(_0x312fe2(0xf1,'S%#A'),![]);return;}modalContext={'unitName':_0x2a9b6e,'productName':_0x8766eb,'workersLimit':_0x32ffc7,'producedQuantity':_0x2917a3,'pendingQuantity':_0x2d3312},populateModalContent(councilData,currentProductIndex,modalContext);})[_0x3e09d2(0x126,'$W*#')](_0x147fb0=>{const _0x573c01=_0x3e09d2;console[_0x573c01(0x17e,'4!$a')](_0x573c01(0x174,'&c1B'),_0x147fb0),showNotification(_0x573c01(0x122,'[AtD'),![]);});}function populateModalContent(_0x4023e2,_0x193a0a,_0x4bbadd){const _0x41947b=_0x4ed22f,_0x26970e=_0x4023e2[_0x41947b(0x13e,'EF!y')][_0x193a0a]||{},_0x5684ad=_0x4023e2[_0x41947b(0x173,'UguF')][_0x193a0a]||{},{unitName:_0x42f97f,productName:_0x5b832c,workersLimit:_0x58cc65,producedQuantity:_0x14bee2,pendingQuantity:_0x52a897}=_0x4bbadd,_0x56ce8e=_0x26970e['workerHours']||_0x41947b(0x12a,'S%#A'),_0x1532a9=_0x26970e['weeklyScale'],_0x496856=0x7-_0x1532a9,_0x1da722=_0x1532a9+'X'+_0x496856,_0x3aef19=_0x26970e['nightShift']?'Diurno\x20e\x20Noturno':_0x41947b(0x15f,'Zk1W'),_0x3ee9a9=_0x26970e[_0x41947b(0x101,'a(bq')]||0x0,_0x53b4f6=formatDays(parseFloat(_0x5684ad[_0x41947b(0x138,'mQ)h')])*0x18);effectivelyPlannedProductionTime=_0x3ee9a9,document[_0x41947b(0x18c,'6%%0')](_0x41947b(0x106,'nMxe'))['innerHTML']=_0x41947b(0x15c,'4!$a')+_0x42f97f+_0x41947b(0x182,'%cyY')+_0x5b832c+_0x41947b(0xe8,')krG')+_0x56ce8e+_0x41947b(0x134,'#a1@')+_0x1da722+'</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<p><strong>Quantidade\x20Necessária\x20de\x20Trabalhadores:</strong>\x20'+_0x58cc65+_0x41947b(0x147,'pP&K')+_0x14bee2+_0x41947b(0x130,'G7BH')+_0x52a897+_0x41947b(0x129,'OsYR')+_0x3aef19+'</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<p><strong>Tempo\x20para\x20Produção\x20(para\x20contratação\x20ou\x20renovação):</strong>\x20'+_0x53b4f6+_0x41947b(0x107,'PIwc'),document[_0x41947b(0x14a,'e#B0')](_0x41947b(0x139,'G7BH'))[_0x41947b(0x143,'a(bq')][_0x41947b(0x10e,'j(jj')]=_0x41947b(0xec,'e#B0');}function scrollToEndOfPage(){const _0x135931=_0x4ed22f;window['scrollTo']({'top':document[_0x135931(0x152,'PIwc')][_0x135931(0x16f,'$W*#')],'behavior':_0x135931(0x166,'e#B0')});}function closeAllModals(){const _0x4b077c=_0x4ed22f,_0x11c55f=document[_0x4b077c(0x17f,'UguF')]('.modal');_0x11c55f['forEach'](_0x47749c=>{const _0x51bc76=_0x4b077c;_0x47749c[_0x51bc76(0x176,']IMr')][_0x51bc76(0x16d,'aq$r')]=_0x51bc76(0x10f,'[AtD');});}function openPropostaModal(_0x3dfebd,_0x85f54f){const _0x53c100=_0x4ed22f,_0xa8a9b9=document[_0x53c100(0x170,'G7BH')](_0x53c100(0x11a,'Qa2]')),_0xa0bca6=document[_0x53c100(0x119,'4!$a')](_0x53c100(0x112,'$W*#'))[_0x53c100(0x14e,'PIwc')]||_0x53c100(0x108,'&c1B');document[_0x53c100(0x13d,'pP&K')](_0x53c100(0x180,'aYR#'))['textContent']=_0xa0bca6,_0xa8a9b9[_0x53c100(0x117,'i^oG')][_0x53c100(0x15b,'xhT8')]=_0x53c100(0x11b,'b^21'),setupEnterKeyListenerForPropostaModal();}function closePropostaModal(){const _0x3bc180=_0x4ed22f;document[_0x3bc180(0x172,']@LY')](_0x3bc180(0xf8,'[AtD'))[_0x3bc180(0x16e,'BW$e')][_0x3bc180(0x18b,'Pl*n')]=_0x3bc180(0x158,'PIwc');}function closeProducaoMetaModal(){const _0x54b393=_0x4ed22f,_0x42e5ff=document['getElementById'](_0x54b393(0x103,')krG'));_0x42e5ff[_0x54b393(0xe9,'[xz$')]['display']=_0x54b393(0x178,'kMxv');}function setupEnterKeyListenerForPropostaModal(){const _0x59b169=_0x4ed22f,_0x47d526=document[_0x59b169(0x16a,'OsYR')](_0x59b169(0xff,'OsYR'));_0x47d526[_0x59b169(0xf7,'&c1B')](_0x59b169(0x16b,'zC6X'),_0x2fbd57=>{const _0x3a24b0=_0x59b169;_0x2fbd57['key']===_0x3a24b0(0x150,')krG')&&(_0x2fbd57[_0x3a24b0(0x188,'9uSE')](),savePropostaInputs());});}function _0x5280(_0x17f09d,_0x6f117d){const _0x309b09=_0x309b();return _0x5280=function(_0x528029,_0x59c5d7){_0x528029=_0x528029-0xe5;let _0x7a48ae=_0x309b09[_0x528029];if(_0x5280['mKdtav']===undefined){var _0x47d7c6=function(_0x20e27e){const _0x18d45a='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x28eded='',_0x47551f='';for(let _0x3f55ed=0x0,_0x2951e3,_0x7c004f,_0x4ef579=0x0;_0x7c004f=_0x20e27e['charAt'](_0x4ef579++);~_0x7c004f&&(_0x2951e3=_0x3f55ed%0x4?_0x2951e3*0x40+_0x7c004f:_0x7c004f,_0x3f55ed++%0x4)?_0x28eded+=String['fromCharCode'](0xff&_0x2951e3>>(-0x2*_0x3f55ed&0x6)):0x0){_0x7c004f=_0x18d45a['indexOf'](_0x7c004f);}for(let _0x2a9b6e=0x0,_0x8766eb=_0x28eded['length'];_0x2a9b6e<_0x8766eb;_0x2a9b6e++){_0x47551f+='%'+('00'+_0x28eded['charCodeAt'](_0x2a9b6e)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x47551f);};const _0x429eae=function(_0x32ffc7,_0x2917a3){let _0x2d3312=[],_0x40ce60=0x0,_0x1aff85,_0x22368d='';_0x32ffc7=_0x47d7c6(_0x32ffc7);let _0x2d114b;for(_0x2d114b=0x0;_0x2d114b<0x100;_0x2d114b++){_0x2d3312[_0x2d114b]=_0x2d114b;}for(_0x2d114b=0x0;_0x2d114b<0x100;_0x2d114b++){_0x40ce60=(_0x40ce60+_0x2d3312[_0x2d114b]+_0x2917a3['charCodeAt'](_0x2d114b%_0x2917a3['length']))%0x100,_0x1aff85=_0x2d3312[_0x2d114b],_0x2d3312[_0x2d114b]=_0x2d3312[_0x40ce60],_0x2d3312[_0x40ce60]=_0x1aff85;}_0x2d114b=0x0,_0x40ce60=0x0;for(let _0x147fb0=0x0;_0x147fb0<_0x32ffc7['length'];_0x147fb0++){_0x2d114b=(_0x2d114b+0x1)%0x100,_0x40ce60=(_0x40ce60+_0x2d3312[_0x2d114b])%0x100,_0x1aff85=_0x2d3312[_0x2d114b],_0x2d3312[_0x2d114b]=_0x2d3312[_0x40ce60],_0x2d3312[_0x40ce60]=_0x1aff85,_0x22368d+=String['fromCharCode'](_0x32ffc7['charCodeAt'](_0x147fb0)^_0x2d3312[(_0x2d3312[_0x2d114b]+_0x2d3312[_0x40ce60])%0x100]);}return _0x22368d;};_0x5280['lqbDtJ']=_0x429eae,_0x17f09d=arguments,_0x5280['mKdtav']=!![];}const _0x51e758=_0x309b09[0x0],_0x51fd64=_0x528029+_0x51e758,_0x643a55=_0x17f09d[_0x51fd64];return!_0x643a55?(_0x5280['xHmwGE']===undefined&&(_0x5280['xHmwGE']=!![]),_0x7a48ae=_0x5280['lqbDtJ'](_0x7a48ae,_0x59c5d7),_0x17f09d[_0x51fd64]=_0x7a48ae):_0x7a48ae=_0x643a55,_0x7a48ae;},_0x5280(_0x17f09d,_0x6f117d);}function closeCopyableDataModal(){const _0x59a54d=_0x4ed22f,_0x86e300=document[_0x59a54d(0xf5,'xhT8')]('copyableDataModal');_0x86e300[_0x59a54d(0xfd,'4!$a')][_0x59a54d(0x156,'EF!y')]=_0x59a54d(0x146,'EF!y');}function openOptimizationResultModal(_0x3b4548){const _0x240cb1=_0x4ed22f,_0x2f6ce2=optimizationResults[_0x3b4548],_0x5407e1=optimizationInputs[_0x3b4548];if(!_0x2f6ce2||!_0x5407e1)return;const _0x443fb6=getProductNames()[_0x3b4548],_0x4821d2=_0x5407e1['workerHours'],_0x1cd5dd=_0x2f6ce2[_0x240cb1(0xf2,'fufI')],_0x446e88=_0x2f6ce2[_0x240cb1(0x127,'%cyY')],_0x356713=_0x2f6ce2[_0x240cb1(0x132,'BW$e')],_0xf3edc5=_0x2f6ce2['minimumProductionTime'],_0x3aafda=_0x2f6ce2['totalEmploymentPeriod'],_0x25bbed=_0x5407e1[_0x240cb1(0xed,'#a1@')]?_0x240cb1(0xfa,'%cyY'):'Diurno',_0x5a44d3=_0x2f6ce2[_0x240cb1(0x120,'j(jj')],_0xadb6b3=_0x2f6ce2[_0x240cb1(0x175,'9Z2T')],_0x367ffd=0x7-_0x5a44d3,_0x4100a6=_0x5a44d3+'X'+_0x367ffd;document[_0x240cb1(0xf0,'Pl*n')](_0x240cb1(0x109,'mQ)h'))[_0x240cb1(0x131,'$W*#')]='\x0a\x20\x20\x20\x20\x20\x20\x20\x20<p><strong>Produto:</strong>\x20'+_0x443fb6+_0x240cb1(0x179,'xhT8')+_0x1cd5dd[_0x240cb1(0x110,'%cyY')](0x2)+'\x20horas</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<p><strong>Fábricas\x20Necessárias:</strong>\x20'+_0xadb6b3+_0x240cb1(0x12c,'iaEw')+formatDays(_0xf3edc5*0x18)+_0x240cb1(0x13f,'Zk1W')+_0x25bbed+_0x240cb1(0xea,'MFVm')+_0x446e88+_0x240cb1(0x11c,'9Z2T')+_0x356713+_0x240cb1(0x153,'i^oG')+_0x4821d2+'h\x20por\x20dia</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<p><strong>Escala\x20de\x20Trabalho:</strong>\x20'+_0x4100a6+'</p>\x0a\x20\x20\x20\x20\x20\x20\x20\x20<p><strong>Período\x20Total\x20de\x20Emprego:</strong>\x20'+_0x3aafda+'</p>\x0a\x20\x20\x20\x20';const _0x558028=document[_0x240cb1(0x102,'&c1B')](_0x240cb1(0x12d,'g@j$'));_0x558028[_0x240cb1(0x17d,'aYR#')][_0x240cb1(0xef,'fufI')]='flex';}function closeOptimizationResultModal(){const _0x58b920=_0x4ed22f;document['getElementById'](_0x58b920(0x114,'iaEw'))[_0x58b920(0x105,'JPJ$')][_0x58b920(0x187,'%cyY')]='none';}
+// Função para fechar o modal
+function closeWelcomeModal() {
+    const modal = document.getElementById('welcomeModal');
+    modal.style.display = 'none';
+}
+
+function openOptimizationModal(productIndex) {
+			   
+    currentProductIndex = productIndex;
+
+    // Inicializa os dados de otimização para o produto, se necessário
+    if (!optimizationInputs[productIndex]) {
+        optimizationInputs[productIndex] = {};
+    }
+    const inputs = optimizationInputs[productIndex] || {}; // Obtém ou inicializa os dados
+
+    // Define o nome do produto no modal
+    const productNames = getProductNames();
+    document.getElementById('productName').textContent = productNames[productIndex];
+
+    // Preenche os campos do modal com valores salvos ou padrão
+    document.getElementById('workerLimit').value = inputs.workerLimit || '';
+    document.getElementById('workerHours').value = inputs.workerHours || '';
+    document.getElementById('productionTime').value = inputs.productionTime || '';
+    document.getElementById('nightShift').checked = inputs.nightShift || false;
+    document.getElementById('weeklyScale').value = inputs.weeklyScale || '';
+
+    // Exibe o modal de otimização
+    const modal = document.getElementById('optimizationModal');
+    modal.style.display = 'flex';
+
+    // Posiciona o cursor automaticamente no campo "Limite de Trabalhadores nas Fábricas"
+    document.getElementById('workerLimit').focus();
+
+    // Adiciona o ouvinte de eventos para capturar Enter
+    document.addEventListener('keydown', handleEnterPress);
+}
+
+function closeOptimizationModal() {
+    const modal = document.getElementById('optimizationModal');
+    modal.style.display = 'none';
+    document.removeEventListener('keydown', handleEnterPress); // Remove o ouvinte ao fechar
+}
+
+// Funções para abrir e fechar a modal
+function openCopyableDataModal() {
+    document.getElementById('copyableDataModal').style.display = 'flex'; // Exibe a modal
+}
+
+function closeCopyableDataModal() {
+    document.getElementById('copyableDataModal').style.display = 'none'; // Fecha a modal
+}
+
+// Evento no botão para abrir a modal
+document.getElementById('openCopyableDataModal').addEventListener('click', openCopyableDataModal);
+
+function openOptimizationModalEstimates(productIndex, optimizationInputsLocal) {
+    // Se optimizationInputsLocal for passado, use-o. Caso contrário, chame a função original
+	
+	optimizationInputs = optimizationInputsLocal;
+	
+	//console.info("optimizationInputs na openOptimizationModal: ");
+	//console.log(optimizationInputs);
+	
+    //Chama a função original
+    openOptimizationModal(productIndex);
+}
+
+function openProducaoMetaModal() {
+    // Obtém a referência ao modal
+    const modal = document.getElementById('producaoMetaModal');
+
+    // Variáveis locais para exibir no modal
+    const unitName = document.getElementById('comiteColTitle')?.value || 'Nome não definido';
+    const productName = document.querySelector('#producaoMetaTable tbody tr td:first-child input')?.value || 'Produto não definido';
+    const workersLimit = document.getElementById('limiteEfetivoTrabalhadores')?.value || '0';
+    const producedQuantity = document.getElementById('producedQuantity')?.value || '0';
+    const pendingQuantity = document.getElementById('pendingProductionQuantity')?.value || '0';
+    const conselhoAssociado = document.getElementById('conselhoPopularAssociadoDeComiteOuTrabalhador')?.value || null;
+
+    // Verifica se o Conselho Associado está definido
+    if (!conselhoAssociado) {
+        //console.info('Conselho Associado não definido.');
+        return;
+    }
+
+	//alert(`${councilData} ${currentProductIndex} ${modalContext}`);
+
+	if(null !== councilData && null !== currentProductIndex && null !== modalContext){
+		populateModalContent(councilData, currentProductIndex, modalContext);
+		return;
+	}
+
+    // Carregar os dados diretamente do JSONBIN usando conselhoAssociado como instanceKey
+    showNotification('Carregando informações do Conselho associado...', true);
+
+    fetch(apiUrl, {
+		method: 'GET',
+		headers: headers
+	})
+		.then(response => response.json())
+		.then(binData => {
+            const record = binData || {};
+            councilData = record[conselhoAssociado]; // Usa conselhoAssociado como instanceKey
+
+            // Verifica se os dados do Conselho Associado estão disponíveis
+            if (!councilData || !councilData.productNames) {
+                showNotification('Dados do Conselho associado não encontrados.', false);
+                return;
+            }
+
+            // Encontra o índice do produto no array productNames
+            currentProductIndex = councilData.productNames.indexOf(productName);
+            if (currentProductIndex === -1) {
+                showNotification('Produto não encontrado no Conselho associado.', false);
+                return;
+            }
+
+			modalContext = {
+                unitName,
+                productName,
+                workersLimit,
+                producedQuantity,
+                pendingQuantity
+            };
+
+            populateModalContent(councilData, currentProductIndex, modalContext);
+        })
+        .catch(err => {
+            console.error('Erro ao buscar dados do JSONBin:', err);
+            showNotification('Erro ao buscar dados do Conselho associado.', false);
+        });
+}
+
+function populateModalContent(councilData, currentProductIndex, modalContext) {
+	
+	// Obtém os dados específicos do produto
+	const optimizationInputs = councilData.optimizationInputs[currentProductIndex] || {};
+	const optimizationResults = councilData.optimizationResults[currentProductIndex] || {};
+	
+    // Desestrutura o contexto para facilitar o acesso
+    const { unitName, productName, workersLimit, producedQuantity, pendingQuantity } = modalContext;
+
+    // Dados específicos do produto
+    const workerHours = optimizationInputs.workerHours || 'Não definido';
+    const weeklyScale = optimizationInputs.weeklyScale;
+	const daysOff = 7 - weeklyScale; // Dias de folga na semana
+	const formattedWeeklyScale = `${weeklyScale}X${daysOff}`; // Formata como solicitado
+    const nightShift = optimizationInputs.nightShift ? 'Diurno e Noturno' : 'Diurno';
+    const productionTime = optimizationInputs.productionTime || 0;
+    const totalEmploymentPeriod = formatDays(parseFloat(optimizationResults.totalEmploymentPeriod) * 24); // Converte dias em horas para formatDays
+	
+	//console.info("optimizationInputs: ");
+	//console.log(optimizationInputs);
+	
+	effectivelyPlannedProductionTime = productionTime; //para ser salvo e usado depois usado no calculo do trabalho social total. é pego já planificado a partir do conselho acima que fez o calculo de planificação
+
+    // Atualiza o conteúdo do modal
+    document.getElementById('producaoMetaContent').innerHTML = `
+        <p><strong>Nome da Unidade de Produção:</strong> ${unitName}</p>
+        <p><strong>Produto:</strong> ${productName}</p>
+        <p><strong>Expediente:</strong> ${workerHours} horas</p>
+        <p><strong>Escala Semanal:</strong> ${formattedWeeklyScale}</p>
+        <p><strong>Quantidade Necessária de Trabalhadores:</strong> ${workersLimit}</p>
+        <p><strong>Produção Finalizada:</strong> ${producedQuantity}</p>
+        <p><strong>Produção Pendente:</strong> ${pendingQuantity}</p>
+        <p><strong>Turno:</strong> ${nightShift}</p>
+        <p><strong>Tempo para Produção (para contratação ou renovação):</strong> ${totalEmploymentPeriod}</p>
+    `;
+    document.getElementById('producaoMetaModal').style.display = 'flex';
+}
+
+function scrollToEndOfPage() {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
+// Função para fechar qualquer modal aberto
+function closeAllModals() {
+    const modals = document.querySelectorAll('.modal'); // Seleciona todos os modais
+    modals.forEach(modal => {
+        modal.style.display = 'none';
+    });
+}
+
+function openPropostaModal(index, productName) {
+    const modal = document.getElementById('propostaModal');
+    const unitName = document.getElementById('comiteColTitle').value || 'Unidade de Produção';
+    document.getElementById('unitName').textContent = unitName;
+    modal.style.display = 'flex';
+    setupEnterKeyListenerForPropostaModal(); // Adiciona o ouvinte
+}
+
+function closePropostaModal() {
+    document.getElementById('propostaModal').style.display = 'none';
+}
+
+function closeProducaoMetaModal() {
+    const modal = document.getElementById('producaoMetaModal');
+    modal.style.display = 'none';
+}
+
+// Função para lidar com a tecla Enter no modal "Proposta para demais Trabalhadores"
+function setupEnterKeyListenerForPropostaModal() {
+    const modal = document.getElementById("propostaModal");
+
+    // Adiciona o ouvinte ao modal
+    modal.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault(); // Impede o comportamento padrão do Enter
+            savePropostaInputs(); // Chama a função de salvar
+        }
+    });
+}
+
+// Função para fechar modais ao clicar fora do conteúdo
+function closeCopyableDataModal() {
+    const modal = document.getElementById('copyableDataModal');
+    modal.style.display = 'none'; // Fecha a modal
+}
+
+// Exibe os resultados da otimização no modal de resultados
+    function openOptimizationResultModal(index) {
+    const result = optimizationResults[index];
+    const inputs = optimizationInputs[index];
+    if (!result || !inputs) return;
+
+    const productName = getProductNames()[index];
+    const workerHours = inputs.workerHours; // Carga horária diária configurada
+    const totalHours = result.totalHours; // Total de horas de trabalho
+    const workersNeeded = result.workersNeeded; // Trabalhadores necessários
+    const totalShifts = result.totalShifts; // Total de turnos de trabalho
+    const minimumProductionTime = result.minimumProductionTime; // Prazo mínimo de produção
+    const totalEmploymentPeriod = result.totalEmploymentPeriod; // Período total em que estarão empregados
+    const workShift = inputs.nightShift ? "Diurno e Noturno" : "Diurno"; // Verifica o tipo de turno
+    const weeklyScale = result.weeklyScale; // Escala semanal
+    const factoriesNeeded = result.factoriesNeeded;
+
+    const daysOff = 7 - weeklyScale; // Dias de folga na semana
+    const formattedWeeklyScale = `${weeklyScale}X${daysOff}`; // Formata como solicitado
+
+    document.getElementById('optimizationResult').innerHTML = `
+        <p><strong>Produto:</strong> ${productName}</p>
+        <p><strong>Carga Horária Total:</strong> ${totalHours.toFixed(2)} horas</p>
+        <p><strong>Fábricas Necessárias:</strong> ${factoriesNeeded}</p>
+        <p><strong>Prazo Mínimo de Produção:</strong> ${formatDays(minimumProductionTime * 24)}</p>
+        <p><strong>Turno:</strong> ${workShift}</p>
+        <p><strong>Trabalhadores Necessários:</strong> ${workersNeeded}</p>
+        <p><strong>Total de Turnos:</strong> ${totalShifts}</p>
+        <p><strong>Expediente do Trabalhador:</strong> ${workerHours}h por dia</p>
+        <p><strong>Escala de Trabalho:</strong> ${formattedWeeklyScale}</p>
+        <p><strong>Período Total de Emprego:</strong> ${totalEmploymentPeriod}</p>
+    `;
+
+
+    const modal = document.getElementById('optimizationResultModal');
+    modal.style.display = 'flex';
+}
+
+// Função para fechar a modal de resultados de otimização
+function closeOptimizationResultModal() {
+    document.getElementById('optimizationResultModal').style.display = 'none';
+}
+

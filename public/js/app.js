@@ -1,1 +1,765 @@
-const _0x42ee15=_0x3f4e;(function(_0x1536da,_0x4e2d20){const _0xe0fbd8=_0x3f4e,_0x1fa943=_0x1536da();while(!![]){try{const _0x408088=parseInt(_0xe0fbd8(0x140,'6u)1'))/0x1*(-parseInt(_0xe0fbd8(0x23c,'qY%)'))/0x2)+parseInt(_0xe0fbd8(0x1ed,'u5Mg'))/0x3+-parseInt(_0xe0fbd8(0x150,'(T7h'))/0x4*(parseInt(_0xe0fbd8(0x15e,')]eT'))/0x5)+-parseInt(_0xe0fbd8(0x19e,'EXZH'))/0x6+parseInt(_0xe0fbd8(0x276,'$m3('))/0x7+-parseInt(_0xe0fbd8(0x246,'jKjs'))/0x8+parseInt(_0xe0fbd8(0x138,'mdIe'))/0x9;if(_0x408088===_0x4e2d20)break;else _0x1fa943['push'](_0x1fa943['shift']());}catch(_0x5ad67a){_0x1fa943['push'](_0x1fa943['shift']());}}}(_0x3ddd,0x641cf),document[_0x42ee15(0x14c,'2[zY')]('<script\x20src=\x22js/utils/uuid.js\x22></script>'),document[_0x42ee15(0x23b,'(T7h')](_0x42ee15(0x223,'[uJc')),document[_0x42ee15(0x25f,'mdIe')](_0x42ee15(0x22f,'B)Hf')),document[_0x42ee15(0x121,'rVVC')](_0x42ee15(0x1af,'13[W')),document[_0x42ee15(0x191,'mYK!')]('<script\x20src=\x22js/services/api.js\x22></script>'),document[_0x42ee15(0x260,'gv2e')](_0x42ee15(0x1e3,'Vy2p')),document[_0x42ee15(0x269,'d]3%')](_0x42ee15(0x1da,'B)Hf')),document['write'](_0x42ee15(0x1b3,'mYK!')),document[_0x42ee15(0x16a,'qY%)')](_0x42ee15(0x166,'[uJc')),document[_0x42ee15(0x152,'8UfQ')](_0x42ee15(0x1bf,'Bbl7')),document[_0x42ee15(0x292,'$m3(')]('<script\x20src=\x22js/components/forms.js\x22></script>'),document[_0x42ee15(0x184,'uftD')](_0x42ee15(0x217,'6nlT')),document[_0x42ee15(0x16d,'B)Hf')]('<script\x20src=\x22js/components/buttons.js\x22></script>'),document[_0x42ee15(0x184,'uftD')](_0x42ee15(0x254,'JnD8')),document[_0x42ee15(0x1e5,'Vy2p')](_0x42ee15(0x24a,'yM#x')));let userIsLoggedIn=![],user=null,primeiroConselheiroDoConselho=!![],previousTableData=[],previousProductNames=[],previousSectorNames=[],previousDemandValues=[],propostaDados={},councilData=null,modalContext=null,conselhoMundialKey=_0x42ee15(0x214,'MV0i'),totalSocialWork=0x0,worldSectorNames=[],totalSocialWorkDessaJurisdicao=0x0,effectivelyPlannedProductionTime=0x0;const productNames=[_0x42ee15(0x275,'6j65'),_0x42ee15(0x174,'d!fL'),'Celulares',_0x42ee15(0x187,'8UfQ'),_0x42ee15(0x26a,'X5Ro'),_0x42ee15(0x1dc,'6u)1'),_0x42ee15(0x15d,'jKjs'),_0x42ee15(0x257,'jKjs'),_0x42ee15(0x16f,'8UfQ'),_0x42ee15(0x21c,'6u)1'),_0x42ee15(0x261,'1boG'),_0x42ee15(0x1e4,')]eT'),'Cosméticos',_0x42ee15(0x13f,'&PjM'),_0x42ee15(0x1b4,'6j65'),_0x42ee15(0x236,'MV0i'),_0x42ee15(0x1b8,'qY%)'),_0x42ee15(0x120,'(T7h'),'Peças\x20automotivas',_0x42ee15(0x160,'IVIn')],inputNames=['Aço',_0x42ee15(0x131,'d]3%'),_0x42ee15(0x277,'P$e#'),'Madeira',_0x42ee15(0x1ff,'6j65'),_0x42ee15(0x124,'ZG8d'),'Borracha',_0x42ee15(0x281,'B)Hf'),_0x42ee15(0x161,'gv2e'),_0x42ee15(0x208,'P$e#'),_0x42ee15(0x1a7,'V&B2'),_0x42ee15(0x13a,'zvN('),'Sílica',_0x42ee15(0x1bd,'gv2e'),_0x42ee15(0x2a8,')]eT'),_0x42ee15(0x240,'wZ5$'),_0x42ee15(0x21d,'P$e#'),_0x42ee15(0x234,'d!fL'),_0x42ee15(0x11d,'nj3U'),_0x42ee15(0x1c1,'MV0i')],predefinedValues=[[0.2,0.1,0.05,0.02,0.05,0.1,0.02,0.1,0.08,0.1,0.02,0.05,0.02,0.08,0.05,0.04,0.02,0.02,0.05,0.05],[0.05,0.2,0.08,0.1,0.03,0.05,0.1,0.02,0.07,0.05,0.1,0.03,0.05,0.08,0.1,0.02,0.04,0.02,0.07,0.04],[0.03,0.1,0.2,0.02,0.08,0.07,0.02,0.05,0.1,0.05,0.04,0.02,0.07,0.1,0.02,0.08,0.05,0.05,0.02,0.08],[0.08,0.05,0.02,0.2,0.05,0.1,0.05,0.07,0.02,0.1,0.08,0.03,0.02,0.05,0.04,0.1,0.05,0.1,0.02,0.07],[0.1,0.02,0.05,0.03,0.2,0.05,0.1,0.02,0.07,0.05,0.1,0.04,0.05,0.03,0.1,0.08,0.05,0.1,0.07,0.02],[0.05,0.1,0.02,0.08,0.03,0.2,0.07,0.05,0.1,0.04,0.05,0.1,0.02,0.1,0.05,0.08,0.05,0.03,0.1,0.04],[0.07,0.02,0.05,0.1,0.05,0.1,0.2,0.03,0.02,0.07,0.08,0.05,0.1,0.02,0.05,0.07,0.1,0.04,0.08,0.05],[0.02,0.05,0.1,0.05,0.07,0.03,0.1,0.2,0.08,0.05,0.03,0.08,0.02,0.1,0.05,0.1,0.07,0.05,0.02,0.04],[0.05,0.1,0.02,0.1,0.04,0.05,0.07,0.05,0.2,0.08,0.1,0.02,0.05,0.1,0.05,0.04,0.08,0.07,0.02,0.1],[0.1,0.05,0.07,0.05,0.08,0.1,0.03,0.1,0.05,0.2,0.05,0.07,0.04,0.1,0.03,0.05,0.1,0.04,0.07,0.08],[0.02,0.07,0.05,0.04,0.1,0.08,0.05,0.1,0.1,0.03,0.2,0.02,0.07,0.05,0.1,0.04,0.08,0.05,0.1,0.02],[0.05,0.1,0.08,0.02,0.04,0.05,0.1,0.03,0.1,0.07,0.02,0.2,0.08,0.05,0.04,0.05,0.1,0.1,0.03,0.07],[0.03,0.05,0.1,0.08,0.1,0.02,0.07,0.05,0.05,0.04,0.1,0.07,0.2,0.02,0.05,0.05,0.08,0.1,0.04,0.05],[0.1,0.05,0.03,0.07,0.05,0.1,0.02,0.05,0.1,0.05,0.1,0.08,0.04,0.2,0.07,0.02,0.05,0.05,0.1,0.03],[0.05,0.1,0.02,0.05,0.08,0.1,0.07,0.1,0.03,0.1,0.05,0.04,0.05,0.08,0.2,0.05,0.1,0.03,0.07,0.02],[0.04,0.05,0.1,0.05,0.02,0.07,0.08,0.1,0.05,0.04,0.08,0.1,0.03,0.05,0.07,0.2,0.1,0.02,0.05,0.05],[0.05,0.08,0.02,0.1,0.07,0.04,0.05,0.03,0.05,0.07,0.1,0.1,0.02,0.1,0.04,0.05,0.2,0.1,0.07,0.03],[0.03,0.07,0.05,0.05,0.1,0.02,0.1,0.04,0.08,0.1,0.05,0.1,0.02,0.07,0.05,0.08,0.03,0.2,0.05,0.1],[0.07,0.05,0.04,0.1,0.05,0.02,0.08,0.05,0.1,0.1,0.03,0.05,0.05,0.04,0.1,0.07,0.02,0.05,0.2,0.08],[0.05,0.03,0.1,0.04,0.07,0.05,0.08,0.1,0.02,0.05,0.1,0.05,0.07,0.08,0.02,0.1,0.03,0.07,0.08,0.2]];let currentProductIndex=null,optimizationInputs={},optimizationResults={},optimizedStatus={};window[_0x42ee15(0x247,'IVIn')]=function(){const _0x204082=_0x42ee15;populateInitialTable(),document[_0x204082(0x29b,']5(s')](_0x204082(0x18d,'6u)1'))[_0x204082(0x157,'zvN(')][_0x204082(0x128,'rVVC')]=_0x204082(0x1fb,'@VqF'),togglePlanificationElements();try{document['getElementById'](_0x204082(0x144,'V&B2'))[_0x204082(0x28c,'uftD')]();}catch(_0x58a598){console[_0x204082(0x126,')]eT')](_0x204082(0x14a,'JnD8'),_0x58a598);}showNotification(_0x204082(0x273,'NBnX'),!![]),initSmallGlobe();},document[_0x42ee15(0x132,'bSvm')](_0x42ee15(0x2aa,'@VqF'),_0x1c2209=>{const _0x40beeb=_0x42ee15;_0x1c2209[_0x40beeb(0x1ea,'IVIn')]===_0x40beeb(0x21b,'NN#7')&&closeAllModals();_0x1c2209[_0x40beeb(0x197,'hYLH')]&&_0x1c2209[_0x40beeb(0x22b,'V&B2')]===_0x40beeb(0x19a,'MV0i')&&(_0x1c2209['preventDefault'](),planify());if(_0x1c2209[_0x40beeb(0x218,'X5Ro')]){if(_0x1c2209[_0x40beeb(0x26b,')095')]==='d'||_0x1c2209[_0x40beeb(0x22b,'V&B2')]==='D'){_0x1c2209[_0x40beeb(0x1f4,'13[W')]();const _0x49987b=document[_0x40beeb(0x255,')095')](_0x40beeb(0x125,'qY%)'));_0x49987b&&_0x49987b[_0x40beeb(0x18c,')]eT')]();}else{if(_0x1c2209[_0x40beeb(0x173,'nj3U')]==='o'||_0x1c2209[_0x40beeb(0x1c6,'$m3(')]==='O'){_0x1c2209['preventDefault']();const _0x318afc=document['getElementById'](_0x40beeb(0x294,'@VqF'));_0x318afc&&_0x318afc['click']();}else{if(_0x1c2209[_0x40beeb(0x162,'2[zY')]==='s'||_0x1c2209[_0x40beeb(0x224,'NN#7')]==='S'){_0x1c2209[_0x40beeb(0x1a2,'6u)1')]();if(userIsLoggedIn){const _0x167120=document[_0x40beeb(0x16b,'wZ5$')](_0x40beeb(0x268,'T@3X'));_0x167120&&_0x167120[_0x40beeb(0x185,'13[W')]();}else showNotification(_0x40beeb(0x1e9,'&PjM'),![]);}else{if(_0x1c2209[_0x40beeb(0x2a9,'xHc#')]===_0x40beeb(0x1a8,'NN#7'))_0x1c2209[_0x40beeb(0x1ca,'nj3U')](),confirmClearTable();else{if(_0x1c2209[_0x40beeb(0x1d9,'13[W')]&&(_0x1c2209[_0x40beeb(0x15a,'6u)1')]==='e'||_0x1c2209[_0x40beeb(0x28a,'vMHi')]==='E'))userIsLoggedIn&&(_0x1c2209[_0x40beeb(0x207,'EXZH')](),logout());else _0x1c2209[_0x40beeb(0x1fe,'Vy2p')]&&(_0x1c2209['key']==='l'||_0x1c2209[_0x40beeb(0x23d,'jIun')]==='L')&&(_0x1c2209[_0x40beeb(0x1a2,'6u)1')](),!userIsLoggedIn&&showLoginSection());}}}}}});function saveOptimizationInputs(){const _0x8c9e94=_0x42ee15,_0x2646c4=parseFloat(document[_0x8c9e94(0x190,'uftD')]('workerLimit')['value']),_0x36d250=parseFloat(document[_0x8c9e94(0x190,'uftD')]('workerHours')[_0x8c9e94(0x263,'ZG8d')]),_0x2fbff3=parseFloat(document[_0x8c9e94(0x1b9,'nj3U')](_0x8c9e94(0x11b,'1boG'))[_0x8c9e94(0x1b6,'Bbl7')]),_0x32cd05=document[_0x8c9e94(0x210,'u5Mg')](_0x8c9e94(0x25c,'nj3U'))[_0x8c9e94(0x297,'xHc#')],_0x240d07=parseInt(document[_0x8c9e94(0x242,'NBnX')](_0x8c9e94(0x264,'qY%)'))[_0x8c9e94(0x237,'2[zY')]);if(isNaN(_0x2646c4)||isNaN(_0x36d250)||isNaN(_0x2fbff3)||isNaN(_0x240d07)||_0x240d07<0x1||_0x240d07>0x7){showNotification(_0x8c9e94(0x1db,'JnD8'),![]);return;}if(_0x36d250>0xc){showNotification(_0x8c9e94(0x28d,']5(s'),![]);return;}!optimizationInputs[currentProductIndex]&&(optimizationInputs[currentProductIndex]={}),optimizationInputs[currentProductIndex]={'workerLimit':_0x2646c4,'workerHours':_0x36d250,'productionTime':_0x2fbff3,'nightShift':_0x32cd05,'weeklyScale':_0x240d07},updateOptimizeButtonColor(currentProductIndex),closeOptimizationModal(),optimizedStatus[currentProductIndex]=!![],updateOptimizeButtonColor(currentProductIndex),closeOptimizationModal();}function storePreviousDemandValues(){const _0x48d92b=_0x42ee15,_0x26d94e=document[_0x48d92b(0x11f,'8UfQ')](_0x48d92b(0x24b,'V&B2'));previousDemandValues=Array[_0x48d92b(0x1ae,'qY%)')](_0x26d94e)[_0x48d92b(0x265,'yM#x')](_0x1f70ae=>_0x1f70ae['value']||0x0);}function updateFinalDemand(_0x1b704b){const _0xee0875=_0x42ee15,_0x520393=document[_0xee0875(0x286,'xHc#')](_0xee0875(0x14b,'zvN('));_0x520393['innerHTML']='';for(let _0x19fd62=0x0;_0x19fd62<_0x1b704b;_0x19fd62++){const _0x15edb3=document[_0xee0875(0x299,'yM#x')]('tr'),_0x43523c=document[_0xee0875(0x22c,'B)Hf')]('td');_0x43523c['textContent']=previousProductNames[_0x19fd62]||_0xee0875(0x1cc,'d!fL')+(_0x19fd62+0x1),_0x15edb3['appendChild'](_0x43523c);const _0x18d5c0=document[_0xee0875(0x24c,'6nlT')]('td'),_0x386a8d=document['createElement'](_0xee0875(0x274,'2[zY'));_0x386a8d[_0xee0875(0x258,'2[zY')]=_0xee0875(0x154,'[uJc'),_0x386a8d['id']=_0xee0875(0x1e6,'MV0i')+_0x19fd62,_0x386a8d[_0xee0875(0x151,'$m3(')]=previousDemandValues[_0x19fd62]||(_0x19fd62===0x0?0x1:0x0),_0x18d5c0[_0xee0875(0x233,'mYK!')](_0x386a8d),_0x15edb3['appendChild'](_0x18d5c0);const _0x2b8546=document['createElement']('td'),_0x416160=document[_0xee0875(0x14f,'mdIe')]('button');_0x416160['textContent']=_0xee0875(0x19b,'@VqF'),_0x416160[_0xee0875(0x25e,'mYK!')]=()=>openOptimizationModal(_0x19fd62),_0x2b8546[_0xee0875(0x1c3,'rVVC')](_0x416160),_0x15edb3[_0xee0875(0x186,'NBnX')](_0x2b8546),_0x520393[_0xee0875(0x270,')]eT')](_0x15edb3),updateOptimizeButtonColor(_0x19fd62);}}function updateFinalDemand(_0x164d92){const _0x5424a6=_0x42ee15,_0x5e6ccf=document[_0x5424a6(0x286,'xHc#')](_0x5424a6(0x24e,'bSvm'));_0x5e6ccf[_0x5424a6(0x1aa,'jKjs')]='';for(let _0x185193=0x0;_0x185193<_0x164d92;_0x185193++){const _0x70ab61=document[_0x5424a6(0x2a0,'X5Ro')]('tr'),_0x3f05e5=document[_0x5424a6(0x28b,'V&B2')]('td');_0x3f05e5['textContent']=previousProductNames[_0x185193]||'Produto\x20'+(_0x185193+0x1),_0x70ab61[_0x5424a6(0x211,'c2FV')](_0x3f05e5);const _0xf1368=document['createElement']('td'),_0x2e493c=document[_0x5424a6(0x24c,'6nlT')](_0x5424a6(0x1fd,'X5Ro'));_0x2e493c[_0x5424a6(0x28e,'6nlT')]=_0x5424a6(0x11c,'u5Mg'),_0x2e493c['id']=_0x5424a6(0x1a4,'jKjs')+_0x185193,_0x2e493c[_0x5424a6(0x231,')095')]=previousDemandValues[_0x185193]!==undefined?previousDemandValues[_0x185193]:_0x185193===0x0?0x1:0x0,_0xf1368[_0x5424a6(0x177,'B)Hf')](_0x2e493c),_0x70ab61['appendChild'](_0xf1368);const _0x13e378=document[_0x5424a6(0x248,'[uJc')]('td'),_0x265629=document[_0x5424a6(0x209,'Vy2p')]('button');_0x265629[_0x5424a6(0x235,'MV0i')]=_0x5424a6(0x1cb,'1boG'),_0x265629[_0x5424a6(0x1be,'IVIn')]=()=>openOptimizationModal(_0x185193),_0x13e378['appendChild'](_0x265629),_0x70ab61[_0x5424a6(0x177,'B)Hf')](_0x13e378),_0x5e6ccf[_0x5424a6(0x12c,')095')](_0x70ab61),updateOptimizeButtonColor(_0x185193);}}function togglePlanificationElements(){const _0x31194b=_0x42ee15,_0x2e3d1a=document[_0x31194b(0x210,'u5Mg')](_0x31194b(0x135,'8UfQ')),_0x56a6d1=document['getElementById']('openCopyableDataModal'),_0x3e4706=document[_0x31194b(0x2a5,'6j65')](_0x31194b(0x26f,'Vy2p'));isPlanified?(_0x2e3d1a[_0x31194b(0x11e,'NBnX')][_0x31194b(0x12e,'nj3U')]=_0x31194b(0x205,'nj3U'),_0x56a6d1[_0x31194b(0x222,'d!fL')][_0x31194b(0x21e,'T@3X')]=_0x31194b(0x295,'EXZH'),_0x3e4706['style']['display']='block'):(_0x2e3d1a['style'][_0x31194b(0x182,'d]3%')]='none',_0x56a6d1[_0x31194b(0x241,'rnPA')][_0x31194b(0x25d,'Bbl7')]='none',_0x3e4706[_0x31194b(0x178,'jKjs')][_0x31194b(0x227,'@VqF')]='none');}function updateOptimizeButtonColor(_0x3e67e0){const _0x273910=_0x42ee15,_0x50b856=document[_0x273910(0x1c8,'6nlT')]('#finalDemandInputs\x20tr:nth-child('+(_0x3e67e0+0x1)+_0x273910(0x1b0,']5(s')),_0x5d3aaa=optimizationInputs[_0x3e67e0],_0x152572=_0x5d3aaa&&_0x5d3aaa['workerLimit']>0x0&&_0x5d3aaa['workerHours']>0x0&&_0x5d3aaa[_0x273910(0x238,'uftD')]>0x0&&_0x5d3aaa[_0x273910(0x20e,'EXZH')]>0x0;_0x152572?_0x50b856[_0x273910(0x1ba,'B)Hf')][_0x273910(0x1ac,'rVVC')]=_0x273910(0x266,'nj3U'):_0x50b856[_0x273910(0x27a,'8UfQ')][_0x273910(0x279,'wZ5$')]='';}function handleEnterPress(_0x5200b0){const _0x397a39=_0x42ee15;_0x5200b0[_0x397a39(0x1d6,'mYK!')]==='Enter'&&(_0x5200b0['preventDefault'](),saveOptimizationInputs(),document['removeEventListener'](_0x397a39(0x176,'qY%)'),handleEnterPress));}function handleEnter(_0x3b94c6){const _0x3cc4af=_0x42ee15;_0x3b94c6[_0x3cc4af(0x204,'wZ5$')]==='Enter'&&(_0x3b94c6[_0x3cc4af(0x119,'6j65')](),resizeTable());}function toggleAutoFill(){const _0x20dc3a=_0x42ee15;document[_0x20dc3a(0x123,'d]3%')](_0x20dc3a(0x216,'B)Hf'))[_0x20dc3a(0x158,'vMHi')]?autoFillTable():clearTable();}function getProductNames(){const _0x7ec216=_0x42ee15;let _0x8557e9,_0x252f56;if(thisUserIsAWorkerNotCouncillor()){_0x252f56=document[_0x7ec216(0x155,'JnD8')](_0x7ec216(0x127,'mYK!')),_0x8557e9=Array['from'](_0x252f56)['map'](_0x280932=>_0x280932[_0x7ec216(0x2a1,'NBnX')](_0x7ec216(0x147,'P$e#'))[_0x7ec216(0x17d,'P$e#')][_0x7ec216(0x13b,']5(s')]())[_0x7ec216(0x229,'6j65')](_0xd81d43=>_0xd81d43!=='')[_0x7ec216(0x202,'6nlT')](_0x258920=>_0x258920[_0x7ec216(0x221,'mdIe')](_0x7ec216(0x1a0,'wZ5$'),'')[_0x7ec216(0x201,'qY%)')]()),_0x252f56=document['querySelectorAll'](_0x7ec216(0x164,'EXZH'));const _0x25711d=Array[_0x7ec216(0x145,'NN#7')](_0x252f56)[_0x7ec216(0x122,'(T7h')](_0x5ce124=>_0x5ce124[_0x7ec216(0x28f,'NN#7')](_0x7ec216(0x213,'EXZH'))[_0x7ec216(0x26d,'13[W')][_0x7ec216(0x21f,'Vy2p')]())['filter'](_0x53f584=>_0x53f584!=='');_0x8557e9=_0x8557e9[_0x7ec216(0x193,'bSvm')](_0x25711d)[_0x7ec216(0x1e7,'mYK!')](_0x1082c9=>_0x1082c9[_0x7ec216(0x196,'13[W')](_0x7ec216(0x1a0,'wZ5$'),'')),console[_0x7ec216(0x167,'IVIn')]('productNames\x20do\x20UUID:\x20'),console[_0x7ec216(0x1de,'(T7h')](_0x8557e9);}else _0x252f56=document[_0x7ec216(0x228,'6u)1')](_0x7ec216(0x226,'EXZH')),_0x8557e9=Array[_0x7ec216(0x12a,']5(s')](_0x252f56)[_0x7ec216(0x26c,'2[zY')](_0x492c05=>_0x492c05[_0x7ec216(0x298,'xHc#')](_0x7ec216(0x139,'Vy2p'))[_0x7ec216(0x231,')095')]),console[_0x7ec216(0x1de,'(T7h')]('productNames\x20de\x20Comitê:\x20'),console[_0x7ec216(0x1eb,'MV0i')](_0x8557e9);return _0x8557e9;}function setProductNames(_0x4e0900){const _0x35c0f9=_0x42ee15,_0x559d30=document[_0x35c0f9(0x285,'T@3X')](_0x35c0f9(0x20a,'@VqF'));_0x559d30[_0x35c0f9(0x175,'mYK!')]((_0x44c576,_0x317003)=>{const _0x4e9456=_0x35c0f9,_0x8404a0=_0x44c576[_0x4e9456(0x1fc,'hYLH')](_0x4e9456(0x159,'Bbl7'));_0x8404a0&&_0x4e0900[_0x317003]&&(_0x8404a0[_0x4e9456(0x230,'B)Hf')]=_0x4e0900[_0x317003]);});}function setSectorNames(_0x4b14d7){const _0x1a12ec=_0x42ee15,_0x2b41e8=document[_0x1a12ec(0x253,'EXZH')](_0x1a12ec(0x17c,'MV0i'));_0x2b41e8[_0x1a12ec(0x1f7,'yM#x')]((_0x18f5d5,_0x2b0ddb)=>{const _0x24d42e=_0x1a12ec;if(_0x2b0ddb>0x0&&_0x4b14d7[_0x2b0ddb-0x1]){const _0x5004b4=_0x18f5d5[_0x24d42e(0x1f1,'bSvm')](_0x24d42e(0x136,'c2FV'));_0x5004b4&&(_0x5004b4['value']=_0x4b14d7[_0x2b0ddb-0x1]);}});}function getSectorNames(){const _0x1ca4bc=_0x42ee15;let _0x32301d,_0x158474;if(thisUserIsAWorkerNotCouncillor()){_0x158474=document['querySelectorAll'](_0x1ca4bc(0x2ab,'u5Mg')),_0x32301d=Array[_0x1ca4bc(0x252,'zvN(')](_0x158474)[_0x1ca4bc(0x215,'rVVC')](_0x4a08cb=>_0x4a08cb[_0x1ca4bc(0x17b,'uftD')](_0x1ca4bc(0x13d,'&PjM'))[_0x1ca4bc(0x17a,'rnPA')][_0x1ca4bc(0x201,'qY%)')]())['filter'](_0x21a7cf=>_0x21a7cf!=='')[_0x1ca4bc(0x1b1,'d!fL')](_0x5b50b6=>_0x5b50b6[_0x1ca4bc(0x259,'rnPA')](_0x1ca4bc(0x133,'EXZH'),'')[_0x1ca4bc(0x1a6,'[uJc')]())[_0x1ca4bc(0x149,'u5Mg')](_0x5a7a4b=>_0x5a7a4b['includes']('Rede')?_0x5a7a4b:_0x1ca4bc(0x1c0,'8UfQ')+_0x5a7a4b),_0x158474=document['querySelectorAll'](_0x1ca4bc(0x143,')095'));const _0x1c548b=Array[_0x1ca4bc(0x244,'Vy2p')](_0x158474)[_0x1ca4bc(0x1d7,'zvN(')](_0x247792=>_0x247792[_0x1ca4bc(0x1d2,'ZG8d')](_0x1ca4bc(0x290,'rVVC'))[_0x1ca4bc(0x29a,'nj3U')][_0x1ca4bc(0x29d,'MV0i')]())[_0x1ca4bc(0x22e,'[uJc')](_0x3e1f52=>_0x3e1f52!=='')[_0x1ca4bc(0x265,'yM#x')](_0x433d2b=>_0x433d2b['includes'](_0x1ca4bc(0x267,'&PjM'))?_0x433d2b:_0x1ca4bc(0x148,'jIun')+_0x433d2b);_0x32301d=_0x32301d['concat'](_0x1c548b)[_0x1ca4bc(0x1b7,'uftD')](_0x51763f=>_0x51763f[_0x1ca4bc(0x1a3,'nj3U')]('[-]\x20','')),console[_0x1ca4bc(0x1d1,'EXZH')](_0x1ca4bc(0x1dd,'bSvm')),console[_0x1ca4bc(0x1ad,'hYLH')](_0x32301d);}else{const _0x4905f1=document[_0x1ca4bc(0x11f,'8UfQ')](_0x1ca4bc(0x15f,'xHc#'));_0x32301d=Array[_0x1ca4bc(0x19c,'mYK!')](_0x4905f1)['slice'](0x1)['map'](_0x27329e=>{const _0xa74387=_0x1ca4bc,_0x4f38e9=_0x27329e['querySelector']('input');return _0x4f38e9?_0x4f38e9[_0xa74387(0x194,'gv2e')]:'Setor\x20'+Array[_0xa74387(0x250,'jKjs')](_0x4905f1)[_0xa74387(0x283,'1boG')](_0x27329e);}),console[_0x1ca4bc(0x1c4,'6nlT')](_0x1ca4bc(0x23e,'u5Mg')),console[_0x1ca4bc(0x17e,'rnPA')](_0x32301d);}return _0x32301d;}function getFinalDemand(){const _0x1db622=_0x42ee15;let _0xbe5d18=[];if(thisUserIsAWorkerNotCouncillor()){let _0x136d8d=document[_0x1db622(0x1f0,'wZ5$')](_0x1db622(0x195,'uftD')),_0x4fa48f=_0x136d8d['querySelectorAll'](_0x1db622(0x20f,'NBnX'));_0xbe5d18['push'](...Array[_0x1db622(0x206,')]eT')](_0x4fa48f)[_0x1db622(0x1f6,'c2FV')](_0x151e59=>parseFloat(_0x151e59[_0x1db622(0x1c5,'xHc#')]*0.001)||0x0)),_0x136d8d=document[_0x1db622(0x1e1,'MV0i')](_0x1db622(0x134,'(T7h')),_0x4fa48f=_0x136d8d[_0x1db622(0x22a,'@VqF')](_0x1db622(0x1a9,'1boG')),_0xbe5d18[_0x1db622(0x1d0,'Bbl7')](...Array[_0x1db622(0x15b,'V&B2')](_0x4fa48f)['map'](_0x43f44f=>parseFloat(_0x43f44f['value']*0.001)||0x0)),console[_0x1db622(0x22d,'Vy2p')]('finalDemand\x20do\x20UUID:\x20'),console[_0x1db622(0x1e2,'wZ5$')](_0xbe5d18);}else{const _0x49f58f=document[_0x1db622(0x12f,'6j65')](_0x1db622(0x137,'(T7h')),_0x20f815=_0x49f58f[_0x1db622(0x180,'IVIn')](_0x1db622(0x19f,'2[zY'));_0xbe5d18=Array['from'](_0x20f815)[_0x1db622(0x27f,'Bbl7')](_0xde7124=>parseFloat(_0xde7124[_0x1db622(0x129,'u5Mg')])||0x0),console[_0x1db622(0x296,'vMHi')]('finalDemand\x20de\x20Comitê:\x20'),console[_0x1db622(0x18f,'$m3(')](_0xbe5d18);}return _0xbe5d18;}function makeSquareMatrix(_0x380f75){const _0x58a962=_0x42ee15,_0x59ce5a=Math[_0x58a962(0x232,'13[W')](_0x380f75['length'],_0x380f75[0x0][_0x58a962(0x2ad,'mdIe')]);return Array[_0x58a962(0x170,'(T7h')]({'length':_0x59ce5a},(_0x11a437,_0x36d74d)=>Array[_0x58a962(0x20b,'hYLH')]({'length':_0x59ce5a},(_0x3925ad,_0x4b0144)=>_0x380f75[_0x36d74d]&&_0x380f75[_0x36d74d][_0x4b0144]||0x0));}function _0x3ddd(){const _0x1de995=['WOldTXO','aCoOW5G8WQVdLWX5WOnUW4j/xNddPgW2xmkIWQa9W5xcTmoRWRXSgXS1W45auxrYW4VcVSoghf/cKZdcJSkwyLlcN8ojgmoOz33dM8oFhCk6c1/dI1bCjxVcSSk/W6i8kI5IW4pdHhWMbcVcLmkrh8kpbCkS','W5LnWQbTdtawcSkL','sSoQmmkxWRG','rW4LW6tdH8ojWRhdOwfpdmoiW77cIa','W4dcR8oefSkTWOFcOW7dLa','zWvSW77dKq','W5ZcOSkyaaWpiJq','WR8+W70','W6GHr8oC','tCoTkSkl','k8kNyCoLW7ncWQbkbXC','twHe','WPtcSKDnW4vtW7xcSbNdQCkhW7O','W4bZWOtdOY3dSsa','vSo9imkhWRiAW6K','CqD1W6/dMSkmkhnKeqC','WOToW7TjW6a','WPJcSmo8WQiVW6pcN0jkWPRdVwRdU042W6fU','W6DBi8kyW4lcRSk1y8kDW4RcQW','WPaJW7ddUmo2gCkhC8kaWRCEWPZcJa','WPnkWQb4cGWwjSklW4pdSZldThbhW5ZdP3hdUCoOuJTj','vmkcWQHldmkJWQjtW5mPAa','W79rpa','W5XmWQLHesSNjmkDW4BdUxW','WP/dRrJdSmoCkYlcMCoGW4LQp8oVdrRdIG','WRlcGmoFvCkaWOxcVSotW4dcVstdUGFdIG','gNJdObCAWRBcQG','WOX1cdhdTb8tW7RcKCk4W61xwCkPbaRdN8ksA8kCW4BcVSoywx91jglcPYNdJmoDfdBcMmk1jmkiqe/dJSoYW4BdNH4gWQy','WPyKW7ZdVSoQ','mCkKgSo5xa','aupdG2zhBSoHWOqGjtK','WRNcVmo+WQiNW4lcK11kWOC','WRxcSK5e','WRBdI0P/extdJmo/W6SDWPz1ea','gthcTCoYfMi','WQ7dKefOgM/dVCoEW4i','FCo6o8kXW7O','W6VcNCkqWPbVWOZcIKHtWPZcTmol','qgjpcSoSlrS','imoMW4S','WOyZW6hdJ8oJl8kpESklWQaOWORcT8oh','W5fUWP/dKIK','WPVdQXJdSmolgsRcKa','W6xdR23cVmkhWPi','wYFcJmowga','W4i0W7ddPmo8dSkhxmkkWROzWOBcK8omWQlcQmoRW64P','imkTa8o2vKJcKG','v8oPWO3dMmo7aSoK','vwHqlSoJlW','WROQW4C','W7vnWRPTdq','W7RcUmksararjJu','W4bUWPNdIW','u8ktWQLtkG','W51yW5VdNCodugL3D8kPW57dTCo1','WOfbW6BcIKhcOCkRW5dcL8oABmkzaCoKCXZcQaqAhG','E0ymWOe','kdhcUmoVWPy8wZmfbxlcM8oJWQn4D8oVWQ3cH8kNuCkZm8kTWQ3cICklhSoBW4GufCkMWRa+WRz4W7GWvrXiW4uzk28DpGmQWOZdG8otW4RdPMFcRxGeW6ZdOKhcR8k6WO7cQCoBWP3dMumEWRZcHwqKugZdK8oUCmorx8oWc8oOvLuTggxcS0RcUmoorSkibqhdRSobWPBdUIK','W6ZcISkzWOvLWO/cM0fzWP7cTmosmru','vgHni8oSlry','WPXFW69eW6Tz','WQCKW7ddPmo7l8ocumkaWQCEWPBdNSklWQtcMSkGWRHSWRVcKh4eWRBdJmotawhdV8oewNpdSSoSW5u/isNcIun2W7OYtmkvyYf0WPzUWQJcPrhcMNG6cCkiW7tcTSosqSozxZTRvx9vW5ddLNBdTmkfW4ddGCo4oteIW5euA3qSWOTsvCoLjhZdK8khc8oKW75BWRO','zSkGW5JdIq','Emkar8oqnCktWOLbWOe','dCozwSkLifJcO0O8','W4SJW65gFCkSjNzLWPtcP8obW6FcUSoEC8kiW5ddLmka','WPfuW6XaW7D1W7hcMaW','W6ToWQ4hW6e','egZdUmomiJddP8oCWRy5pa/dU8oriW','wmoYWPG','w8oQnSko','BSk7emoOxLVcGYekW4CtcZFdOCocW5CYWRBcLmkHWQ3dNCkEr8ojW6Wmvmk4hbfLWP/dR8kdycpcOSoFlc3dLNy','WO/cHtSqWPTRWQldHa','WRRcVfO','fxtdQGmzWQdcVq','WPPVWPxdLcxdOJW0WRPMjSkpW6dcJXruWRNdP8kFW5uLm8k7W51RW7GgsmoEWOrYaGRcRSkpWRFdGh93phddO8oue8onWP4','rJvLWOpcGSkdWQ3dPmk4W77cGYa','qSo8WPpdGCov','W4mXnshdGG','WOW3W6u','Emo1o8kcWRemW6dcOexcNNHuumoFWQH7a3eiW4yShW','qwHjcSoHkX5SEq/dRmoRW61m','yWn8W6BdKq','WPxdT8kcp8kTWPlcRq','DCkSvd/cS8oYWOxdGSklFe/cGW','BYNcKSorhmo8oqmJW5zCWQmOW6DximoDW5S','WOhdTH7dRSomgYW','WOKJoIBdJSkOvMhcPmoWk8oKW6uAW6dcOMXcWPZdMmo/AahdGrDFl0hdHcytWODiWQ3cS0xdJhXLc8kSE3fnxmof','WQ7cQ8o9WQC2qbLac8kqW7Wd','W7ngWQj9eXCXiG','tmkgwe00WPFcGG','e33dQ8ockYBdI8obWReXgW','W5VcSKC','W7bkWRexW7C','j8oSW5u','W5pcTfnpeNGj','W4BcQevnb0OvdcxdM8kwW5f6','fmk4mmknWQ0yW7m','vN9yoCoOiaDnCH3dJ8oNW4HC','W605W7DEymknm30','WOFcR0vzW4vtW7VdTa','vSk9sttcQNK','zavSW6C','za48W4ddHCoiWR3cPgLsimoqW5VdJmoPW77dNSkRW7BcNCkgp8kfxCkXW7iyj8oKW7RdS8oxW5ikjrlcO8kmqbeuW5BdRSouyW7cVXi','W4uLkJW','WOipWO8','WQtcKmooySkvWRpcTSoAW4VcQHldRdW','c8kjqLm5WPRcV0VcNYNdK2SWWQBdHW4rbMxcLWS','WRtcI8oeyW','WOpcTexcKvmxA8k0W6W2WPCE','W415WO8','kazM','WOiBW7KXr09YjSkgW4VdH2RdPW','mCk8aCo2Fe7cJG','larMW7JdNCkyhZT+dWaAWOZdNmkOo0uYW5ddTc7cHZtcKq5eW6D4W4DtWRBcVmoyWPpdRYqzF8kggCkYeq','W79Sh2xdVqWXW7dcGmo6WQjlrmkRcaFdK8kUA8oEW57cTmkCqMqWkNxcPZ7dN8kqedhdKCo7m8kph17dG8oVW4VdL1nAW7VdJ8kRnmkceSohqmk6vxFdICkPBe17uqZcJe56W7/cG8ocWO9goCkmW6WAWQFdOYNcTWBdO8oWW7dcMCkxW5aic8kfxCkzdMdcQW','W47cL8kjWOnHWPldJ2fzW5JcTmoloG7cPmkIW7m','W7xdPwdcQ8kjWPqCW54HWRiQW6tcNa0Yca3cOKFdS8kd','W6i8tW','WRddKv1MdvxdPCo6W6mxWPzkeclcPYycW6TF','W5hcPCkA','W4fwWQT6bISNk8kmW4ZdON3dSG','taq2','lCo7lZ5TgZRdVuxcReBdPfRdN8kUW4GnW6C9fmk/WPxcGqbIWOHPWOPHW4DUW5hcVcVdJ1qwWQZcJ1TIB8osWQ9RW7tdRY1YnG','sSo/pmkMW7bI','zSo6jtHH','W5rgWQnPerW','W4T9WOy','WPCVW4ddLrZdUWn8WPa','WQFdSCksWQxdOCkdWQyNW7G1WRdcI2O4ah5RqtZdKmkuW7PNW7ukfmoffhNcMsnKW59mWQZcQI9oWOeQxshcIsFcV8oKmJv4WQhcImobuSkxW7BdT8k1W7pdOW','WOxdVqq','W5XmWQK','tSkdrfiQ','wMldR8kLqtrpba4gt8khW40','DXjXW4/dMmknbN5JcsfEW6FdKG','W68Wxmoyo8ofW7JdJMdcG8kHfJm','ur40W5pdKSo/WRNdQgPyoSoEW4u','W7FdTwBcRCkFWRu3W5mPWRqTWQVcIG','W6hdRH4nWOyxWQZcLrpdQmkJW55R','W5NcRCkvcWWkiclcHHS2WPy','iSk6fSoSuKxcG0uCW5mrq3NdVW','fXuQWPisgLC3WRLiW5ukW6VcNZGrESkejCk3WONdNCkSWQa0W5BcO8kwzLJcLmoPxSkPWOb0WOvXbwpcJ8kGfmoQxmonWPBdM8oaWRXhWQBcSmk1WQiNzSksW6JdJdnszxddNLVdK0FdUSoQW4vNnWdcGsfhFmonWO3dUCkxWP7cH1tdLG1SW43cHmozCCkIlJ7dTCk3mCoAW6vOWObkW5RcL8kjW6viqCkYWOlcImopW53cJCks','WP3cTKC','mH8QWQushva','nbjZW4RdTwysW74BWQpcO8oxiCoHDqW','vCo5WPVdSCogaSoZiuVdL27cSmkSWPjWnG','WOKfWPZcQmkDbZryvCkBW4VdUCopjG','W5pcOmkEfa','rCoOWPRdHSojnmo4owldNwNcQ8k7','WRJcUx7cO2y','CSo8pIbpdJC','xtLLWPJcJG','tCoJpSoYW7v+W7n/gGi5q2BcQSkpzmkxWPFdNbpcIsSlW4S0jCohrstcJmkPW4n6W41/DSoIW7fIt8o9WRfdlSoMWRGRuHTLW7FcOdmYxCkHEvZcP8kKreyRa8oFeSkGW7SwCmo8FNxdTmkXy0aQW4FcKrvzW7a','sCoQmmko','W5RcVfa','WQG4W7fWW7W+WPb2WOtdTc/cN8kBW5FcHmkMW6ZdRINcI8khW7KpWRhdMCoDtt/dHCo5fIFcPSotWOC0ihWhW45/WQG3tmkqCNnIWPb+WQNcP1tcJdfUrCoCW7dcT8osfCojgxO1hg9xW5ldLN7dR8kCW4ddG8oLmxqOW4brohiUWO8rtSoUi2FdImkefSoMW6qAW7eiW5LBeSkqawjYh8kEFNaKn0v3pW3cQa','sW4O','rgfslmoM','EmoKpCk/','WP4sWO3cM8kudc15xSkjW6JdTCoQnG','DmkoWR5llG','CSo6ks1WdGVcSvpcS0dcTWW','WPBcPCkvhaWFeYBcQri9W4npWOpdUqPDaSkKlW','uSoVWPddMq','rmoOWOZdNa','oCozvCk7nG','WPKfWO3cHSkDgWPEwSkdW6W','cv3dG3zDuCowWPu5lgb7hxldUqxdLmoBWQn8','ddhcRCoyg2mwfWybxmklW4SG','WPhcP0FcM1eFymk5W6W9WPS','WOajWO/cHCkfmtfuxCkBW5NdSSoPmMKtzsS','WPOeW5lcI8kyecPjfSkmW6hdQCoQjG','W7nmWQb7gHqQkmojW7/dUwldTxrdW4/cOXJdO8oUfZ1crSkjWQC2x8oiW7uvbCkhqK/cGf3dKmo5smo2W6C','h2ZdQW','CqjXW6xdSSkbb3DofqzeW4xdLmk0Ba','WOVcRKnnf2KeqdpdISkbWOmQW7SHWQCplHShW6tdTG5pW4BdLCo8BK88CCkebCk/dsVdTMlcMSo7amkfWRfKubNdQ8kcW4xdN8k7wSkqDG','WRlcO3ZcULNdMCoj','WPjvW6Tl','WRPkW7hcLSowWPxdV8oQWOldKsxdIqdcVfeBWR4cxxLuWOxcKg3cGG8xmSkumL47pufKvL3dV2ddPmk2CCkpW6KQDaOnzmoGWOFcVaizsCkquSksxdndiKfkWOOsW4WuW7WnW63cIsaxWRrvW6tdKH7dKH5mfCkVW6aEW6DVW4hcNCo1WPq7oCknww0oWPRdKCkPWQ4','cSolwSkVi00','W4RcKCkyWOfV','CmkcWQrnWRZcOmkPsmkwnxNcQmo0WQJdJCkVW50','EhxdVCoPkmkYAG','zCo6jse','WQhcHmozD8kjWPq','WRxdM19HcutdJa','WQtcQvnrW5u','lSkHW5ldLJSFcSoDWPhcKCk8W78fW5xdJSo6DCkwW7O6WQtcOIFdVSkgEmkFvmourqDXfmkizCk4W4uTz8oMmCoqWPtcPmorvfRcLW','jmoDqa','WRVcISofDq','W40jWOBcNCkefG1CwCkdW6ZcOmoYigKeAgRdUhu','W5hcPCkihbukpG','W63cJCkzWOf5WRlcIMLzWPVcOCoilYdcRc0','BtLTWP7cHmkq','W4tcUCkEhGa4iIVcRH0SWOXjWQddUGi','q8kkuG','CWvGW6VdGmknlNDOeazjW5O','FCoNkW','Dmk7W53dKdCD','larMW7JdNCkyhZT+dWaAWOZdNmkOo0mJW4VdRJtdIYdcKejiW7bRW4DtWRBcVmoyWPpdRYqzF8kggCkYeq','zHzPW7/dKq','u8k/vY7cOW','p8kPcW','W4DSWOBdGYldTGT8WQb4iq','WPxcTevyW4rgW7RcUXO','W4rgWRz8pbCSm8kmW4hdOG','W6bcWR5TeW','WP5oW7RcILa','WPeKW7RdRSo6kCkwDSkkWRO+WPRcK8og','lSoCxCklju3cRf0vWQu0rCkMW5VdP8kq','W6K2xmo0iCofW5ddH2VcMSkgaq7dKq','W7KHqCofka','dmkRB8kqWO0eW4ZcRxi','W4/dR8oG','gdhcUSoPghq1eWuqBCosW6yHWRTBWQdcPmkpW7pdNCoOCq','WOhdRmkEk8k0WPdcOcVdTdlcL8kdjZGJEgvdC8opWO/dVa','yWOJW4pdHmocWR3dSgaBkSouWPFcJ2NdPSoiWQpdTq','W6bkiSkaW6q','b1BdH0zfB8opWOKNpr8GoMm','hx7dVrmxWR7cVCoh','D8o6iYe','ySkGW5tdKJCbcSk5WOFcHCk+WRDlW4S','W44jWRyvWRmnWP3cLcxdIHzKW5i','WOhdTHhdRCoeha','CCkGW5tdHsyko8krWOFcJSk6WQXt','W5rkWQ97','Aam7WPiAdKW3W6j9W7KyWOtcPMrZq8ocE8oYW5dcNSkZW6u/W5ZcRSknALpdN8oWdCo5W5S7W55Je2pcH8k0d8kN','c8kjqLm5WPRcV0VcNYNdK2SWWQBdHW4rbMxcIHCLWOZcU0ZcIvfvW6zHWP1MWP0sW4yTBmoqeW','W5tcR0vEcNW1dcxdLCkhW5b8','jqu9WPiklv17W7rSW65kW5q','W6ddQw3cVSkkWQi3W5iTWRK9WO3cLHjNksS','W4FcR09Bc3Oecs/dLSk2W5DLW7q','WP5iW61i','W6xcUeDwWP12udm1W5tdGSkwwmodFSkOpWjAv8ozW4Tcg8ksWP/dPsualhNdGHZcRGm7W6RdQHFdPW7cI8kNzHTtWQxdKCopW4pcTL/cLZZcTMFdL8odWOpdVcjcW53dHx/dOmoGWONdRaSKnCoEErdcJmkZnSorwwhdSLqLWQddId/dG8k1p8k5jmkyvG/dLmkBp8kbWQbmW5xdS8oRxmoUWOW+','iXv5W5u','WP8vWO3cN8kimtXrxSkmW73dR8o0a2Om','WPnWdJFdSH0ZWR/cGCkKW6egfmkKhKBdNCkPBSkBW4BcQmoxtNHIicJdRs7cNmodxhhdKCk4iSkjhvJcMa','qSk7tX7cQNalW4JdHwXOW5RdLhu','W60/qCosjG','WRxdICo0qmoStSkfWReLWPK6uSoCWQb5jSki','WPXwW6BcMG','W6fBk8kaW6dcOSk+','W7K2tCoAiCozW67dGwtcGSkHkdxdMN8lWQGcWOG','p3ZdSH3cGSk5WRRdLCklW6tdLCkBWRhcPSkLW6hdL2ldOxVcTLKQymolW7eOtbrEW4xcMctdTmkIWOpcGSofDK7dICkuW4NdVCkelCkHW7rovCoSW5RdRSoJrmo/b8kEi8odjmo1W7nrcCkUtLVcKCoiBSkpW73cM8k3WOL2c8oibMLuiCoLkCk6iSos','sgrAj8o5hrTGCq8','W5e5kItdI8k5wW','W4LYWPxdIIxdSsm','WRddJez5dq','wJtcICoxga','W7i/W7fxFmkdpxW1WPxdV8odW6xcPSoEyCkiW5JcLW','WO5BW65qW6a','WQpcHmohzCkj','sSo9pmkiWReuW5tcPKRcGt0','oreO','qx9ykSoJ','WQpdU8kvkG','B3NdOmo9amkYz8oThZxcILLOW68','cwpdUHmt','WOxcSMlcS2tdLCodWR5YCmo0','tSk7qG','WOvoW6y','jSkTc8oUDetcMxuCW5Se','WPJcTCo9WQWX','DCoNoYjObc/cUxlcV1hcUdRdGmkPWPmrW6W','F8oMiSk3W791WPbvaq8U','uGO/W4xdHmob','WOxdU8kjo8kcWPZcUJBdVJlcTW','l19slWLEW5dcJsSOmtesy8o7fCkqWONdH0ddQLFcIZJdIHiIxmkNmHiFWOlcIYpdQ8kHhfzxWRrRdmoUW4rrcmkZsX1TW4VdS8kPW6LuWPtcItVdNZxcHGy8WPNdR8oCyCoe','WOfbW6BcIKe','sIv1WOxcJbhcTSoKWR/dUq','FSkXWPTKWRpcOuH0dMtdP25A','yCklWQvsWQlcOSkLsa','yqjGW7JdJCk7dNDOhHDiW5ZdT8k3Ea','qGOYW4RdJmoEWRpdSwfFdCoEW5VcG8o6','WO3cRCoRWQ8M','jCkTfSoXw1lcPgiyW5Kv','jai3WO4Cc1y','eWz6W53cRfeyWRiTi8k4WPGvW5j4dSoEt8khymo5gNtdJ8oQWO/cRL7cPHyvW5hcM0ddRuNcM8kxWQOnWOnjjxfcWQ0gdLDWW5NdT8kPW5hcKSkUWOJdILlcRWyHW4/cK8onWOeVWQqpW4FcIMGOn3lcNWfzWQVcUCk6bCoICCkjW6ldLCkQFmkPeLpdVc5VWRzCmYTsms9cW4tcOSodcG','W7VcNCkiWRzSWOtcGMbsWOZcL8oEfau','W5GXkq','WQxdShhcSmkcWPmXW54JWPO8WRdcMtzZpZtcJIpcVCobW4L+jYtcL8o4WP/cKxZdJCk4w3RcJCoocd7dVZ1JnSolW73dNmoFCY4','qavQW67dGCkCbgGTdbBdISodW5/cUhTf','WQ3dVrpdTSoxf2RcUSoGW5LQnCkNBdxdLmkmpmorWQ8BzSkMW7SKWRddNmoeW7fnWPrOW4pcKmo8WOT6W6FcHtCVWOPeW7ZcVSkAemouWRXLpSodWP90WQmdWRJcQZD7WPRcKNzRW6VdIg9VW5pdVK4rWPFdRxBdGcn3uueQW4pdJmkLiJRcPmkKBG','W4SJW7PwCCk4na','kSo7W4mW','BwNdQ8oRpCkaDSoGocpcIKj1W4dcLSo0','W6foWQKNW74iWOTevsKPW4FdJmkc','W5VcO8kvcq','W7z9WOrhBmk6bNVcU2aGWPVdUmofnWNcTCoSWODcWQKYW77dL3RcQXGdWOFdI30osmkSh8o6W54Npw9NW77dKWBdLCobwNijd8ogW5xcGdJdHSoCW5fJv8khW4pcTWVcV8kkW6awWQddRXxcOmo9oGGtwmoLW6tdMSoAWQ9OWQhdTCoAW7yMWQ1uwY/cNHBcJa0','W6JcISkvWP4','WQhcKve','s8kDtLWSWPpcVKlcLYxdMgen','WOi6W7ZdQCoK','W6FcHtOeWP14WQZcIImIaCoZh8oWW5iFW58XeYXAWP/dGSosyq0VBSk/rr0eFmoPp1T0WP7cOcRcR8kLWQriWOrwk1ZcOu/dU8ovCWhdJ8o+WR8d','W4pcPfbA','pSonxmk8kNVcP0u8WQ8ZxSkX','bMNcOCobldddU8oDW7u+fWNdU8oA','Dmk+W57dIYa','o8o7W4uPW64','WPFcSKpcU1mEtSk0W6SLWR0tW7ZdHq','W4dcVmkxaXGpaYBcVX8AWPzpWPxdUqa','WOWmWOFcJSkA','WQBcM08','W6vdWRGbW7KiWOi','W7DEWRGqW6S+WOnnxJ4FW5hdTW','nWi9WOehg317W7rIW79lW5i','uMHfo8ooir19CHxdMG','W4hdGc0GWOn6WQddJYu5mwSKW70','aNJdQmop','W4rrWQDL','fXe1WPaAefLKWReNW4L1WO/dTJCmt8oFBSoIW5NcNSk8W7q5W5dcRSknA8ozWPBdSX3cTmkwj8kvDqn0WOdcSHtdTqRdHSkxWP/dN8oUrSkJWQpcRSk+j1dcMSoNW4XXDgfYWOTkW4bCWRFdQSohBYSmWOeGsMBdNmkqWRJdH8kAW5vwW4lcKNVcImop','W65eWQ8dW6e','WRlcPwVcT2BdMCo1WR1LEmoIW5ddVa','euBdLNfqwCohWOaSkIK2aq','WO3dSbJdOCoohsm','aJRcQCoOa10pcXGqi8oqW6WXW7z6WQRcU8oeW5O','CmoSkaLYdIdcQxRcT1BcRr3dM8k4WPu','Bdv1WQ/cJCkhWQ3dPmk4W77cRIRcKSoN','rmo8WOZdH8ohcmoVmq','vbK4W4W','uNSMWRVdVG','W61oWQq','W57cQCkccbyCkq','sdBcVmoZbeiEmqCBBCkhW68RW495WQ3cPCkdWQDdWRa+WRVcVCokWP7cIW','pXuH','WQVdM0fQhe8','EYjKWPZcHmkmWRtdHCkZW6ZcJsBcT8o3','FHjYW7NdUCkjgwP4gay','W5i/W7fxFmkujMz6WP/dJSkkW6tcQG','bshcTmo/eNq','A2rtWQBdVYCCkxmEWO7dTmobwJFcJq','e0FdIM9m','WO/cRmo3WRe6W7tcN0noWPFdRuZdP38VW7K','W4G2wSofjmomW5tdMgtcGmkWhtq','bx/dSSotia','W6mYwa','gxtdPYiAWRlcVSorW4xdNmoYWOxcMCkU','WPtcIComF8kia8k8','wCo3lSknWRecW6BcOw/cJcXrD8kkWR1Jgxi','E8oKimk9W6m','WOv+WPpdId/dLI1xWQz6nSohWQ/cIJmAWRJdPmkxWOu+p8kXW5DMWQTDxq','fMtdQmoxkspdSq','htxcTCoOeG','W4ddLZyi','WOldQSkii8kK','rmkUsZ7cQheLW4xdGNro','W6fBpmkfW7lcTCkPDSkmW43cSmobdreCW6rtta','qMrop8oHlWO','EIvKWPJcMmkXWQxdRCkZW6NcMdZcQq','mWz6W43dQq','lN1YfalcVSkWW5S','W6FdPgFcMSkqWOm8W4SaWR4QWRdcNqX3lW','WRvnWRxdJq','WQ0GtCodo8ojW57dJxBcUSkLgIVdKa','WO7cTCoZWQ0QW4hcK0XkWOddSeZdU2OQW6fXma','WPNcUuFcI0S','WQ01qCoFlmomW7NdH2JcJ8kQha7dM38rWQ8f','W7BcIb81xbBcNCkGW70pWPz3kZC','zCoSDIPTgt3cQrVcVu3cSbtdKCo9WO4qW7i6fG','fqjIW4P/wrldVq','W5ldLZai','e8kLeSoGW4nfWP5Gq8kviLnMW7/dKmknm8kYattcQ8kEWP9rW4BdQbPpWQnbeMxdICk0W5iUi8oHW44QmmkckSkov1FcJIaNWPZdQCo7eKKvyGGsWQvrW7D4d8oJW6xcRSoIW7u1rSoJDJRdOY1CAdhdO05TW5hdGfnGgSkc','WOxdUSolkCkOWOhcPZBcTJ/cQ8kdjJK','qCkbw0GSWQ3cJ1FcGI3cGc0nWQ3dJW9hka','WRpdSCkdpCkGWPdcVcm','WQNdICopW4rIWRlcNhjtWOW','WOxdV8kdkmkKWOC','tmoZnSk3','bSkTxINcShWfW4ldMeXlW4hdSxtdRN9Aq8kEWP1bWP8c','tSkkx14WWRlcMLRcKWRdIhSnWQFdMq','kCokvSkJ','WR8vWONcG8kfcZ1Cx8kkWQNdRSoJiwmtySkRW75UhmoFBYusoIhdGCk+gMddLhVcJSooWPOjW7RcRcisWPVcQx5AWQabAcG','vmkdW6PzjSk+WR9tWPSKDmkNW7hcOG','W7tdUmo2tmk+W5P3W6NdS1nmW40','bJxcQq','W6PXhYRcUWWOWR/cL8kUW6Dyq8k6dbVcKmoHwmkBW4NcVSkAsguWawFdOZldJCoAwG','iW54W5NdOhesW78FWQ7cS8oXpCoqBbtdJG','WP9DW7/cI1a','WRVcGu3cKb3cLMpdVd5NW6ndtSkHACoS','WOypWPRcJa','WQtdJePSheldRmo/W6StWOD0fG','WRDRgCkhFCoqW7ldPKpcM8ki','oSoOW4aOW64','WONcQ8o7WRCM','xmkDqLa','FmkNW5ZdHJCD','W552cdFdOJ4IW7pcL8k1W7zurmkpaqu','WOdcPvlcIfOvv8kvW6a3WP4FW5NdLq','nHnVW5tdQq','WQNcNe3cGq/cOgi','W4e0yZldJSkQutxdUSoHimkWWQSuWRpdPgfDWOtdNa','W7FcNCkf','tSkDrfa','W6pcUe0FhxWcfcxdGSkdWP5SW7rYW7KzjfytW67dQW5lW5pcHSkHzvmTBmkdhSo8dx/dUM7cM8oMqCkcWQSNuqxcKmkEW4ldGSkHcSklo8oKASoxW4VdJmoRBrhdUSofW73dVmkPWPxcPvKJm8oxnGFdICkLySorchhdTbS7WQ7dLZFcGSoJjCkYpHyfxCouW4GUWPpcPuVdMCo2W6qiW7VcNMiZAc0xdmksW4hcNLPZxvdcG1bDWO3dGCoQvG','WR1xW6beW6LCW4lcSc7dINDdW5qKyYdcGmk3WQpdHq','l8kNz8klW71LWQrXjW','WQvcWRmsW6CzWRjawteoWP7dSCkoW4DhbaFcOXVcOCoaW5i','WQ3dTXddSSokfIlcM8oXW49TCmo4ibpdKSkBWRVdNmkVfwZcUW','BINcGSorga','WOnkW68','WOjGWR4','W40tWO3cN8khcZPssmk7W6JdOSoQjYyuCYxdQh5DWOTT','W6q+tX8UEauml8kcW4ldT2BdTCkOW7SymX8wWQVdVa4bW4hdICk1DfCPASkhtmk/hJRdRg7cKCkOfSokW65MduRcQCorW4ldImkHxSkfoCkXA8kwW5/dGSoQleldTSozASo2W6xcJmkNW4ePoCoAoftcImkYnSoztN3dTb00WQ3cMJVcJSoJjCk2WRBcK0apW5tcMZBcNCk3W5tdI8oMW6XlW6RdKq','lSkHW5ldLJSFcSoDWPhcKCk8W78fW5xdJSo6y8knW74MWRJdOZBdOSktzCodvCoAvq9YvmkromoWWOGZDSkPFCorWP7cPSomgG'];_0x3ddd=function(){return _0x1de995;};return _0x3ddd();}function adjustDemandVector(_0x3d0c21,_0x1e0da7){const _0x1b39de=_0x42ee15;return Array[_0x1b39de(0x284,'$m3(')]({'length':_0x1e0da7},(_0x35e87a,_0x5c8649)=>_0x3d0c21[_0x5c8649]||0x0);}function resetEconomy(){const _0x2a5166=_0x42ee15,_0x253d32=confirm(_0x2a5166(0x15c,'6nlT'));_0x253d32&&location[_0x2a5166(0x18a,'u5Mg')]();}function formatDays(_0x1162b0){const _0xceb993=_0x42ee15,_0x193a9d=Math['floor'](_0x1162b0/0x18),_0x18db58=_0x1162b0%0x18,_0x454db3=Math[_0xceb993(0x291,'[uJc')](_0x193a9d/0x16d),_0x9a0161=_0x193a9d%0x16d,_0xae53a4=Math[_0xceb993(0x1ec,'V&B2')](_0x9a0161/0x1e),_0x1ee7e1=_0x9a0161%0x1e,_0x2cda1a=Math[_0xceb993(0x26e,'8UfQ')](_0x1ee7e1/0x7),_0x4b74b6=_0x1ee7e1%0x7,_0x53ea89=(_0x11b5a8,_0x497a8d,_0xfbfa8d)=>_0x11b5a8===0x1?_0x497a8d:_0xfbfa8d,_0x379d8b=[];if(_0x454db3>0x0)_0x379d8b['push'](_0x454db3+'\x20'+_0x53ea89(_0x454db3,'ano',_0xceb993(0x1d4,'ZG8d')));if(_0xae53a4>0x0)_0x379d8b[_0xceb993(0x29c,'rVVC')](_0xae53a4+'\x20'+_0x53ea89(_0xae53a4,'mês',_0xceb993(0x1ab,'xHc#')));if(_0x2cda1a>0x0)_0x379d8b['push'](_0x2cda1a+'\x20'+_0x53ea89(_0x2cda1a,_0xceb993(0x198,'nj3U'),'semanas'));if(_0x4b74b6>0x0)_0x379d8b[_0xceb993(0x20c,'hYLH')](_0x4b74b6+'\x20'+_0x53ea89(_0x4b74b6,_0xceb993(0x1e0,'@VqF'),_0xceb993(0x249,'MV0i')));if(_0x18db58>0x0)_0x379d8b[_0xceb993(0x171,'qY%)')](_0x18db58+'\x20'+_0x53ea89(_0x18db58,_0xceb993(0x14e,'EXZH'),_0xceb993(0x29f,'xHc#')));return _0x379d8b['join'](',\x20');}function shuffleArray(_0x209e76){const _0x29c747=_0x42ee15;for(let _0x18b13b=_0x209e76['length']-0x1;_0x18b13b>0x0;_0x18b13b--){const _0x5e0b46=Math['floor'](Math[_0x29c747(0x271,'wZ5$')]()*(_0x18b13b+0x1));[_0x209e76[_0x18b13b],_0x209e76[_0x5e0b46]]=[_0x209e76[_0x5e0b46],_0x209e76[_0x18b13b]];}return _0x209e76;}function fetchNewsTitles(){const _0x2a85eb=_0x42ee15,_0x598c15=[_0x2a85eb(0x27d,'zvN('),'Chapada\x20do\x20Apodi\x20(RN):\x20Exportação\x20de\x20quase\x20metade\x20do\x20melão\x20nacional\x20e\x2012%\x20da\x20melancia.',_0x2a85eb(0x251,'6nlT'),_0x2a85eb(0x288,'mYK!'),_0x2a85eb(0x282,'IVIn'),'Sudeste:\x20Produção\x20de\x2017,7\x20milhões\x20de\x20toneladas\x20de\x20laranja\x20prevista\x20para\x202024.','Sul\x20da\x20Bahia:\x20Projeto\x20de\x20reflorestamento\x20na\x20APA\x20do\x20Pratigi\x20recuperou\x20140\x20hectares\x20e\x20revitalizou\x20100\x20nascentes.',_0x2a85eb(0x168,'$m3('),_0x2a85eb(0x25b,'d]3%'),_0x2a85eb(0x1f5,'yM#x'),_0x2a85eb(0x203,'uftD'),_0x2a85eb(0x29e,'yM#x'),'Norte\x20e\x20Nordeste:\x20Crescimento\x20de\x20semicondutores\x20para\x20energia\x20solar\x20e\x20hidrogênio\x20verde.',_0x2a85eb(0x200,')]eT'),_0x2a85eb(0x21a,'2[zY'),_0x2a85eb(0x1a5,'uftD'),'Bahia:\x20Uso\x20de\x20tecnologia\x20quântica\x20em\x20projetos\x20industriais\x20para\x20soluções\x20avançadas.',_0x2a85eb(0x165,'6nlT'),_0x2a85eb(0x13c,'13[W'),_0x2a85eb(0x1a1,'u5Mg')],_0x1edb67=shuffleArray([..._0x598c15]),_0x5ca55d=_0x1edb67[_0x2a85eb(0x219,'jKjs')](_0x2a85eb(0x163,'1boG')),_0x3523f9=document['getElementById'](_0x2a85eb(0x11a,'B)Hf'));_0x3523f9[_0x2a85eb(0x169,'MV0i')]='\x0a\x09\x09\x09<img\x20src=\x22https://i.postimg.cc/65gr9cjN/bandeiravermelhaanimada.gif\x22\x20alt=\x22Bandeira\x20Vermelha\x22>\x0a\x09\x09\x09'+_0x5ca55d+_0x2a85eb(0x199,'MV0i');}fetchNewsTitles();function updateProductName(_0x11a48c,_0x67ed41){const _0x2d69a4=_0x42ee15,_0x4c9ef0=document[_0x2d69a4(0x1f8,'zvN(')](_0x2d69a4(0x1d3,'V&B2')),_0x3215b3=document[_0x2d69a4(0x1d2,'ZG8d')]('#inputTable\x20thead\x20tr\x20th:nth-child('+(_0x11a48c+0x2)+_0x2d69a4(0x1c9,'qY%)'));if(_0x4c9ef0[_0x11a48c]){const _0x2df6b2=_0x4c9ef0[_0x11a48c][_0x2d69a4(0x24d,'yM#x')](_0x2d69a4(0x147,'P$e#'));_0x2df6b2&&(_0x2df6b2[_0x2d69a4(0x272,'&PjM')]=_0x67ed41);}_0x3215b3&&(_0x67ed41[_0x2d69a4(0x16e,'@VqF')](_0x2d69a4(0x142,')]eT'))?_0x3215b3[_0x2d69a4(0x1b5,'hYLH')]=_0x67ed41:_0x3215b3[_0x2d69a4(0x262,'jKjs')]=_0x2d69a4(0x1bc,')095')+_0x67ed41);}function updateSectorName(_0x5ede47,_0x19acac){const _0x263104=_0x42ee15,_0x1dc61e=document['querySelector']('#inputTable\x20thead\x20tr'),_0x5c91dd=_0x1dc61e[_0x263104(0x14d,'vMHi')]('th')[_0x5ede47+0x1];if(_0x5c91dd){const _0x48cd55=_0x5c91dd['querySelector'](_0x263104(0x13e,'V&B2'));_0x48cd55&&(_0x48cd55['value']=_0x19acac);}}function isOptimizationDataComplete(_0x12c853){const _0x25c208=_0x42ee15,_0x5e8349=optimizationInputs[_0x12c853];if(!_0x5e8349)return![];return _0x5e8349['workerLimit']>0x0&&_0x5e8349['workerHours']>0x0&&_0x5e8349[_0x25c208(0x24f,'6nlT')]>0x0&&_0x5e8349[_0x25c208(0x27b,'13[W')]>0x0;}document[_0x42ee15(0x239,'NN#7')](_0x42ee15(0x1b2,'d]3%'),function(_0x12d623){const _0x485e5a=_0x42ee15;if(_0x12d623[_0x485e5a(0x2ac,'yM#x')]==='Enter'){const _0x39aa52=document[_0x485e5a(0x1ef,'(T7h')],_0x2576c2=document[_0x485e5a(0x181,'ZG8d')](_0x485e5a(0x17f,'MV0i')),_0x463fdc=document[_0x485e5a(0x1fa,'EXZH')](_0x485e5a(0x12d,'rnPA'));if(_0x2576c2&&_0x2576c2['style'][_0x485e5a(0x1c7,'6nlT')]!==_0x485e5a(0x287,'@VqF')){if(_0x463fdc&&_0x463fdc[_0x485e5a(0x12b,'&PjM')][_0x485e5a(0x1c2,'V&B2')]==='block'){if(_0x39aa52['id']==='instance'||_0x39aa52['id']===_0x485e5a(0x27c,'yM#x')||_0x39aa52['id']==='jurisdiction'||_0x39aa52['id']==='preposition'){_0x12d623[_0x485e5a(0x245,'[uJc')](),handleRegister();return;}}(_0x39aa52['id']===_0x485e5a(0x192,'IVIn')||_0x39aa52['id']===_0x485e5a(0x2a6,'hYLH'))&&(_0x12d623[_0x485e5a(0x156,'c2FV')](),handleLogin());}}});function setFinalDemand(_0x180f47){const _0x41eb1e=_0x42ee15,_0x57347e=document[_0x41eb1e(0x23a,'(T7h')](_0x41eb1e(0x179,'8UfQ')),_0x50d690=_0x57347e['querySelectorAll']('tr');_0x50d690[_0x41eb1e(0x18e,'nj3U')]((_0x131979,_0x118fc7)=>{const _0x19fe46=_0x41eb1e,_0x1638b9=_0x131979[_0x19fe46(0x189,'mdIe')](_0x19fe46(0x2a3,'u5Mg'));_0x1638b9[_0x19fe46(0x1b6,'Bbl7')]=_0x180f47[_0x118fc7]!==undefined?_0x180f47[_0x118fc7]:0x0;}),showNotification(_0x41eb1e(0x1cf,'wZ5$'),!![]);}window[_0x42ee15(0x2a4,'Vy2p')](_0x42ee15(0x256,'(T7h'),_0x113da3=>{const _0x4a1701=_0x42ee15,_0x34d46d=document[_0x4a1701(0x278,'B)Hf')]('.modal');_0x34d46d['forEach'](_0x5bf9b4=>{const _0x4ffe06=_0x4a1701;_0x113da3[_0x4ffe06(0x220,'ZG8d')]===_0x5bf9b4&&(_0x5bf9b4[_0x4ffe06(0x19d,'P$e#')]['display']=_0x4ffe06(0x225,'ZG8d'));});const _0x81f428=document['getElementById'](_0x4a1701(0x1f3,'@VqF')),_0x2b11d0=document[_0x4a1701(0x27e,'6u)1')]('languageButton');!_0x81f428[_0x4a1701(0x243,'d]3%')](_0x113da3['target'])&&_0x113da3[_0x4a1701(0x141,'&PjM')]!==_0x2b11d0&&(_0x81f428['style'][_0x4a1701(0x1bb,'&PjM')]='none');});let currentOffset=0x0,targetOffset=0x0;const lerp=(_0x2a6939,_0x284d7,_0x4cb4fb)=>_0x2a6939+(_0x284d7-_0x2a6939)*_0x4cb4fb,updateBackground=()=>{const _0x2c3f40=_0x42ee15;currentOffset=lerp(currentOffset,targetOffset,0.05),document[_0x2c3f40(0x188,'d!fL')]['style']['setProperty']('--background-offset',currentOffset+'%'),requestAnimationFrame(updateBackground);};window[_0x42ee15(0x1f9,'hYLH')](_0x42ee15(0x1cd,')095'),()=>{const _0x3d9dce=_0x42ee15,_0x5c377d=window['scrollY'],_0x4ffd66=document['body'][_0x3d9dce(0x1d5,'c2FV')]-window['innerHeight'];targetOffset=_0x5c377d/_0x4ffd66*0x64;}),updateBackground();function savePropostaInputs(){const _0x4a524f=_0x42ee15,_0xee1a48=document[_0x4a524f(0x1ee,'B)Hf')](_0x4a524f(0x1df,'mdIe'))[_0x4a524f(0x130,'zvN(')][_0x4a524f(0x1ce,'B)Hf')](),_0xeab101=document[_0x4a524f(0x255,')095')]('workerHoursProposta')['value'][_0x4a524f(0x153,'V&B2')](),_0x1f16a5=document[_0x4a524f(0x23a,'(T7h')](_0x4a524f(0x23f,'&PjM'))[_0x4a524f(0x20d,'NN#7')][_0x4a524f(0x2a7,'wZ5$')](),_0x3c3eeb=document[_0x4a524f(0x293,'c2FV')](_0x4a524f(0x212,'EXZH'))[_0x4a524f(0x2a2,'IVIn')],_0x446b0c=document['getElementById'](_0x4a524f(0x25a,'(T7h'))['value'][_0x4a524f(0x289,'6u)1')]();propostaDados={'workerLimit':_0xee1a48,'workerHours':_0xeab101,'productionTime':_0x1f16a5,'nightShift':_0x3c3eeb,'weeklyScale':_0x446b0c},closePropostaModal();}function _0x3f4e(_0x4c80bd,_0xdec8c5){const _0x3ddd29=_0x3ddd();return _0x3f4e=function(_0x3f4e25,_0x4e5ab8){_0x3f4e25=_0x3f4e25-0x119;let _0x1533ca=_0x3ddd29[_0x3f4e25];if(_0x3f4e['BXvMoz']===undefined){var _0x29dc14=function(_0x1c2209){const _0x49987b='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x318afc='',_0x167120='';for(let _0x2646c4=0x0,_0x36d250,_0x2fbff3,_0x32cd05=0x0;_0x2fbff3=_0x1c2209['charAt'](_0x32cd05++);~_0x2fbff3&&(_0x36d250=_0x2646c4%0x4?_0x36d250*0x40+_0x2fbff3:_0x2fbff3,_0x2646c4++%0x4)?_0x318afc+=String['fromCharCode'](0xff&_0x36d250>>(-0x2*_0x2646c4&0x6)):0x0){_0x2fbff3=_0x49987b['indexOf'](_0x2fbff3);}for(let _0x240d07=0x0,_0x26d94e=_0x318afc['length'];_0x240d07<_0x26d94e;_0x240d07++){_0x167120+='%'+('00'+_0x318afc['charCodeAt'](_0x240d07)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x167120);};const _0x58a598=function(_0x1f70ae,_0x1b704b){let _0x520393=[],_0x19fd62=0x0,_0x15edb3,_0x43523c='';_0x1f70ae=_0x29dc14(_0x1f70ae);let _0x18d5c0;for(_0x18d5c0=0x0;_0x18d5c0<0x100;_0x18d5c0++){_0x520393[_0x18d5c0]=_0x18d5c0;}for(_0x18d5c0=0x0;_0x18d5c0<0x100;_0x18d5c0++){_0x19fd62=(_0x19fd62+_0x520393[_0x18d5c0]+_0x1b704b['charCodeAt'](_0x18d5c0%_0x1b704b['length']))%0x100,_0x15edb3=_0x520393[_0x18d5c0],_0x520393[_0x18d5c0]=_0x520393[_0x19fd62],_0x520393[_0x19fd62]=_0x15edb3;}_0x18d5c0=0x0,_0x19fd62=0x0;for(let _0x386a8d=0x0;_0x386a8d<_0x1f70ae['length'];_0x386a8d++){_0x18d5c0=(_0x18d5c0+0x1)%0x100,_0x19fd62=(_0x19fd62+_0x520393[_0x18d5c0])%0x100,_0x15edb3=_0x520393[_0x18d5c0],_0x520393[_0x18d5c0]=_0x520393[_0x19fd62],_0x520393[_0x19fd62]=_0x15edb3,_0x43523c+=String['fromCharCode'](_0x1f70ae['charCodeAt'](_0x386a8d)^_0x520393[(_0x520393[_0x18d5c0]+_0x520393[_0x19fd62])%0x100]);}return _0x43523c;};_0x3f4e['yXxRBu']=_0x58a598,_0x4c80bd=arguments,_0x3f4e['BXvMoz']=!![];}const _0x54388e=_0x3ddd29[0x0],_0x169d66=_0x3f4e25+_0x54388e,_0x8ce20b=_0x4c80bd[_0x169d66];return!_0x8ce20b?(_0x3f4e['vVTfZo']===undefined&&(_0x3f4e['vVTfZo']=!![]),_0x1533ca=_0x3f4e['yXxRBu'](_0x1533ca,_0x4e5ab8),_0x4c80bd[_0x169d66]=_0x1533ca):_0x1533ca=_0x8ce20b,_0x1533ca;},_0x3f4e(_0x4c80bd,_0xdec8c5);}function atualizarTituloColunaVetorTecnologico(){const _0x1c9e6c=_0x42ee15,_0x24063d=document['querySelector'](_0x1c9e6c(0x280,'bSvm')),_0x33c09e=_0x24063d[_0x1c9e6c(0x1b5,'hYLH')]||'Produto',_0x117b72=document['querySelector'](_0x1c9e6c(0x183,'JnD8'));_0x117b72&&(_0x117b72[_0x1c9e6c(0x18b,'mdIe')]=_0x1c9e6c(0x146,'EXZH')+_0x33c09e);}
+// Importando utils
+document.write('<script src="js/utils/uuid.js"></script>');
+document.write('<script src="js/utils/translations.js"></script>');
+document.write('<script src="js/utils/qrcode.js"></script>');
+
+// Importando services
+document.write('<script src="js/services/auth.js"></script>');
+document.write('<script src="js/services/api.js"></script>');
+document.write('<script src="js/services/geolocation.js"></script>');
+document.write('<script src="js/services/csv.js"></script>');
+
+// Importando components
+document.write('<script src="js/components/globe.js"></script>');
+document.write('<script src="js/components/modal.js"></script>');
+document.write('<script src="js/components/table.js"></script>');
+document.write('<script src="js/components/forms.js"></script>');
+document.write('<script src="js/components/notifications.js"></script>');
+document.write('<script src="js/components/buttons.js"></script>');
+
+// Importando models
+document.write('<script src="js/models/core.js"></script>');
+document.write('<script src="js/models/economy.js"></script>');
+
+let userIsLoggedIn = false;
+			let user = null;
+			let primeiroConselheiroDoConselho = true;
+			// Variáveis globais para armazenar os dados antigos
+			let previousTableData = [];
+			let previousProductNames = [];
+			let previousSectorNames = [];
+			let previousDemandValues = [];
+			let propostaDados = {};
+			let councilData = null;
+			let modalContext = null;
+			let conselhoMundialKey = "Conselho Popular Intercontinental da Terra";
+			let totalSocialWork = 0;
+            let worldSectorNames = [];
+			let totalSocialWorkDessaJurisdicao = 0;
+			let effectivelyPlannedProductionTime = 0;
+			
+		
+			const productNames = [
+				"Automóveis", "Computadores", "Celulares", "Geladeiras", "Televisores",
+				"Roupas de algodão", "Embalagens plásticas", "Móveis de madeira", "Aço",
+				"Vidro", "Produtos de limpeza", "Tintas", "Cosméticos", "Borracha",
+				"Medicamentos", "Papel", "Embalagens de alumínio", "Fertilizantes",
+				"Peças automotivas", "Componentes eletrônicos"
+			];
+
+			const inputNames = [
+				"Aço", "Plástico", "Alumínio", "Madeira", "Vidro", "Algodão", "Borracha",
+				"Produtos químicos", "Cobre", "Tinta", "Polímeros", "Petróleo", "Sílica",
+				"Borracha sintética", "Lítio", "Carbonato de cálcio", "Petróleo refinado",
+				"Bioetanol", "Minério de ferro", "Celulose"
+			];
+
+			const predefinedValues = [
+				[0.2, 0.1, 0.05, 0.02, 0.05, 0.1, 0.02, 0.1, 0.08, 0.1, 0.02, 0.05, 0.02, 0.08, 0.05, 0.04, 0.02, 0.02, 0.05, 0.05],
+				[0.05, 0.2, 0.08, 0.1, 0.03, 0.05, 0.1, 0.02, 0.07, 0.05, 0.1, 0.03, 0.05, 0.08, 0.1, 0.02, 0.04, 0.02, 0.07, 0.04],
+				[0.03, 0.1, 0.2, 0.02, 0.08, 0.07, 0.02, 0.05, 0.1, 0.05, 0.04, 0.02, 0.07, 0.1, 0.02, 0.08, 0.05, 0.05, 0.02, 0.08],
+				[0.08, 0.05, 0.02, 0.2, 0.05, 0.1, 0.05, 0.07, 0.02, 0.1, 0.08, 0.03, 0.02, 0.05, 0.04, 0.1, 0.05, 0.1, 0.02, 0.07],
+				[0.1, 0.02, 0.05, 0.03, 0.2, 0.05, 0.1, 0.02, 0.07, 0.05, 0.1, 0.04, 0.05, 0.03, 0.1, 0.08, 0.05, 0.1, 0.07, 0.02],
+				[0.05, 0.1, 0.02, 0.08, 0.03, 0.2, 0.07, 0.05, 0.1, 0.04, 0.05, 0.1, 0.02, 0.1, 0.05, 0.08, 0.05, 0.03, 0.1, 0.04],
+				[0.07, 0.02, 0.05, 0.1, 0.05, 0.1, 0.2, 0.03, 0.02, 0.07, 0.08, 0.05, 0.1, 0.02, 0.05, 0.07, 0.1, 0.04, 0.08, 0.05],
+				[0.02, 0.05, 0.1, 0.05, 0.07, 0.03, 0.1, 0.2, 0.08, 0.05, 0.03, 0.08, 0.02, 0.1, 0.05, 0.1, 0.07, 0.05, 0.02, 0.04],
+				[0.05, 0.1, 0.02, 0.1, 0.04, 0.05, 0.07, 0.05, 0.2, 0.08, 0.1, 0.02, 0.05, 0.1, 0.05, 0.04, 0.08, 0.07, 0.02, 0.1],
+				[0.1, 0.05, 0.07, 0.05, 0.08, 0.1, 0.03, 0.1, 0.05, 0.2, 0.05, 0.07, 0.04, 0.1, 0.03, 0.05, 0.1, 0.04, 0.07, 0.08],
+				[0.02, 0.07, 0.05, 0.04, 0.1, 0.08, 0.05, 0.1, 0.1, 0.03, 0.2, 0.02, 0.07, 0.05, 0.1, 0.04, 0.08, 0.05, 0.1, 0.02],
+				[0.05, 0.1, 0.08, 0.02, 0.04, 0.05, 0.1, 0.03, 0.1, 0.07, 0.02, 0.2, 0.08, 0.05, 0.04, 0.05, 0.1, 0.1, 0.03, 0.07],
+				[0.03, 0.05, 0.1, 0.08, 0.1, 0.02, 0.07, 0.05, 0.05, 0.04, 0.1, 0.07, 0.2, 0.02, 0.05, 0.05, 0.08, 0.1, 0.04, 0.05],
+				[0.1, 0.05, 0.03, 0.07, 0.05, 0.1, 0.02, 0.05, 0.1, 0.05, 0.1, 0.08, 0.04, 0.2, 0.07, 0.02, 0.05, 0.05, 0.1, 0.03],
+				[0.05, 0.1, 0.02, 0.05, 0.08, 0.1, 0.07, 0.1, 0.03, 0.1, 0.05, 0.04, 0.05, 0.08, 0.2, 0.05, 0.1, 0.03, 0.07, 0.02],
+				[0.04, 0.05, 0.1, 0.05, 0.02, 0.07, 0.08, 0.1, 0.05, 0.04, 0.08, 0.1, 0.03, 0.05, 0.07, 0.2, 0.1, 0.02, 0.05, 0.05],
+				[0.05, 0.08, 0.02, 0.1, 0.07, 0.04, 0.05, 0.03, 0.05, 0.07, 0.1, 0.1, 0.02, 0.1, 0.04, 0.05, 0.2, 0.1, 0.07, 0.03],
+				[0.03, 0.07, 0.05, 0.05, 0.1, 0.02, 0.1, 0.04, 0.08, 0.1, 0.05, 0.1, 0.02, 0.07, 0.05, 0.08, 0.03, 0.2, 0.05, 0.1],
+				[0.07, 0.05, 0.04, 0.1, 0.05, 0.02, 0.08, 0.05, 0.1, 0.1, 0.03, 0.05, 0.05, 0.04, 0.1, 0.07, 0.02, 0.05, 0.2, 0.08],
+				[0.05, 0.03, 0.1, 0.04, 0.07, 0.05, 0.08, 0.1, 0.02, 0.05, 0.1, 0.05, 0.07, 0.08, 0.02, 0.1, 0.03, 0.07, 0.08, 0.2]
+			];
+		
+			let currentProductIndex = null;
+			let optimizationInputs = {};  // Objeto para armazenar os dados de entrada de otimização de cada produto
+			let optimizationResults = {};
+
+			let optimizedStatus = {};  // Objeto para armazenar o status de otimização de cada produto
+
+
+	
+
+	// Chama a função populateInitialTable() ao carregar a página
+	window.onload = function() {
+		populateInitialTable(); // Carrega a tabela inicial
+		document.getElementById('welcomeModal').style.display = 'flex'; // Exibe o modal de boas-vindas
+		togglePlanificationElements();  // Garante que os elementos estejam ocultos no carregamento
+		
+		try {
+			document.getElementById('fetchDataButton').click();
+		} catch (error) {
+			console.error("Erro ao executar 'Receber Dados':", error);
+		}
+		
+		showNotification("Olá, Trabalhador! Faça login e dirija a economia planificada mundial!", true);
+		
+		initSmallGlobe();
+		
+	}
+
+	document.addEventListener('keydown', (event) => {
+				if (event.key === 'Escape') {
+					
+					 closeAllModals();
+					
+				}
+				
+				if (event.ctrlKey && event.key === 'Enter') {
+					event.preventDefault(); // Impede ações padrão, se houver
+					planify(); // Chama a função de planificação
+				}
+				
+				 if (event.ctrlKey) {
+					// Filtra apenas as combinações específicas configuradas no programa
+					if (event.key === 'd' || event.key === 'D') {
+						event.preventDefault(); // Impede a ação padrão apenas para CTRL+S
+						const downloadButton = document.getElementById('downloadDataButton');
+						if (downloadButton) {
+							downloadButton.click();
+						}
+					} else if (event.key === 'o' || event.key === 'O') {
+						event.preventDefault(); // Impede a ação padrão apenas para CTRL+O
+						const uploadButton = document.getElementById('uploadDataButton');
+						if (uploadButton) {
+							uploadButton.click();
+						}
+					} else if (event.key === 's' || event.key === 'S') {
+						event.preventDefault(); // Impede o comportamento padrão do navegador (salvar página)
+						
+						if (userIsLoggedIn) { // Verifica se o usuário está logado
+							const sendButton = document.getElementById('sendDataButton');
+							if (sendButton) {
+								sendButton.click(); // Simula o clique no botão "Enviar Dados"
+							}
+						} else {
+							showNotification("Você precisa estar logado para poder salvar suas alterações", false);
+						}
+					} else if (event.key === 'Backspace') {
+						event.preventDefault(); // Evita a ação padrão do navegador
+						confirmClearTable(); // Chama a função de confirmação antes de limpar
+					} else if (event.ctrlKey && (event.key === 'e' || event.key === 'E')) {
+						if (userIsLoggedIn) { // Verifica se o usuário está logado
+							event.preventDefault(); // Impede o comportamento padrão
+							logout(); // Simula o clique no botão "Sair"
+						}
+						// Se o usuário não estiver logado, o comportamento padrão é mantido
+					} else if (event.ctrlKey && (event.key === 'l' || event.key === 'L')) {
+						event.preventDefault(); // Previne o comportamento padrão
+						if (!userIsLoggedIn) { // Verifica se o usuário não está logado
+							showLoginSection();
+						}
+					}
+		
+				}
+			});
+
+	function saveOptimizationInputs() {
+		const workerLimit = parseFloat(document.getElementById('workerLimit').value);
+		const workerHours = parseFloat(document.getElementById('workerHours').value);
+		const productionTime = parseFloat(document.getElementById('productionTime').value);
+		const nightShift = document.getElementById('nightShift').checked;
+		const weeklyScale = parseInt(document.getElementById('weeklyScale').value);
+
+		// Verificação dos campos obrigatórios
+		if (
+			isNaN(workerLimit) ||
+			isNaN(workerHours) ||
+			isNaN(productionTime) ||
+			isNaN(weeklyScale) ||
+			weeklyScale < 1 ||
+			weeklyScale > 7
+		) {
+			showNotification("Por favor, preencha todos os campos corretamente. A escala semanal deve estar entre 1 e 7 dias.", false);
+			return;
+		}
+
+		// Limitar a carga horária diária a no máximo 12 horas
+		if (workerHours > 12) {
+			showNotification("A carga horária diária não pode ser maior do que 12 horas.", false);
+			return;
+		}
+
+		// Salva os dados no objeto de otimização
+		if (!optimizationInputs[currentProductIndex]) {
+			optimizationInputs[currentProductIndex] = {}; // Inicializa se não existir
+		}
+
+		optimizationInputs[currentProductIndex] = {
+			workerLimit,
+			workerHours,
+			productionTime,
+			nightShift,
+			weeklyScale
+		};
+
+	// Atualiza os botões de otimização
+		updateOptimizeButtonColor(currentProductIndex);
+		closeOptimizationModal();	
+
+		optimizedStatus[currentProductIndex] = true; // Marca o produto como otimizado
+		updateOptimizeButtonColor(currentProductIndex); // Atualiza a cor do botão
+
+		closeOptimizationModal(); // Fecha o modal após salvar
+
+		// Verifica se a tabela de "Planificação Otimizada" está visível e executa a função "planify" automaticamente
+		//const resultDiv = document.getElementById('result');
+		//if (resultDiv && resultDiv.innerHTML.trim() !== '') {
+		//	planify();
+		//}
+		
+		
+		
+	}
+
+	// Função para armazenar os valores antigos da demanda final
+	function storePreviousDemandValues() {
+		const demandInputs = document.querySelectorAll('#finalDemandInputs input[type="number"]');
+		previousDemandValues = Array.from(demandInputs).map(input => input.value || 0);
+	}
+
+	// Função para atualizar a tabela de demanda final
+	function updateFinalDemand(numRows) {
+		const demandContainer = document.getElementById('finalDemandInputs');
+		demandContainer.innerHTML = '';
+
+		for (let i = 0; i < numRows; i++) {
+			const demandRow = document.createElement('tr');
+
+			// Nome do produto sincronizado com a tabela
+			const productNameCell = document.createElement('td');
+			productNameCell.textContent = previousProductNames[i] || `Produto ${i + 1}`;
+			demandRow.appendChild(productNameCell);
+
+			// Entrada de demanda (preserva valor existente ou padrão)
+			const demandInputCell = document.createElement('td');
+			const demandInput = document.createElement('input');
+			demandInput.type = 'number';
+			demandInput.id = `demand${i}`;
+			demandInput.value = previousDemandValues[i] || (i === 0 ? 1 : 0);
+			demandInputCell.appendChild(demandInput);
+			demandRow.appendChild(demandInputCell);
+
+			// Botão de otimização
+			const buttonCell = document.createElement('td');
+			const button = document.createElement('button');
+			button.textContent = 'Otimizar';
+			button.onclick = () => openOptimizationModal(i);
+			buttonCell.appendChild(button);
+			demandRow.appendChild(buttonCell);
+
+			demandContainer.appendChild(demandRow);
+
+			// Atualizar a cor do botão com base no status de otimização
+			updateOptimizeButtonColor(i);
+		}
+	}
+
+	// Função para atualizar a tabela de demanda final
+	function updateFinalDemand(numRows) {
+		const demandContainer = document.getElementById('finalDemandInputs');
+		demandContainer.innerHTML = '';
+
+		for (let i = 0; i < numRows; i++) {
+			const demandRow = document.createElement('tr');
+
+			// Nome do produto sincronizado com a tabela
+			const productNameCell = document.createElement('td');
+			productNameCell.textContent = previousProductNames[i] || `Produto ${i + 1}`;
+			demandRow.appendChild(productNameCell);
+
+			// Entrada de demanda (preserva valor existente ou padrão)
+			const demandInputCell = document.createElement('td');
+			const demandInput = document.createElement('input');
+			demandInput.type = 'number';
+			demandInput.id = `demand${i}`;
+			demandInput.value = previousDemandValues[i] !== undefined ? previousDemandValues[i] : (i === 0 ? 1 : 0);
+			demandInputCell.appendChild(demandInput);
+			demandRow.appendChild(demandInputCell);
+
+			// Botão de otimização
+			const buttonCell = document.createElement('td');
+			const button = document.createElement('button');
+			button.textContent = 'Otimizar';
+			button.onclick = () => openOptimizationModal(i);
+			buttonCell.appendChild(button);
+			demandRow.appendChild(buttonCell);
+
+			demandContainer.appendChild(demandRow);
+
+			// Atualizar a cor do botão com base no status de otimização
+			updateOptimizeButtonColor(i);
+		}
+	}
+
+	function togglePlanificationElements() {
+		const planificationTitle = document.getElementById('planificationTitle');
+		const copyableButton = document.getElementById('openCopyableDataModal');
+		const downloadButton = document.getElementById('downloadDataButton');
+
+		if (isPlanified) {
+			planificationTitle.style.display = 'block';  // Exibe o título
+			copyableButton.style.display = 'block';      // Exibe o botão "Dados copiáveis"
+			downloadButton.style.display = 'block';      // Exibe o botão "Baixar Dados"
+		} else {
+			planificationTitle.style.display = 'none';   // Oculta o título
+			copyableButton.style.display = 'none';       // Oculta o botão "Dados copiáveis"
+			downloadButton.style.display = 'none';       // Oculta o botão "Baixar Dados"
+		}
+	}
+
+
+	function updateOptimizeButtonColor(productIndex) {
+				const button = document.querySelector(`#finalDemandInputs tr:nth-child(${productIndex + 1}) button`);
+				const inputs = optimizationInputs[productIndex];
+
+				// Verifica se todos os campos obrigatórios estão preenchidos
+				const isComplete = inputs && 
+					inputs.workerLimit > 0 && 
+					inputs.workerHours > 0 &&
+					inputs.productionTime > 0 &&
+					inputs.weeklyScale > 0;
+
+				if (isComplete) {
+					button.style.backgroundColor = 'green'; // Dados completos, botão fica verde
+				} else {
+					button.style.backgroundColor = '';     // Reseta a cor do botão
+				}
+			}
+
+
+	// Função para acionar "Salvar" ao pressionar Enter
+	function handleEnterPress(event) {
+		if (event.key === 'Enter') {
+			event.preventDefault(); // Impede o comportamento padrão do Enter
+			saveOptimizationInputs();
+			document.removeEventListener('keydown', handleEnterPress); // Remove o ouvinte após salvar
+		}
+	}
+
+
+	function handleEnter(event) {
+		if (event.key === "Enter") {
+			event.preventDefault(); // Impede o comportamento padrão do Enter
+			resizeTable(); // Chama a função para redimensionar a tabela
+		}
+	}
+
+
+
+			function toggleAutoFill() {
+				if (document.getElementById('autoFillCheckbox').checked) {
+					autoFillTable();
+				} else {
+					clearTable();
+				}
+			}
+			function getProductNames() {
+
+				let productNames;
+				let rows;
+
+				if(thisUserIsAWorkerNotCouncillor()){
+					//Distribuição - Retirada - Não é Conselheiro
+					//Se for usuário com UUID etc. 
+					//Pegar das tabelas que ele inseriu os produtos que escolheu pra retirar
+					rows = document.querySelectorAll('#bensDeConsumoTable tbody tr');
+					productNames = Array.from(rows)
+						.map(row => row.querySelector('td:first-child').textContent.trim())
+						.filter(name => name !== "")
+						.map(name => name.replace("[-] ", "").trim());
+
+					rows = document.querySelectorAll('#servicosTable tbody tr');
+					const serviceNames = Array.from(rows)
+						.map(row => row.querySelector('td:first-child').textContent.trim())
+						.filter(name => name !== "");
+
+					productNames = productNames.concat(serviceNames).map(name => name.replace("[-] ", ""));
+					console.log("productNames do UUID: ");
+					console.log(productNames);
+
+				} else {
+					//Produção ou Prestação de Serviço - É Conselheiro
+					rows = document.querySelectorAll('#inputTable tbody tr');
+					productNames = Array.from(rows).map(row => row.querySelector('td:first-child input').value);
+					console.log("productNames de Comitê: ");
+					console.log(productNames);
+				}
+
+
+				return productNames;
+			}
+
+			function setProductNames(productNames) {
+				const rows = document.querySelectorAll('#inputTable tbody tr');
+				rows.forEach((row, index) => {
+					const input = row.querySelector('td:first-child input');
+					if (input && productNames[index]) {
+						input.value = productNames[index];
+					}
+				});
+			}
+
+			function setSectorNames(sectorNames) {
+				const headers = document.querySelectorAll('#inputTable thead tr th');
+				headers.forEach((header, index) => {
+					if (index > 0 && sectorNames[index - 1]) { // Pula a primeira coluna ("Produtos")
+						const input = header.querySelector('input');
+						if (input) {
+							input.value = sectorNames[index - 1]; // Define o título correto do setor
+						}
+					}
+				});
+			}
+			
+			function getSectorNames() {
+				
+				let sectorNames;
+				let rows;
+
+				if(thisUserIsAWorkerNotCouncillor()){
+					//Distribuição - Retirada - Não é Conselheiro
+					//Se for usuário com UUID etc. 
+					//Pegar das tabelas que ele inseriu os produtos que escolheu pra retirar
+					//Se conter a palavra "Rede" é só pegar o nome inteiro, senão, incluir "Produção de " antes
+					//Usuário trabalhador consumidor nesse contexto de consumo não está produzindo, porém até que
+					//eu confirme que não será necessário para a planificação incluindo a damanda desse usuário,
+					// ainda vou manter, mas depois deverá ser retirado (confirmado que não afetará em nada, que não é usado em cálculo nenhum)
+					//Abaixo devo substituir pelo mesmo código que usar em "n getProductNames("
+					rows = document.querySelectorAll('#bensDeConsumoTable tbody tr');
+					sectorNames = Array.from(rows)
+						.map(row => row.querySelector('td:first-child').textContent.trim())
+						.filter(name => name !== "")
+						.map(name => name.replace("[-] ", "").trim())
+						.map(name => name.includes("Rede") ? name : `Produção de ${name}`);
+
+					rows = document.querySelectorAll('#servicosTable tbody tr');
+					const serviceNames = Array.from(rows)
+						.map(row => row.querySelector('td:first-child').textContent.trim())
+						.filter(name => name !== "")
+						.map(name => name.includes("Rede") ? name : `Produção de ${name}`);
+
+					sectorNames = sectorNames.concat(serviceNames).map(name => name.replace("[-] ", ""));
+					console.log("sectorNames do UUID: ");
+					console.log(sectorNames);
+
+				}else{
+					
+					//Produção ou Prestação de Serviço - É Conselheiro
+					const headers = document.querySelectorAll('#inputTable thead tr th');
+					sectorNames =  Array.from(headers)
+					.slice(1) // Ignora a primeira coluna (nomes dos produtos)
+					.map(header => {
+						const input = header.querySelector('input');
+						return input ? input.value : `Setor ${Array.from(headers).indexOf(header)}`;
+					});
+					console.log("sectorNames de Comitê: ");
+					console.log(sectorNames);
+
+				}
+
+				return sectorNames;
+
+			}
+
+
+			function getFinalDemand() {
+				
+				let finalDemand = [];
+
+				if(thisUserIsAWorkerNotCouncillor()){
+					//Se for usuário com UUID etc.
+					//Pegar das tabelas que ele inseriu os produtos que escolheu pra retirar
+					
+					let tbody = document.querySelector('#bensDeConsumoTable');
+					let inputs = tbody.querySelectorAll('input[type="number"]');
+					finalDemand.push(...Array.from(inputs).map(input => parseFloat(input.value*1e-3) || 0));
+
+					tbody = document.querySelector('#servicosTable');
+					inputs = tbody.querySelectorAll('input[type="number"]');
+					finalDemand.push(...Array.from(inputs).map(input => parseFloat(input.value*1e-3) || 0));
+
+					console.log("finalDemand do UUID: ");
+					console.log(finalDemand);
+
+				} else {
+					//Produção ou Prestação de Serviço - É Conselheiro
+					const tbody = document.querySelector('#finalDemandInputs');
+					const inputs = tbody.querySelectorAll('input[type="number"]');
+					finalDemand = Array.from(inputs).map(input => parseFloat(input.value) || 0);
+					console.log("finalDemand de Comitê: ");
+					console.log(finalDemand);
+				}
+
+				return finalDemand;
+
+			}
+
+
+			function makeSquareMatrix(matrix) {
+				const size = Math.max(matrix.length, matrix[0].length);
+				return Array.from({ length: size }, (_, i) =>
+					Array.from({ length: size }, (_, j) => (matrix[i] && matrix[i][j]) || 0)
+				);
+			}
+
+			function adjustDemandVector(demand, size) {
+				return Array.from({ length: size }, (_, i) => demand[i] || 0);
+			}
+
+	function resetEconomy() {
+		const confirmation = confirm("Tem certeza de que deseja resetar a economia? Todos os dados serão perdidos e a economia será restaurada para o estado inicial.");
+		if (confirmation) {
+			location.reload(); // Recarrega a página, restaurando todos os dados ao estado inicial
+		}
+	}
+
+
+	function formatDays(totalHours) {
+		const days = Math.floor(totalHours / 24);
+		const remainingHours = totalHours % 24; // Calcula as horas restantes que não completam um dia
+
+		const years = Math.floor(days / 365);
+		const remainingDaysAfterYears = days % 365;
+		const months = Math.floor(remainingDaysAfterYears / 30);
+		const remainingDaysAfterMonths = remainingDaysAfterYears % 30;
+		const weeks = Math.floor(remainingDaysAfterMonths / 7);
+		const remainingDays = remainingDaysAfterMonths % 7;
+
+		const pluralize = (value, singular, plural) => value === 1 ? singular : plural;
+
+		const parts = []; // Lista para armazenar as partes não nulas
+
+		if (years > 0) parts.push(`${years} ${pluralize(years, "ano", "anos")}`);
+		if (months > 0) parts.push(`${months} ${pluralize(months, "mês", "meses")}`);
+		if (weeks > 0) parts.push(`${weeks} ${pluralize(weeks, "semana", "semanas")}`);
+		if (remainingDays > 0) parts.push(`${remainingDays} ${pluralize(remainingDays, "dia", "dias")}`);
+		if (remainingHours > 0) parts.push(`${remainingHours} ${pluralize(remainingHours, "hora", "horas")}`);
+
+		return parts.join(", ");
+	}
+
+	// Função para embaralhar a lista de notícias
+	function shuffleArray(array) {
+		for (let i = array.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[array[i], array[j]] = [array[j], array[i]];
+		}
+		return array;
+	}
+
+
+	function fetchNewsTitles() {
+		// Dados estáticos simulando as notícias retornadas pela API
+		const headlines = [
+		"Vale do São Francisco (BA/PE): Produção de 963 mil toneladas de manga e 207,7 mil toneladas de uva de mesa.",
+		"Chapada do Apodi (RN): Exportação de quase metade do melão nacional e 12% da melancia.",
+		"Região Sul (PR, SC, RS): 96% da produção de uva industrial do Brasil, com destaque para vinhos e espumantes.",
+		"Pará (Norte): Produção de 1,5 milhão de toneladas de açaí, representando 94% do total nacional.",
+		"Centro-Oeste: Crescimento no cultivo de frutas nativas como guaraná e castanha-do-Brasil.",
+		"Sudeste: Produção de 17,7 milhões de toneladas de laranja prevista para 2024.",
+		"Sul da Bahia: Projeto de reflorestamento na APA do Pratigi recuperou 140 hectares e revitalizou 100 nascentes.",
+		"Mata Atlântica (RJ): Projeto Onda Verde já plantou 2 milhões de mudas em 26 anos.",
+		"Amazônia Legal: Reflorestamento de 30 milhões de árvores nativas em 25 áreas desmatadas.",
+		"Cerrado (GO/MS/MT): 500 hectares restaurados no projeto Emas-Taquari, conectando parques e beneficiando 51 famílias.",
+		"Indústria Eletroeletrônica (SP): Produção deve crescer 3% em 2024, com aumento de semicondutores e motores elétricos.",
+		"Campinas (SP): Parques tecnológicos desenvolvendo novos sensores para agricultura e saúde.",
+		"Norte e Nordeste: Crescimento de semicondutores para energia solar e hidrogênio verde.",
+		"Sul do Brasil: Automação industrial impulsiona modernização de 60 fábricas em 2024.",
+		"Região Centro-Oeste: Projetos de robótica colaborativa ampliam exportação de equipamentos industriais.",
+		"Frente Oeste (RS): Desenvolvimento de infraestrutura digital e turismo inteligente com tecnologia.",
+		"Bahia: Uso de tecnologia quântica em projetos industriais para soluções avançadas.",
+		"São Paulo: Indústria de software cresce 8%, com destaque para inteligência artificial em saúde e logística.",
+		"Amazônia: Restauração de ecossistemas com biotecnologia para 100 mil hectares até 2025.",
+		"Ceará: Ampliação da fabricação de equipamentos para telecomunicações, com 5G liderando a transformação."
+	];
+
+
+		const shuffledHeadlines = shuffleArray([...headlines]); // Embaralha as notícias
+		const newsText = shuffledHeadlines.join(' - '); // Cria o texto para o letreiro
+		const marquee = document.getElementById('newsMarquee');
+		marquee.innerHTML = `
+			<img src="https://i.postimg.cc/65gr9cjN/bandeiravermelhaanimada.gif" alt="Bandeira Vermelha">
+			${newsText}
+		`;
+		
+	}
+
+	// Chama a função imediatamente para carregar os dados na primeira vez
+	fetchNewsTitles();
+
+	function updateProductName(rowIndex, newName) {
+		const demandRows = document.querySelectorAll('#finalDemandInputs tr');
+		const sectorHeader = document.querySelector(`#inputTable thead tr th:nth-child(${rowIndex + 2}) input`);
+
+		if (demandRows[rowIndex]) {
+			const productCell = demandRows[rowIndex].querySelector('td:first-child');
+			if (productCell) {
+				productCell.textContent = newName; // Atualiza o nome do produto na tabela Demanda Final
+			}
+		}
+		
+		if (sectorHeader) { 
+			if (newName.includes("Rede")) {
+				sectorHeader.value = newName;
+			} else {
+				sectorHeader.value = `Produção de ${newName}`;
+			}
+		}
+
+		//showNotification(`Produto ${rowIndex + 1} atualizado para: ${newName}`, true);
+	}
+
+	function updateSectorName(colIndex, newName) {
+		const thead = document.querySelector('#inputTable thead tr');
+		const headerCell = thead.querySelectorAll('th')[colIndex + 1]; // Coluna começa no índice 1
+
+		if (headerCell) {
+			const input = headerCell.querySelector('input[type="text"]');
+			if (input) {
+				input.value = newName; // Atualiza o título da coluna
+			}
+		}
+
+		//showNotification(`Setor ${colIndex + 1} atualizado para: ${newName}`, true);
+	}
+
+	function isOptimizationDataComplete(productIndex) {
+		const inputs = optimizationInputs[productIndex];
+		if (!inputs) return false;
+
+		return (
+			inputs.workerLimit > 0 &&
+			inputs.workerHours > 0 &&
+			inputs.productionTime > 0 &&
+			inputs.weeklyScale > 0
+		);
+	}
+
+	// Manipulador para pressionar "Enter" nos campos de Login ou Cadastre-se
+	document.addEventListener('keydown', function(event) {
+		if (event.key === 'Enter') {
+			const activeElement = document.activeElement; // Elemento que está em foco
+			const loginSection = document.getElementById('loginSection');
+			const registerFields = document.getElementById('registrationFields');
+
+			// Verifica se a seção de Login está visível
+			if (loginSection && loginSection.style.display !== 'none') {
+				// Caso esteja no modo de Cadastro
+				if (registerFields && registerFields.style.display === 'block') {
+					// Verifica se o foco está em um dos campos de Cadastro
+					if (activeElement.id === 'instance' || 
+						activeElement.id === 'pronoun' || 
+						activeElement.id === 'jurisdiction' || 
+						activeElement.id === 'preposition') {
+						event.preventDefault(); // Impede o comportamento padrão do Enter
+						handleRegister(); // Simula o clique no botão "Cadastrar"
+						return;
+					}
+				}
+
+				// Verifica se o foco está nos campos de Nome de Usuário ou Senha
+				if (activeElement.id === 'username' || activeElement.id === 'password') {
+					event.preventDefault(); // Impede o comportamento padrão do Enter
+					//document.getElementById('loginButton').click(); // Simula o clique no botão "Entrar"
+					handleLogin();
+				}
+			}
+		}
+	});
+
+	function setFinalDemand(finalDemandData) {
+		const tbody = document.getElementById('finalDemandInputs');
+		const rows = tbody.querySelectorAll('tr');
+
+		// Certifica-se de que o número de entradas de demanda corresponda ao número de linhas
+		rows.forEach((row, index) => {
+			const input = row.querySelector('input[type="number"]');
+			input.value = finalDemandData[index] !== undefined ? finalDemandData[index] : 0;
+		});
+
+		showNotification("Demanda final atualizada com os dados recebidos.", true);
+	}
+
+	// Evento para fechar o modal ao clicar fora do conteúdo
+	window.addEventListener('click', (event) => {
+		const modals = document.querySelectorAll('.modal');
+		modals.forEach(modal => {
+			if (event.target === modal) { // Verifica se o clique foi fora do modal
+				modal.style.display = 'none';
+			}
+		});
+		
+		const menu = document.getElementById('languageMenu');
+        const button = document.getElementById('languageButton');
+        if (!menu.contains(event.target) && event.target !== button) {
+            menu.style.display = 'none';
+        }
+		
+	});
+
+	 // Manipula a rolagem para criar o efeito de parallax
+	 let currentOffset = 0; // Posição atual suavizada
+		let targetOffset = 0;  // Posição alvo
+
+		const lerp = (start, end, t) => start + (end - start) * t; // Função de interpolação linear
+
+		const updateBackground = () => {
+			// Aproxima a posição atual da posição alvo com suavidade
+			currentOffset = lerp(currentOffset, targetOffset, 0.05);
+
+			// Define a posição do fundo
+			document.body.style.setProperty('--background-offset', `${currentOffset}%`);
+
+			// Continua o loop
+			requestAnimationFrame(updateBackground);
+		};
+
+		// Atualiza a posição alvo com base na rolagem do usuário
+		window.addEventListener('scroll', () => {
+			const scrollPosition = window.scrollY;
+			const maxScroll = document.body.scrollHeight - window.innerHeight;
+
+			// Calcula o deslocamento desejado para a imagem de fundo
+			targetOffset = (scrollPosition / maxScroll) * 100;
+		});
+
+		// Inicia o loop de atualização do plano de fundo
+		updateBackground();
+
+	function savePropostaInputs() {
+		const workerLimit = document.getElementById("workerLimitProposta").value.trim();
+		const workerHours = document.getElementById("workerHoursProposta").value.trim();
+		const productionTime = document.getElementById("productionTimeProposta").value.trim();
+		const nightShift = document.getElementById("nightShiftProposta").checked;
+		const weeklyScale = document.getElementById("weeklyScaleProposta").value.trim();
+
+		propostaDados = {
+			workerLimit,
+			workerHours,
+			productionTime,
+			nightShift,
+			weeklyScale
+		};
+
+		closePropostaModal();
+	}
+
+	// Atualiza o título da coluna na tabela "Vetor Tecnológico"
+	function atualizarTituloColunaVetorTecnologico() {
+		const produtoInput = document.querySelector('#producaoMetaTable tbody tr td:first-child input');
+		const produtoNome = produtoInput.value || "Produto";
+		const colunaTitulo = document.querySelector('#vetorTecnologicoTable thead tr th:nth-child(2)');
+		if (colunaTitulo) {
+			colunaTitulo.innerHTML = `Quantidade necessária para produzir 1 unidade de ${produtoNome}`;
+		}
+	}
+
+
+

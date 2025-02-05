@@ -1,1 +1,36 @@
-function _0x45fd(){const _0x529407=['WR7dN8kvW68Md8odW4hdKcXqWPldIX/dUa','WQxdISo5w8o4Eq8JvCkalGddRq','kmoQD8o3nKqBruRdPmkD','Du/cVSoIW64BE8otW54gkCk3','r2ldUq','bZ/cV8kRcSkSWQjvW60','W71JFW/cVConC2VcKG','W4ddL2WLW47dQ8k7','W4hcJWPvWOpcKmk9abpcQCoyoq','W4HkhSohwa','WPG0WQG','umkerxnjfq','t8kvuNHy','jcJdUf/dGcRdRa','WRtdUCkWWOj9','WOBdJLtcQSogcXFcLqnlEMpdUG','W5JdSmkNWQ3cTq','W4pcMX3dQSk8xuRcJHrNvW','bCoze392pKKxAq','eLFcLSk9W70','sLawWP0o','bSoSW4Ls','WRqgW73dJ8olW4TRzmoMfJi','imoKFCkRtxi2Cvm','WPGGW6LVBW','WOxdICoP','qSoAWPDeWP9ccexdH0i','W5xdPwddNYvrWRado1tcTSoV','WO/dHLBcQCoiabZcSXP4u0tdIG','xh3dQmkgbCk2WPC','jSoPhGpcRSoraSkgW5XXWQrkamk4W5S','k0VdQG7cU2NdMmkPaCoF','j3FcMY/cIJldPfeKlCkC','ubpdL8oKWQXNdNeAWQa1WR/dMI8','kmoSnCk4','WRJcVWRcVmkXW7BdHSkZWPZdJvi','WOJdV8oPpSk6','WOBdIfFcQCopr2lcTJ5VyG','W7pcN8k8kSkTjvePsCk2nqRdRmka','WQSaW7/cH8ke','nWVdSmk/WRi','zmkkWQmlWQW','aJ/cV8oxxmkwWRDCW7nQfW','WP1wWRRcSW','W5xcJa/dOr3dTSov'];_0x45fd=function(){return _0x529407;};return _0x45fd();}(function(_0x1690ec,_0x8842df){const _0x276cc6=_0xc47b,_0x26d94e=_0x1690ec();while(!![]){try{const _0x237c50=-parseInt(_0x276cc6(0xa0,'0SU)'))/0x1+-parseInt(_0x276cc6(0xa5,'tt%u'))/0x2*(-parseInt(_0x276cc6(0x99,'i2tg'))/0x3)+-parseInt(_0x276cc6(0xaa,'T])c'))/0x4*(parseInt(_0x276cc6(0x90,'9bbP'))/0x5)+-parseInt(_0x276cc6(0x9d,'Nbry'))/0x6*(parseInt(_0x276cc6(0xb3,'5zsV'))/0x7)+-parseInt(_0x276cc6(0x87,'9bbP'))/0x8+parseInt(_0x276cc6(0x8c,'unr#'))/0x9+parseInt(_0x276cc6(0x95,'Nbry'))/0xa*(parseInt(_0x276cc6(0x8e,'YUs&'))/0xb);if(_0x237c50===_0x8842df)break;else _0x26d94e['push'](_0x26d94e['shift']());}catch(_0x4473b7){_0x26d94e['push'](_0x26d94e['shift']());}}}(_0x45fd,0xd3af0));function showNotification(_0x9b879a,_0x25f9f7){const _0x53a68e=_0xc47b,_0x1be8a2=document[_0x53a68e(0x91,'i2tg')](_0x53a68e(0xb2,'mMTw'));_0x1be8a2['textContent']=_0x9b879a,_0x1be8a2[_0x53a68e(0xa6,'AjQJ')]['opacity']='1',_0x1be8a2[_0x53a68e(0xab,'unr#')][_0x53a68e(0x9c,'Nbry')]=_0x53a68e(0x8d,'x9H(');_0x25f9f7?(_0x1be8a2[_0x53a68e(0x93,'j5cI')][_0x53a68e(0x89,'M&Ry')]='rgba(0,\x20255,\x200,\x200.8)',_0x1be8a2['style']['color']='rgba(255,\x20255,\x20255,\x201)'):(_0x1be8a2[_0x53a68e(0xac,'OyGR')][_0x53a68e(0x98,'ePAC')]='rgba(255,\x20255,\x200,\x200.8)',_0x1be8a2[_0x53a68e(0xab,'unr#')][_0x53a68e(0xa1,')59E')]='rgba(70,\x200,\x200,\x201)');const _0x23e6af=Math[_0x53a68e(0x96,'hK)j')](_0x9b879a[_0x53a68e(0xa3,'T])c')]/0x50)*0xbb8;setTimeout(()=>{const _0x4543be=_0x53a68e;_0x1be8a2['style'][_0x4543be(0x97,'Q]Vl')]='0',_0x1be8a2[_0x4543be(0xb0,'^rQq')]['top']=_0x4543be(0x92,'RT2M');},_0x23e6af);}function _0xc47b(_0x34ad29,_0x4c7a83){const _0x45fd48=_0x45fd();return _0xc47b=function(_0xc47b03,_0x52c507){_0xc47b03=_0xc47b03-0x87;let _0x1b6d89=_0x45fd48[_0xc47b03];if(_0xc47b['nCFHPH']===undefined){var _0x5c917e=function(_0x25f9f7){const _0x1be8a2='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x23e6af='',_0x16fd9a='';for(let _0x5c92c5=0x0,_0x514811,_0x25f9a7,_0x38fda5=0x0;_0x25f9a7=_0x25f9f7['charAt'](_0x38fda5++);~_0x25f9a7&&(_0x514811=_0x5c92c5%0x4?_0x514811*0x40+_0x25f9a7:_0x25f9a7,_0x5c92c5++%0x4)?_0x23e6af+=String['fromCharCode'](0xff&_0x514811>>(-0x2*_0x5c92c5&0x6)):0x0){_0x25f9a7=_0x1be8a2['indexOf'](_0x25f9a7);}for(let _0x199706=0x0,_0x11cbaa=_0x23e6af['length'];_0x199706<_0x11cbaa;_0x199706++){_0x16fd9a+='%'+('00'+_0x23e6af['charCodeAt'](_0x199706)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x16fd9a);};const _0x9b879a=function(_0x11508b,_0x50d909){let _0x2f7826=[],_0x422e0b=0x0,_0x2b1dd8,_0x434011='';_0x11508b=_0x5c917e(_0x11508b);let _0x1b4165;for(_0x1b4165=0x0;_0x1b4165<0x100;_0x1b4165++){_0x2f7826[_0x1b4165]=_0x1b4165;}for(_0x1b4165=0x0;_0x1b4165<0x100;_0x1b4165++){_0x422e0b=(_0x422e0b+_0x2f7826[_0x1b4165]+_0x50d909['charCodeAt'](_0x1b4165%_0x50d909['length']))%0x100,_0x2b1dd8=_0x2f7826[_0x1b4165],_0x2f7826[_0x1b4165]=_0x2f7826[_0x422e0b],_0x2f7826[_0x422e0b]=_0x2b1dd8;}_0x1b4165=0x0,_0x422e0b=0x0;for(let _0x3432d7=0x0;_0x3432d7<_0x11508b['length'];_0x3432d7++){_0x1b4165=(_0x1b4165+0x1)%0x100,_0x422e0b=(_0x422e0b+_0x2f7826[_0x1b4165])%0x100,_0x2b1dd8=_0x2f7826[_0x1b4165],_0x2f7826[_0x1b4165]=_0x2f7826[_0x422e0b],_0x2f7826[_0x422e0b]=_0x2b1dd8,_0x434011+=String['fromCharCode'](_0x11508b['charCodeAt'](_0x3432d7)^_0x2f7826[(_0x2f7826[_0x1b4165]+_0x2f7826[_0x422e0b])%0x100]);}return _0x434011;};_0xc47b['PLwmdM']=_0x9b879a,_0x34ad29=arguments,_0xc47b['nCFHPH']=!![];}const _0x579102=_0x45fd48[0x0],_0x97bd8f=_0xc47b03+_0x579102,_0x1243a8=_0x34ad29[_0x97bd8f];return!_0x1243a8?(_0xc47b['ZuhBKQ']===undefined&&(_0xc47b['ZuhBKQ']=!![]),_0x1b6d89=_0xc47b['PLwmdM'](_0x1b6d89,_0x52c507),_0x34ad29[_0x97bd8f]=_0x1b6d89):_0x1b6d89=_0x1243a8,_0x1b6d89;},_0xc47b(_0x34ad29,_0x4c7a83);}function displaySuccessMessage(_0x16fd9a){const _0x5b01bf=_0xc47b,_0x5c92c5=document['getElementById'](_0x5b01bf(0x8a,'o^!['));_0x5c92c5[_0x5b01bf(0xa9,'9bbP')]=_0x16fd9a,_0x5c92c5[_0x5b01bf(0xa4,'T])c')][_0x5b01bf(0xb1,'p3Wt')]=_0x5b01bf(0xad,'xE]*'),_0x5c92c5[_0x5b01bf(0x8f,'Uh!R')]['opacity']='1',setTimeout(()=>{const _0x572a14=_0x5b01bf;_0x5c92c5[_0x572a14(0xac,'OyGR')][_0x572a14(0xa2,'DsuG')]=_0x572a14(0xa8,'iyNk'),_0x5c92c5[_0x572a14(0x94,'oF88')][_0x572a14(0x88,'Nbry')]='0';},0xbb8);}
+function showNotification(message, isSuccess) {
+    const notificationBox = document.getElementById('successBox');
+    notificationBox.textContent = message; // Define a mensagem
+    notificationBox.style.opacity = '1'; // Torna visível
+    notificationBox.style.top = '10px'; // Move para uma posição visível
+
+    // Ajusta a cor de fundo com base no tipo de mensagem
+    if (isSuccess) {
+        notificationBox.style.backgroundColor = 'rgba(0, 255, 0, 0.8)'; // Verde para mensagens de sucesso
+        notificationBox.style.color = 'rgba(255, 255, 255, 1)'; // Verde para mensagens de sucesso
+    } else {
+        notificationBox.style.backgroundColor = 'rgba(255, 255, 0, 0.8)'; // Amarelo amarronzado para mensagens de erro/atenção
+        notificationBox.style.color = 'rgba(70, 0, 0, 1)'; // Verde para mensagens de sucesso
+    }
+
+     // Calcula a duração da mensagem com base no tamanho do texto
+    const duration = Math.ceil(message.length / 80) * 3000;
+
+    // Oculta a mensagem após o tempo calculado
+    setTimeout(() => {
+        notificationBox.style.opacity = '0'; // Torna invisível
+        notificationBox.style.top = '-50px'; // Move para fora da tela
+    }, duration);
+}
+
+function displaySuccessMessage(message) {
+    const successBox = document.getElementById("successBox");
+    successBox.textContent = message;
+    successBox.style.top = "10px";
+    successBox.style.opacity = "1";
+
+    setTimeout(() => {
+        successBox.style.top = "-50px";
+        successBox.style.opacity = "0";
+    }, 3000); // Oculta a mensagem após 3 segundos
+}

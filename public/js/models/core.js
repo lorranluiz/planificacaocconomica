@@ -1,1 +1,694 @@
-(function(_0x46abfa,_0x2b75ac){const _0x31a90a=_0x8a56,_0x398922=_0x46abfa();while(!![]){try{const _0x35c0dc=-parseInt(_0x31a90a(0x1d2,'aIlM'))/0x1+-parseInt(_0x31a90a(0x1f5,'H!#B'))/0x2+-parseInt(_0x31a90a(0x2ae,'cmPR'))/0x3*(parseInt(_0x31a90a(0x2eb,'KsuJ'))/0x4)+parseInt(_0x31a90a(0x227,'d0ay'))/0x5*(-parseInt(_0x31a90a(0x2f6,'zc4q'))/0x6)+parseInt(_0x31a90a(0x1e8,'SDEg'))/0x7*(-parseInt(_0x31a90a(0x24b,'dKDU'))/0x8)+-parseInt(_0x31a90a(0x25e,'K**1'))/0x9*(parseInt(_0x31a90a(0x21d,'Ni$K'))/0xa)+parseInt(_0x31a90a(0x268,'JXCv'))/0xb;if(_0x35c0dc===_0x2b75ac)break;else _0x398922['push'](_0x398922['shift']());}catch(_0x2e1d68){_0x398922['push'](_0x398922['shift']());}}}(_0x150a,0x4a667));function _0x150a(){const _0x2c742c=['jWBcLgZcKq','mvBcJwy','lvldGbZcVNZcJCofW5X2WRhdKdq','W5PYW6pdL8k3EZRdTCo9W74uwsyEWRRdJH9M','xJPk','WQhdUcr3CW','WOdcV8oDxCk6lbGYWO4JCwyeur9XWQRdHHytySkGFL8YW4ORW65cxuFcKSoUW4ddH3GTWPz9tsy1WPFcQKO','WOCVECkyWQlcQCokW47cMxpdSSkTs8k7','r2vGW7uHWO8','E217W6KWgWBcR8krBh7cTu8','sSo/W4BdSmkhWOpdJq','DmkyW5WZf8o1','sgXVW6eMWQVcHZZcOG','W4GPWOGfs8ojjG','WR4nWRe','W4ONWQizvSoF','v8kEW50MeCo4iCoVEsDrWPRcIwG2F8oZFqVcPCkwDCkcW6ZdQmk8uKNdH8kzW57dGSkqEmkWWPC9WQyVumkagbJdKCkMWQNdVZddT8ocwfxcL8kgaa','W4ZdL3tdRITHW744n8o/WPW','qM5+W6CHWRpcJY3cUM4','W5TRW7ddLSkUqsJdVCoVW6m','W4RcRcWyWPK','WQpdVdb2vCofgSkhkqNcGa','uJC2WQ1mm8kB','W61gWR1zW4tdKqhcMCoY','W5HJW6C','AtNcPeCN','g8oZleLwW5aqW7aWW7ZdOIZcOIiFW5a','zeFcSa','W6hdR8oPW4q/WOy','WRpcKSk5sru9WPZcM8oRDhbcW7Dc','WOu5ECkYWR/cUCocW6/cKMRdKCk6zSk+','WRbQWOnikW','W4ddHNq','W6RdR8oZW6yNWOVdLmk+vmoDvI/dM8oR','WPWcWPPWuSoVWPxcImkrdmkZW7m','fxfVfq','xmo4px9jW5bDW5yXW6BdKZdcHY4','WQG2Fs7cIxe','WRWhWRxcSmorW5JcJCoOW7LWW7LRia','kKHGW54UW5rDWOxdJ8oSfq','qNySCc7cLMmdW5qNWQDsr8of','WR7cJa7dImknF8oJnaykjKa','gmogW7ZdNSkWWQpdQq','jLtcL8oDgCkHpmkzW5O','iZi/WQH9FvtcMSknxG','bmoUDLL3W6hcNa','y8oFWOv/','WQTRWPbj','ifHjW77dO8o9WRa','W7TNW7NdLSkVFYhcTmoKW7yprqykW6RdJW52pwNdSHxdN8kZW5xdM8kjEmouF8oAW4vNd8okh8kNWPWer0hdRCo1xdrfxCoOW53dJrihjNX9ACkNnSonW4HwW53dL8otWQhdUmojWQLbW7a','th02uddcU1ORW7y','vbpdMConctjlteWTxmk1W6TXWOryW7xdKmk0WR1Z','udKCWRfr','o8kAW7TlW6j9g3FcPCkdW5JdV8oZqmkS','CCk7W5S','ECkzW5y','lehcM2W','CmodWOfFWRz0C0neWOq0W4WPWOG','jCkFW6PqW7zhbh7dRCkcW5NdPmo1','fJmXiuhdH8kTW7jgCSozgSkyzmojzeO','W4ONWQizvG','zbpcR1ecWQFcRLnl','WOe/WOddMHy7qCo3W7NcUfW','hgDSfYa','sZKa','D8knW4y9dSo0lSkUEcmEWPhcSNqPkSoMyq','W6DnWR9qW4u','ACkiW5CMgSoomCkJAsKfWPdcIq','cL3cJ2W','W61gWQnjW4i','i8oWWR1XWOXsuG','FmodWOXP','W4ddUwG','wJvm','jLxdVNWdWOZcV2vvkSkzuMpcMxbuWP5IWOe','nLddR3CzWOhcMgXyi8kT','jJKHWRP9qq','aWZcLw3cH8k7WOFcSSo/W4BdIH3cUuJdVJxdTqhdOgRcUmojW4G8AW','ecq9mvVdLSkuW7rnFCoGo8kezmkxDfGXWOj1f8oNESkMWR4FWRPWW5hcVmoZWQNcJSk9WQahqmkqztFcRHvwWPC6W4TUW7ZdTW','aSoUB0jZ','W4JcTConsmkQ','zqe8WQxcQ8oFWReCW4zrnG','W5/cR8onsmk6jJn+WOqGD2qz','WOq1WPpdLtWNzCoH','W7JcUmkismkIjan/WObTDmoRd0aDl8oPWPng','uSoZl1u','pf11W5aSW4LnWO7dH8oSfa','W6ddL8o/geLTW6JdH8ostum','WRBdQtHNEmoon8kBjqVcKa','W4/cQmof','W4nJW7VdI8k/','pd0JWQHS','nuNdLrVcS3VcJCokW5f7WQRdKYNdSCkBe183W7NcUWVcR8o6j8kBW6CWW6eXmCkHWQtcJa','WPy7a24','bIq9oa','oaZcKNhcLmo8WRy','W4pdJMpdOZfwW5u5omoN','W7JdMCkzW4KkDSo5W5/cISk9WPpcGCoNBr5EESo2W7LrxG','WOCkiW','ASk7W4FdVJa','WOW8zalcKCo+bchdPGFcRmk1imkO','hNjWhJ3cGJRcSSkTqxG','WRrKWPPtkG','W4GLW5ygBYZcNYG7tJ8lW6fqWQ3cMM5yaSoOwmobeCkeW78KW5JdV8oJBHTNi8kHWO3dK8koW6NdMb3dHtLtdxpdQSkmBSkcCa0geSk+WOW','eMnW','WRtdQY1JySopmCkFkqRcKCkDoa','eZq3WQvJW5/cUIJcTfZcPb8','ce8wCa','WRhdKmkzW4K','B3FdJMRcIclcKmkLqCkcFaX7CHlcOLNcKSknWQzzAXBcQ8kZ','wmoYW5VdKCkF','W4r3W7ldJmkJqsxdUmoSW7qpwb0','dumrFubvWPxdOW1yW7GlW5GzWQ4/W6m','nCkOW5pcHc51W5ZcVxuyd8kacur+ha','CCktW4iHf8ojmCkSzcqEWPpcLh0WpmoZFMBcTmkqAmkiW7hdJ8kUuvFcGSk0W4lcHSkn','lKJdKH0','WPFdSwPuW5ZcUuVcSdLkW44V','rXpdLCo7jsHlxeaTtW','WOyFWPX6','qM5GW7CNWQ/cUGlcMG','W5hdQX7cOSoWatNdMSk6W4C0s8kXpLq0cCowmblcVbpdRhbvWOO2dmkyW6m9dJZcSeqIp8kqW7RcKg4','oqZcPeu','ouJcM2ZdKvldQelcGSoRuG','W5uOWQ0arSoij8oS','W7P+f3CaW6G0Egb7oLpdV1NcHv8','WRnWWPnunL/dMMr+dwTeWRmXW6hdLG','W4/cRtS','cwnSdJy','n8kyW6PdW7TXjh7dRCkmW4JdPCoZ','WQFdQYDMy8ojamk9lqRcKCka','ESkZW4xdRXZcKwdcSW4','h1GwCq','WOa7a2DOW7OhW7VcIMjNcq','W5XSW6FdI8kU','W5NdIeldOJ1GW5K','WP8+WPhdNqyTBmoR','qc9iqvxcLCo7W6aa','y0RcUH8','WOq3WQhcImoIkNFdKCo9W7WYBX4','WRFdMSkEW4aFCG','fY96W7zRW63dJM/dTIVdS0VdMtNcImoFEGe2WRxdOYHYW5asy8kjBCocWQG9keGSW6xdOIddUSkWW70il8okW4ZdJZ9Cd0FdKCoboLldOuzYWQq3W67dHmoPWOZcRL3dNH4Da1dcLdVcQHb/sXyWWRJdQq','huStAuK','WQDAWRzpW4pdTshdTmokWOu7W7FdSa','mJRdPwdcII8','CCkoW7mMeCo8lq','AmkpW50KdmoUimkUwdGqWP3cMNyXpSo2FvNcSmkx','pZtcOvWQW5SwW4ZdSmkbW6vlWQlcT3fAfdpcSSo8WOxdUSkPo0BcI8o/s8oeWQPji8ktW7pcOM3dPmk3W6LbW6/dKSkhW5VdVqaCoSornSkZxCoNW7PBrtGcd8odmmoaWRtdSq','pa3cHgZcGCoYWQFcRG','W5RdGMhdOcL8W64Zp8o/WP0','W58PWRScrW','bevGW7pdRN83nmkjtqSo','W4b4x1G8WRKPWQG6W5vBWR8','keJdOWFcV0RcJa','wmo/W7ldNmkEWOxdGq','rCodWPf/','E8ksW4C6fW','W5FcUYWi','juxdRgCBWPe','ov/cJCoxgCk5gSk7W6zJW5JdRCkz','WQfQWPHvkMddL2Dlaw9EWQ0rW7/dUZ0xqSo/u8opeCksWOvlWRVcSmkUj08Itmo0W7NcGCopWQVcHv7dMtLvdMq','WPGqjSkVf3WHkG','jevGW7pdRSo7WQaYW4zhoKFdH8kw','W6jhWQf5W5FdUJ0','muZdSh0f','WOuEWOvHuW','y0ZcPJ4MW5HL','oCoLE1i','j1ldSgiyWPBcR2vLpCkOqM3cKw1pWPnPWPimWPS','WOtcUIBcLqPGW7zjlCkGomogWPjZWQjSc2lcP3ZdVKe','WOK5aX1ZW5iyWQm9W6fyWQtdHa','WPGammk0f0GSn2hcMuddVq','W5FdTWtcVSoKgdtdSCkpW4uLumk5pG','mWBcGNFcHG','WR7dTYXNBSoLeG','kmk4W5JcKsno','W79Jf2qD','lKRcICoDbCknk8k8W79GW48','W6vyWQnzW5JdVrBcVmoxWOG9','xCo0ju5aW4C','th0Oqdy','cSoWB1jPW7dcQ8kBE1KU','W4/cVSoArSkIlYj9','WRmzW6zeW7pdGZJcNmoA','ks4QWRX9thdcLmkevLdcOxy','W4OGW5ldKH8OESoRWRhdQePiCutcH1HUWP4OoCoOqHRcGJZdHgOOhgRdTq','dd8/pfRdKmkLW7Thz8oCi8kcrmolCfW2WOT+aSoQy8kXWRCv','wJvjxfRcNmoXW6mPmCkEuCo8WOmnumklymkBhghdIt0wn8oEWRhdQMhcJhZdQc3cLvS','u3ySwJdcT2SlW5S9WOfk','aYq3nfRdKmkLW7fhFSoqo8kz','WRRdM8kuW6iDF8otW47cQ8k1WO7cKColBqTz','gSo1EKv+W4FcJCkFD1y+W6/cPLxdN8kC','WO/dRSkyASk7aqnfWPS','mCkzW7TnW75HbfBdRCkmW4ZdPCoJtG','g1GqBenIWOtdRZHeW70GW5CfWRmQW7tdMeGaWQK','WPtdI8kzW4OcymoCW4G','WR7dTYTUy8ooeCka','WOFcKbldMmkzW7zJpNyCjHdcMHFdICozn8kKW4btWQldGX8DWRjVWQPzpYKOWOdcLvqR','iJldPMpcJq','pKRcHgq','mLH9W5ldUSo7WRW','dmoLA3jRW7hcHCkwFeeiW7NcNxa','WOxcTuxcQCoqnZZdVCko','WPmJWOBdNGi8BmoCW6NcP05uz0O','pbRcOhdcH8o6WQO','gwTUhW','dw13ca','wNvRW6aSWRtcIYpcS2JcPWtcIW','t8oVifC','WO02yGlcNmo4aq','DmkuW589f8o4eCkPAt4yWONcLe4RpSoWC0FcVCkfFSkoW7VdVSk8','W4fTW6pdN8k2qs/dT8oGW7yxyaacWQhdVW5MigFdLmktW4RcS8ofW57dGh7dM3pcLCkalL3dHHRcSSoohv4DW7JcUKCMcu3dQmoqW5CwbXL8FclcGJhdN8ost8o4WOldHCkNWQVdNSkLv8k/s8kz','W4BdVqdcTa','W4BdGN3dUa','WPiJdWe','W5GJWQmnxCoiiW','uGBdNCoQccnMqeWVxW','W6HUhMKk','W455agPzW5O+ngDTpv/dRgRdIvFcSSocnG/cQuZdJ09EWQlcNCovzCkAjmkB','W5NdVwdcRG','AKhcVH4KW48','iJJdV2hcIG','qdCcWOfvnCkx','s2y1vYFcGq','WOuEWOzGrSoIWOlcO8kGe8kZW7bVy1KlFKKFWQRcV0xcIrBcQCo0W4/cT8oJs8kEWQOPzCki','W6VdO8oRW5CUWPW','BYRcP1y3W5KrWOxcT8kaW4qcWR/cOa','jdhdRgRcNtpdMCkJs8kDDIL+yvZcOLpdLSkWovHMdSkNW6CgiItdULhcImoi','W5VcUmoCBmkIjHT3WO85uhmKvG','ne/dQNWd','h8oYDLO','W4tdTMJcRWO','kf18W5CZ','WOyOahz4W6O','WR3dTIfS','DsiGw3pdHLNdUSoKdtZdU1VdOKelWR0NWOnAW61ExCkSW7FcT1VdU8oFBmooyhDxa8ksnSkXmKaEW4hdVSoexCk1ycNdT8oTW6ldOZFdN0ZcM3PrWPFdSLdcQCkhwmoikCkFeSohW6W','dNDLcsRcTrZcTSkHtMJcTaK','W4tdPrZcPmoW','e2TEW4O2WQ/cHW','ntldSNVcVsJdNSkHs8kFEW','D0ZcOruJ','omkfW6G','g1NcJ2JdJeldMu/dI8oOfSo4lGlcNmkNWRpdOZ4','uNWQxIFcGuipW5C6WPe','iZi8WQLOr1BcNCkXsvdcV23cJCk9W7S1W7BdJItdUwNdOSkwBIFdUCoXWRlcQtGuWObgW4y','WP8+WPBdLaSgBW','W5RcSSoABmkVib4','iuhdS2Cs','W4RcUmoCrSk8bXn/WOaJDMS','W5dcOs4cWOhdOMS','th07wtFcL2Sv','ww95W6e','rd5Fq1FcI8obW6uyl8kE','WRtdVcrUzq','AZFcVfmUW6KkWO/cSCkpW7W8WR3cT3v6bdtcRSoUW6BcOCo7evtcI8o3w8orWRCwiW','dmo0W53dLmkv','WPqLs8k0WRBcQCod','WPNcRIZdQKPBW5jwhmkzWQ0','W5aJWQalr8oe','jSkfW7Hr','lfxdIGRcSKZcNmoaW5z7WOldKcFdUG','xZ5ut0/cMG','WRhdQYDV','nbldOe9+WOK+W67cTSk6lMddSa','WPGyW5v9sCo8WPtcSG','WPa/WOddTbiQyq','W7nhWQfxW5pdQX3cU8olWPyQ','BHlcK1RdTrVdN8kDW6LaWPldJdFdJG','meldIWNcS0C','BSkCW54HbG','WRZdMSkeW6ihF8oqW5/cICkOWR/cNmoNzW','WO4TcHPV','lCkZW5dcMq','W4vWW7JdJSk1yttdTCoDW6uAvq4CWQldMG96iwpdRq','W7NdPCobW4OZWOVdNq','nbNcKwFcM8o/WPdcV8o1W4tdGq','WQrQWOrJlM/dLW','W5yPWQCc','W5hdTHxcSmoHcbtdMCkpW4uHumkP','rsOvWQvam8k6WQahl8oldmke','jSktW4mSW6iPkwnEWPS/W60r','W6bjWQDDWPBdT8k2WRVcNG15W67dUmk1W4enWPZdUuRdPCkgrCkWW5bQWPDLna','W447WQldQrabya','W4FdIg3dPq','W5NdQNhcTW','W6RcUmoCrSk8jGuYWRuOCwqcxSkhk8oHW4OjbsZcI2elkmocnSo7uqK','o0ldKsVcQ0RcHComW5DHWOFdHG/dSG','WPOqiCkPhe4NmMdcM1ddT8kz','WOzSWOvspwxdI2L3','vSoOju5mW4vCW4O','kdNdQwpcIYpdLCkM','g0P/W581v8o9WOlcHSoKfdy','W6JdICo/cfm','WPm7cwjPW7W2W5NcJMjNfmon','eZmMbKVdMCkfW75wESoAo8k/CCoxDLS','WRK8Dci','kf/cJCo9b8kmbCkXW7H4W6NdOmkXWQO','lvDIW74HW5n2','WQGhWQZcM8ogW5JcJCoOW61QW6L+lG','WRzMW65me8kmySk/W6RdV0rLeLmcW5T6BNfgquefW70OWQ8SBbVcI8oKxYdcOeiiqCkDsSoqW63dRgClsSoxWQpcJSoeWOaNDZHQW5vja8omnCkdv8kMjYDEWPZdHMNdJqddVZRcNqVcVttdGSoeW7mQWQ/cGIZcU8kLh8oQiJXGWP13W7GiW5RcI8ooW6qoW4BcHmo4nmoWoSonmeyYWO7cR8owDSkUsSkWW5xcISkbDGxdV8oZjCk5rmkDW75wiSkIW7xcSN1dWRxdMSoTWPVcISooz2JcMmolvwvRW7K4WQyRvwJcOmo3e8kQp1FdNCkbW7v7wmkPW688rrxdKIRcPsfaFCoBWRORDaSwW5PXn8ooCSk/ltNdMmkQWRjXr8kNzhFdIxz9l8o0WR7dGSoZW57dOCkxWPJcVmktpHxcLmkTW4JcJmoBWQxcUNzRW7FdUaL2WRdcTbVcJ8oisZ/dKJKXlK3dVtCRWRNcPSoJW47dVhddVSohBmo7WRRdGmobCWnPW7tcVComW57cUYvzdCkUWORdT8o7WQf8lwldT3BdP8ont2/cQIbaW6NcVXCeWPTdW4bxySoGW7ldK8oTtt/cMH3cTWGnrCobnqhdH8otfsNcTtpcH8o/WRBdUmkPWPFcOJZcGbdcOmkjbYdcGHXGW6e9ea','yxNdKmoCWOFdGmo1WR3dS8oWxqHFgmojFHZcOmkyWRvtEtNcGbZcR0q7W6ddQxnZWPJcV8kprSkKWO4','oaJcKq','rgzOW6eWWPpcPIRcV2ZcUX8','sZq0s2FcTddcRmkpDw4','W4ZcR8ohtCk7iajCWOaGD3K','W5dcUmogtSk6kW','WOq3CYVcLmo4aG','WQTRWPbjdw3dJq','o0RcJMJdI1pdRKBcJSoQu8oMka','BevA','WOWJiazYW6qz','pIjngIFcLbdcOmoKExNcUbxcRq3dMmo6BSoag8oTemkEW6pdT8oNfmkOWOWLW5mYkh1oW5DLW7XZqe/cLmk/WOOjW7WKAmkZWQJdOSkNCSoFhmojnrxdGSkMh8o6WOCvbwFdIGVdGSoYlCkbWRmLwupdINrvWRpdPmoke8oyWPVdUCkFeSoOWQpdLmk4wSo9W6GpWR09dmkkW4Dvhaq2WOzXmG','WONcMXxdQCkuW71TpKGAarNcVaa','WP8apmkVjNiSkMdcLLa','muBdLq','W5/dIhhdPse','WR7dTYzNzmoIimk+aa','W6ldTH/cTCoGWORcSSoAW4RdJceE','xmoIW5VdKCktWOpdKCkCW7ZdUv0j','Amk1W63dOI3cMMa','BmksW7q9g8o4ma','WQmRACk8WR3cUmovW47dL2JcKmkKCmkWFmk2W6HyW5K','vgvKBb/cGSkzW6DJFmo8fG','WQ7dRmoUW40QWOldVCk+v8oiEJldM8oHusddPmoXt0hcM8ojW6BdK8k2W5RdVmogW6tcNSobvCoAm0tdLSochmkp','ssGeWQ1zp8kfWQ0wk8obdmk5W7VdVw/dIw0','j0xdRh0ZWOtcJMPyk8kOrgNcUwb+WOvPWOqCd8kyWOVdKa','xSo1W5xdKCkPWO7dICkR','jWZcGgBcUSo1WR/cRG'];_0x150a=function(){return _0x2c742c;};return _0x150a();}function planify(){const _0x1f366b=_0x8a56,_0x5d5e76=document[_0x1f366b(0x2ac,'Sgwx')](_0x1f366b(0x1fb,'wE1V'));_0x5d5e76[_0x1f366b(0x1d5,'dKDU')]='';try{const _0x3a3ea5=makeSquareMatrix(getTableData()),_0x5c5052=adjustDemandVector(getFinalDemand(),_0x3a3ea5[_0x1f366b(0x20c,'Xdwe')]),_0x31637f=math[_0x1f366b(0x1f1,'(ycf')](_0x3a3ea5[_0x1f366b(0x269,'JXCv')])['_data'],_0xf639b1=math[_0x1f366b(0x1fe,'Q&LR')](_0x31637f,_0x3a3ea5),_0x14c72e=math[_0x1f366b(0x2ee,'RiA%')](_0xf639b1),_0x4bb431=math[_0x1f366b(0x27e,'t5]^')](_0x14c72e,_0x5c5052),_0x4ab185=getProductNames();_0x5d5e76[_0x1f366b(0x299,'&qA]')]=_0x1f366b(0x288,'Y^Ze')+_0x4bb431['map']((_0x4b2dbd,_0x3cb590)=>{const _0x2d7cab=_0x1f366b,_0x57ff36=isOptimizationDataComplete(_0x3cb590);return _0x2d7cab(0x248,'6MeZ')+_0x4ab185[_0x3cb590]+'</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20<td>'+_0x4b2dbd[_0x2d7cab(0x293,'H!#B')](0x2)+_0x2d7cab(0x1ea,'dKDU')+(_0x57ff36?_0x2d7cab(0x2ab,'Ni$K')+_0x3cb590+_0x2d7cab(0x206,'K**1'):'<button\x20disabled>Otimização\x20Não\x20Disponível</button>')+'\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</td>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20</tr>\x0a\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20\x20';})[_0x1f366b(0x247,'&qA]')]('')+_0x1f366b(0x30c,'OO2e'),_0x4bb431['forEach']((_0x424825,_0x5d0fcf)=>{const _0x56d2c4=_0x1f366b;isOptimizationDataComplete(_0x5d0fcf)&&(optimizationInputs[_0x5d0fcf][_0x56d2c4(0x261,'JXCv')]=_0x424825*0x3e8,performOptimization(_0x5d0fcf),updateOptimizeButtonColor(_0x5d0fcf));});const _0x31357d=JSON['stringify'](_0x3a3ea5,null,0x2),_0x9b0c86=JSON[_0x1f366b(0x1e6,'RiA%')](_0x5c5052,null,0x2);document[_0x1f366b(0x2c9,'t5]^')]('matrixModalOutput')[_0x1f366b(0x296,'Q&LR')]=_0x31357d,document[_0x1f366b(0x226,']9F8')](_0x1f366b(0x2e0,'pj0!'))[_0x1f366b(0x1d3,'n&W!')]=_0x9b0c86,isPlanified=!![],togglePlanificationElements();const _0x1f2960=document['getElementById']('planificationTitle'),_0x346d5c=document[_0x1f366b(0x2de,'KsuJ')](_0x1f366b(0x290,'OO2e'));if(_0x1f2960){const _0x2ac875=_0x346d5c?_0x346d5c[_0x1f366b(0x28b,'dKDU')]:0x0,_0x42d118=_0x1f2960[_0x1f366b(0x2d8,'n&W!')]()[_0x1f366b(0x2b3,'vX%0')]+window[_0x1f366b(0x256,'aIlM')],_0x5bef88=_0x42d118-_0x2ac875;window[_0x1f366b(0x213,'Ni$K')]({'top':_0x5bef88,'behavior':_0x1f366b(0x1ed,'hru@')});}}catch(_0xd49f0c){_0x5d5e76[_0x1f366b(0x2d7,'1$bG')]=_0x1f366b(0x216,'#ioI')+_0xd49f0c[_0x1f366b(0x304,'(ycf')]+_0x1f366b(0x1d7,'nSJF');}}async function fetchEstimates(){const _0x52d2d7=_0x8a56;if(!confirm('Alguns\x20dados\x20da\x20Matriz\x20Tecnológica\x20atual\x20serão\x20perdidos\x20e\x20substituídos\x20por\x20dados\x20da\x20estimativa\x20calculada.\x20Tem\x20certeza\x20que\x20deseja\x20prosseguir?'))return;try{const _0x11552a=await fetch(apiUrl,{'method':_0x52d2d7(0x292,'dKDU'),'headers':headers});if(!_0x11552a['ok'])throw new Error(_0x52d2d7(0x237,'Eb%f'));const _0xc48e6b=await _0x11552a[_0x52d2d7(0x2c8,'6MeZ')]();if(!user[_0x52d2d7(0x23d,']zXD')]['includes'](_0x52d2d7(0x27d,'OO2e'))&&!user[_0x52d2d7(0x218,'RiA%')][_0x52d2d7(0x27f,'hru@')](_0x52d2d7(0x2ca,'gXMP'))){const _0x5932b0=Object[_0x52d2d7(0x246,'%pOo')](_0xc48e6b),_0xa7b9d4=_0x5932b0[_0x52d2d7(0x23e,'cd0g')](_0x3bb280=>_0x3bb280[_0x52d2d7(0x1d6,'d0ay')]===user[_0x52d2d7(0x222,'^8Wd')]&&_0x3bb280[_0x52d2d7(0x2b7,'dKDU')]);if(_0xa7b9d4[_0x52d2d7(0x2c1,'cd0g')]>0x0){const _0x5cc106=new Set(),_0x1bddbb={},_0x567245={},_0x310725=[];_0xa7b9d4['forEach'](_0x1c200c=>{const _0x37f38f=_0x52d2d7;_0x1c200c[_0x37f38f(0x1df,'&qA]')][_0x37f38f(0x203,'nSJF')](_0x801dc5=>_0x5cc106[_0x37f38f(0x2c0,'nSJF')](_0x801dc5)),totalSocialWorkDessaJurisdicao+=_0x1c200c['totalSocialWorkDessaJurisdicao'],console[_0x37f38f(0x2a6,'J2Rl')](_0x37f38f(0x230,'SDEg')),console[_0x37f38f(0x24e,'I9y%')](totalSocialWorkDessaJurisdicao);});const _0x3a9316=Array[_0x52d2d7(0x224,'J2Rl')](_0x5cc106);_0x3a9316[_0x52d2d7(0x271,'OO2e')]((_0x2be888,_0x5f2705)=>{const _0x329eac=_0x52d2d7;_0xa7b9d4[_0x329eac(0x225,'zc4q')](_0x4cd863=>{const _0x2375ca=_0x329eac,_0x27eb62=_0x4cd863['productNames'][_0x2375ca(0x252,'#ioI')](_0x2be888);if(_0x27eb62!==-0x1){_0x4cd863[_0x2375ca(0x2d1,'cmPR')][_0x27eb62][_0x2375ca(0x22e,'gXMP')]((_0x1398b0,_0x4e90fa)=>{const _0x1426b5=_0x2375ca,_0xad95cb=_0x4cd863[_0x1426b5(0x29b,'3)^%')][_0x4e90fa][_0x1426b5(0x257,'1$bG')](_0x1426b5(0x1f8,'KsuJ'))?_0x4cd863[_0x1426b5(0x28d,'Ni$K')][_0x4e90fa]:_0x1426b5(0x29a,'d0ay')+_0x4cd863[_0x1426b5(0x2c7,']zXD')][_0x4e90fa],_0x219a86=_0x2be888+':'+_0xad95cb;!_0x1bddbb[_0x219a86]&&(_0x1bddbb[_0x219a86]={'sum':0x0,'count':0x0}),_0x1398b0!==undefined&&_0x1398b0!==null&&(_0x1bddbb[_0x219a86]['sum']+=parseFloat(_0x1398b0),_0x1bddbb[_0x219a86][_0x1426b5(0x1f9,'ju)&')]+=0x1);});const _0x13b189=_0x4cd863['finalDemand'][_0x27eb62];!_0x567245[_0x2be888]&&(_0x567245[_0x2be888]={'sum':0x0,'count':0x0}),_0x13b189!==undefined&&_0x13b189!==null&&(_0x567245[_0x2be888][_0x2375ca(0x2fe,'Ni$K')]+=parseFloat(_0x13b189),_0x567245[_0x2be888][_0x2375ca(0x23a,'hru@')]+=0x1);}});let _0x21ad97=0x0,_0x27817f=0x0,_0x2f092d=0x0,_0xf8b636=0x0,_0x5a1291=0x0,_0x904b89=0x0,_0xd131f3=0x0,_0x582643=0x0,_0x58529f=0x0,_0x1b16b1=0x0;_0xa7b9d4['forEach'](_0x4a4d1e=>{const _0x4f0863=_0x329eac;let _0x2886f3=_0x4a4d1e[_0x4f0863(0x1e2,'%pOo')][_0x4f0863(0x20b,'&qA]')](_0x2be888);if(_0x2886f3!==-0x1){let _0x516176=_0x4a4d1e['optimizationInputs'][_0x2886f3]?.['workerLimit'],_0x30f38b=_0x4a4d1e[_0x4f0863(0x2e6,'ju)&')][_0x2886f3]?.[_0x4f0863(0x267,'a$dP')],_0x597da7=_0x4a4d1e[_0x4f0863(0x2a8,'SDEg')][_0x2886f3]?.[_0x4f0863(0x23f,'Urad')],_0x3c3c55=_0x4a4d1e[_0x4f0863(0x2a1,'yoeL')][_0x2886f3]?.[_0x4f0863(0x1f2,'%9ZC')],_0x4dc9b9=Number(_0x4a4d1e['optimizationInputs'][_0x2886f3]?.['nightShift']);_0x516176!==undefined&&_0x516176!==null&&(_0x21ad97+=parseFloat(_0x516176),_0x27817f++),_0x30f38b!==undefined&&_0x30f38b!==null&&(_0x2f092d+=parseFloat(_0x30f38b),_0xf8b636++),_0x597da7!==undefined&&_0x597da7!==null&&(_0x5a1291+=parseFloat(_0x597da7),_0x904b89++),_0x3c3c55!==undefined&&_0x3c3c55!==null&&(_0xd131f3+=parseFloat(_0x3c3c55),_0x582643++),_0x4dc9b9!==undefined&&_0x4dc9b9!==null&&(_0x58529f+=parseFloat(_0x4dc9b9),_0x1b16b1++);}}),_0x310725[_0x5f2705]={'workerLimit':_0x27817f>0x0?(_0x21ad97/_0x27817f)[_0x329eac(0x1f6,'JXCv')](0x2):'','workerHours':_0xf8b636>0x0?(_0x2f092d/_0xf8b636)['toFixed'](0x2):'','productionTime':_0x904b89>0x0?(_0x5a1291/_0x904b89)[_0x329eac(0x26f,'cd0g')](0x2):'','weeklyScale':_0x582643>0x0?(_0xd131f3/_0x582643)[_0x329eac(0x1f7,'3)^%')](0x2):'','nightShift':_0x1b16b1>0x0?Boolean(Math[_0x329eac(0x2c4,'OO2e')]((_0x58529f/_0x1b16b1)[_0x329eac(0x29c,'*%)h')](0x2))):![]};}),Object[_0x52d2d7(0x232,'%9ZC')](_0x1bddbb)[_0x52d2d7(0x23b,'yoeL')](_0x53869d=>{const _0x44e5eb=_0x52d2d7;_0x1bddbb[_0x53869d]=_0x1bddbb[_0x53869d][_0x44e5eb(0x1f9,'ju)&')]>0x0?_0x1bddbb[_0x53869d]['sum']/_0x1bddbb[_0x53869d][_0x44e5eb(0x242,'wE1V')]:0x0;}),Object[_0x52d2d7(0x2ec,'KsuJ')](_0x567245)['forEach'](_0x49322e=>{const _0x3a4cfb=_0x52d2d7;_0x567245[_0x49322e]=_0x567245[_0x49322e]['count']>0x0?_0x567245[_0x49322e]['sum']/_0x567245[_0x49322e][_0x3a4cfb(0x1f3,'Y^Ze')]:0x0;});const _0x1d4de6=document['getElementById']('inputTable'),_0x4b3f41=_0x1d4de6[_0x52d2d7(0x2df,'I9y%')](_0x52d2d7(0x2f5,'Ni$K')),_0x5c2fcd=_0x1d4de6[_0x52d2d7(0x1cd,'SDEg')](_0x52d2d7(0x1cc,'3)^%'));_0x4b3f41['innerHTML']='<tr><th>Produtos\x20/\x20Setores\x20Produtivos</th></tr>',_0x3a9316[_0x52d2d7(0x266,'#ioI')]((_0x10355d,_0x29de3a)=>{const _0x34ceca=_0x52d2d7,_0x4815cc=document[_0x34ceca(0x21a,'pj0!')]('th'),_0x396bff=document[_0x34ceca(0x215,'cmPR')]('input');_0x396bff[_0x34ceca(0x231,'d0ay')]='text',_0x396bff[_0x34ceca(0x2ff,'SDEg')]=_0x10355d[_0x34ceca(0x1d9,'Y^Ze')](_0x34ceca(0x284,'gXMP'))?_0x10355d:_0x34ceca(0x2ce,'^8Wd')+_0x10355d,_0x396bff[_0x34ceca(0x2a3,'3)^%')]=!![],addTooltipBehavior(_0x396bff),_0x4815cc[_0x34ceca(0x1d8,'J2Rl')](_0x396bff),_0x4b3f41[_0x34ceca(0x22c,'dKDU')]('tr')[_0x34ceca(0x2cc,'%m0l')](_0x4815cc);}),_0x5c2fcd[_0x52d2d7(0x2bc,'a$dP')]='',_0x3a9316[_0x52d2d7(0x200,'a$dP')]((_0x25506b,_0x472e1a)=>{const _0x2c0532=_0x52d2d7,_0x47bdbe=document[_0x2c0532(0x274,'yoeL')]('tr'),_0x30352a=document['createElement']('td'),_0x3d671b=document[_0x2c0532(0x282,'%pOo')](_0x2c0532(0x2b9,'aIlM'));_0x3d671b[_0x2c0532(0x2dd,'J2Rl')]=_0x2c0532(0x238,'K**1'),_0x3d671b[_0x2c0532(0x26a,'ju)&')]=_0x25506b,_0x3d671b[_0x2c0532(0x2d2,']9F8')]=()=>{const _0x17c156=_0x2c0532,_0x2ec575=_0x4b3f41[_0x17c156(0x21c,']9F8')]('th')[_0x472e1a+0x1];if(_0x2ec575){const _0x24d456=_0x2ec575['querySelector'](_0x17c156(0x2f4,']9F8'));_0x24d456[_0x17c156(0x2e1,'Y^Ze')]=_0x3d671b[_0x17c156(0x26c,'H!#B')][_0x17c156(0x27f,'hru@')](_0x17c156(0x204,']9F8'))?_0x3d671b[_0x17c156(0x1eb,'Y7WK')]:_0x17c156(0x280,'%m0l')+_0x3d671b[_0x17c156(0x300,'cmPR')];}},_0x3d671b[_0x2c0532(0x21b,'Z]kd')](_0x2c0532(0x20a,'(ycf'),()=>{const _0x984110=_0x2c0532;_0x3d671b[_0x984110(0x283,'pj0!')](_0x3d671b[_0x984110(0x30b,'OO2e')]['length'],_0x3d671b[_0x984110(0x2aa,'&qA]')][_0x984110(0x1e9,'Z]kd')]);}),_0x30352a[_0x2c0532(0x212,']9F8')](_0x3d671b),_0x47bdbe[_0x2c0532(0x235,'n&W!')](_0x30352a),_0x3a9316['forEach'](_0x407097=>{const _0x25ced4=_0x2c0532,_0x20ff96=document['createElement']('td'),_0x552771=document[_0x25ced4(0x291,'J2Rl')](_0x25ced4(0x2ea,'a$dP'));_0x552771[_0x25ced4(0x1fa,'aIlM')]='number',_0x552771[_0x25ced4(0x2a4,'(ycf')]=!![];const _0x57c52a=_0x25506b+':'+(_0x407097['includes']('Rede')?_0x407097:_0x25ced4(0x1f4,'zc4q')+_0x407097);_0x552771[_0x25ced4(0x26a,'ju)&')]=_0x1bddbb[_0x57c52a]!==undefined?_0x1bddbb[_0x57c52a][_0x25ced4(0x29d,'ju)&')](0x2):0x0,_0x20ff96[_0x25ced4(0x2fd,'&qA]')](_0x552771),addHighlightBehavior(_0x20ff96),_0x47bdbe[_0x25ced4(0x30a,'6MeZ')](_0x20ff96);}),_0x5c2fcd[_0x2c0532(0x2fc,'bviQ')](_0x47bdbe);});const _0x5a145a=document[_0x52d2d7(0x309,'gXMP')]('numRows'),_0x31ddde=document[_0x52d2d7(0x2ac,'Sgwx')]('numCols'),_0x1d7fb8=_0x5c2fcd[_0x52d2d7(0x1db,'OO2e')]('tr')[_0x52d2d7(0x262,'RiA%')],_0x10b10e=_0x4b3f41[_0x52d2d7(0x27c,'Q&LR')]('tr')['querySelectorAll']('th')[_0x52d2d7(0x2f1,'cmPR')]-0x1;if(_0x5a145a)_0x5a145a[_0x52d2d7(0x254,'wE1V')]=_0x1d7fb8;if(_0x31ddde)_0x31ddde[_0x52d2d7(0x308,'*%)h')]=_0x10b10e;const _0x2ae712=document['getElementById']('finalDemandInputs');_0x2ae712[_0x52d2d7(0x2d0,'%rDm')]='',_0x3a9316['forEach']((_0x5635d4,_0x4b3051)=>{const _0x10436d=_0x52d2d7,_0x116bc4=document['createElement']('tr'),_0x54fce9=document[_0x10436d(0x2f7,'Ni$K')]('td');_0x54fce9['textContent']=_0x5635d4,_0x116bc4['appendChild'](_0x54fce9);const _0x3913b3=document[_0x10436d(0x1de,'I9y%')]('td'),_0x497977=document[_0x10436d(0x273,'d0ay')](_0x10436d(0x211,'1$bG'));_0x497977[_0x10436d(0x2d3,'KsuJ')]=_0x10436d(0x23c,'1$bG'),_0x497977[_0x10436d(0x2f8,'#ioI')]=!![],_0x497977[_0x10436d(0x24a,'d0ay')]=_0x567245[_0x5635d4]!==undefined?_0x567245[_0x5635d4][_0x10436d(0x25d,'Sgwx')](0x2):0x0,_0x3913b3[_0x10436d(0x270,'(ycf')](_0x497977),_0x116bc4[_0x10436d(0x2f0,'wE1V')](_0x3913b3);const _0x3ebf64=document['createElement']('td'),_0x32cc06=document[_0x10436d(0x30e,'&qA]')]('button');_0x32cc06['textContent']=_0x10436d(0x220,'Z]kd'),_0x32cc06[_0x10436d(0x2b1,'dKDU')][_0x10436d(0x2dc,'ju)&')](_0x10436d(0x2da,'I9y%')),_0x32cc06[_0x10436d(0x28f,'gXMP')]=()=>openOptimizationModalEstimates(_0x4b3051,_0x310725),_0x3ebf64[_0x10436d(0x20e,'%rDm')](_0x32cc06),_0x116bc4[_0x10436d(0x20f,'a$dP')](_0x3ebf64),_0x2ae712[_0x10436d(0x2b6,'%9ZC')](_0x116bc4);});}else showNotification(_0x52d2d7(0x2d6,'SDEg'),![]);}if(typeof _0xc48e6b===_0x52d2d7(0x239,'nSJF')&&_0xc48e6b!==null){const _0x9ce78c=document[_0x52d2d7(0x285,'%rDm')](_0x52d2d7(0x1d0,'ju)&'));Array[_0x52d2d7(0x302,'%pOo')](_0x9ce78c[_0x52d2d7(0x1d1,'JXCv')])[_0x52d2d7(0x253,'Ni$K')](_0x358edb=>{const _0x42b96e=_0x52d2d7;let _0x5789b5=_0x358edb[_0x42b96e(0x25a,'&qA]')][0x0][_0x42b96e(0x2e8,'ju)&')](_0x42b96e(0x1e3,'SDEg'))?.[_0x42b96e(0x2d9,'yoeL')][_0x42b96e(0x243,']9F8')]()||'';const _0x3d191a=Object[_0x42b96e(0x2b4,'Y^Ze')](_0xc48e6b);let _0x452fd8;_0x5789b5[_0x42b96e(0x221,'&qA]')](_0x42b96e(0x2e9,'J2Rl'))?_0x452fd8=_0x5789b5:_0x452fd8='Produção\x20de\x20'+_0x5789b5;const _0x77d477=_0x3d191a[_0x42b96e(0x210,'t5]^')](_0x2628be=>_0x2628be[_0x42b96e(0x1fd,'OO2e')]===user[_0x42b96e(0x251,'cmPR')]&&_0x2628be[_0x42b96e(0x208,'Q&LR')]===_0x452fd8);let _0x44094a='',_0x1b1d8e=[],_0x3fec06=[],_0x2c50fe=[],_0x547b11=null;if(_0x77d477[_0x42b96e(0x2ad,'dKDU')]>0x0){_0x44094a=_0x42b96e(0x27a,'Ni$K')+_0x452fd8+':\x0a';const _0x1bf0d3=document[_0x42b96e(0x1cf,'Xdwe')](_0x42b96e(0x2a0,'cd0g'));let _0x13dc9a=-0x1;_0x1bf0d3[_0x42b96e(0x286,'%m0l')]((_0x3552a9,_0x4fd9b0)=>{const _0x44cdbb=_0x42b96e,_0x2e2096=document[_0x44cdbb(0x1da,'Eb%f')](_0x44cdbb(0x306,'Z]kd'))[_0x4fd9b0][_0x44cdbb(0x223,'hru@')][0x0]['textContent'][_0x44cdbb(0x1e1,'Y7WK')]();_0x2e2096===_0x5789b5&&(_0x13dc9a=_0x4fd9b0);});if(_0x13dc9a===-0x1){showNotification(_0x42b96e(0x29e,'Sgwx')+_0x5789b5+_0x42b96e(0x2bf,'t5]^'),![]);return;}let _0x23805b=0x0;for(const _0xb64a8d of _0x77d477){_0x23805b=_0x23805b+parseInt(_0xb64a8d[_0x42b96e(0x22f,'ju)&')]),console[_0x42b96e(0x2fa,'t5]^')](_0x42b96e(0x2f3,'pj0!')),console[_0x42b96e(0x307,'Q&LR')](_0xb64a8d[_0x42b96e(0x240,'hru@')]),totalSocialWorkDessaJurisdicao+=_0xb64a8d['producaoMeta'][0x0][_0x42b96e(0x2ef,'wE1V')]*_0xb64a8d['effectivelyPlannedProductionTime'];}console[_0x42b96e(0x2d4,'OO2e')](_0x42b96e(0x25b,'Urad')),console[_0x42b96e(0x1dc,'aIlM')](totalSocialWorkDessaJurisdicao);for(const _0x21e9dc of _0x77d477){_0x21e9dc['vetorDemanda']=[],_0x21e9dc['vetorProposta']=[];Array[_0x42b96e(0x1ee,'ju)&')](_0x21e9dc[_0x42b96e(0x21e,'I9y%')])&&(_0x21e9dc[_0x42b96e(0x255,'Ni$K')]=_0x21e9dc[_0x42b96e(0x228,'#ioI')][_0x42b96e(0x2bd,'SDEg')](_0x6795f8=>_0x6795f8[_0x42b96e(0x234,'Y^Ze')]));_0x21e9dc['limiteEfetivoTrabalhadores']!==undefined&&_0x21e9dc[_0x42b96e(0x205,'wE1V')]&&(_0x21e9dc[_0x42b96e(0x2cb,'vX%0')]=[_0x21e9dc['limiteEfetivoTrabalhadores'],_0x21e9dc[_0x42b96e(0x26e,'SDEg')]['workerHours'],_0x21e9dc[_0x42b96e(0x21f,'Y7WK')][_0x42b96e(0x23f,'Urad')],Number(_0x21e9dc[_0x42b96e(0x205,'wE1V')][_0x42b96e(0x305,'%9ZC')]),_0x21e9dc[_0x42b96e(0x1ef,'ju)&')][_0x42b96e(0x2fb,'%m0l')]]);const _0x14bcf0=_0x21e9dc['vetorTecnologico'],_0x1748bf=_0x21e9dc[_0x42b96e(0x219,'1$bG')],_0x5b3383=_0x21e9dc[_0x42b96e(0x1fc,'%rDm')],_0x7191b0=parseFloat(_0x21e9dc[_0x42b96e(0x217,'pj0!')]),_0x5edbc1=_0x7191b0/_0x23805b,_0x3022df=_0x14bcf0['map'](_0x598b61=>(_0x598b61*_0x5edbc1)['toFixed'](0x2)),_0x20cf94=_0x1748bf[_0x42b96e(0x2c5,'%9ZC')](_0x4da53b=>(_0x4da53b*_0x5edbc1)[_0x42b96e(0x29d,'ju)&')](0x2)),_0x1bff42=_0x5b3383[_0x42b96e(0x2a9,'RiA%')](_0x643494=>(_0x643494*_0x5edbc1)['toFixed'](0x2));_0x1bff42[0x0]=_0x23805b;_0x1b1d8e['length']===0x0?_0x1b1d8e=_0x3022df[_0x42b96e(0x30d,'6MeZ')](_0x1bca90=>parseFloat(_0x1bca90)):_0x1b1d8e=_0x1b1d8e[_0x42b96e(0x2e5,'yoeL')]((_0x1f7eeb,_0xd18068)=>_0x1f7eeb+parseFloat(_0x3022df[_0xd18068]));_0x3fec06[_0x42b96e(0x2b0,'ju)&')]===0x0?_0x3fec06=_0x20cf94['map'](_0x3049e0=>parseFloat(_0x3049e0)):_0x3fec06=_0x3fec06[_0x42b96e(0x28a,'(ycf')]((_0x4c86c4,_0x575e0e)=>_0x4c86c4+parseFloat(_0x20cf94[_0x575e0e]));_0x2c50fe[_0x42b96e(0x28e,'Ni$K')]===0x0?_0x2c50fe=_0x1bff42[_0x42b96e(0x297,'JXCv')](_0x24c67f=>parseFloat(_0x24c67f)):_0x2c50fe=_0x2c50fe[_0x42b96e(0x2db,'*%)h')]((_0x5d3d52,_0x155302)=>_0x5d3d52+parseFloat(_0x1bff42[_0x155302]));_0x44094a+=_0x42b96e(0x2f9,'Ni$K')+_0x14bcf0[_0x42b96e(0x278,'%9ZC')](',\x20')+'\x0a',_0x44094a+=_0x42b96e(0x2a2,'wE1V')+_0x5edbc1[_0x42b96e(0x2bb,'yoeL')](0x2)+'\x0a',_0x44094a+=_0x42b96e(0x2f2,'(ycf')+_0x3022df[_0x42b96e(0x1d4,']zXD')](',\x20')+'\x0a';const _0x46d0cc=_0x1b1d8e[_0x42b96e(0x2ed,'K**1')](_0x39f979=>(_0x39f979/_0x77d477[_0x42b96e(0x25f,'Y^Ze')])[_0x42b96e(0x2d5,'zc4q')](0x2));_0x44094a+='Média\x20Ponderada\x20dos\x20Vetores\x20Tecnológicos:\x20'+_0x46d0cc[_0x42b96e(0x272,'Y^Ze')](',\x20');const _0x236864=_0x3fec06['map'](_0x1c72a6=>(_0x1c72a6/_0x77d477['length'])[_0x42b96e(0x2b2,'Y^Ze')](0x2));_0x44094a+=_0x42b96e(0x289,'3)^%')+_0x236864[_0x42b96e(0x233,'H!#B')](',\x20');const _0x3ecddc=_0x2c50fe[_0x42b96e(0x2e5,'yoeL')](_0x6aae0e=>(_0x6aae0e/_0x77d477['length'])[_0x42b96e(0x1e4,'%9ZC')](0x2));_0x3ecddc[0x0]=Math[_0x42b96e(0x298,'%9ZC')](_0x23805b),_0x3ecddc[0x1]=parseFloat(_0x3ecddc[0x1]),_0x3ecddc[0x2]=parseFloat(_0x3ecddc[0x2]),_0x3ecddc[0x3]=Boolean(Math[_0x42b96e(0x24d,'nSJF')](_0x3ecddc[0x3])),_0x3ecddc[0x4]=Math[_0x42b96e(0x2a5,'(ycf')](_0x3ecddc[0x4]),_0x44094a+='Média\x20Ponderada\x20dos\x20Vetores\x20Propostas:\x20'+_0x3ecddc[_0x42b96e(0x1ca,'Z]kd')](',\x20');if(_0x21e9dc[_0x42b96e(0x209,'d0ay')]&&Array[_0x42b96e(0x229,'(ycf')](_0x21e9dc[_0x42b96e(0x2c3,'Sgwx')])){const _0x485438=document[_0x42b96e(0x27b,'JXCv')](_0x42b96e(0x301,'JXCv')),_0x376fd6=document[_0x42b96e(0x26b,'Z]kd')](_0x42b96e(0x1ce,'Y7WK'));_0x485438[_0x42b96e(0x258,'dKDU')]['length']>=_0x46d0cc[_0x42b96e(0x25f,'Y^Ze')]+0x1?_0x21e9dc['estoqueDemanda'][_0x42b96e(0x2af,'3)^%')]((_0x18f2c7,_0x537f17)=>{const _0x115f56=_0x42b96e,_0xc6b5b4=_0x18f2c7[_0x115f56(0x287,'vX%0')][_0x115f56(0x279,'K**1')](),_0x10e711=Array[_0x115f56(0x303,'pj0!')](_0x485438[_0x115f56(0x260,'I9y%')])[_0x115f56(0x22a,'6MeZ')](_0x3ebec7=>_0x3ebec7[_0x115f56(0x245,'%m0l')][0x0][_0x115f56(0x249,'6MeZ')]('input')['value'][_0x115f56(0x279,'K**1')]()===_0xc6b5b4),_0x51c348=Array['from'](_0x376fd6[_0x115f56(0x22b,'6MeZ')])[_0x115f56(0x1e7,'nSJF')](_0x45c4c2=>_0x45c4c2[_0x115f56(0x2e4,'6MeZ')][0x0][_0x115f56(0x2ba,'&qA]')][_0x115f56(0x22d,'t5]^')]()===_0xc6b5b4),_0x593767=document['getElementById']('inputTable')[_0x115f56(0x207,'H!#B')](_0x115f56(0x20d,'Eb%f')),_0x54933c=_0x593767['querySelectorAll'](_0x115f56(0x265,']zXD')),_0x4331e4=Array[_0x115f56(0x263,'&qA]')](_0x54933c)[_0x115f56(0x1e0,'*%)h')](_0x36b42e=>_0x36b42e[_0x115f56(0x2be,'Urad')][_0x115f56(0x1e5,'#ioI')](_0x452fd8))+0x1;_0x10e711&&_0x10e711['cells'][_0x4331e4]?.[_0x115f56(0x2a7,'JXCv')](_0x115f56(0x281,'bviQ'))?(_0x10e711['cells'][_0x4331e4][_0x115f56(0x2e8,'ju)&')](_0x115f56(0x202,']zXD'))[_0x115f56(0x254,'wE1V')]=_0x46d0cc[_0x537f17],_0x51c348[_0x115f56(0x236,'Eb%f')][0x1]['querySelector'](_0x115f56(0x244,'K**1'))[_0x115f56(0x2d9,'yoeL')]=_0x236864[_0x537f17],document[_0x115f56(0x241,'Ni$K')](_0x115f56(0x250,'1$bG'))[_0x115f56(0x2ff,'SDEg')]=_0x3ecddc[0x0],document['getElementById'](_0x115f56(0x2e3,'#ioI'))[_0x115f56(0x1dd,'6MeZ')]=_0x3ecddc[0x1],document[_0x115f56(0x2c6,'cd0g')](_0x115f56(0x1ff,'zc4q'))['value']=_0x3ecddc[0x2],document[_0x115f56(0x2cd,'1$bG')](_0x115f56(0x2b8,'SDEg'))['checked']=_0x3ecddc[0x3],document[_0x115f56(0x295,'^8Wd')](_0x115f56(0x259,'RiA%'))[_0x115f56(0x300,'cmPR')]=_0x3ecddc[0x4],currentProductIndex=_0x13dc9a,setTimeout(()=>{saveOptimizationInputs();},0xbb8)):showNotification(_0x115f56(0x24f,'J2Rl')+_0xc6b5b4+',\x20pois\x20é\x20um\x20bem\x20de\x20produção\x20do\x20setor\x20'+_0x452fd8+'.',![]);}):(_0x44094a=_0x42b96e(0x294,'6MeZ')+_0x452fd8+_0x42b96e(0x1cb,'hru@')+(_0x46d0cc['length']+0x1)+_0x42b96e(0x1f0,'Urad'),showNotification(_0x44094a,![]));}}}else{}console[_0x42b96e(0x26d,'Xdwe')](_0x44094a);});}else console['error'](_0x52d2d7(0x276,'a$dP')),alert(_0x52d2d7(0x2b5,'ju)&'));}catch(_0xacbe8f){console['error']('Erro\x20ao\x20buscar\x20vetores\x20tecnológicos:',_0xacbe8f),alert('Ocorreu\x20um\x20erro\x20ao\x20buscar\x20os\x20vetores\x20tecnológicos.\x20Por\x20favor,\x20tente\x20novamente.');}}function _0x8a56(_0x402226,_0x373b6e){const _0x150a58=_0x150a();return _0x8a56=function(_0x8a5667,_0x2da7ac){_0x8a5667=_0x8a5667-0x1c8;let _0x627671=_0x150a58[_0x8a5667];if(_0x8a56['QZxMNZ']===undefined){var _0x2e0e9c=function(_0x3a3ea5){const _0x5c5052='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x31637f='',_0xf639b1='';for(let _0x14c72e=0x0,_0x4bb431,_0x4ab185,_0x31357d=0x0;_0x4ab185=_0x3a3ea5['charAt'](_0x31357d++);~_0x4ab185&&(_0x4bb431=_0x14c72e%0x4?_0x4bb431*0x40+_0x4ab185:_0x4ab185,_0x14c72e++%0x4)?_0x31637f+=String['fromCharCode'](0xff&_0x4bb431>>(-0x2*_0x14c72e&0x6)):0x0){_0x4ab185=_0x5c5052['indexOf'](_0x4ab185);}for(let _0x9b0c86=0x0,_0x1f2960=_0x31637f['length'];_0x9b0c86<_0x1f2960;_0x9b0c86++){_0xf639b1+='%'+('00'+_0x31637f['charCodeAt'](_0x9b0c86)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0xf639b1);};const _0x5d5e76=function(_0x346d5c,_0x4b2dbd){let _0x3cb590=[],_0x57ff36=0x0,_0x424825,_0x5d0fcf='';_0x346d5c=_0x2e0e9c(_0x346d5c);let _0x2ac875;for(_0x2ac875=0x0;_0x2ac875<0x100;_0x2ac875++){_0x3cb590[_0x2ac875]=_0x2ac875;}for(_0x2ac875=0x0;_0x2ac875<0x100;_0x2ac875++){_0x57ff36=(_0x57ff36+_0x3cb590[_0x2ac875]+_0x4b2dbd['charCodeAt'](_0x2ac875%_0x4b2dbd['length']))%0x100,_0x424825=_0x3cb590[_0x2ac875],_0x3cb590[_0x2ac875]=_0x3cb590[_0x57ff36],_0x3cb590[_0x57ff36]=_0x424825;}_0x2ac875=0x0,_0x57ff36=0x0;for(let _0x42d118=0x0;_0x42d118<_0x346d5c['length'];_0x42d118++){_0x2ac875=(_0x2ac875+0x1)%0x100,_0x57ff36=(_0x57ff36+_0x3cb590[_0x2ac875])%0x100,_0x424825=_0x3cb590[_0x2ac875],_0x3cb590[_0x2ac875]=_0x3cb590[_0x57ff36],_0x3cb590[_0x57ff36]=_0x424825,_0x5d0fcf+=String['fromCharCode'](_0x346d5c['charCodeAt'](_0x42d118)^_0x3cb590[(_0x3cb590[_0x2ac875]+_0x3cb590[_0x57ff36])%0x100]);}return _0x5d0fcf;};_0x8a56['aWwTBL']=_0x5d5e76,_0x402226=arguments,_0x8a56['QZxMNZ']=!![];}const _0x183a4c=_0x150a58[0x0],_0x5be579=_0x8a5667+_0x183a4c,_0x16d394=_0x402226[_0x5be579];return!_0x16d394?(_0x8a56['RcCPkf']===undefined&&(_0x8a56['RcCPkf']=!![]),_0x627671=_0x8a56['aWwTBL'](_0x627671,_0x2da7ac),_0x402226[_0x5be579]=_0x627671):_0x627671=_0x16d394,_0x627671;},_0x8a56(_0x402226,_0x373b6e);}function performOptimization(_0x42dd4d){const _0x20477a=_0x8a56,_0x4b431f=optimizationInputs[_0x42dd4d];if(!_0x4b431f)return;const {productionGoal:_0x3113ba,workerLimit:_0x50d769,workerHours:_0x3355d7,productionTime:_0x51c8ee,weeklyScale:_0x4bd3f6,nightShift:_0x436ac0}=_0x4b431f;if(!_0x50d769||_0x50d769<=0x0){const _0x132e1e=getProductNames()[_0x42dd4d];return;}const _0x3f91b0=_0x51c8ee*_0x3113ba,_0xa02c63=_0x4bd3f6*_0x3355d7,_0x53303b=Math['ceil'](_0x3f91b0/_0xa02c63),_0x4a01f5=_0x50d769*_0x3355d7,_0xacf12=Math['ceil'](_0x3f91b0/_0x4a01f5),_0x1b03e4=_0x436ac0?_0x4a01f5*0x2:_0x4a01f5,_0x238ed7=_0x1b03e4*_0x4bd3f6/0x7,_0x53aa2b=Math['ceil'](_0x3f91b0/_0x238ed7),_0x1a1206=Math[_0x20477a(0x1c9,'Y7WK')](_0x3f91b0/_0x1b03e4),_0x13a0c9=Math[_0x20477a(0x201,'wE1V')](_0x1a1206/_0x4bd3f6),_0x2c5f70=_0x1a1206%_0x4bd3f6,_0x577872=_0x436ac0?0x18:0xc,_0x5948ca=_0x53aa2b/0x18,_0x276815=Math['ceil'](_0x3f91b0/(_0x577872*_0x50d769*_0x5948ca));let _0x596d36;_0x1a1206<_0x4bd3f6?_0x596d36=_0x1a1206+_0x20477a(0x25c,'3)^%'):_0x596d36=formatDays(_0x1a1206*0x18);const _0x586b95=document[_0x20477a(0x2e8,'ju)&')](_0x20477a(0x1ec,'a$dP')),_0x2d28de=_0x586b95?.['rows'][_0x42dd4d+0x1],_0x1858f8=_0x2d28de?parseFloat(_0x2d28de[_0x20477a(0x2e7,'a$dP')][0x1][_0x20477a(0x24c,'hru@')]['trim']())*0x3e8:0x0;optimizationResults[_0x42dd4d]={'totalHours':_0x3f91b0,'workersNeeded':_0x53303b,'factoriesNeeded':_0x276815,'totalShifts':_0xacf12,'minimumProductionTime':_0x53aa2b,'totalEmploymentPeriod':_0x596d36,'weeklyScale':_0x4bd3f6,'plannedFinalDemand':_0x1858f8};}
+function planify() {
+    const resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = "";
+
+    try {
+        const techMatrix = makeSquareMatrix(getTableData());
+        const adjustedDemand = adjustDemandVector(getFinalDemand(), techMatrix.length);
+        const identityMatrix = math.identity(techMatrix.length)._data;
+        const iMinusA = math.subtract(identityMatrix, techMatrix);
+        const inverseIMinusA = math.inv(iMinusA);
+        const productionVector = math.multiply(inverseIMinusA, adjustedDemand);
+
+        const productNames = getProductNames();
+        resultDiv.innerHTML = `
+            <table>
+                <thead>
+                    <tr>
+                        <th>Produto</th>
+                        <th>Produção Necessária para Atender a Demanda Final (mil)</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${productionVector.map((val, i) => {
+                        const hasOptimization = isOptimizationDataComplete(i); // Validação aqui
+                        return `
+                            <tr>
+                                <td>${productNames[i]}</td>
+                                <td>${val.toFixed(2)}</td>
+                                <td>
+                                    ${hasOptimization ? 
+                                    `<button onclick="openOptimizationResultModal(${i})">Otimização</button>` : 
+                                    `<button disabled>Otimização Não Disponível</button>`}
+                                </td>
+                            </tr>
+                        `;
+                    }).join('')}
+                </tbody>
+            </table>
+        `;
+
+        // Define a meta de produção e executa a otimização para cada produto com dados completos
+        productionVector.forEach((value, index) => {
+            if (isOptimizationDataComplete(index)) {
+                optimizationInputs[index].productionGoal = value * 1000; // Define a meta
+                performOptimization(index); // Executa a otimização
+                updateOptimizeButtonColor(index); // Atualiza o botão após a otimização
+            }
+        });
+
+        // Formatação da matriz e vetor para exibição
+        const formattedMatrix = JSON.stringify(techMatrix, null, 2);
+        const formattedVector = JSON.stringify(adjustedDemand, null, 2);
+
+        // Preenche os elementos na modal
+        document.getElementById('matrixModalOutput').textContent = formattedMatrix;
+        document.getElementById('vectorModalOutput').textContent = formattedVector;
+
+        // Marca que a planificação foi feita e exibe o título e o botão
+        isPlanified = true;
+        togglePlanificationElements();
+
+        // Rolagem suave para o título "Planificação Otimizada"
+        const planificationTitle = document.getElementById('planificationTitle'); // Seleciona o título "Planificação Otimizada"
+        const infobar = document.getElementById('infoBar'); // Seleciona a infobar
+
+        if (planificationTitle) {
+            const infobarHeight = infobar ? infobar.offsetHeight : 0; // Calcula a altura da infobar
+            const planificationTitlePosition = planificationTitle.getBoundingClientRect().top + window.scrollY; // Posição do título na página
+            const targetPosition = planificationTitlePosition - infobarHeight; // Compensa a altura da infobar
+
+            // Rola suavemente para a posição ajustada
+            window.scrollTo({
+                top: targetPosition,
+                behavior: 'smooth',
+            });
+        }
+
+
+    } catch (error) {
+        resultDiv.innerHTML = `<p class="error-message">Erro: ${error.message}</p>`;
+    }
+}
+
+//COLOCAR AQUI NESSA FUNÇÃO TRECHO QUE, SEJA O CONSELHO QUE FOR, SOMA A CADA SUB-CONSELHO (COMEÇANDO DE ZERO) O TRABALHO SOCIAL TOTAL REALIZADO, ASSIM NO CONSELHO MUNDIAL, AO EXECUTAR ESSA FUNÇÃO, JÁ TEM SEMPRE O VALOR DO TRABALHO SOCIAL TOTAL ATUALIZADO. COMO CONSEGUE O TRABALHO TOTAL REALIZADO DE UM CONSELHO? VEM DE QUAL ATRIBUTO?
+async function fetchEstimates() {
+		
+	if (!confirm("Alguns dados da Matriz Tecnológica atual serão perdidos e substituídos por dados da estimativa calculada. Tem certeza que deseja prosseguir?")) {
+		return; // Sai da função se o usuário desistir
+	}
+		
+    try {
+        const response = await fetch(apiUrl, {
+			method: 'GET',
+			headers: headers
+		});
+
+
+        if (!response.ok) {
+            throw new Error("Erro ao buscar dados do JSONBIN.");
+        }
+
+        const data = await response.json();
+
+// Adição para processar matrizes tecnológicas dos Conselhos acima do Distrital
+if (!user.instancePrepositionJurisdictionUUID.includes("Distrital") && !user.instancePrepositionJurisdictionUUID.includes("Comitê")) {
+    const recordsArray = Object.values(data);
+    const relevantMatrices = recordsArray.filter(item => 
+        item.conselhoPopularAssociadoDeConselhoPopular === user.instancePrepositionJurisdictionUUID &&
+        item.inputTable
+    );
+	
+	
+
+    if (relevantMatrices.length > 0) {
+        const productSet = new Set();
+        const averagedMatrix = {};
+        const demandVector = {};
+        const optimizationInputs = []; // Array para armazenar os dados para cada produto
+
+        // Lista todos os produtos sem redundância e também calcula o trabalho social total em conselhos supradistritais
+        relevantMatrices.forEach(matrix => {
+            matrix.productNames.forEach(productName => productSet.add(productName)); //productSet acaba com a redundância que existe aqui nessa iteração
+
+			//Soma o Trabalho Social Total da jurisdição do respectivo Conselho Supradistrital (não Comitês nem Conselhos Distritais, que já está feito e calculando corretamente). Serve para todos os supradistritais até o Conselho Mundial
+			totalSocialWorkDessaJurisdicao += matrix.totalSocialWorkDessaJurisdicao;
+			
+			console.info("totalSocialWorkDessaJurisdicao += matrix.totalSocialWorkDessaJurisdicao;");
+			console.log(totalSocialWorkDessaJurisdicao);
+			
+        });
+
+        const productList = Array.from(productSet); // Lista ordenada de produtos
+
+        // Calcula médias para cada combinação de produto e setor
+        productList.forEach((productName, productIndex) => {
+            relevantMatrices.forEach(matrix => {
+                const matrixProductIndex = matrix.productNames.indexOf(productName);
+				
+				if (matrixProductIndex !== -1) {
+				
+                    // Cálculo da matriz tecnológica
+                    matrix.inputTable[matrixProductIndex].forEach((value, sectorIndex) => {
+                        const sectorName = matrix.productNames[sectorIndex].includes("Rede") ? matrix.productNames[sectorIndex] : `Produção de ${matrix.productNames[sectorIndex]}`;
+                        const key = `${productName}:${sectorName}`;
+                        if (!averagedMatrix[key]) {
+                            averagedMatrix[key] = { sum: 0, count: 0 };
+                        }
+                        if (value !== undefined && value !== null) {
+							
+							//alert("averagedMatrix[key].sum += parseFloat(value);");
+							//ENTROU. CADA CONSELHO FAZER SUA SOMA COM BASE NA VARIAVEL DOS CONSELHOS ABAIXO (SO SOMAR TUDO QUE VEM DE BAIXO, 1 VEZ POR CONSELHO (IF SE CONSELHO É DIFERENTE DO ANTERIOR, PRA VER SE JA MUDOU) E COLOCAR NA VARIAVEL
+							//OPTIMIZATIONINPUTS[PRODUCTINDEX] DO CONSELHO (DATA. OU MATRIX. OU ALGO DO TIPO QUE CARREGOU NESSA ITERAÇÃO, MAS ANTES CARREGAVA SO COMITE, VE SE CARREGA CONSELHO COM CONSELHOASSOCIADODECONSELHO IGUAL AO DO USUARIO ATUAL) MULTIPLICADO PELO QUE JÁ FOI PRODUZIDO ATÉ ESSA JURISDIÇÃO
+							
+							//console.info("matrix: ");
+							//console.log(matrix);
+							
+                            averagedMatrix[key].sum += parseFloat(value);
+                            averagedMatrix[key].count += 1;
+                        }
+                    });
+
+                    // Cálculo do vetor de demanda
+                    const demandValue = matrix.finalDemand[matrixProductIndex];
+                    if (!demandVector[productName]) {
+                        demandVector[productName] = { sum: 0, count: 0 };
+                    }
+                    if (demandValue !== undefined && demandValue !== null) {
+						
+						//alert("demandVector[productName].sum += parseFloat(demandValue);");
+						//ENTROU. CADA CONSELHO FAZER SUA SOMA COM BASE NA VARIAVEL DOS CONSELHOS ABAIXO (SO SOMAR TUDO QUE VEM DE BAIXO, 1 VEZ POR CONSELHO (IF SE CONSELHO É DIFERENTE DO ANTERIOR, PRA VER SE JA MUDOU) E COLOCAR NA VARIAVEL
+						//OPTIMIZATIONINPUTS[PRODUCTINDEX] DO CONSELHO (DATA. OU MATRIX. OU ALGO DO TIPO QUE CARREGOU NESSA ITERAÇÃO, MAS ANTES CARREGAVA SO COMITE, VE SE CARREGA CONSELHO COM CONSELHOASSOCIADODECONSELHO IGUAL AO DO USUARIO ATUAL) MULTIPLICADO PELO QUE JÁ FOI PRODUZIDO ATÉ ESSA JURISDIÇÃO
+						
+						//Entra quando é Comitê ou Conselho
+						//totalSocialWorkDessaJurisdicao já está calculado certo e salvo nos conselhos distritais abaixo
+						
+                        demandVector[productName].sum += parseFloat(demandValue);
+                        demandVector[productName].count += 1;						
+					}
+				}
+			});
+
+            // Inicializa os campos para cálculo das médias dos campos exibidos na janela modal
+            let totalWorkerLimit = 0, countWorkerLimit = 0;
+            let totalWorkerHours = 0, countWorkerHours = 0;
+            let totalProductionTime = 0, countProductionTime = 0;
+            let totalWeeklyScale = 0, countWeeklyScale = 0;
+			let totalNightShift = 0, countNightShift = 0;
+
+            // Calcula as médias para os campos exibidos na janela modal
+            relevantMatrices.forEach(matrix => {
+                let matrixProductIndex = matrix.productNames.indexOf(productName);
+
+				//console.info("matrixProductIndex: ");
+				//console.log(matrixProductIndex);
+
+                if (matrixProductIndex !== -1) {
+
+					//console.info("matrix: ");
+					//console.log(matrix);
+
+                    let workerLimit = matrix.optimizationInputs[matrixProductIndex]?.workerLimit;
+                    let workerHours = matrix.optimizationInputs[matrixProductIndex]?.workerHours;
+                    let productionTime = matrix.optimizationInputs[matrixProductIndex]?.productionTime;
+                    let weeklyScale = matrix.optimizationInputs[matrixProductIndex]?.weeklyScale;
+					let nightShift = Number(matrix.optimizationInputs[matrixProductIndex]?.nightShift);
+					
+					
+					//console.info("workerLimit: ");
+					//console.log(workerLimit);
+					//console.info("workerHours: ");
+					//console.log(workerHours);
+					//console.info("productionTime: ");
+					//console.log(productionTime);
+					//console.info("weeklyScale: ");
+					//console.log(weeklyScale);
+
+                    if (workerLimit !== undefined && workerLimit !== null) {
+                        totalWorkerLimit += parseFloat(workerLimit);
+                        countWorkerLimit++;
+                    }
+
+                    if (workerHours !== undefined && workerHours !== null) {
+                        totalWorkerHours += parseFloat(workerHours);
+                        countWorkerHours++;
+                    }
+
+                    if (productionTime !== undefined && productionTime !== null) {
+                        totalProductionTime += parseFloat(productionTime);
+                        countProductionTime++;
+                    }
+
+                    if (weeklyScale !== undefined && weeklyScale !== null) {
+                        totalWeeklyScale += parseFloat(weeklyScale);
+                        countWeeklyScale++;
+                    }
+					
+					 if (nightShift !== undefined && nightShift !== null) {
+                        totalNightShift += parseFloat(nightShift);
+                        countNightShift++;
+                    }
+                }
+            });
+
+            // Adiciona os valores calculados ao array de inputs de otimização
+            optimizationInputs[productIndex] = {
+                workerLimit: countWorkerLimit > 0 ? (totalWorkerLimit / countWorkerLimit).toFixed(2) : '',
+                workerHours: countWorkerHours > 0 ? (totalWorkerHours / countWorkerHours).toFixed(2) : '',
+                productionTime: countProductionTime > 0 ? (totalProductionTime / countProductionTime).toFixed(2) : '',
+                weeklyScale: countWeeklyScale > 0 ? (totalWeeklyScale / countWeeklyScale).toFixed(2) : '',
+				nightShift: countNightShift > 0 ? Boolean(Math.round((totalNightShift / countNightShift).toFixed(2))) : false,
+            };
+        });
+
+        // Calcula os valores finais da matriz tecnológica
+        Object.keys(averagedMatrix).forEach(key => {
+            averagedMatrix[key] = averagedMatrix[key].count > 0
+                ? averagedMatrix[key].sum / averagedMatrix[key].count
+                : 0; // Preenche com 0 se não houver dados
+        });
+
+        // Calcula os valores finais do vetor de demanda
+        Object.keys(demandVector).forEach(key => {
+            demandVector[key] = demandVector[key].count > 0
+                ? demandVector[key].sum / demandVector[key].count
+                : 0; // Preenche com 0 se não houver dados
+        });
+
+        // Atualiza a tabela de matriz tecnológica
+        const inputTable = document.getElementById('inputTable');
+        const thead = inputTable.querySelector('thead');
+        const tbody = inputTable.querySelector('tbody');
+
+        // Cria cabeçalho com base na lista de produtos
+        thead.innerHTML = '<tr><th>Produtos / Setores Produtivos</th></tr>';
+        productList.forEach((productName, index) => {
+            const sectorHeader = document.createElement('th');
+            const sectorInput = document.createElement('input');
+            sectorInput.type = 'text';
+            sectorInput.value = productName.includes("Rede") ? productName : `Produção de ${productName}`;
+            sectorInput.readOnly = true;
+            addTooltipBehavior(sectorInput); // Adiciona o comportamento de tooltip
+            sectorHeader.appendChild(sectorInput);
+            thead.querySelector('tr').appendChild(sectorHeader);
+        });
+
+        // Preenche linhas e células com os valores consolidados
+        tbody.innerHTML = '';
+        productList.forEach((productName, rowIndex) => {
+            const row = document.createElement('tr');
+
+            // Primeira célula: nome do produto com funcionalidade de edição
+            const productCell = document.createElement('td');
+            const productInput = document.createElement('input');
+            productInput.type = 'text';
+            productInput.value = productName;
+
+            // Sincroniza o nome do produto com o título do setor
+            productInput.oninput = () => {
+                const correspondingHeader = thead.querySelectorAll('th')[rowIndex + 1]; // +1 para ignorar a coluna de produtos
+                if (correspondingHeader) {
+                    const headerInput = correspondingHeader.querySelector('input');
+                    headerInput.value = productInput.value.includes("Rede") ? productInput.value : `Produção de ${productInput.value}`;
+                }
+            };
+
+            // Ajusta o cursor para o final do texto
+            productInput.addEventListener('focus', () => {
+                productInput.setSelectionRange(productInput.value.length, productInput.value.length);
+            });
+
+            productCell.appendChild(productInput);
+            row.appendChild(productCell);
+
+            // Outras células: valores médios ou "0"
+            productList.forEach(targetProductName => {
+                const cell = document.createElement('td');
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.readOnly = true;
+
+                const key = `${productName}:${targetProductName.includes("Rede") ? targetProductName : `Produção de ${targetProductName}`}`;
+                input.value = averagedMatrix[key] !== undefined ? averagedMatrix[key].toFixed(2) : 0;
+                cell.appendChild(input);
+                addHighlightBehavior(cell); // Adiciona o comportamento de destaque
+                row.appendChild(cell);
+            });
+
+            tbody.appendChild(row);
+        });
+
+		// Atualiza os valores de "Número de produtos" e "Número de Setores Produtivos"
+		const numRows = document.getElementById('numRows'); // Campo "Número de produtos"
+		const numCols = document.getElementById('numCols'); // Campo "Número de Setores Produtivos"
+
+		// Obtém o número de linhas (produtos) e colunas (setores) da tabela "Matriz Tecnológica"
+		const numProducts = tbody.querySelectorAll('tr').length; // Número de linhas
+		const numSectors = thead.querySelector('tr').querySelectorAll('th').length - 1; // Número de colunas, excluindo a coluna "Produtos / Setores Produtivos"
+
+		// Atualiza os campos com os valores calculados
+		if (numRows) numRows.value = numProducts;
+		if (numCols) numCols.value = numSectors;
+
+        // Atualiza a tabela de demanda final com botões "Otimizar"
+        const demandTableBody = document.getElementById('finalDemandInputs');
+        demandTableBody.innerHTML = '';
+        productList.forEach((productName, index) => {
+            const row = document.createElement('tr');
+
+            // Primeira célula: nome do produto
+            const productCell = document.createElement('td');
+            productCell.textContent = productName;
+            row.appendChild(productCell);
+
+            // Segunda célula: valor de demanda
+            const demandCell = document.createElement('td');
+            const demandInput = document.createElement('input');
+            demandInput.type = 'number';
+            demandInput.readOnly = true;
+            demandInput.value = demandVector[productName] !== undefined ? demandVector[productName].toFixed(2) : 0;
+            demandCell.appendChild(demandInput);
+            row.appendChild(demandCell);
+
+            // Terceira célula: Botão "Otimizar"
+            const actionsCell = document.createElement('td');
+            const optimizeButton = document.createElement('button');
+            optimizeButton.textContent = 'Otimizar';
+            optimizeButton.classList.add('optimize-button');
+			//console.info("optimizationInputs: ");
+			//console.log(optimizationInputs);
+            optimizeButton.onclick = () => openOptimizationModalEstimates(index, optimizationInputs);
+            actionsCell.appendChild(optimizeButton);
+            row.appendChild(actionsCell);
+
+            // Adiciona a linha à tabela
+            demandTableBody.appendChild(row);
+        });
+    } else {
+        showNotification("Nenhuma matriz tecnológica encontrada para os Conselhos abaixo do seu.", false);
+    }
+}
+// Fim da adição
+
+
+        if (typeof data === 'object' && data !== null) {
+            const inputTechnologicalMatrixTableBody = document.getElementById('inputTechnologicalMatrixTableBody');
+            Array.from(inputTechnologicalMatrixTableBody.rows).forEach(row => { //Iteração das linhas da matriz tecnológica
+                let productName = row.cells[0].querySelector('input')?.value.trim() || '';
+
+                const recordsArray = Object.values(data);
+
+                let setorUnidade;
+				
+				if (productName.includes("Rede")) {
+					setorUnidade = productName;
+				} else {
+					setorUnidade = `Produção de ${productName}`;
+				}
+
+				//toda vez que itera linha de matriz tecnológica itera as colunas pra achar a do produto atual que pertence ao vetor de demanda do comitê. filteredRecords é a lista de unidades de produção de cada setor que está sendo iterado. é a lista do setor iterado dessa vez.
+                const filteredRecords = recordsArray.filter(item => 
+                    item.conselhoPopularAssociadoDeComiteOuTrabalhador === user.instancePrepositionJurisdictionUUID && //QUANDO FOR CONSELHO CONSULTANDO CONSELHO USARÁ item.conselhoPopularAssociadoDeConselhoPopular
+                    item.setorUnidade === setorUnidade
+                );
+
+                let resultMessage = "";
+                let summedTechnologicalVectors = [];
+				let summedDemandVectors = [];
+				let summedProposalVectors = [];
+                let workerLimit = null;
+
+				//console.info("filteredRecords: ");
+				//console.log(filteredRecords);
+
+                if (filteredRecords.length > 0) {
+                    resultMessage = `Vetores Tecnológicos do setor ${setorUnidade}:\n`;
+
+                    const demandaFinalInputs = document.querySelectorAll('#finalDemandInputs input[type="number"]');
+                    let productIndex = -1;
+
+                    demandaFinalInputs.forEach((input, index) => {
+                        const produtoNome = document.querySelectorAll('#finalDemandInputs tr')[index].cells[0].textContent.trim();
+                        if (produtoNome === productName) { //Achando a coluna da matriz tecnológica que está o setor
+                            productIndex = index;							
+                        }
+                    });
+
+                    if (productIndex === -1) {
+                        showNotification(`Cadastre o produto ${productName} nesse Conselho!`, false);
+                        return;
+                    }
+
+					let limiteEfetivoTrabalhadoresTotal = 0;
+
+					for (const productionUnit of filteredRecords) { //soma para achar o limiteEfetivoTrabalhadoresTotal necessário para o cálculo do peso.
+						limiteEfetivoTrabalhadoresTotal = limiteEfetivoTrabalhadoresTotal + parseInt(productionUnit.limiteEfetivoTrabalhadores);
+						
+						console.info('productionUnit.effectivelyPlannedProductionTime: ');
+						console.log(productionUnit.effectivelyPlannedProductionTime);
+						
+						//Só passa aqui quando é Comitê
+						totalSocialWorkDessaJurisdicao += productionUnit.producaoMeta[0].quantidadeProduzida*productionUnit.effectivelyPlannedProductionTime;
+						
+				
+					}
+					
+					//console.info("limiteEfetivoTrabalhadoresTotal: ");
+					//console.log(limiteEfetivoTrabalhadoresTotal);
+					
+					console.info("totalSocialWorkDessaJurisdicao: ");
+					console.log(totalSocialWorkDessaJurisdicao);
+
+                    for (const productionUnit of filteredRecords) { //iteração das unidades de produção do setor desta rodada na iteração. o limiteEfetivoTrabalhadoresTotal deve ser somado antes, de todas essas unidades, antes de prosseguir, o que foi feito acima
+						
+						productionUnit.vetorDemanda = [];
+						productionUnit.vetorProposta = [];
+						if (Array.isArray(productionUnit.estoqueDemanda)) {
+							 productionUnit.vetorDemanda = productionUnit.estoqueDemanda.map(item => item.demanda);
+						}
+						if (productionUnit.limiteEfetivoTrabalhadores !== undefined && productionUnit.propostaTrabalhadores) {
+							productionUnit.vetorProposta = [
+								productionUnit.limiteEfetivoTrabalhadores,
+								productionUnit.propostaTrabalhadores.workerHours,
+								productionUnit.propostaTrabalhadores.productionTime,
+								Number(productionUnit.propostaTrabalhadores.nightShift), // transforma true e false em 1 e 0 pra poder calcular média e depois voltamos pra true e false arredondando pra 1 ou 0
+								productionUnit.propostaTrabalhadores.weeklyScale
+							];
+						}
+						
+                        const vetorTecnologico = productionUnit.vetorTecnologico;
+						const vetorDemanda = productionUnit.vetorDemanda;
+						const vetorProposta = productionUnit.vetorProposta;
+						
+                        const limiteEfetivoTrabalhadores = parseFloat(productionUnit.limiteEfetivoTrabalhadores);
+
+                        //if (optimizationInputs[productIndex] && optimizationInputs[productIndex].workerLimit) {
+                        //    workerLimit = parseFloat(optimizationInputs[productIndex].workerLimit);
+                        //}
+
+                        //if (!workerLimit || isNaN(workerLimit)) {
+                        //    showNotification(`Preencha os dados de otimização de ${productName}`, false);
+                        //    openOptimizationModal(productIndex);
+                        //    return;
+                        //}
+
+                        const productionUnitWeight = limiteEfetivoTrabalhadores / limiteEfetivoTrabalhadoresTotal;
+						
+						//console.info("limiteEfetivoTrabalhadores: ");
+						//console.log(limiteEfetivoTrabalhadores);
+						//console.info("limiteEfetivoTrabalhadores/limiteEfetivoTrabalhadoresTotal = productionUnitWeight: ");
+						//console.log(productionUnitWeight);
+						
+                        const adjustedTechnologicalVectors = vetorTecnologico.map(value => (value * productionUnitWeight).toFixed(2));
+						const adjustedDemandVectors = vetorDemanda.map(value => (value * productionUnitWeight).toFixed(2));
+						const adjustedProposalVectors = vetorProposta.map(value => (value * productionUnitWeight).toFixed(2));
+						adjustedProposalVectors[0]=limiteEfetivoTrabalhadoresTotal; //não calcula o peso do limiteEfetivoTrabalhadores, pois ele é real, efetivo, e é usado para o calculo do peso (não pode ser peso dele mesmo)
+
+                        if (summedTechnologicalVectors.length === 0) {
+                            summedTechnologicalVectors = adjustedTechnologicalVectors.map(val => parseFloat(val));
+                        } else {
+                            summedTechnologicalVectors = summedTechnologicalVectors.map((sum, i) => sum + parseFloat(adjustedTechnologicalVectors[i]));
+                        }
+						
+						if (summedDemandVectors.length === 0) {
+                            summedDemandVectors = adjustedDemandVectors.map(val => parseFloat(val));
+                        } else {
+                            summedDemandVectors = summedDemandVectors.map((sum, i) => sum + parseFloat(adjustedDemandVectors[i]));
+                        }
+						
+						if (summedProposalVectors.length === 0) {
+                            summedProposalVectors = adjustedProposalVectors.map(val => parseFloat(val));
+                        } else {
+                            summedProposalVectors = summedProposalVectors.map((sum, i) => sum + parseFloat(adjustedProposalVectors[i]));
+                        }
+
+                        resultMessage += `De alguma fábrica: ${vetorTecnologico.join(", ")}\n`;
+                        resultMessage += `pesoDaUnidadeDeProdução=${productionUnitWeight.toFixed(2)}\n`;
+                        resultMessage += `Vetor Tecnológico Médio: ${adjustedTechnologicalVectors.join(", ")}\n`;
+
+                        const weightedAverageTechnologicalVector = summedTechnologicalVectors.map(sum => (sum / filteredRecords.length).toFixed(2));
+                        resultMessage += `Média Ponderada dos Vetores Tecnológicos: ${weightedAverageTechnologicalVector.join(", ")}`;
+						
+						const weightedAverageDemandVector = summedDemandVectors.map(sum => (sum / filteredRecords.length).toFixed(2));
+                        resultMessage += `Média Ponderada dos Vetores Demandas: ${weightedAverageDemandVector.join(", ")}`;
+						
+						const weightedAverageProposalVector = summedProposalVectors.map(sum => (sum / filteredRecords.length).toFixed(2));
+						
+						//Arredonda valores que não podem ser quebrados
+						//weightedAverageProposalVector[0] = Math.round(weightedAverageProposalVector[0]); //limiteEfetivoTrabalhadores Total (não médio, senão não normaliza)
+						
+						//console.info("limiteEfetivoTrabalhadoresTotal: ");
+						//console.log(limiteEfetivoTrabalhadoresTotal);
+						
+						
+						
+						weightedAverageProposalVector[0] = Math.round(limiteEfetivoTrabalhadoresTotal);
+						weightedAverageProposalVector[1] = parseFloat(weightedAverageProposalVector[1]); //workerHours média
+						weightedAverageProposalVector[2] = parseFloat(weightedAverageProposalVector[2]);
+						weightedAverageProposalVector[3] = Boolean(Math.round(weightedAverageProposalVector[3])); //Turno Diurno/Noturno. se menor ou igual a 0,5 retorna false, se maior retorna true (média booleana)
+						weightedAverageProposalVector[4] = Math.round(weightedAverageProposalVector[4]); //weeklyScale média
+						
+						//console.info("weightedAverageProposalVector[4]: ");
+						//console.log(weightedAverageProposalVector[4]);
+						
+						
+                        resultMessage += `Média Ponderada dos Vetores Propostas: ${weightedAverageProposalVector.join(", ")}`;
+
+                        if (productionUnit.estoqueDemanda && Array.isArray(productionUnit.estoqueDemanda)) {
+                            const inputTechnologicalMatrixTableBody = document.getElementById('inputTechnologicalMatrixTableBody');
+							
+							const inputFinalDemandTableBody = document.getElementById('finalDemandInputs');
+
+                            if (inputTechnologicalMatrixTableBody.rows.length >= weightedAverageTechnologicalVector.length + 1) {
+							
+                                productionUnit.estoqueDemanda.forEach((estoqueDemandaRow, index) => {
+                                    const bemDeProducao = estoqueDemandaRow.bemDeProducao.trim();
+									
+                                    const matchingTechnologicalRow = Array.from(inputTechnologicalMatrixTableBody.rows).find(r => r.cells[0].querySelector('input').value.trim() === bemDeProducao);
+									
+									const matchingFinalDemandRow = Array.from(inputFinalDemandTableBody.rows).find(r => r.cells[0].textContent.trim() === bemDeProducao);
+									
+									const thead = document.getElementById('inputTable').querySelector('thead');
+                                    const sectorHeaders = thead.querySelectorAll('th input');
+                                    const setorColIndex = Array.from(sectorHeaders).findIndex(input => input.value.includes(setorUnidade)) + 1;
+
+                                    if (matchingTechnologicalRow && matchingTechnologicalRow.cells[setorColIndex]?.querySelector('input')) {
+                                    
+									//Estimativas na Matriz Tecnológica
+									matchingTechnologicalRow.cells[setorColIndex].querySelector('input').value = weightedAverageTechnologicalVector[index];
+																		
+									//console.info(`weightedAverageDemandVector[${index}]`);
+									//console.log(weightedAverageDemandVector[index]);
+									
+									//Estimativa no vetor Demanda Final 
+									matchingFinalDemandRow.cells[1].querySelector('input').value = weightedAverageDemandVector[index];
+									
+									//Estimativas na janela modal "Otimização"									
+									document.getElementById('workerLimit').value = weightedAverageProposalVector[0];
+									document.getElementById('workerHours').value = weightedAverageProposalVector[1];
+									document.getElementById('productionTime').value = weightedAverageProposalVector[2];
+									document.getElementById('nightShift').checked = weightedAverageProposalVector[3];
+									document.getElementById('weeklyScale').value = weightedAverageProposalVector[4];
+									
+									currentProductIndex = productIndex;
+									
+									//Salvar modal (pra ajustar botão inclusive)
+									setTimeout(() => {
+										saveOptimizationInputs();
+									}, 3000);
+										
+                                    } else {
+                                        showNotification(`Cadastre o produto ${bemDeProducao}, pois é um bem de produção do setor ${setorUnidade}.`, false);
+                                    }
+                                });
+								
+                            } else {
+                                resultMessage = `A Matriz Tecnológica não possui a mesma quantidade de produtos mínima usados como bens de produção do setor ${setorUnidade}. Deve possuir no mínimo ${weightedAverageTechnologicalVector.length + 1} linhas (ou produtos). Cadastre os bens de produção desse setor.`;
+								showNotification(resultMessage, false);
+                            }
+                        }
+                    }
+                } else {
+                    //resultMessage = `Nenhum vetor tecnológico encontrado para o setor ${setorUnidade}.`;
+                }
+
+                console.info(resultMessage);
+            });
+        } else {
+            console.error("data não é um objeto válido.");
+            alert("Ocorreu um erro ao processar os dados. Tente novamente.");
+        }
+    } catch (error) {
+        console.error("Erro ao buscar vetores tecnológicos:", error);
+        alert("Ocorreu um erro ao buscar os vetores tecnológicos. Por favor, tente novamente.");
+    }
+}
+
+function performOptimization(productIndex) {
+    const inputs = optimizationInputs[productIndex];
+    if (!inputs) return;
+
+    const { productionGoal, workerLimit, workerHours, productionTime, weeklyScale, nightShift } = inputs;
+
+    if (!workerLimit || workerLimit <= 0) {
+        const productName = getProductNames()[productIndex];
+        //showNotification(`O limite de trabalhadores por fábrica não foi configurado corretamente para a produção de ${productName}.`);
+        return;
+    }
+
+    // Cálculo total de horas necessárias para produzir a quantidade desejada
+    const totalHours = productionTime * productionGoal;
+
+    // Capacidade semanal por trabalhador (em horas)
+    const weeklyWorkHoursPerWorker = weeklyScale * workerHours;
+
+    // Cálculo do número de trabalhadores necessários
+    const workersNeeded = Math.ceil(totalHours / weeklyWorkHoursPerWorker);
+
+    // Capacidade total de trabalho por turno (independente de ser diurno ou noturno)
+    const shiftWorkHours = workerLimit * workerHours;
+
+    // Total de turnos necessários
+    const totalShifts = Math.ceil(totalHours / shiftWorkHours);
+
+    // Capacidade diária considerando escala semanal e turno noturno
+    const dailyWorkHours = nightShift ? shiftWorkHours * 2 : shiftWorkHours;
+    const totalDailyWorkHours = dailyWorkHours * weeklyScale / 7;
+
+    // Prazo mínimo de produção em dias
+    const minimumProductionTime = Math.ceil(totalHours / totalDailyWorkHours);
+
+    // Período total de trabalho (em semanas e dias restantes)
+    const totalWorkDays = Math.ceil(totalHours / dailyWorkHours);
+    const totalWeeks = Math.floor(totalWorkDays / weeklyScale);
+    const remainingDays = totalWorkDays % weeklyScale;
+
+    // Cálculo das horas de operação por dia
+    const factoryOperationHours = nightShift ? 24 : 12;
+
+    // Conversão do prazo mínimo de produção para dias
+    const minimumProductionTimeInDays = minimumProductionTime / 24; // Considera 1 dia = 24 horas
+
+    // Nova fórmula para calcular o número de fábricas necessárias
+    const factoriesNeeded = Math.ceil(totalHours / (factoryOperationHours * workerLimit * minimumProductionTimeInDays));
+
+
+
+    // Cálculo da quantidade de fábricas
+    //const factoriesNeeded = Math.ceil(totalHours / shiftWorkHours);
+
+    // Formatação do período total de emprego
+    let totalEmploymentPeriod;
+    if (totalWorkDays < weeklyScale) {
+        totalEmploymentPeriod = `${totalWorkDays} dias`;
+    } else {
+        totalEmploymentPeriod = formatDays(totalWorkDays * 24); // Converte dias em horas para formatDays
+    }
+
+    const table = document.querySelector('#result table'); // Seleciona a tabela "Planificação Otimizada"
+    const row = table?.rows[productIndex + 1]; // Seleciona a linha correspondente ao índice (ajusta para ignorar cabeçalho)
+    const plannedFinalDemand = row ? parseFloat(row.cells[1].textContent.trim())*1000 : 0; // Acessa a célula da coluna correspondente e converte o valor
+
+    // Armazenamento dos resultados para exibição
+    optimizationResults[productIndex] = {
+        totalHours,
+        workersNeeded,
+        factoriesNeeded, // Adiciona o cálculo das fábricas
+        totalShifts,
+        minimumProductionTime,
+        totalEmploymentPeriod,
+        weeklyScale,
+        plannedFinalDemand
+    };
+}

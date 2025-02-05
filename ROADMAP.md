@@ -49,69 +49,74 @@ O Estado Operário apenas realoca obrigatoriamente parte do trabalho acumulado, 
 
 [ok] 4.1) Colocar HTTPS novamente para funcionar integralmente.
 
-4.2) Colocar uma pseudo-criptografia no código enviado para o navegador, de modo que seja impossível alterar dados de campos manualmente por dentro do código fonte e mandar salvar.
+[ok] 4.2) Colocar uma pseudo-criptografia no código enviado para o navegador, de modo que seja impossível alterar dados de campos manualmente por dentro do código fonte e mandar salvar.
 Faça isso colocando um "embaralhador de código" que embaralha aleatoriamente, cada vez que o código é embaralhado é única, sem chave que o permita ser desembaralhado, sem que nenhum dos campos de texto ou numérico possa ter seu valor identificado diretamente no código fonte do navegador,
 mas que seja lido e funciuone normalmente no navegador, só está embaralhado.
 
-4.3) Colocar a leitura de parâmetro recebido pelo pm2 ao server direto na linha de comando, que informe ao server.js (chamdo pelo pm2) quando é para ele enviar o código embaralhado ou não.
-No desenvolvimento, suspenso o banco de dados real, para algum debug em tempo de produção, não envia embaralhado, mas via de regra envia embaralhado
-A função deve informa se "não envia embaralhado", pois se não for informado nada ou passado parâmetro nenhum ou inválido é para embaralhar.
-A principio esse parâmetro não será uma chave que só funciona no servidor, apenas um parâmetro, mas poderia ser.
+[ok] 4.3) Criar arquivo de configuração
 
-4.4) O código embaralhado não deve ser enviado diretamente, mas deve haver uma página intermediária que carrega todo o código fonte (o insere no DOM), essa intermediária inicial que é também embaralhada e enviada para o navegador, apenas com uma função pequena de carregar via AJAX todo o código fonte embaralhado da página e o iniciar.
-pra evitar enviar o código todo para o usuário, se ele tentar ver no navegador não vai ver nada além dessa função reduzida e já tbm toda embaralhada no meio de uma poluição (ruido) embaralhada tbm, impossível de ser decifrada.
-Pedir para ele inserir varias funções que não fazem nada no meio, só para confundir quem tentar desembaralhar;
-
-[ok] 4.5) Ver se HTTPS é criptografado ou se pode ser acessado e quebrado por algum governo, se sim, ver se há protocolo alternativo reconhecido por todos os navegadores atuais.
+[ok] 4.4) Ver se HTTPS é criptografado ou se pode ser acessado e quebrado por algum governo, se sim, ver se há protocolo alternativo reconhecido por todos os navegadores atuais.
     Sim. HTTPS critptografa a conexão e é praticamente impossível espionagem ou interceptação (a não por algo instalado no navegador que leia depois de descriptografado, mas não no meio do caminho, nem alteração de dados).
 
-4.6) Ver o código fonte não o torna vulnerável, pois o usuário pode tentar mudar o código fonte no repositório, mas não o muda no servidor, e saber como ele funciona não o ajuda a decifrar o misturador aleatório e alterar dados na camada front-end em tempo de execução e salvá-los, fraudando o sistema.
+[ok] 4.5) Ver o código fonte não o torna vulnerável, pois o usuário pode tentar mudar o código fonte no repositório, mas não o muda no servidor, e saber como ele funciona não o ajuda a decifrar o misturador aleatório e alterar dados na camada front-end em tempo de execução e salvá-los, fraudando o sistema.
 É como se o sistema estivesse "compilado" e não dá pra mexer nele, mudar seu conteúdo nem nada, em tempo de execução, se "recompila-lo" com seu novo codigo fonte alterado (que seria uma atualização no repositório e deploy no servidor de produção, mas isso para qualquer aplicação em qualquer linguagem).
 
-4.7) Criar um arquivo secure.js, pois apesar de parecer vulnerável fazer isso, caso alguém mexa nessa lógica de segurança será visível, ficará explícito e poderá ser desfeito facilmente, restaurando ou aperfeiçoando os mecanismos de segurança a cada falha ou brecha.
+[ok] 4.6) Criar um arquivo secure.js, pois apesar de parecer vulnerável fazer isso, caso alguém mexa nessa lógica de segurança será visível, ficará explícito e poderá ser desfeito facilmente, restaurando ou aperfeiçoando os mecanismos de segurança a cada falha ou brecha.
 
 -------------------
 
-5) Usar comando "pm2 reload all", depois que atualizar a partir do código do github, para deploy sem downtime. Ver se meu parâmetro de pseudo-criptografia funciona com reload tbm, testar. Se não, ver alternativa, mas manter solução de pseudo-criptografia com criptografia real (HTTPS ou alternativa).
+[ok] 5) Usar comando "pm2 reload all", depois que atualizar a partir do código do github, para deploy sem downtime. Ver se meu parâmetro de pseudo-criptografia funciona com reload tbm, testar. Se não, ver alternativa, mas manter solução de pseudo-criptografia com criptografia real (HTTPS ou alternativa).
+
+-----------------
+
+[~] 6) Testar analise de dados do data.json no deepseek ou outro
+- deepseek com problema de uploads de arquivos, mas no chatgpt funcionou perfeitamente
+- pegar códigos python gerados e incorporar ao código, ver como exibir para o cliente
+- pegar alguns prompts e traduzir para python e incorporar como opções de pesquisa (já pré renderizadas, sem necessidade de IA ainda e pra rodar mais levemente e rapidamente, no programa)
+    - listar algumas úteis, mas muito mais podem ser incluidas, criar pasta para isso
+        - search
+            - engines
+                - arquivosComNomesDeBuscas.py //Com opcao de geração de arquivo .csv com busca dentro dele ou fora (uma pasta /search/export com arquivos py de exportação para .csv), em arquivo unico ou separado
+            - graphs
+                - arquivoGeradorDeGraficosAPartirDeDadosDeBuscaEQueIntermediaComClienteQueConsultouOuAlgoDoTipoTalvezColandoEmPastaCriadasDinamicamenteComNomeDasBuscasJaQueBuscasSaoFinitas.py
+            - export
+
+- historico gerenciado em python. a cada dia 28 gera 1 vez (se não existe, uma cópia do arquivo data.json dentro de uma pasta chamada history cujo nome sera data_anomesdia.json (pra ser consultavel))
+- simulação teste de situação (randonSituationSimulatorTest.py): criar um código python que popula aleatoriamente todos os campos que faltam, passando pra ele as regras (limites numerios etc, que façam sentido, razoáveis)
+- simulação teste de historia (randonHistorySimulatorTest.py): criar um código, baseado no anterior, que a partir de um arquivo cria um novo com novos dados, em que todos os campos numericos tem os dados modificados para valores próximos, com alguns poucos, aleatoriamente, variando um pouco mais
+
+7) Ver se algum desses modelos que funcione em teste online possui versão offline (pra rodar no próprio server da planificação ou no próprio dispositivo (celular ou computador))
+
+8) Escalabilidade Horizontal: Aplicação em Clusters com Balanceamento de Carga
+
+8.1) A implementação de Cluster real deve ser de acordo com as melhores práticas DevOps e seus mais eficientes processos CI/CD (alguns já seminalmente implementados)
+
+8.2) Usar "spawn" ou "exec" ao invés de "execSync" para executar microserviços (que tem inicio meio e fim breve, executam uma tarefa, entregam a resposta e terminam, não ficam rodando continuamente, e não são em larga escala, apenas para processamentos mais pesados, análise de dados, cálculos de planificação (o cálculo de estimativas e o cálculo de otimização, os dois principais/centrais da planificação)
+
+8.3) Utilizar multiplas instâncias do servidor, para evitar overhead, balanceando melhor a carga:
+
+pm2 start server.js -i max
+
+8.4) Fazer o Load Balancer usando portas diferentes do 127.0.0.1:<3000, 3001 etc...>, formando um Cluster Virtual (que já melhora o desempenho), e num segundo passo, máquinas diferentes, formando Clusters Reais, para suportar melhor milhões de requisições:
+
+sudo apt install nginx
+
+http {
+    upstream node_servers {
+        server 127.0.0.1:3000;
+        server 127.0.0.1:3001;
+        server 127.0.0.1:3002;
+    }
+
+    server {
+        listen 80;
+        location / {
+            proxy_pass http://planecon.xyz;
+        }
+    }
+}
 
 -----------------
 
 Rascunhos temporários:
-
-"WorkerUUID:UyO6ebhxTGl4grkEGEK0HLoj": {
-
- "productNames": [
-      "Automóvel",
-      "Computador",
-      "Celular"
-    ],
-"sectorNames": [
-    "Produção de Automóvel",
-    "Produção de Computador",
-    "Produção de Celular"
-],
-"finalDemand": [
-    1,
-    0,
-    0
-],
-
---------
-
-api.js
-
-const dataToSave = {
-productNames: getProductNames(),
-sectorNames: getSectorNames(),
-finalDemand: getFinalDemand(),
-
-----------
-
-main.js
-
-function getProductNames() {
-
-function getSectorNames() {
-
-function getFinalDemand() {
 

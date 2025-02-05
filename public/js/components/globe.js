@@ -1,1 +1,201 @@
-(function(_0x4f4760,_0x1d9bca){const _0x557180=_0x38bd,_0x2b63e3=_0x4f4760();while(!![]){try{const _0x38e71e=parseInt(_0x557180(0xcd,'83u5'))/0x1*(-parseInt(_0x557180(0xaf,'Z8x%'))/0x2)+parseInt(_0x557180(0xc5,'y[dL'))/0x3+parseInt(_0x557180(0xca,'w$%&'))/0x4+-parseInt(_0x557180(0x102,'ru2S'))/0x5*(parseInt(_0x557180(0xfc,'@V[I'))/0x6)+parseInt(_0x557180(0x10d,'ok*n'))/0x7*(parseInt(_0x557180(0xbf,'83u5'))/0x8)+parseInt(_0x557180(0xc3,'MhG^'))/0x9*(-parseInt(_0x557180(0x121,'koPC'))/0xa)+parseInt(_0x557180(0xf8,'mBRt'))/0xb;if(_0x38e71e===_0x1d9bca)break;else _0x2b63e3['push'](_0x2b63e3['shift']());}catch(_0x1d3768){_0x2b63e3['push'](_0x2b63e3['shift']());}}}(_0x2013,0x81216));function _0x38bd(_0x112e29,_0x11ff6a){const _0x2013f7=_0x2013();return _0x38bd=function(_0x38bd88,_0x1100cb){_0x38bd88=_0x38bd88-0xa7;let _0x2e3e22=_0x2013f7[_0x38bd88];if(_0x38bd['tGBOdv']===undefined){var _0x4399e5=function(_0x63738d){const _0x2b7127='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x3616a3='',_0x512aef='';for(let _0x219a0c=0x0,_0x2e6c86,_0x4181a6,_0x46b89a=0x0;_0x4181a6=_0x63738d['charAt'](_0x46b89a++);~_0x4181a6&&(_0x2e6c86=_0x219a0c%0x4?_0x2e6c86*0x40+_0x4181a6:_0x4181a6,_0x219a0c++%0x4)?_0x3616a3+=String['fromCharCode'](0xff&_0x2e6c86>>(-0x2*_0x219a0c&0x6)):0x0){_0x4181a6=_0x2b7127['indexOf'](_0x4181a6);}for(let _0x5d1007=0x0,_0x4d5292=_0x3616a3['length'];_0x5d1007<_0x4d5292;_0x5d1007++){_0x512aef+='%'+('00'+_0x3616a3['charCodeAt'](_0x5d1007)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x512aef);};const _0x25d7e2=function(_0x4efd37,_0x4884a0){let _0x27a1dc=[],_0x57fe8e=0x0,_0x3bbb04,_0x5a968a='';_0x4efd37=_0x4399e5(_0x4efd37);let _0x50c202;for(_0x50c202=0x0;_0x50c202<0x100;_0x50c202++){_0x27a1dc[_0x50c202]=_0x50c202;}for(_0x50c202=0x0;_0x50c202<0x100;_0x50c202++){_0x57fe8e=(_0x57fe8e+_0x27a1dc[_0x50c202]+_0x4884a0['charCodeAt'](_0x50c202%_0x4884a0['length']))%0x100,_0x3bbb04=_0x27a1dc[_0x50c202],_0x27a1dc[_0x50c202]=_0x27a1dc[_0x57fe8e],_0x27a1dc[_0x57fe8e]=_0x3bbb04;}_0x50c202=0x0,_0x57fe8e=0x0;for(let _0x586ac4=0x0;_0x586ac4<_0x4efd37['length'];_0x586ac4++){_0x50c202=(_0x50c202+0x1)%0x100,_0x57fe8e=(_0x57fe8e+_0x27a1dc[_0x50c202])%0x100,_0x3bbb04=_0x27a1dc[_0x50c202],_0x27a1dc[_0x50c202]=_0x27a1dc[_0x57fe8e],_0x27a1dc[_0x57fe8e]=_0x3bbb04,_0x5a968a+=String['fromCharCode'](_0x4efd37['charCodeAt'](_0x586ac4)^_0x27a1dc[(_0x27a1dc[_0x50c202]+_0x27a1dc[_0x57fe8e])%0x100]);}return _0x5a968a;};_0x38bd['orrMiS']=_0x25d7e2,_0x112e29=arguments,_0x38bd['tGBOdv']=!![];}const _0x7fba93=_0x2013f7[0x0],_0xdd5cfd=_0x38bd88+_0x7fba93,_0x43542b=_0x112e29[_0xdd5cfd];return!_0x43542b?(_0x38bd['snwYgs']===undefined&&(_0x38bd['snwYgs']=!![]),_0x2e3e22=_0x38bd['orrMiS'](_0x2e3e22,_0x1100cb),_0x112e29[_0xdd5cfd]=_0x2e3e22):_0x2e3e22=_0x43542b,_0x2e3e22;},_0x38bd(_0x112e29,_0x11ff6a);}function _0x2013(){const _0x524dd8=['W5hdRCk+bmorW6BdOgVcR8k7WQG','q8oVWOCLsa','kNZdQSkSEG','W6upbNaSzSkKWPxdLW','WPuEW4v/WQzYW5e/Dmo+WPJdOSkPomkAW551fCoHpZqMwtxcGa','W6ZcOmkjmSkxq8oEgCk+suBcRG','WOKwWRGCzeCZ','BCojzq','BtNcP8oXlmk2W4VcKCk4s8k4','talcRHu/WRaaoa','umkeheqU','WPDYnG','W4alW5H3WRe','BmkCAZmB','WOz5iCo8W63cOHBdQW','WOVdGSkRW7fQWRRdL8kvWQaMFG','naJcRCkgEsHZ','sXDdW5yH','WOj5jCo7','bSkSftmk','vmo4WPiJvCkY','nmoPnSkyAG','WRxcIYKYy0dcJG','bmkIW4i','vfHLltNcI3ddRru','WQfwWQ5MhG','ESkSWOJdOCo5t8kQWRpdPWBcNG','qmk2W40w','WO3cGsqJ','tK8nm8ojvG','W7hcPwJcPmkYwmoaW6q','WPWSWPi','FSkOv8k0hchdT8ovttihwvy','WQ7cOJeKW5XkgmkCW5FdOq','cYLLfvNcTSo7W6KvWQlcHmk0qYCKW59VWPfMW6/dJmkTWRxdLxOhDCkqWRJdHbW','WPGWW74','WP7cLYVcTaxcP8kEkCoHWOu','W7bwW7/dGxXeWP8NW4C','WO7cJYJcQqxcU8kedmoNWOWfWPi','cSo4pmkC','W4xdHWFcS8kVW6VdLmoPq8oFW6i6WRpcJHpdH1uWw8k/WOWjaCkqW7NdMCkxWOldR8k6W6ddUSoyW58FW6ldQMdcSSkKq0j0W4NcUmkgW5q','cq4KDM7dK1tdSH9WW5NcSq','hCkSgc8CW5RcSa15WRdcLCowW5OSWQJdOSkQAx8Hy1ZcGuneB0K1W4pdIWHGyCovkSkYqrGUhZldSd/dMmoVuI0XWOD5WQypWRriWRm6wa','WOddLmoMW5eBnmkQ','kSo8o8kgzSkmtbdcTSoZcq','W4ZdLXFcSCk5WQlcIa','W7azaW','bmk/W41NWPm','iXxcP8kACa','W7lcVMlcOCkJ','WO7dSCogFSouaCoWeSk4we/cQSkX','W5uKAmoWW598aSkgWO5BWP3cTt/cUq','r04a','hCoPEmoZWR8odW','DXnuwq','WRddUsZdUCk0DSoLW4GDWPm','jL/dG8oXwq','p8oYjN1U','A8o4WOyIACkOASofW6akiCoIWOZcUqVcOrdcSSksaq','jmoYpa','WOSDW4OXacldTw0','ya/cKSkWbmk8k8oOzc1M','EHSPpmofW5VdQG','WOzZlSkJWO84AmoFWQL9WPZcIG','xCkTW5OFtq','Fr02i8oB','W4XCW6pdLwvvWOK3W4TFW49hW4tcV8kqWOhcLa','g8oHCmo7WRChdq','W44FW517vhhdSq','WRldOmokESossCk6CCk5vKBcPSkTlSoPWR/cUc4KW5/dLcBdTqfKlJlcHmoXWOddMf8Qwv/dPGaVaIn6CbNcSWRdK8onm8oKW6lcNSk7f8kii8o+WRpcPvS2','CuxcGW','WPGDWQ8hDv0Vsq','W5P0WQ7dHwXUnmkqbG','uK/cNSkMW4ZcPbpdKeWw','W7VdVg4VW7TDfSkmW74','u8ofEgW','WORdQvJdMq','WR8gWQmWW6XKta','nvNdISoaxCkXemovBbW','ECofF0FdUmoAW47cTf0cprldISkejYawW6q','WRNdUmorzmoe','BCofF0ldV8ohW5hcNfichXtdGCk9pdOqW74sFgC','W63dJSk2','W6FcTCo5WRum','WPWSWPjcWQq6oCkGWQbbWPldKSkhpmkoW6xdHmoHEbtcTcBdVmkTbW','WPVcH0tdU8oQW6hcSmkbq8kbW780','WPtdTw8nWOSqWPVcHfxcIKO','WOTSpCkKWOm+qW','ESopzKhdOConW5hcTf0c','xSkRrCkZdq/dVCou','l2hdOmkPFCkBW70','W4KeW5zLwq','DMOLsKVdP8oxWQ05WPtcHmkG','W63cOsHuW7OWWRVcHh3cIKLppIZcQ8oZdG','WPpcUmoYsmkMW4hdJLJcMa','W6JcVmoWWQ8','W6JcPhxcQmk0ECo7W4Cf','k8kuyc9dW7KV','FCk+AYy+W5BcHw3cJ8oGs8kdAgi','W6m+tepdPmkoW68','W6esfhCRACkKWOK','WOz9p8kSWO04vColWQnWWQRcLHNcSga','WR/cKSoYowRdP8ouWO3dQhS','uWBcRJO5WQOjcmoZWR3cQmoDxCkWWO1qEcC','W4FcGCo4WQ8RW7RdTCkdWOyCFSkp','W4OfW5D/','W7tcQ8o5WRemW77dVq','wSk2qSoQWOSmpx0','ECkWWPFdP8o8','W51kb8oB','WPWSWPjdWQi0pq','vSkbafCPjM8','CSopAMa','mXlcH8kW','h0xdIu/cLcSC','W65CW7/dGNbc','EmopzxddMSonW5xcTLSc','W6ijhNi6','DXTuq8oL','kejUDmkFW7hdLmk+WO0+WOW','W4dcG8olWPnpDW','WOvIk8o5W7W','WPSgWQucza','AJhcOmo2kCodW5xcNCkCqmkstG','mSkan2BdV8kw','W6BdHmkSANddLa','W5DmhW','WPRdLCo8WQTsC8oWfW','aCkWcte'];_0x2013=function(){return _0x524dd8;};return _0x2013();}let scene,camera,renderer,globe,marker,label;function initSmallGlobe(){const _0x2fead2=_0x38bd,_0x25d7e2=document['getElementById']('globeContainer'),_0x63738d=new THREE[(_0x2fead2(0xd6,'R5UG'))]();camera=new THREE[(_0x2fead2(0x107,'bfg]'))](0x32,0x1,0.1,0x3e8);const _0x2b7127=new THREE['WebGLRenderer']({'alpha':!![]});_0x2b7127[_0x2fead2(0xb2,'v#cT')](0x12c,0x12c),_0x25d7e2[_0x2fead2(0xdf,'mrPs')](_0x2b7127[_0x2fead2(0x11d,'5S0c')]);const _0x3616a3=new THREE['TextureLoader'](),_0x512aef=_0x3616a3[_0x2fead2(0x111,'i@3G')](_0x2fead2(0xed,'FWm!')),_0x219a0c=new THREE['SphereGeometry'](0x1,0x20,0x20),_0x2e6c86=new THREE[(_0x2fead2(0xff,'RCSi'))]({'map':_0x512aef});_0x2e6c86[_0x2fead2(0xd4,'VD2y')]=!![],_0x2e6c86[_0x2fead2(0x11c,'mBRt')]=0.8;const _0x4181a6=new THREE[(_0x2fead2(0x110,'5S0c'))](_0x219a0c,_0x2e6c86);_0x63738d[_0x2fead2(0xf3,'FJfi')](_0x4181a6);const _0x46b89a=new THREE[(_0x2fead2(0xeb,'b%x2'))](0xff0000,0x2);_0x63738d[_0x2fead2(0xd0,'PQNm')](_0x46b89a);const _0x5d1007=new THREE[(_0x2fead2(0x10e,'nA%0'))](0xffbbbb,0x1);_0x5d1007[_0x2fead2(0x10c,']0Yw')][_0x2fead2(0xe4,'v#cT')](0x32,0x1e,0x32),_0x63738d[_0x2fead2(0xf9,'bMmy')](_0x5d1007),camera[_0x2fead2(0xa8,'FJfi')]['z']=0x3,navigator['geolocation'][_0x2fead2(0x114,'5S0c')](function(_0x4efd37){const _0x5e0cc1=_0x2fead2,_0x4884a0=_0x4efd37[_0x5e0cc1(0xbc,'MhG^')][_0x5e0cc1(0xce,'S(dH')],_0x27a1dc=_0x4efd37['coords'][_0x5e0cc1(0xea,'bfg]')];let _0x57fe8e=-0x63;const _0x3bbb04=(0x5a-_0x4884a0)*(Math['PI']/0xb4),_0x5a968a=(_0x27a1dc+0xb4+_0x57fe8e)*(Math['PI']/0xb4),_0x50c202=new THREE[(_0x5e0cc1(0xf7,'w$%&'))](),_0x586ac4=0x1,_0x3dcff1=0.1;_0x50c202[_0x5e0cc1(0xb4,'5S0c')](_0x5e0cc1(0xef,'Oy$o'),function(_0x4bdaf1){const _0x3551ff=_0x5e0cc1,_0x2a3efc=new THREE[(_0x3551ff(0xe5,'yoM['))](0.2,0.2),_0x4d01ca=new THREE[(_0x3551ff(0x122,'1OAp'))]({'map':_0x4bdaf1,'transparent':!![],'side':THREE['DoubleSide']});marker=new THREE[(_0x3551ff(0xec,'DZAO'))](_0x2a3efc,_0x4d01ca),marker[_0x3551ff(0xd3,'PQNm')][_0x3551ff(0x10b,'nA%0')](Math['sin'](_0x3bbb04)*Math[_0x3551ff(0x117,'[@W0')](_0x5a968a)*(_0x586ac4+_0x3dcff1),Math[_0x3551ff(0x100,'DZAO')](_0x3bbb04)*(_0x586ac4+_0x3dcff1),Math[_0x3551ff(0xdc,'DamE')](_0x3bbb04)*Math[_0x3551ff(0xcc,'5S0c')](_0x5a968a)*(_0x586ac4+_0x3dcff1));const _0x40f5fb=new THREE[(_0x3551ff(0xb6,'[XP8'))](0x0,0x0,0x0),_0x4f7e99=_0x40f5fb[_0x3551ff(0x115,'w$%&')]()[_0x3551ff(0xe8,'ok*n')](marker[_0x3551ff(0xe3,'@V[I')])[_0x3551ff(0xdd,'HviQ')](),_0x1d2ca6=new THREE[(_0x3551ff(0xdb,'&)E3'))](0x0,-0x1,0x0),_0x5bd092=new THREE[(_0x3551ff(0xe9,'b%x2'))]()[_0x3551ff(0xab,'S(dH')](_0x1d2ca6,_0x4f7e99);marker[_0x3551ff(0x119,'v#cT')](_0x5bd092),_0x4181a6['add'](marker);});const _0x1373fa=_0x5e0cc1(0x10a,'w$%&')+_0x4884a0+_0x5e0cc1(0xd2,'ZVPp')+_0x27a1dc+_0x5e0cc1(0xc9,'zcMW');fetch(_0x1373fa)[_0x5e0cc1(0xad,'ptWh')](_0x50159c=>_0x50159c['json']())[_0x5e0cc1(0xc4,'Oy$o')](_0x24794d=>{const _0x3bfa16=_0x5e0cc1,_0x263145=_0x24794d[_0x3bfa16(0x126,'ZVPp')][_0x3bfa16(0xfb,'i1*r')]||_0x24794d[_0x3bfa16(0xa7,'*!5Z')][_0x3bfa16(0xd7,'PQNm')]||_0x24794d[_0x3bfa16(0xcb,']0Yw')][_0x3bfa16(0xfa,'Z8x%')]||'Cidade\x20desconhecida',_0x2fdafe=_0x24794d['address'][_0x3bfa16(0xf4,'DamE')]||_0x24794d[_0x3bfa16(0xf2,'FWm!')][_0x3bfa16(0xd9,'RCSi')],_0xce572e=_0x24794d[_0x3bfa16(0x126,'ZVPp')][_0x3bfa16(0x112,'Z2G]')];label=document['createElement'](_0x3bfa16(0xc2,'Rr[[')),label[_0x3bfa16(0x125,'@V[I')]=_0x263145+',\x20<br>'+_0x2fdafe+_0x3bfa16(0xc0,'5S0c')+_0xce572e,label[_0x3bfa16(0xc7,'83u5')][_0x3bfa16(0x11e,'yoM[')]='absolute',label[_0x3bfa16(0x105,'FZfN')]['fontSize']=_0x3bfa16(0xb5,'nA%0'),label[_0x3bfa16(0xde,'#F^P')][_0x3bfa16(0xb8,'5S0c')]='bold',label['style'][_0x3bfa16(0xa9,'mBRt')]='rgba(255,\x20255,\x20255,\x200.7)',label[_0x3bfa16(0xbe,']0Yw')][_0x3bfa16(0x106,'^b4&')]=_0x3bfa16(0xf0,'MhG^'),label[_0x3bfa16(0xfe,'R2X[')][_0x3bfa16(0x108,'Z8x%')]=_0x3bfa16(0x101,'ptWh'),label[_0x3bfa16(0xd1,'zcMW')][_0x3bfa16(0x104,'mBRt')]='5px',label['style'][_0x3bfa16(0x123,'y[dL')]='center',label[_0x3bfa16(0xf5,'fWJP')]['pointerEvents']=_0x3bfa16(0xe0,'FZfN'),label['style'][_0x3bfa16(0xc8,'FJfi')]='translateX(-50%)',_0x25d7e2['appendChild'](label),_0x25d7e2[_0x3bfa16(0xb9,'FJfi')]['visibility']=_0x3bfa16(0x11f,'83u5');function _0x3b2971(){const _0xac9d75=_0x3bfa16,_0x283e01=new THREE['Vector3'](),_0x165f84=_0x2b7127[_0xac9d75(0xe6,'0HbX')]['getBoundingClientRect']();_0x283e01[_0xac9d75(0x116,'5S0c')](marker[_0xac9d75(0xf1,'DZAO')]),_0x283e01[_0xac9d75(0x109,'ptWh')](camera);const _0xcb6b38=(_0x283e01['x']*0.5+0.5)*_0x165f84[_0xac9d75(0xfd,'ru2S')],_0x18e8cc=(0x1-(_0x283e01['y']*0.5+0.5))*_0x165f84[_0xac9d75(0xc1,'[@W0')];label[_0xac9d75(0xda,'DZAO')][_0xac9d75(0x124,'bIsb')]=_0xcb6b38+'px',label[_0xac9d75(0xfe,'R2X[')]['top']=_0x18e8cc-0x64+'px',_0x283e01['z']<0.94?label['style'][_0xac9d75(0xd5,'fWJP')]=_0xac9d75(0xcf,'F2(J'):label[_0xac9d75(0xbd,'PQNm')][_0xac9d75(0x103,'^b4&')]=_0xac9d75(0xb1,'Rr[[');}function _0x4e8078(_0x305ddd,_0x19ad81,_0x707277){const _0x2f7e97=_0x3bfa16,_0x232790=_0x305ddd[_0x2f7e97(0x118,'bIsb')]()[_0x2f7e97(0xae,'bIsb')](_0x19ad81),_0x597c59=(_0x232790['x']*0.5+0.5)*_0x707277[_0x2f7e97(0x113,'ru2S')][_0x2f7e97(0x120,'ptWh')],_0x5a5517=(_0x232790['y']*-0.5+0.5)*_0x707277['domElement'][_0x2f7e97(0xe2,'bMmy')];return{'x':_0x597c59,'y':_0x5a5517};}function _0xcd5c2b(){requestAnimationFrame(_0xcd5c2b),_0x3b2971();}_0xcd5c2b();})[_0x5e0cc1(0xba,'i1*r')](_0x38ac05=>{const _0x5d0fcf=_0x5e0cc1;console[_0x5d0fcf(0xc6,'RCSi')](_0x5d0fcf(0xe7,'koPC'),_0x38ac05);});},function(_0x47a713){console['error']('Erro\x20ao\x20obter\x20localização:',_0x47a713);});function _0x4d5292(){const _0x354db0=_0x2fead2;requestAnimationFrame(_0x4d5292),_0x4181a6['rotation']['y']+=0.001,_0x2b7127[_0x354db0(0xb7,'bfg]')](_0x63738d,camera);}_0x4d5292();}function toggleHTMLVisibility(_0x22699d,_0x2223e0,_0x563293){const _0x276c6a=_0x38bd,_0x56e115=new THREE['Vector3']();_0x2223e0['getWorldPosition'](_0x56e115),_0x56e115['project'](_0x563293),_0x56e115['z']>0x0?_0x22699d[_0x276c6a(0xf6,'@V[I')]['display']=_0x276c6a(0xb0,'mrPs'):_0x22699d[_0x276c6a(0xd8,'Oy$o')][_0x276c6a(0xb3,'F2(J')]=_0x276c6a(0xe1,'&)E3');}
+let scene, camera, renderer, globe, marker, label;
+
+function initSmallGlobe() {
+    // Seleciona o contêiner para a animação
+    const globeContainer = document.getElementById('globeContainer');
+
+    // Configurações iniciais da cena
+    const scene = new THREE.Scene();
+    camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+    const renderer = new THREE.WebGLRenderer({ alpha: true }); // Fundo transparente
+    renderer.setSize(300, 300); // Tamanho fixo do globo
+    globeContainer.appendChild(renderer.domElement);
+
+     // Adiciona a esfera da Terra
+    const textureLoader = new THREE.TextureLoader();
+    const earthTexture = textureLoader.load('https://i.postimg.cc/90NWNd6t/textura-Terra.jpg');
+    
+    
+    const earthGeometry = new THREE.SphereGeometry(1, 32, 32);
+    const earthMaterial = new THREE.MeshStandardMaterial({ map: earthTexture });
+    earthMaterial.transparent = true;
+    earthMaterial.opacity = 0.8;
+    const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+
+    // Corrige a orientação da textura
+    //earth.rotation.x = Math.PI; // Gira 180 graus para alinhar corretamente
+
+
+    // Ajuste manual da rotação
+    //earth.rotation.y = THREE.MathUtils.degToRad(80); // Corrigir longitude
+
+    scene.add(earth);
+
+    // Adiciona iluminação
+    const ambientLight = new THREE.AmbientLight(0xff0000, 2);
+    scene.add(ambientLight);
+
+    // Aqui adicionamos a luz vermelha
+    const redLight = new THREE.PointLight(0xffbbbb, 1);
+    redLight.position.set(50, 30, 50);
+    scene.add(redLight);
+
+    // Configura a posição inicial da câmera
+    camera.position.z = 3;
+
+    // Adiciona o marcador vermelho para a localização do usuário
+    navigator.geolocation.getCurrentPosition(function (position) {
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
+
+        let ajusteManualDeLongitude = -99; //Ajuste para calibração da Longitude do Marcador, em graus
+
+        // Converter latitude e longitude para coordenadas 3D
+        const phi = (90 - latitude) * (Math.PI / 180); // Latitude
+        const theta = (longitude + 180 + ajusteManualDeLongitude) * (Math.PI / 180); // Longitude
+
+const loader = new THREE.TextureLoader();
+const globeRadius = 1; // Substitua pelo raio real do globo (exemplo: 1 para THREE.SphereGeometry(1, ...))
+const displacement = 0.1; // Ajuste o deslocamento para fora do globo
+
+loader.load('https://i.postimg.cc/65gr9cjN/bandeiravermelhaanimada.gif', function (texture) {
+    // Criar a geometria da bandeira (um plano)
+    const planeGeometry = new THREE.PlaneGeometry(0.2, 0.2); // Ajuste o tamanho da bandeira
+    const planeMaterial = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        side: THREE.DoubleSide // Garante que a bandeira seja visível dos dois lados
+    });
+    marker = new THREE.Mesh(planeGeometry, planeMaterial); // Armazena na variável global
+
+    // Posicionar a bandeira fora do globo
+    marker.position.set(
+        (Math.sin(phi) * Math.cos(theta)) * (globeRadius + displacement),
+        (Math.cos(phi)) * (globeRadius + displacement),
+        (Math.sin(phi) * Math.sin(theta)) * (globeRadius + displacement)
+    );
+
+    // Vetor que aponta para o centro do globo
+    const center = new THREE.Vector3(0, 0, 0);
+    const directionToCenter = center.clone().sub(marker.position).normalize();
+
+    // Alinhar a bandeira com a superfície
+    const upVector = new THREE.Vector3(0, -1, 0); // Vetor "para cima" da bandeira
+    const quaternion = new THREE.Quaternion().setFromUnitVectors(upVector, directionToCenter);
+    marker.setRotationFromQuaternion(quaternion);
+    
+
+    // Adicionar a bandeira ao globo
+    earth.add(marker);
+});
+
+
+
+
+
+        // Usar a API de Geocodificação Reversa para obter o nome da cidade
+        const geocodeUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&addressdetails=1&zoom=18`;
+
+        fetch(geocodeUrl)
+            .then(response => response.json())
+            .then(data => {
+                // Tenta diferentes campos para o nome da cidade
+                const city = data.address.city || data.address.town || data.address.village || "Cidade desconhecida";
+                const state = data.address.state || data.address.region;
+                const country = data.address.country;
+
+                // Criar um rótulo HTML para a localização no globo
+                label = document.createElement('div');
+                label.innerHTML = `${city}, <br>${state}, <br>${country}`;
+                label.style.position = 'absolute';
+                label.style.fontSize = '12px';
+                label.style.fontWeight = 'bold';
+                label.style.backgroundColor = 'rgba(255, 255, 255, 0.7)'; // Fundo branco transparente
+                label.style.color = '#8B0000'; // Texto vermelho escuro
+                label.style.padding = '5px 10px'; // Espaçamento interno
+                label.style.borderRadius = '5px'; // Bordas arredondadas
+                label.style.textAlign = 'center'; // Centraliza o texto horizontalmente
+                label.style.pointerEvents = 'none'; // Evita que o rótulo interfira com interações do globo
+                label.style.transform = 'translateX(-50%)'; // Centraliza o rótulo
+
+                // Posicionar o rótulo em cima do ponteiro (marcador)
+                globeContainer.appendChild(label);
+                
+                globeContainer.style.visibility = 'visible';
+                
+                // Função para atualizar a posição do rótulo com base na rotação
+                function updateLabelPosition() {
+                    const vector = new THREE.Vector3();
+                    const canvasBounds = renderer.domElement.getBoundingClientRect();
+
+                    // Posição da bandeira no mundo 3D
+                    vector.setFromMatrixPosition(marker.matrixWorld);
+
+                    // Converte a posição 3D para 2D (tela)
+                    vector.project(camera);
+
+                    // Converte para coordenadas de pixel no canvas
+                    const x = (vector.x * 0.5 + 0.5) * canvasBounds.width;
+                    const y = (1 - (vector.y * 0.5 + 0.5)) * canvasBounds.height;
+
+                    // Posiciona o rótulo acima da bandeira (ajuste "y" para subir um pouco)
+                    label.style.left = `${x}px`;
+                    label.style.top = `${y - 100}px`; // Move o rótulo um pouco para cima
+                    
+                    //console.info('vector.z'+vector.z);
+                    
+                    if (vector.z < 0.94) {
+                        label.style.display = 'block'; // Mostra o HTML quando a bandeira está à frente
+                    } else {
+                        label.style.display = 'none'; // Oculta o HTML quando a bandeira está atrás
+                    }
+                    
+                }
+
+                // Função para converter coordenadas 3D para coordenadas da tela
+                function getScreenPosition(position, camera, renderer) {
+                    const vector = position.clone().project(camera);
+                    const x = (vector.x * 0.5 + 0.5) * renderer.domElement.width;
+                    const y = (vector.y * -0.5 + 0.5) * renderer.domElement.height;
+                    return { x, y };
+                }
+
+                // Atualiza a posição do rótulo durante a animação
+                function animate() {
+                    requestAnimationFrame(animate);
+                     // Atualize a posição do rótulo
+                    updateLabelPosition();
+                }
+
+                animate();
+            })
+            .catch(error => {
+                console.error('Erro ao obter o nome da cidade:', error);
+            });
+    }, function (error) {
+        console.error('Erro ao obter localização:', error);
+    });
+
+    // Função de animação
+    function animate() {
+        requestAnimationFrame(animate);
+        earth.rotation.y += 0.001; // Velocidade de rotação
+        
+        renderer.render(scene, camera);
+    }
+
+    animate();
+}
+
+function toggleHTMLVisibility(htmlElement, object, camera) {
+    const vector = new THREE.Vector3();
+    object.getWorldPosition(vector); // Obtém a posição da bandeira no mundo
+    vector.project(camera); // Projeta a posição para a tela
+
+    if (vector.z > 0) {
+        htmlElement.style.display = 'block'; // Mostra o HTML quando a bandeira está à frente
+    } else {
+        htmlElement.style.display = 'none'; // Oculta o HTML quando a bandeira está atrás
+    }
+}
+

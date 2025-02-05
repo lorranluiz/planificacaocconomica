@@ -1,1 +1,146 @@
-function _0x1f13(){const _0xaedcfd=['lINdJhNdJq','WRpcH8kicCkyd37dTb3dSNam','FN/cLsBcHWBcTSkqW6VcGCkk','WQpdH8okuCojtvNdMZtdUgeXW7HCWQLxWQ02W4lcVZGqW67dLw3dTcldTmombmoCW7tcLdmojCkrWRhdOJe9W43dNSoCWQes','DWiSWRNdJCoVxxFdHghdQCo+W6ZdVa','y1SVjWL1emkFWQ9nFCkpwCowWPzrFHtcTCkaWQ5OyGme','qWlcOa','W6tcJMBcNaz4D8krD8ogfCkq','W40ocqSHW4zXWOTVWQ9qwa','WRnlWPuqBXfhF8khW6tdSCkr','W6pdKSouuSoE','W6SPW5/dMmkZWPWzE8oZBCoWW5TCv8kpW7FdSSo1WP5SnCkCDYldOJtcNJhcUfJdP8orehVdHKJdR8kbWOLC','vHhdLCoy','W65WDb3dUW','xKy8W4r7','WRTNhIK','DHeirWz8WPJdH2RcQ0FcS1zyDSk5WQj8CvLbW7tcK8o+ycCQeLxdRmoRB8kGW57cHLtcMmoSWPdcLCoxW6rgWQ3cLW','BwBcR3GbWReYW5FdP8kXusz7W40','h1/cG8kiwt8','gW3cSYFcMf3cKmosW558WQi3','e1BcISkcWPLjDIpcQbldV8oJ','WRxcICkbv34','WPnxzCoOWPZcGmo4W6OIdGyafq','W7RdUSoA','F1eM','arpcJ8kieNRdLmoUsCk5yHi','j8kwWQlcNa','wKhcP8kverHMoH7cJ39JW7q','WOddLSo0lNqTW5P4W7e','W6xdSmojWPqkyGhdI8k0jfRdSG','DmkNWRqBub/dRIlcUM4','WR/dVSkrFW','WRdcQmkJpftdHcTZWQhdTmosDrnDBZaRoMBdNSkwWOuyxrNcKSodW4HImfJdVSkJbdldL8kTW5JdJCk/htzREW','Ereb','WPVdNCoPpMOr','WOpcPCkYWPC','tSoWmSocdq','W5q5W5tdGSk/WQjCC8o3ASoRWPrl','zqCSWPBcQbe7','mZRcOKq7WRaXW4y','W6GAW4jal0S','mmkrWQNcGvpcPdZcRSkVqMvdeWZdTJdcTeBdPSouWOzdAseWWPlcGCkMsMZcJeKcxSoWnSo0WP/dRCkYdmo6W6j7ba','W7BdH8oPyGS','dgZcRCo2WPZdU1vUWRnDj2hdPmkMhWLFWRlcH8kABmkbDMFdJrhcOWHKWPNcHLWTWQWDW4PUn11m','W4mJW4pdTCkNWPjr','W4JcIwLcWQb4eWDxc289W7xcMCopmulcJa','bCoAoSo1WQFcK8oiqCo3cuqGWR7cPZmRCSkbamk6cCoRaq7cTmkp','W6z4ymofWPldTYFdRtm7W4qpWOO','WOvNfcVcQSoW','W7yqW5Tu','BsRcQSozWQldG3CI','W6xdLmo3EbW','i1rOW47cKmkYaxhdVh3dJSoIW6m','evVcJCknWP9liGxcGYtdKmoLeq','WOvWW4NdGX8VbXj6WOP2D8o8','DGZdImouW4vCvqBcPHpdKmoghmo1W59vjSo+WQbdehZdSM97aSkKW6pdSJi','WRr7ymodWOtdLHBdPdu2W58mWPFdRSoRWPORW5HMmmkDWPdcQSkrwbr8jW','pZldQG8hWRaPW4pdP8k/','W759qMTZ','d8kLz8kaxmk2W5xcOWeOCmoq','rqBdImoWW4uzFqxcRGldSColpmoN','WQhdKZxdHq','WQxdOCo4qH/dPCoZ','DHSkwba','iSklWQlcGe/cMZhcRCkAtMfzdq','iCkqWR3dSXu','p8krWQa','d3/cRSoKWOZcR1S9W7XjA3hdPmk5h8kaW47cTSouW5X0WPPYk8klgJPhjCknWP1wBa','WRBdO8oBCColDu8','WPnCyCoJWPpdHSkHW4OkmrW','WOnAuK91WOu','WQFcPCknWPmIwHFdTSk7','W6enW55ikq','fLtcVLmKvCkGsq','W6ZdNSovv8ozxx/dNd7dGw0ZW7zCWRPuWQmYWO7cOZSBW6xdNIJdSW','b8k/x8k9W7q','W4a+W4pdN8k0','E0BcRCkdhsH3pXtcGITzW6JcRMxdSLddQCoGW5CZWRFcQW','vYim','t1SiW4jXW5WM','W7RcVmoiEMBdOmo2mmo1','AaNdN8k5WO0'];_0x1f13=function(){return _0xaedcfd;};return _0x1f13();}function _0x3c57(_0x35391d,_0x78fa61){const _0x1f13d0=_0x1f13();return _0x3c57=function(_0x3c57d2,_0x3a13e7){_0x3c57d2=_0x3c57d2-0x117;let _0x168bf5=_0x1f13d0[_0x3c57d2];if(_0x3c57['BWEZYq']===undefined){var _0x3d5fab=function(_0x15b75a){const _0x814882='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x1926e9='',_0x582456='';for(let _0x37d171=0x0,_0x1d098b,_0x4c0d61,_0x492d3d=0x0;_0x4c0d61=_0x15b75a['charAt'](_0x492d3d++);~_0x4c0d61&&(_0x1d098b=_0x37d171%0x4?_0x1d098b*0x40+_0x4c0d61:_0x4c0d61,_0x37d171++%0x4)?_0x1926e9+=String['fromCharCode'](0xff&_0x1d098b>>(-0x2*_0x37d171&0x6)):0x0){_0x4c0d61=_0x814882['indexOf'](_0x4c0d61);}for(let _0x35d67f=0x0,_0x55c2c4=_0x1926e9['length'];_0x35d67f<_0x55c2c4;_0x35d67f++){_0x582456+='%'+('00'+_0x1926e9['charCodeAt'](_0x35d67f)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x582456);};const _0x39c9da=function(_0x2de216,_0x4c2df5){let _0xca1195=[],_0x153125=0x0,_0x3a4058,_0x319c1e='';_0x2de216=_0x3d5fab(_0x2de216);let _0x1fbbe0;for(_0x1fbbe0=0x0;_0x1fbbe0<0x100;_0x1fbbe0++){_0xca1195[_0x1fbbe0]=_0x1fbbe0;}for(_0x1fbbe0=0x0;_0x1fbbe0<0x100;_0x1fbbe0++){_0x153125=(_0x153125+_0xca1195[_0x1fbbe0]+_0x4c2df5['charCodeAt'](_0x1fbbe0%_0x4c2df5['length']))%0x100,_0x3a4058=_0xca1195[_0x1fbbe0],_0xca1195[_0x1fbbe0]=_0xca1195[_0x153125],_0xca1195[_0x153125]=_0x3a4058;}_0x1fbbe0=0x0,_0x153125=0x0;for(let _0x61962e=0x0;_0x61962e<_0x2de216['length'];_0x61962e++){_0x1fbbe0=(_0x1fbbe0+0x1)%0x100,_0x153125=(_0x153125+_0xca1195[_0x1fbbe0])%0x100,_0x3a4058=_0xca1195[_0x1fbbe0],_0xca1195[_0x1fbbe0]=_0xca1195[_0x153125],_0xca1195[_0x153125]=_0x3a4058,_0x319c1e+=String['fromCharCode'](_0x2de216['charCodeAt'](_0x61962e)^_0xca1195[(_0xca1195[_0x1fbbe0]+_0xca1195[_0x153125])%0x100]);}return _0x319c1e;};_0x3c57['XBLkaX']=_0x39c9da,_0x35391d=arguments,_0x3c57['BWEZYq']=!![];}const _0x53e417=_0x1f13d0[0x0],_0x1ca710=_0x3c57d2+_0x53e417,_0x43a029=_0x35391d[_0x1ca710];return!_0x43a029?(_0x3c57['yYkUZx']===undefined&&(_0x3c57['yYkUZx']=!![]),_0x168bf5=_0x3c57['XBLkaX'](_0x168bf5,_0x3a13e7),_0x35391d[_0x1ca710]=_0x168bf5):_0x168bf5=_0x43a029,_0x168bf5;},_0x3c57(_0x35391d,_0x78fa61);}(function(_0x2d5981,_0x21e851){const _0x3d8287=_0x3c57,_0xbfcfab=_0x2d5981();while(!![]){try{const _0x121ef6=parseInt(_0x3d8287(0x120,'Bf(Y'))/0x1*(-parseInt(_0x3d8287(0x14b,'a]uE'))/0x2)+parseInt(_0x3d8287(0x13b,'6[Pv'))/0x3+-parseInt(_0x3d8287(0x157,'5w$Y'))/0x4*(parseInt(_0x3d8287(0x160,'O*]y'))/0x5)+-parseInt(_0x3d8287(0x162,'MCOo'))/0x6+parseInt(_0x3d8287(0x139,'&%B)'))/0x7*(-parseInt(_0x3d8287(0x11d,'GMh)'))/0x8)+-parseInt(_0x3d8287(0x150,'O&SH'))/0x9*(-parseInt(_0x3d8287(0x161,'4npp'))/0xa)+parseInt(_0x3d8287(0x14c,'GMh)'))/0xb*(parseInt(_0x3d8287(0x140,'Y%Ss'))/0xc);if(_0x121ef6===_0x21e851)break;else _0xbfcfab['push'](_0xbfcfab['shift']());}catch(_0x57d90){_0xbfcfab['push'](_0xbfcfab['shift']());}}}(_0x1f13,0x8cde9));let isPlanified=![];function saveOptimizationInputsForProduct(_0x39c9da){const _0x18a185=_0x3c57,_0x15b75a=optimizationInputs[_0x39c9da];if(!_0x15b75a)return;optimizationInputs[_0x39c9da]=_0x15b75a,optimizedStatus[_0x39c9da]=!![],updateOptimizeButtonColor(_0x39c9da),performOptimization(_0x39c9da);const _0x814882=document[_0x18a185(0x15d,'6[Pv')](_0x18a185(0x129,'LGww'));_0x814882&&_0x814882[_0x18a185(0x123,'LGww')][_0x18a185(0x126,'5w$Y')]()!==''&&planify();}function updateDemandAndGoal(){const _0x5a171d=_0x3c57,_0x1926e9=confirm(_0x5a171d(0x127,'%4fI'));if(!_0x1926e9){showNotification(_0x5a171d(0x14a,'&%B)'),![]);return;}const _0x582456=document[_0x5a171d(0x143,'6vU5')](_0x5a171d(0x130,'SC8R'))['value']['trim'](),_0x37d171=document[_0x5a171d(0x136,'FrSH')](_0x5a171d(0x15c,'a]uE'))[_0x5a171d(0x11c,'V*(9')][_0x5a171d(0x165,'6vU5')]();if(!_0x582456){console[_0x5a171d(0x153,'I4$g')]('Conselho\x20Popular\x20Associado\x20não\x20preenchido.');return;}fetch(apiUrl,{'method':_0x5a171d(0x155,'6[Pv'),'headers':headers})[_0x5a171d(0x144,'O*]y')](_0x1d098b=>_0x1d098b[_0x5a171d(0x12a,'xf2W')]())[_0x5a171d(0x121,'SC8R')](_0x4c0d61=>{const _0x4ccb95=_0x5a171d,_0x492d3d=_0x4c0d61||{},_0x35d67f=_0x492d3d[_0x582456];if(_0x35d67f){const {optimizationResults:_0x55c2c4,productNames:_0x2de216,setorUnidade:_0x4c2df5}=_0x35d67f,_0xca1195=_0x2de216[_0x4ccb95(0x12d,'O1Bx')](_0x37d171);if(_0xca1195!==-0x1&&_0x55c2c4){const _0x153125=_0x55c2c4[_0xca1195][_0x4ccb95(0x134,'DUil')],_0x3a4058=Object[_0x4ccb95(0x14d,'4npp')](_0x492d3d)[_0x4ccb95(0x119,'JR]z')](_0x364b5d=>_0x364b5d[_0x4ccb95(0x117,'^nqp')]===_0x582456&&_0x364b5d[_0x4ccb95(0x124,'wr3B')]===(_0x37d171['includes'](_0x4ccb95(0x168,'0P@P'))?_0x37d171:'Produção\x20de\x20'+_0x37d171));let _0x319c1e=0x0;_0x3a4058[_0x4ccb95(0x133,'I4$g')](_0x5adb83=>{const _0x299d03=_0x4ccb95;_0x5adb83['limiteEfetivoTrabalhadores']&&(_0x319c1e+=parseInt(_0x5adb83[_0x299d03(0x151,'a]uE')],0xa));});if(_0x319c1e===0x0){console[_0x4ccb95(0x14f,'MCOo')]('Nenhum\x20trabalhador\x20efetivo\x20encontrado\x20nas\x20unidades\x20de\x20produção\x20filtradas.');return;}const _0x1fbbe0=parseFloat(document[_0x4ccb95(0x118,'Y%Ss')]('limiteEfetivoTrabalhadores')['value']['trim']())||0x0,_0x61962e=_0x1fbbe0/_0x319c1e;let _0x3137bc=_0x61962e*_0x153125,_0x33ca6=0x5,_0xa3114=((_0x3137bc-_0x33ca6*0x3e8)/0x3e8)['toFixed'](0x3);document['getElementById'](_0x4ccb95(0x15e,'VTy9'))[_0x4ccb95(0x141,'gZNh')]=_0xa3114;const _0x45eaaa=document[_0x4ccb95(0x122,'qvjg')]('#estoqueDemandaTable\x20tbody'),_0x4705a7=document[_0x4ccb95(0x147,'SC8R')](_0x4ccb95(0x13f,'FrSH'));if(_0x45eaaa&&_0x4705a7){const _0x273995=_0x45eaaa['rows'],_0x235d03=_0x4705a7[_0x4ccb95(0x138,'MCOo')];for(let _0xd446b2=0x0;_0xd446b2<_0x273995[_0x4ccb95(0x12f,'MCOo')]&&_0xd446b2<_0x235d03[_0x4ccb95(0x137,'0P@P')];_0xd446b2++){const _0x496924=parseFloat(_0x235d03[_0xd446b2][_0x4ccb95(0x146,'^nqp')][0x1]['querySelector'](_0x4ccb95(0x166,'R!HJ'))[_0x4ccb95(0x158,'6kr1')])||0x0,_0x1968c9=parseFloat(_0x273995[_0xd446b2][_0x4ccb95(0x159,'pgmg')][0x1][_0x4ccb95(0x13d,'ZTnN')](_0x4ccb95(0x152,'Z*CP'))[_0x4ccb95(0x12b,'AeG9')])||0x0,_0x4f02c8=_0x496924*_0xa3114-_0x1968c9;_0x273995[_0xd446b2][_0x4ccb95(0x163,'a]uE')][0x2][_0x4ccb95(0x12c,'I4$g')]('input')[_0x4ccb95(0x13a,'FA@S')]=_0x4f02c8[_0x4ccb95(0x156,'CO(Y')](0x3);}}console[_0x4ccb95(0x15f,'O&SH')]('Required\x20production\x20to\x20meet\x20final\x20demand:',_0x153125),console[_0x4ccb95(0x149,'SC8R')](_0x4ccb95(0x13e,'6vU5'),_0x319c1e),console[_0x4ccb95(0x128,'^nqp')](_0x4ccb95(0x154,'qvjg'),_0x61962e),console[_0x4ccb95(0x11f,'VTy9')]('sociallyDeterminedProductionGoal:',_0x3137bc),console[_0x4ccb95(0x11f,'VTy9')]('producedQuantity:',_0x33ca6),console[_0x4ccb95(0x11e,'wr3B')](_0x4ccb95(0x135,'d&Vb'),_0xa3114);}else console[_0x4ccb95(0x131,'FA@S')](_0x4ccb95(0x132,'&%B)'));}else console[_0x4ccb95(0x167,'CO(Y')](_0x4ccb95(0x164,'I4$g'),_0x582456);})[_0x5a171d(0x148,'lqx)')](_0x296e4a=>console['error']('Erro\x20ao\x20carregar\x20dados\x20do\x20JSONBin:',_0x296e4a)),scrollToEndOfPage();}
+let isPlanified = false; // Variável para controlar se a planificação foi feita
+
+function saveOptimizationInputsForProduct(productIndex) {
+    const inputs = optimizationInputs[productIndex];
+    if (!inputs) return;
+
+    // Salva os dados no objeto de otimização
+    optimizationInputs[productIndex] = inputs;
+    optimizedStatus[productIndex] = true;
+
+    // Atualiza o botão na tabela "Demanda Final"
+    updateOptimizeButtonColor(productIndex);
+
+    // Recalcula a otimização para este produto
+    performOptimization(productIndex);
+
+    // Atualiza os resultados da "Planificação Otimizada"
+    const resultDiv = document.getElementById('result');
+    if (resultDiv && resultDiv.innerHTML.trim() !== '') {
+        planify(); // Reprocessa os dados da planificação
+    }
+}
+
+function updateDemandAndGoal() {
+	
+	
+	const confirmation = confirm("Você salvou alterações que tenha feito aqui?");
+	if (!confirmation) {
+		showNotification("Salve as alterações que fez aqui." ,false);
+		return;
+	}
+	
+    // Obter a chave da instância a partir do campo "Conselho Popular Associado:"
+    const instanceKey = document.getElementById("conselhoPopularAssociadoDeComiteOuTrabalhador").value.trim();
+    const targetProduct = document.querySelector("#producaoMetaTable tbody tr input[type='text']").value.trim();
+
+    if (!instanceKey) {
+        console.error("Conselho Popular Associado não preenchido.");
+        return;
+    }
+
+    fetch(apiUrl, {
+		method: 'GET',
+		headers: headers
+	})
+		.then(response => response.json())
+		.then(binData => {
+            const record = binData || {};
+            const instanceData = record[instanceKey];
+
+            if (instanceData) {
+                const { optimizationResults, productNames, setorUnidade } = instanceData; //CARREGAR plannedFinalDemand
+
+                // Encontrar índice do produto no vetor "productNames"
+                const productIndex = productNames.indexOf(targetProduct);
+
+                if (productIndex !== -1 && optimizationResults) {
+                    // Localizar o valor correspondente no vetor "optimizationResults"
+					//console.info("optimizationResults: ");
+					//console.log(optimizationResults);
+					//console.info("productIndex: ");
+					//console.log(productIndex);
+                    const requiredProduction = optimizationResults[productIndex].plannedFinalDemand;
+
+					//console.info("requiredProduction: ");
+					//console.log(requiredProduction);
+
+                    // Filtrar as unidades de produção do setor atual
+                    const filteredRecords = Object.values(record).filter(item =>
+                        item.conselhoPopularAssociadoDeComiteOuTrabalhador === instanceKey &&
+                        item.setorUnidade === (targetProduct.includes('Rede') ? targetProduct : `Produção de ${targetProduct}`)
+                    );
+
+                    // Calcular o totalEffectiveWorkersLimit
+                    let totalEffectiveWorkersLimit = 0;
+                    filteredRecords.forEach(productionUnit => {
+                        if (productionUnit.limiteEfetivoTrabalhadores) {
+                            totalEffectiveWorkersLimit += parseInt(productionUnit.limiteEfetivoTrabalhadores, 10);
+                        }
+                    });
+
+                    if (totalEffectiveWorkersLimit === 0) {
+                        console.error("Nenhum trabalhador efetivo encontrado nas unidades de produção filtradas.");
+                        return;
+                    }
+
+                    // Obter o totalEffectiveWorkers da interface
+                    const totalEffectiveWorkers = parseFloat(document.getElementById("limiteEfetivoTrabalhadores").value.trim()) || 0;
+
+                    // Calcular o peso da unidade de produção
+                    const productionUnitWeight = totalEffectiveWorkers / totalEffectiveWorkersLimit;
+
+					let sociallyDeterminedProductionGoal = productionUnitWeight*requiredProduction;
+					//console.info("requiredProduction: ");
+					//console.log(requiredProduction);
+					let producedQuantity = 5;
+					let pendingProductionQuantity = ((sociallyDeterminedProductionGoal-producedQuantity*1000)/1000).toFixed(3); //divide por 1000 só pra dar a ordem de grandeza, mas pode mudar isso
+					
+					document.getElementById("pendingProductionQuantity").value = pendingProductionQuantity;
+
+					// Adição: Iteração nas tabelas "Estoque e Demanda" e "Vetor Tecnológico"
+                    const stockDemandTable = document.querySelector("#estoqueDemandaTable tbody");
+                    const techVectorTable = document.querySelector("#vetorTecnologicoTable tbody");
+
+                    if (stockDemandTable && techVectorTable) {
+                        const stockRows = stockDemandTable.rows;
+                        const techRows = techVectorTable.rows;
+
+                        for (let i = 0; i < stockRows.length && i < techRows.length; i++) {
+                            // Obter valores das colunas relevantes
+                            const quantidadeDeUmBemDeProducao = parseFloat(techRows[i].cells[1].querySelector("input").value) || 0;
+                            const estoqueDeUmBemDeProducao = parseFloat(stockRows[i].cells[1].querySelector("input").value) || 0;
+
+                            // Calcular demanda de um bem de produção
+                            const demandaDeUmBemDeProducao = 
+                                quantidadeDeUmBemDeProducao * pendingProductionQuantity - estoqueDeUmBemDeProducao;
+
+                            // Atualizar a coluna correspondente na tabela "Estoque e Demanda"
+                            stockRows[i].cells[2].querySelector("input").value = demandaDeUmBemDeProducao.toFixed(3);
+                        }
+                    }
+
+                    // Exibir os resultados no console
+                    console.log("Required production to meet final demand:", requiredProduction);
+                    console.log("Total Effective Workers Limit:", totalEffectiveWorkersLimit);
+                    console.log("Production Unit Weight:", productionUnitWeight);
+					console.log("sociallyDeterminedProductionGoal:", sociallyDeterminedProductionGoal);
+					console.log("producedQuantity:", producedQuantity);
+					console.log("pendingProductionQuantity:", pendingProductionQuantity);
+					
+					
+					
+					
+                } else {
+                    console.error("Produto ou demanda final não encontrada.");
+                }
+            } else {
+                console.error("Nenhum dado encontrado para a instância:", instanceKey);
+            }
+        })
+        .catch(err => console.error("Erro ao carregar dados do JSONBin:", err));
+
+    // Rolar para o final da página
+    scrollToEndOfPage();
+}
+
