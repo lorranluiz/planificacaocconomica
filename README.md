@@ -15,7 +15,8 @@
 7. [How to Use](#how-to-use)
     1. [Clone the Repository](#clone-the-repository)
     2. [Install](#install)
-8. [Contact](#contact)
+8. [Support](#support)
+9. [Contact](#contact)
 
 <a id="languages"></a>
 ## 🌐 Languages 
@@ -68,6 +69,16 @@ git clone https://github.com/lorranluiz/planificacaocconomica.git
 cd planificacaocconomica
 npm install
 ```
+
+<a id="support"></a>
+## 💖 Support This Project
+This project is open-source and built with dedication to help the community. If you find it useful and would like to support its development, consider making a donation. Your support helps keep this project alive and evolving! 🚀
+
+🔹 Ways to support:
+- GitHub Sponsors
+- PayPal: your-email@example.com
+Every contribution, big or small, makes a difference. Thank you for your support! 💙
+
 <a id="contact"></a>
 ## 📧 Contact
 If you have any questions, please raise an issue or contact us at lorranluiz@id.uff.br .

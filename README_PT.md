@@ -14,7 +14,8 @@
 6. [Como Usar](#-como-usar)
     1. [Clonar o Repositório](#1-clonar-o-repositório)
     2. [Instalar](#2-instalar)
-7. [Contato](#-contato)
+8. [Apoie Este Projeto](#-apoie-este-projeto)
+9. [Contato](#-contato)
 
 # 🚀 Introdução
 Planificação Econômica
@@ -54,5 +55,15 @@ git clone https://github.com/lorranluiz/planificacaocconomica.git
 cd planificacaocconomica
 npm install
 ```
+
+## 💖 Apoie Este Projeto
+Este projeto é open-source e foi desenvolvido com dedicação para ajudar a comunidade. Se você acha útil e deseja apoiar seu desenvolvimento, considere fazer uma doação. Seu apoio ajuda a manter este projeto ativo e evoluindo! 🚀
+
+🔹 Formas de apoiar:
+- GitHub Sponsors
+- Pix (celular): 21997427600
+
+Toda contribuição, grande ou pequena, faz a diferença. Obrigado pelo seu apoio! 💙
+
 ## 📧 Contato
 Se você tiver alguma dúvida, por favor, poste um novo issue ou entre em contato conosco através de lorranluiz@id.uff.br .
