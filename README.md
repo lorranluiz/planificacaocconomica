@@ -67,7 +67,7 @@ git clone https://github.com/lorranluiz/planificacaocconomica.git
 ```bash
 cd planificacaocconomica
 npm install
-
+```
 <a id="contact"></a>
 ## 📧 Contact
 If you have any questions, please raise an issue or contact us at lorranluiz@id.uff.br .
