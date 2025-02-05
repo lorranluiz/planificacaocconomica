@@ -6,14 +6,21 @@
 </p>
 
 ## Index
-1. [Introduction](#introduction)
-2. [What Did I Do?](#what-is-this)
-3. [How to Couple Production and Distribution](#how-to-couple-production-and-distribution)
-4. [Features](#features)
-5. [System Requirements](#system-requirements)
-6. [How to Use](#how-to-use)
+1. [Languages](#languages)
+2. [Introduction](#introduction)
+3. [What Did I Do?](#what-is-this)
+4. [How to Couple Production and Distribution](#how-to-couple-production-and-distribution)
+5. [Features](#features)
+6. [System Requirements](#system-requirements)
+7. [How to Use](#how-to-use)
     1. [Clone the Repository](#1-clone-the-repository)
     2. [Install](#2-install)
+
+## 🌐 Languages 
+
+- [🇺🇸 English](./README.md)
+- [🇧🇷 Português](./README_PT.md)
+
 
 # Introduction
 Economic Planning
