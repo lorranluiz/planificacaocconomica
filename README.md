@@ -1,6 +1,3 @@
-<p align="center">
-    <img src="./public/images/planEconLogoBranca1.png" alt="Planificação Econômica Logo">
-</p>
 ```html
 <p align="center">
     <picture>
