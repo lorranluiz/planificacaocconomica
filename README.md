@@ -1,3 +1,18 @@
+<p align="center">
+    <img src="./public/images/planEconLogo1.png" alt="Planificação Econômica Logo">
+</p>
+
+## Índice
+1. [planecon](#planecon)
+2. [O Que Fiz?](#o-que-fiz)
+3. [Como Acoplar Produção e Distribuição](#como-acoplar-produção-e-distribuição)
+4. [Funcionalidades](#funcionalidades)
+5. [Requisitos do Sistema](#requisitos-do-sistema)
+6. [Como Usar](#como-usar)
+    1. [Clonar o Repositório](#1-clonar-o-repositório)
+    2. [Instalar](#2-instalar)
+
+
 # planecon
 Planificação Econômica
 
