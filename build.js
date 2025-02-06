@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const JavaScriptObfuscator = require('javascript-obfuscator');
+const { exec } = require('child_process');
 
 const sourceDir = path.join(__dirname, 'public', 'js');
 const outputDir = path.join(__dirname, 'public', 'js_obfuscated');
@@ -66,3 +67,18 @@ function createEmptyObfuscatedFilesDirectory(){
 console.log('Creating obfuscated files...');
 createEmptyObfuscatedFilesDirectory();
 processFilesRecursively(sourceDir, outputDir);
+
+// Instalar dependências dos microsserviços python do servidor (depois ver um gerenciador de dependências para gerenciar e instalar automaticamente as dependências python do projeto)
+exec('pip install matplotlib', (error, stdout, stderr) => {
+    if (error) {
+        console.error(`Erro ao executar o comando: ${error.message}`);
+        return;
+    }
+
+    if (stderr) {
+        console.error(`Erro: ${stderr}`);
+        return;
+    }
+
+    console.log(`Resultado: ${stdout}`);
+});
