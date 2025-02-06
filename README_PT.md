@@ -60,8 +60,9 @@ npm install
 Este projeto é open-source e foi desenvolvido com dedicação para ajudar a comunidade. Se você acha útil e deseja apoiar seu desenvolvimento, considere fazer uma doação. Seu apoio ajuda a manter este projeto ativo e evoluindo! 🚀
 
 🔹 Formas de apoiar:
-- GitHub Sponsors
-- Pix (celular): 21997427600
+
+- GitHub Sponsors: [![Apoie no GitHub Sponsors](https://img.shields.io/badge/Sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#EA4AAA)](https://github.com/sponsors/lorranluiz)
+- Pix (Celular): 21997427600
 
 Toda contribuição, grande ou pequena, faz a diferença. Obrigado pelo seu apoio! 💙
 
