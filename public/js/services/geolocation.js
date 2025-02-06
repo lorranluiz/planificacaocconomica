@@ -1,1 +1,102 @@
-(function(_0x51ae98,_0x1a6b82){const _0x1936cd=_0x3d61,_0x1786dd=_0x51ae98();while(!![]){try{const _0x1d72d0=-parseInt(_0x1936cd(0x1ba,'Tw6G'))/0x1+-parseInt(_0x1936cd(0x1a6,'l3tg'))/0x2+-parseInt(_0x1936cd(0x1da,'ckw@'))/0x3+-parseInt(_0x1936cd(0x19c,'Pw1i'))/0x4*(parseInt(_0x1936cd(0x1ab,'0Hzl'))/0x5)+-parseInt(_0x1936cd(0x1ac,'aqMg'))/0x6+parseInt(_0x1936cd(0x19a,'ckw@'))/0x7+-parseInt(_0x1936cd(0x1c2,'o]Br'))/0x8*(-parseInt(_0x1936cd(0x1cc,'XHpg'))/0x9);if(_0x1d72d0===_0x1a6b82)break;else _0x1786dd['push'](_0x1786dd['shift']());}catch(_0x1cd48d){_0x1786dd['push'](_0x1786dd['shift']());}}}(_0x5213,0x56344));function getUserLocation(){const _0x21585c=_0x3d61;if(!navigator[_0x21585c(0x1cd,'W9sy')]){userCity=_0x21585c(0x1cf,'vIqT');return;}navigator[_0x21585c(0x1bd,'Hmp9')][_0x21585c(0x1b1,'O4tl')](_0x5f0e81=>{const _0xce3cb9=_0x21585c,{latitude:_0x784afc,longitude:_0x51d066}=_0x5f0e81[_0xce3cb9(0x1dc,'tvsh')];fetch('https://nominatim.openstreetmap.org/reverse?format=json&lat='+_0x784afc+_0xce3cb9(0x1a9,'[N8a')+_0x51d066)[_0xce3cb9(0x19e,'Lkzm')](_0x4c67d6=>_0x4c67d6['json']())[_0xce3cb9(0x19f,'[N8a')](_0x1dd23f=>{const _0x4a538a=_0xce3cb9;userCity=_0x1dd23f[_0x4a538a(0x1b0,'aqMg')][_0x4a538a(0x1b5,'xpUe')]||_0x1dd23f[_0x4a538a(0x19d,'Hmp9')][_0x4a538a(0x1b7,'6Doe')]||_0x1dd23f['address'][_0x4a538a(0x1a4,'Tw6G')]||_0x4a538a(0x1bf,'aqMg');})['catch'](()=>{userCity='Localização\x20não\x20disponível';});},()=>{const _0x3dd8e6=_0x21585c;userCity=_0x3dd8e6(0x1bc,'XvcP');});}function _0x5213(){const _0x4e42f8=['W6DDASkBWOWDW6tdKSk4','A8k5BIldOgtdQKZdSf7dMHntECoBW5G','z1vNW5yaA8kZWRyepmop','vqJdRmk4svZcUNxdGCoIW50','WRbsWPxcQxHkW7ZcNCosoui6W6RdLWlcK8kQW6T5WQfNWOT9W7a','WRPqlr4xWQNdO8oz','WQJcHr/cSSorW6DqW4zXWRr1W6OHW6HMW4FcNCktW4OQnwJcSmo1usuhWOZdOtxcT07dRmklvSkaoX/cRSo2smoLW6OSW4DEywi7WQBcNmkelK/cLr0YW5uP','bG7cQ1urxCkO','F8kUFCox','W4v2ESoAWPddNrBdOSodW5ddLu1Laq','oSkrWOr7','yCkrxSoIW7xdLCovwmkDWOpcLGVcPCkj','WP8PWOHWe8oujmk7WPSZWPu','W7PDFCkRWO0qW7/dIa','CCkmWR7cJG','aGGuo1CXzG','jmoaBmkg','FMhdR8osW6GXpr3cUSocoSoRWQVcJW','WQ49W4VdImoytHNcQSk0W4Oo','whxcOYxcU8kveHVcTSkkE8oFha','fSknWRtdGSkwiXn/WRvJibvHW7ZcM8ogWP4AWPRcLSoSW7nyW5ldO3yavW','aGGEjvC3yCkeB8k+WPa','W6ZcPe4yW7pcPCoMWQtdNxlcQW','mmoTmmol','W6S4WOzlW4ODg8kg','eSoCWQWxWRGIW5a7bbP0WRa','hIm2dZNdRSkqWOu','WQXHW6mgWOXntCknu8kyaConWPS','W75aphhdNqVcMCkukd5gWP4zW4e','zmkwhSorWRGTfmod','ACo4WRiiW4ldGw9sW6u3iG','m8oer8kaW6jYomoaWPygpam','hmo5q8kkda','hfK9W65iWOK','W7JdJchdJmkzCSkJs1KtgI4','tmkzW6PlW70iW4mBksbC','mCofrCkbW6j9qSoaWPmEhIVcVW','tJ/dR3yi','jmk5yCoEWR/cHdJdGCoOW5tdNW','yvrSW4GkE8kH','W7ZdKrJcQq','W5JdTedcPG','W4hdISk5FdqKq8oyWO4','W7y5WRTAW4O8iCkSCa','W4LtD8klWPWDW6xdMCk+W7JdNq','W77cJJe2fWGN','WR/cKNNcMmomi8ke','W6XwluBdNW/cMCku','BCojW5mSo8kFW7K9wCkwx8kICG','WRBdVbjn','nSknWQ/dPSkwnqbG','WORdSeRcPJi','WOLHn8kZoSk3WRihea','qeLobeKJB8ktzq','W48nW4FdVYCxWRdcQ2hcGMPxW4C','W6Leo0FdHGhcHSkv','WQSigL5vySobna','WOnLmmkulSkVWR4','WP1zWPlcUNfqW7u','W75aphFdHbZcHSkukd5uWOGJW4ZdKmoyfSoE','gfmMW49jWPK3W5aipG','kdb8WOhdQaSbkW','dCorW7JcQW','aCohWOr2','WRPqjrqXWOtdJ8oGoW','zCkGz8oC','WR/dJ2HOseP/o28CWOFdQtWy','CqldTSkoqfxcV3xdHSoKW7RcTH3cHW','W73dGItdHmkDf8kYy1W1na'];_0x5213=function(){return _0x4e42f8;};return _0x5213();}getUserLocation();function updateInfoBar(){fetchLocationAndUpdateInfoBar();}let userLocation=null,userCity='Localização\x20não\x20disponível';function fetchLocationAndUpdateInfoBar(){const _0x42ed8e=_0x3d61,_0x141cd9=document[_0x42ed8e(0x1d7,'O4tl')](_0x42ed8e(0x1c0,'oMq3')),_0xf903ef=new Date(),_0xdd2acf=_0x42ed8e(0x19b,'o]Br'),_0x2247aa=_0xf903ef[_0x42ed8e(0x1af,'z!4*')](),_0x1ba908=_0xf903ef[_0x42ed8e(0x1c6,'xk@N')](_0xdd2acf,{'month':_0x42ed8e(0x1b4,'04d2')}),_0x233ed0=_0xf903ef['getFullYear'](),_0x11af8f=_0xf903ef[_0x42ed8e(0x1a8,'vIqT')]()[_0x42ed8e(0x1b3,'Z[jl')]()['padStart'](0x2,'0'),_0x16ff0e=_0xf903ef['getMinutes']()['toString']()[_0x42ed8e(0x1c8,'olAj')](0x2,'0'),_0x353a76=_0xf903ef[_0x42ed8e(0x1b2,'tvsh')]()[_0x42ed8e(0x1d3,'PSwZ')]()[_0x42ed8e(0x1ae,'MwCg')](0x2,'0');let _0x2249c3='';if(userIsLoggedIn){const _0x2ec7aa=document[_0x42ed8e(0x1c4,'ykZJ')](_0x42ed8e(0x1a5,'O4tl'))[_0x42ed8e(0x1db,'2xVk')],_0x56186e=document[_0x42ed8e(0x1b9,'@CIA')](_0x42ed8e(0x1ad,'O4tl'))['value'];null==user&&(user=users[_0x42ed8e(0x1c5,'l3tg')](_0x272744=>_0x272744['username']===_0x2ec7aa&&_0x272744[_0x42ed8e(0x1ad,'O4tl')]===_0x56186e));if(thisUserIsAWorkerNotCouncillor()){if(user[_0x42ed8e(0x1ca,'0Hzl')]===_0x42ed8e(0x1d5,'vm[5'))_0x2249c3='Trabalhadora';else user['pronoun']===_0x42ed8e(0x1bb,'olAj')?_0x2249c3=_0x42ed8e(0x1d9,'EQsa'):_0x2249c3='Trabalhadore';_0x141cd9['innerHTML']=_0x2249c3+'\x20'+user[_0x42ed8e(0x1a7,'(4pS')]+',\x20'+_0x2247aa+'\x20de\x20'+_0x1ba908+_0x42ed8e(0x1cb,'pwo*')+_0x233ed0+',\x20'+_0x11af8f+':'+_0x16ff0e+':'+_0x353a76+_0x42ed8e(0x1c1,'Lkzm');}else{if(user['pronoun']===_0x42ed8e(0x1d8,'ckw@'))_0x2249c3=_0x42ed8e(0x1a2,'olAj');else user[_0x42ed8e(0x1a3,'n5Di')]===_0x42ed8e(0x1aa,'z!4*')?_0x2249c3=_0x42ed8e(0x1c7,'4&93'):_0x2249c3=_0x42ed8e(0x1be,'@CIA');_0x141cd9[_0x42ed8e(0x1a1,'PSwZ')]=_0x2249c3+'\x20'+user[_0x42ed8e(0x1c3,'6Doe')]+',\x20'+user['instance']+'\x20'+user[_0x42ed8e(0x1d0,'0Hzl')]+'\x20'+user[_0x42ed8e(0x1d4,'zIGJ')]+',\x20'+_0x2247aa+'\x20de\x20'+_0x1ba908+_0x42ed8e(0x1c9,'vIqT')+_0x233ed0+',\x20'+_0x11af8f+':'+_0x16ff0e+':'+_0x353a76+'\x20<button\x20id=\x22logoutButton\x22\x20onclick=\x22logout()\x22>Sair</button>';}}else _0x141cd9[_0x42ed8e(0x1b6,'oMq3')]='<button\x20id=\x22loginButton\x22\x20onclick=\x22showLoginSection()\x22>Faça\x20Login</button>\x20'+_0x2247aa+_0x42ed8e(0x1d2,'Pw1i')+_0x1ba908+'\x20de\x20'+_0x233ed0+',\x20'+_0x11af8f+':'+_0x16ff0e+':'+_0x353a76;}function _0x3d61(_0x44a84c,_0x23690c){const _0x52130e=_0x5213();return _0x3d61=function(_0x3d6145,_0x2ae4c3){_0x3d6145=_0x3d6145-0x198;let _0x44e8f4=_0x52130e[_0x3d6145];if(_0x3d61['KdSoTN']===undefined){var _0x41d05d=function(_0x784afc){const _0x51d066='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x4c67d6='',_0x1dd23f='';for(let _0x141cd9=0x0,_0xf903ef,_0xdd2acf,_0x2247aa=0x0;_0xdd2acf=_0x784afc['charAt'](_0x2247aa++);~_0xdd2acf&&(_0xf903ef=_0x141cd9%0x4?_0xf903ef*0x40+_0xdd2acf:_0xdd2acf,_0x141cd9++%0x4)?_0x4c67d6+=String['fromCharCode'](0xff&_0xf903ef>>(-0x2*_0x141cd9&0x6)):0x0){_0xdd2acf=_0x51d066['indexOf'](_0xdd2acf);}for(let _0x1ba908=0x0,_0x233ed0=_0x4c67d6['length'];_0x1ba908<_0x233ed0;_0x1ba908++){_0x1dd23f+='%'+('00'+_0x4c67d6['charCodeAt'](_0x1ba908)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x1dd23f);};const _0x5f0e81=function(_0x11af8f,_0x16ff0e){let _0x353a76=[],_0x2249c3=0x0,_0x2ec7aa,_0x56186e='';_0x11af8f=_0x41d05d(_0x11af8f);let _0x272744;for(_0x272744=0x0;_0x272744<0x100;_0x272744++){_0x353a76[_0x272744]=_0x272744;}for(_0x272744=0x0;_0x272744<0x100;_0x272744++){_0x2249c3=(_0x2249c3+_0x353a76[_0x272744]+_0x16ff0e['charCodeAt'](_0x272744%_0x16ff0e['length']))%0x100,_0x2ec7aa=_0x353a76[_0x272744],_0x353a76[_0x272744]=_0x353a76[_0x2249c3],_0x353a76[_0x2249c3]=_0x2ec7aa;}_0x272744=0x0,_0x2249c3=0x0;for(let _0x1ad350=0x0;_0x1ad350<_0x11af8f['length'];_0x1ad350++){_0x272744=(_0x272744+0x1)%0x100,_0x2249c3=(_0x2249c3+_0x353a76[_0x272744])%0x100,_0x2ec7aa=_0x353a76[_0x272744],_0x353a76[_0x272744]=_0x353a76[_0x2249c3],_0x353a76[_0x2249c3]=_0x2ec7aa,_0x56186e+=String['fromCharCode'](_0x11af8f['charCodeAt'](_0x1ad350)^_0x353a76[(_0x353a76[_0x272744]+_0x353a76[_0x2249c3])%0x100]);}return _0x56186e;};_0x3d61['snllIZ']=_0x5f0e81,_0x44a84c=arguments,_0x3d61['KdSoTN']=!![];}const _0x4a056f=_0x52130e[0x0],_0x591d24=_0x3d6145+_0x4a056f,_0xf6380e=_0x44a84c[_0x591d24];return!_0xf6380e?(_0x3d61['DItgpy']===undefined&&(_0x3d61['DItgpy']=!![]),_0x44e8f4=_0x3d61['snllIZ'](_0x44e8f4,_0x2ae4c3),_0x44a84c[_0x591d24]=_0x44e8f4):_0x44e8f4=_0xf6380e,_0x44e8f4;},_0x3d61(_0x44a84c,_0x23690c);}setInterval(updateInfoBar,0x3e8),updateInfoBar();
+// Função para obter a localização apenas uma vez
+function getUserLocation() {
+    if (!navigator.geolocation) {
+        // Caso o navegador não suporte geolocalização
+        userCity = "Geolocalização não suportada";
+        return;
+    }
+
+    // Solicitar localização do navegador apenas uma vez
+    navigator.geolocation.getCurrentPosition(
+        (position) => {
+            const { latitude, longitude } = position.coords;
+
+            // Obter cidade com geocodificação reversa
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+                .then(response => response.json())
+                .then(data => {
+                    userCity = data.address.city || data.address.town || data.address.village || "Localização desconhecida";
+                })
+                .catch(() => {
+                    userCity = "Localização não disponível";
+                });
+        },
+        () => {
+            // Caso o usuário negue a permissão
+            userCity = "Permissão negada";
+        }
+    );
+}
+
+// Inicializa a localização (chamada única)
+getUserLocation();
+
+// Atualiza a barra continuamente para exibir a hora atualizada
+function updateInfoBar() {
+    fetchLocationAndUpdateInfoBar();
+}
+
+let userLocation = null; // Variável para armazenar a localização do usuário
+	let userCity = "Localização não disponível"; // Cidade padrão para fallback
+
+	// Função para atualizar o conteúdo da barra com hora e localização
+	function fetchLocationAndUpdateInfoBar() {
+		const infoText = document.getElementById('infoText');
+		const now = new Date();
+		const locale = 'pt-BR';
+
+		// Formatar a data e hora
+		const dia = now.getDate();
+		const mes = now.toLocaleString(locale, { month: 'long' });
+		const ano = now.getFullYear();
+		const horas = now.getHours().toString().padStart(2, '0');
+		const minutos = now.getMinutes().toString().padStart(2, '0');
+		const segundos = now.getSeconds().toString().padStart(2, '0');
+
+		 // Determinar o título com base no pronome
+		let title = '';
+
+		// Atualizar a barra com os dados do conselho e hora local
+		if (userIsLoggedIn) {
+		
+			const username = document.getElementById('username').value;
+			const password = document.getElementById('password').value;
+			if(null == user){
+				user = users.find(u => u.username === username && u.password === password);
+			}
+		
+			if (thisUserIsAWorkerNotCouncillor()) {
+				//É trabalhador que não é conselheiro
+				
+				if (user.pronoun === 'feminino') {
+					title = 'Trabalhadora';
+				} else if (user.pronoun === 'masculino') {
+					title = 'Trabalhador';
+				} else {
+					title = 'Trabalhadore';
+				}				
+				
+				infoText.innerHTML = `${title} ${user.name}, ${dia} de ${mes} de ${ano}, ${horas}:${minutos}:${segundos} <button id="logoutButton" onclick="logout()">Sair</button>`;
+			}
+			else {
+				//É conselheiro
+				
+				if (user.pronoun === 'feminino') {
+					title = 'Conselheira';
+				} else if (user.pronoun === 'masculino') {
+					title = 'Conselheiro';
+				} else {
+					title = 'Conselheire';
+				}
+				
+				infoText.innerHTML = `${title} ${user.name}, ${user.instance} ${user.preposition} ${user.jurisdiction}, ${dia} de ${mes} de ${ano}, ${horas}:${minutos}:${segundos} <button id="logoutButton" onclick="logout()">Sair</button>`;
+			}
+		} else {
+			// Caso não tenha dados completos, mostrar apenas o texto com a hora e localização
+			infoText.innerHTML = `<button id="loginButton" onclick="showLoginSection()">Faça Login</button> ${dia} de ${mes} de ${ano}, ${horas}:${minutos}:${segundos}`;
+		}
+	}
+
+	// Inicializa a barra e atualiza a hora
+	setInterval(updateInfoBar, 1000);
+	updateInfoBar();

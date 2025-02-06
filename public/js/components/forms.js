@@ -1,1 +1,88 @@
-function _0x285d(_0xe749cf,_0x58b445){const _0x46eb37=_0x46eb();return _0x285d=function(_0x285d1a,_0x4a82ce){_0x285d1a=_0x285d1a-0x18e;let _0x14079b=_0x46eb37[_0x285d1a];if(_0x285d['nfwwaE']===undefined){var _0x508881=function(_0x206d82){const _0x18f6da='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x4114cc='',_0x7d1d2b='';for(let _0x372292=0x0,_0x4c3f2c,_0x4997b2,_0x2ba268=0x0;_0x4997b2=_0x206d82['charAt'](_0x2ba268++);~_0x4997b2&&(_0x4c3f2c=_0x372292%0x4?_0x4c3f2c*0x40+_0x4997b2:_0x4997b2,_0x372292++%0x4)?_0x4114cc+=String['fromCharCode'](0xff&_0x4c3f2c>>(-0x2*_0x372292&0x6)):0x0){_0x4997b2=_0x18f6da['indexOf'](_0x4997b2);}for(let _0x29d322=0x0,_0x560e0b=_0x4114cc['length'];_0x29d322<_0x560e0b;_0x29d322++){_0x7d1d2b+='%'+('00'+_0x4114cc['charCodeAt'](_0x29d322)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x7d1d2b);};const _0x3a77d6=function(_0x393191,_0x41abf3){let _0x8d596b=[],_0x1d7cb6=0x0,_0x47aaf1,_0x259442='';_0x393191=_0x508881(_0x393191);let _0x69976e;for(_0x69976e=0x0;_0x69976e<0x100;_0x69976e++){_0x8d596b[_0x69976e]=_0x69976e;}for(_0x69976e=0x0;_0x69976e<0x100;_0x69976e++){_0x1d7cb6=(_0x1d7cb6+_0x8d596b[_0x69976e]+_0x41abf3['charCodeAt'](_0x69976e%_0x41abf3['length']))%0x100,_0x47aaf1=_0x8d596b[_0x69976e],_0x8d596b[_0x69976e]=_0x8d596b[_0x1d7cb6],_0x8d596b[_0x1d7cb6]=_0x47aaf1;}_0x69976e=0x0,_0x1d7cb6=0x0;for(let _0x4cb439=0x0;_0x4cb439<_0x393191['length'];_0x4cb439++){_0x69976e=(_0x69976e+0x1)%0x100,_0x1d7cb6=(_0x1d7cb6+_0x8d596b[_0x69976e])%0x100,_0x47aaf1=_0x8d596b[_0x69976e],_0x8d596b[_0x69976e]=_0x8d596b[_0x1d7cb6],_0x8d596b[_0x1d7cb6]=_0x47aaf1,_0x259442+=String['fromCharCode'](_0x393191['charCodeAt'](_0x4cb439)^_0x8d596b[(_0x8d596b[_0x69976e]+_0x8d596b[_0x1d7cb6])%0x100]);}return _0x259442;};_0x285d['EJlElR']=_0x3a77d6,_0xe749cf=arguments,_0x285d['nfwwaE']=!![];}const _0x26ad5a=_0x46eb37[0x0],_0x3dcfc5=_0x285d1a+_0x26ad5a,_0x41464f=_0xe749cf[_0x3dcfc5];return!_0x41464f?(_0x285d['ThkXeE']===undefined&&(_0x285d['ThkXeE']=!![]),_0x14079b=_0x285d['EJlElR'](_0x14079b,_0x4a82ce),_0xe749cf[_0x3dcfc5]=_0x14079b):_0x14079b=_0x41464f,_0x14079b;},_0x285d(_0xe749cf,_0x58b445);}const _0x2e97b9=_0x285d;function _0x46eb(){const _0x2487ff=['WRVdLmkzW6qtWRtdPwC','zcHlEW','WPuAWQS','h8kQua','jCk3ve3dUG','rmkHwajEW7TiW5K','h8oohSo3WOZdP8kXWQCIEYfyWOBdTq','lHDcW6tcNISbW7NdPW','fvjtjM4','hJOxzCoZ','WOz4msfd','W4CSzY1EWOZcQuP/','C8ksW6zwg1VcLSkZoNbk','W7hdLLlcOCkZDsLhCgRdSmkaWOa','W5KjWQz6emoNW4mnlCoIlWT+Dxfp','D1BcISkkACkyjCoZDCoH','WPf8iGz1WRFcVunokCkqcr/dO8oUAhNdP1VcMmkx','W65QrSkyW57cKCkNs8onk8kB','WO9YceWrAq','ldqAWR9KWODMWPxdQNtcRci','vhu8lSo4W75WW5nzWQBcMmkN','WR3dRtGkWQG9qxddMLO','mCkfACkS','DmkYW74JW6vsENyNW7OF','gmkMuSodeqtcQMu','zSktW7PNlLhcLSkZe3DnWQSLnSk+nG','bSkrkdZdUSoyW4dcV8ob','dcWD','WRW7F8onhJdcUCk2WQ/cMa','WRn9W4VdSmkYxCozt8kCWRqjhW','WOpdSrFcS8kwa1u8WOddL8o6','jt5TW6WeW5HrWPO','W6W6bXnMW5iEWOddUmo1CSkyvmkyb8oW','rmkqWRtdTwhdUmkuWO1L','W6VcGSk4W4m0WR7dPMumoSocW57dMIWTWQS','dG3cSaikWOzcW6VdHXG','WPT2ice','W4uUyxaOW7RdQ0rwjmk2bHK','wSo1eSkCstlcMv7dO8kLW6C','W7ytWR7cOa','nSkJqvVdJcC','W79bWOZdO8k3W5jnkG','W6XTq8kCW5JdS8oUASo6pCkZW4Pw','W6CiWQpcTCkC','WRPPugfLW506WQtdUmo7','vWVcHuRcMNBcNgXS','WQziW6VdOmojofFcMLvXWR4','a19tf3dcMmoGf8o4DJFdKJ8iW71X','W749etL8W5SO','WQVdPX7cRhmi','eWpcOHq3','WOj2jG','WRS9v2tdHG','W47cQCkrW4uTWRxdVhqUj8o9W4xdNIyTWR0','h1ZcVCot','gCoqWQxcNd8nWPK7W4vSuCoAxq','WQRdVqJcPG','W6bHoCkmpYdcKCkxWOO','W6uFmgBdQ2vDvSkh','CSk2W5D1W7xcTW5Wjqu0CYO','cmkmoc7dQ8oqW6RcPCobE8kDtCoH','mhiDmLHJfKZdH8osxKm','bL5rm3pcKCo6','W75TpSkqnIJcPG','dY97BCkLWQPfW5HMWQ4','W7SAWRZcQSkCj3BcQ3XqWRC','CCkwW7jxpq'];_0x46eb=function(){return _0x2487ff;};return _0x46eb();}(function(_0x32eb0f,_0x19326f){const _0x46233d=_0x285d,_0x219407=_0x32eb0f();while(!![]){try{const _0x506e9d=parseInt(_0x46233d(0x18e,'ao&K'))/0x1*(parseInt(_0x46233d(0x1a8,'d5uE'))/0x2)+-parseInt(_0x46233d(0x1c3,'b]UY'))/0x3*(-parseInt(_0x46233d(0x1ac,'7H^@'))/0x4)+parseInt(_0x46233d(0x1ae,'2!^g'))/0x5*(parseInt(_0x46233d(0x1c4,'(txs'))/0x6)+-parseInt(_0x46233d(0x1c1,'d5uE'))/0x7+-parseInt(_0x46233d(0x1ab,'om)k'))/0x8*(parseInt(_0x46233d(0x19c,'hlwn'))/0x9)+parseInt(_0x46233d(0x1aa,'nkPh'))/0xa+parseInt(_0x46233d(0x18f,'&WaS'))/0xb*(parseInt(_0x46233d(0x1b6,'nkPh'))/0xc);if(_0x506e9d===_0x19326f)break;else _0x219407['push'](_0x219407['shift']());}catch(_0x157c1a){_0x219407['push'](_0x219407['shift']());}}}(_0x46eb,0xc922c));function addTooltipBehavior(_0x3a77d6){const _0x3950a6=_0x285d;_0x3a77d6[_0x3950a6(0x1b9,'*Hog')](_0x3950a6(0x1ba,']AMY'),_0x206d82=>{const _0xfcc5d0=_0x3950a6,_0x18f6da=_0x206d82['target'][_0xfcc5d0(0x196,'fVZM')],_0x4114cc=document[_0xfcc5d0(0x190,'y*CA')]('div');_0x4114cc['className']=_0xfcc5d0(0x19d,'$^7T'),_0x4114cc[_0xfcc5d0(0x1a3,'fVZM')]=_0x18f6da,document[_0xfcc5d0(0x1cf,'HAxw')][_0xfcc5d0(0x1b5,'Gb)9')](_0x4114cc);const _0x7d1d2b=_0x206d82['target'][_0xfcc5d0(0x1a7,'t48^')]();_0x4114cc['style'][_0xfcc5d0(0x1cd,'q8Jy')]=_0x7d1d2b['left']+window[_0xfcc5d0(0x193,'8VrX')]+_0x7d1d2b[_0xfcc5d0(0x19f,'psf1')]/0x2-_0x4114cc[_0xfcc5d0(0x195,'r3Yp')]/0x2+'px',_0x4114cc[_0xfcc5d0(0x1a0,'KzxW')][_0xfcc5d0(0x1ca,'t48^')]=_0x7d1d2b[_0xfcc5d0(0x19a,'rmVp')]+window['scrollY']-_0x4114cc[_0xfcc5d0(0x1b4,'1Jrj')]-0x8+'px';}),_0x3a77d6[_0x3950a6(0x1a5,'@(Za')](_0x3950a6(0x194,'om)k'),()=>{const _0x1b484b=_0x3950a6,_0x372292=document[_0x1b484b(0x1ce,'MbeD')]('.custom-tooltip');_0x372292&&_0x372292[_0x1b484b(0x1a9,'xg%$')]();});}document[_0x2e97b9(0x1b7,'b]UY')](_0x2e97b9(0x1cc,'*Hog'),()=>{const _0xa6958a=_0x2e97b9;let _0x4c3f2c=![],_0x4997b2=0x0,_0x2ba268=0x0,_0x29d322=0x0,_0x560e0b=0x0,_0x393191=0x0,_0x41abf3=0x0;document[_0xa6958a(0x198,'zR22')][_0xa6958a(0x1c2,'r3Yp')][_0xa6958a(0x1bf,'oES$')]='default',document['addEventListener'](_0xa6958a(0x1d0,'8VrX'),_0x1d7cb6=>{const _0xc96fe0=_0xa6958a;_0x4c3f2c=!![],_0x4997b2=_0x1d7cb6[_0xc96fe0(0x1c9,']AMY')],_0x2ba268=_0x1d7cb6[_0xc96fe0(0x19b,'oES$')],_0x29d322=window[_0xc96fe0(0x1c7,'b]UY')],_0x560e0b=window['scrollY'],_0x393191=0x0,_0x41abf3=0x0,document[_0xc96fe0(0x1ad,']LTU')]['style']['cursor']=_0xc96fe0(0x1bb,'t48^');}),document[_0xa6958a(0x1c6,'psf1')](_0xa6958a(0x19e,'1fJq'),_0x47aaf1=>{const _0x563feb=_0xa6958a;if(!_0x4c3f2c)return;const _0x259442=_0x4997b2-_0x47aaf1['pageX'],_0x69976e=_0x2ba268-_0x47aaf1[_0x563feb(0x1a1,'t48^')];_0x393191=_0x259442*0.05,_0x41abf3=_0x69976e*0.05;}),document[_0xa6958a(0x1b0,'fVZM')]('mouseup',()=>{const _0x5f1597=_0xa6958a;_0x4c3f2c=![],document[_0x5f1597(0x1be,'r3Yp')][_0x5f1597(0x1cb,'3xAK')][_0x5f1597(0x1c8,'HAxw')]=_0x5f1597(0x192,'psf1');});function _0x8d596b(){const _0x39894d=_0xa6958a;!_0x4c3f2c&&(_0x393191*=0.98,_0x41abf3*=0.98),window[_0x39894d(0x1af,'rmVp')](_0x393191,_0x41abf3),(Math['abs'](_0x393191)>0.1||Math[_0x39894d(0x199,'[uiy')](_0x41abf3)>0.1)&&requestAnimationFrame(_0x8d596b);}document['addEventListener'](_0xa6958a(0x1b1,'y*CA'),()=>{const _0x25c38a=_0xa6958a;(_0x4c3f2c||Math['abs'](_0x393191)>0.1||Math[_0x25c38a(0x1b2,'KzxW')](_0x41abf3)>0.1)&&requestAnimationFrame(_0x8d596b);});});
+function addTooltipBehavior(inputElement) {
+    inputElement.addEventListener('mouseenter', (e) => {
+        const value = e.target.value;
+
+        // Cria o tooltip
+        const tooltip = document.createElement('div');
+        tooltip.className = 'custom-tooltip';
+        tooltip.textContent = value;
+        document.body.appendChild(tooltip);
+
+        // Calcula a posição do tooltip
+        const rect = e.target.getBoundingClientRect();
+        tooltip.style.left = `${rect.left + window.scrollX + rect.width / 2 - tooltip.offsetWidth / 2}px`;
+        tooltip.style.top = `${rect.top + window.scrollY - tooltip.offsetHeight - 8}px`;
+    });
+
+    inputElement.addEventListener('mouseleave', () => {
+        // Remove o tooltip ao sair
+        const tooltip = document.querySelector('.custom-tooltip');
+        if (tooltip) {
+            tooltip.remove();
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    let isDragging = false; // Verifica se o usuário está arrastando
+    let startX = 0, startY = 0; // Posição inicial do mouse
+    let scrollLeft = 0, scrollTop = 0; // Posição inicial de rolagem
+    let velocityX = 0, velocityY = 0; // Velocidade de rolagem
+
+    document.body.style.cursor = 'default'; // Cursor padrão
+
+    document.addEventListener('mousedown', (e) => {
+
+        isDragging = true;
+        startX = e.pageX; // Posição X inicial
+        startY = e.pageY; // Posição Y inicial
+        scrollLeft = window.scrollX; // Posição inicial de rolagem horizontal
+        scrollTop = window.scrollY; // Posição inicial de rolagem vertical
+
+        velocityX = 0;
+        velocityY = 0;
+
+        document.body.style.cursor = 'move'; // Muda o cursor para "move"
+    });
+
+    document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return; // Só funciona enquanto arrastando
+
+        // Calcula o quanto o mouse se moveu
+        const moveX = startX - e.pageX;
+        const moveY = startY - e.pageY;
+
+        velocityX = moveX * 0.05; // Ajuste de sensibilidade
+        velocityY = moveY * 0.05;
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false; // Termina o arraste
+        document.body.style.cursor = 'default'; // Restaura o cursor padrão
+    });
+
+    // Suaviza a rolagem
+    function smoothScroll() {
+        if (!isDragging) {
+            // Diminui gradualmente a velocidade quando o mouse não está arrastando
+            velocityX *= 0.98; // Ajuste de desaceleração
+            velocityY *= 0.98;
+        }
+
+        // Atualiza a posição da rolagem
+        window.scrollBy(velocityX, velocityY);
+
+        // Para o loop quando o movimento for insignificante
+        if (Math.abs(velocityX) > 0.1 || Math.abs(velocityY) > 0.1) {
+            requestAnimationFrame(smoothScroll);
+        }
+    }
+
+    // Inicia a suavização contínua
+    document.addEventListener('mousemove', () => {
+        if (isDragging || Math.abs(velocityX) > 0.1 || Math.abs(velocityY) > 0.1) {
+            requestAnimationFrame(smoothScroll);
+        }
+    });
+});
+

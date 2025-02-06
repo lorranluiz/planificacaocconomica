@@ -70,8 +70,14 @@ mas que seja lido e funciuone normalmente no navegador, só está embaralhado.
 -----------------
 
 [~] 6) Testar analise de dados do data.json no deepseek ou outro
-- deepseek com problema de uploads de arquivos, mas no chatgpt funcionou perfeitamente
-- pegar códigos python gerados e incorporar ao código, ver como exibir para o cliente
+- [ok] deepseek com problema de uploads de arquivos, mas no chatgpt funcionou perfeitamente
+- [~] Microserviços: pegar códigos python gerados e incorporar ao código, ver como exibir para o cliente. usar códigos do python como microserviços, o PM2 e Node já gerenciam isso para que chamadas a programas python se comportem como microserviços separadas, para cada usuário que fez a requisição.
+
+Criar um botão, na tela inicial, de login, que quando o usuário clica exibe um Alert cujo o conteúdo de texto foi processado em um python que rodou no servidor. Colocar inicialmente "Hello, World, Python no servidor!"
+
+- [OUTRO CAMPO, MAS QUE SAI DESSE:
+OTIMIZAÇÃO DA PLANIFICAÇÃO (DOS CALCULOS LOCAIS DE (i) OTIMIZAÇÃO E DE (ii) ESTIMATIVA)]
+Otimização da velocidade e desempenho dos códigos decentralizados de otimização da planificação e calculo das estimativas. Avaliar se é possível rodar no usuário programas python compilados (pra não precisar instalar e chamar todo o python), e a página web apenas faz chamadas locais (como o login online do LOL faz chamando o cliente local no usuário, passando essas informações ou recebendo dele informações por um link). O "servidor" local com os programas python deverá estar rodando. Caso ele instale esses programas no dispositivo dele;
 - pegar alguns prompts e traduzir para python e incorporar como opções de pesquisa (já pré renderizadas, sem necessidade de IA ainda e pra rodar mais levemente e rapidamente, no programa)
     - listar algumas úteis, mas muito mais podem ser incluidas, criar pasta para isso
         - search
@@ -115,6 +121,24 @@ http {
         }
     }
 }
+
+9) Além da análise e da revolução no terreno do que hoje é unilateralmente chamado de Economia, expandir o código para abordar mais outras duas temáticas relacionadas à econômica no socialismo (porque a realidade não é feita de retalhos):
+
+9.1) Análise e Revolução Política:
+    Com sistema integrado, open-source (publicamente auditável), seguro e transparente de eleição para os Conselhos e Comitês
+
+9.2) Análise e Revolução Social:
+    Como sistema de censo e métricas sociais para análise de: a) taxa de variação das diversas formas de violência (análise discriminando a taxa para cada forma de violência)
+    b) taxa de variação da quantidade de pessoas desnutridas, ou com insegurança alimentar ou situação de fome (tudo bem discriminado também)
+    c) taxa de variação de pessoas sem moradia
+    d) taxa de variação de pessoas sem emprego
+    e) taxa de variação de pessoas sem acesso à educação, fora da escola, ou muito longe da idade recomendada para a turma em que estuda (em caso de menores de idade), de jovens e adultos que querem estudar e ainda não conseguem vaga (indicando a necessidade da construção de mais escolas e contratação de mais trabalhadores no setor)
+    f) o mesmo para a saúde, com métricas de pacientes, doenças, leitos e hospitais
+    g) muitas outras métricas podem ser sempre acopladas ao sistema, garantindo uma planificação crescente de todos os aspectos da vida, consequentemente desalienando. humanizando e libertando um a um.
+
+    Todas essas taxas devem se manter negativas (ou seja, apontando um decrescimento no valor dessas variáveis). A partir das taxas com menor negatividade (que apontam menos decrescimento) e maiores números absolutos de incidência (não a taxa de variação aqui) se delinear, utilizando também da ferramenta da IA, os melhores planos para, atendem ao que já condiciona o sistema de planificação, se priorize esses setores mais críticos, sem deixar que os demais deixem de ser negativos nenhuma vez.
+
+    É nesse sentido que a planificação econômica é também uma planificação social, direta e concreta, não indireta ou metafóricamente.
 
 -----------------
 

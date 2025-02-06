@@ -8,6 +8,8 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const multer = require('multer'); // Biblioteca para upload de arquivos
+const { exec } = require('child_process');
+const microservicesRouter = require('./routers/microServicesRouters.js'); // Importando as rotas dos microsserviços python
 const { loadSecureEnvironment, manageObfuscatedFoldersAndFiles, getSSLOptions } = require('./public/js/secure/secure.js');
 
 loadSecureEnvironment(path, fs);
@@ -75,6 +77,27 @@ jsonServerApp.put('/data', (req, res) => {
 
 // Montar o servidor JSON em uma subrota
 app.use('/jsonServer', jsonServerApp);
+
+// Middleware para usar as rotas dos microsserviços python
+//app.use('/microservice', microservicesRouter); // Prefixo opcional "/api", ajusta se quiser
+
+app.get('/microservices/helloMicroService/processarEExibirHelloWorld', (req, res) => {
+  
+  console.log("Chamou execução do microsserviço Python helloMicroService/processarEExibirHelloWorld.py");
+  
+  exec('python ./microservices/py/helloMicroService/processarEExibirHelloWorld.py', (error, stdout, stderr) => {
+    if (error) {
+      console.error(`Erro ao executar o script Python: ${error.message}`);
+      return res.status(500).json({ message: 'Erro ao executar o script Python' });
+    }
+    if (stderr) {
+      console.error(`Erro no script Python: ${stderr}`);
+      return res.status(500).json({ message: 'Erro no script Python' });
+    }
+    res.status(200).json({ message: stdout });
+  });
+
+});
 
 // Middleware para uploads
 const upload = multer({ dest: 'uploads/' });
@@ -152,3 +175,5 @@ httpServer.on('error', (err) => {
 httpsServer.on('error', (err) => {
   console.error('Erro no servidor HTTPS:', err);
 });
+
+
