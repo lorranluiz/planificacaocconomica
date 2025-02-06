@@ -1,7 +1,10 @@
 import json
+import os
 import numpy as np
 import matplotlib.pyplot as plt
-import os
+from io import BytesIO
+import base64
+
 
 # Definir os caminhos
 root_dir = os.path.dirname(os.path.abspath(__file__))
@@ -53,8 +56,22 @@ if amazonas_sector_counts:
     plt.grid(axis="x", linestyle="--", alpha=0.7)
 
     # Salvar o gráfico no diretório especificado
-    plt.savefig(output_image_path)
-    plt.close()
-    print(f"Gráfico salvo em {output_image_path}")
+    #plt.savefig(output_image_path)
+    #plt.close()
+    #print(f"Gráfico salvo em {output_image_path}")
+
+    # Salvar em um buffer de memória em vez de um arquivo
+    buffer = BytesIO()
+    plt.savefig(buffer, format='png')
+    buffer.seek(0)
+
+    # Codificar a imagem para base64
+    imageBase64 = base64.b64encode(buffer.read()).decode('utf-8')
+    buffer.close()
+    
+    # Retornar a imagem como JSON
+    response = {"imageBase64": imageBase64}
+    print(json.dumps(response))
+
 else:
     print("Nenhuma fábrica do Amazonas encontrada nos dados.")

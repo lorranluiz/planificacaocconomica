@@ -1,3 +1,6 @@
+//cliJsServerPyMicroserviceBridge
+// Javascript que executa o python do microsserviço e apenas passa a resposta diretamente para o Javascript do cliente, que vai usar a resposta para algo na página do usuário
+
 const { exec } = require('child_process');
 
 function processarEExibirHelloWorld(req, res) {
@@ -13,7 +16,17 @@ function processarEExibirHelloWorld(req, res) {
         console.error(`Erro no script Python: ${stderr}`);
         return res.status(500).json({ message: 'Erro no script Python' });
         }
-        res.status(200).json({ message: stdout });
+        
+        const result = JSON.parse(stdout);
+
+        if (result.imageBase64) {
+          // Retorna a imagem no formato JSON para o cliente
+          res.json({ imageBase64: result.imageBase64 });
+      } else {
+          res.status(500).send('Imagem não encontrada');
+      }
+
+
     });
 
   }
