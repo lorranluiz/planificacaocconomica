@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const JavaScriptObfuscator = require('javascript-obfuscator');
 const { exec } = require('child_process');
+const os = require('os');
 
 const sourceDir = path.join(__dirname, 'public', 'js');
 const outputDir = path.join(__dirname, 'public', 'js_obfuscated');
@@ -82,3 +83,41 @@ exec('pip install matplotlib', (error, stdout, stderr) => {
 
     console.log(`Resultado: ${stdout}`);
 });
+
+if (os.platform() === 'linux') {
+    //Aqui é para o caso de Linux
+    //No caso de windows não precisa de sudo, e ao invés de "install python3-[dependencia]" usar "pip install [dependencia]"
+    const commands = [ // Comandos para instalar as dependências python do projeto, para Ubuntu ou compatível
+        'sudo apt install python3',
+        'sudo apt install python3-pip',
+        'sudo ln -s /usr/bin/python3 /usr/bin/python',
+        'sudo ln -s /usr/bin/pip3 /usr/bin/pip',
+        //'pip install matplotlib',
+        'sudo apt install python3-matplotlib', //para rodar em servidores online de terceiros, externamente gerenciados
+        //'pip install numpy'
+        'sudo apt install python3-numpy'
+    ];
+
+    function executeCommands(commands) {
+        if (commands.length === 0) return;
+
+        const command = commands.shift();
+        exec(command, (error, stdout, stderr) => {
+            if (error) {
+                console.error(`Erro ao executar o comando "${command}": ${error.message}`);
+                return;
+            }
+
+            if (stderr) {
+                console.error(`Erro: ${stderr}`);
+            } else {
+                console.log(`Resultado: ${stdout}`);
+            }
+
+            // Execute the next command
+            executeCommands(commands);
+        });
+    }
+
+    executeCommands(commands);
+}
