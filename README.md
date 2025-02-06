@@ -77,8 +77,9 @@ npm install
 This project is open-source and built with dedication to help the community. If you find it useful and would like to support its development, consider making a donation. Your support helps keep this project alive and evolving! 🚀
 
 🔹 Ways to support:
-- GitHub Sponsors
+- GitHub Sponsors: [![Sponsor on GitHub](https://img.shields.io/badge/Sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#EA4AAA)](https://github.com/sponsors/lorranluiz)
 - Pix (Brazil): 21997427600
+
 Every contribution, big or small, makes a difference. Thank you for your support! 💙
 
 <a id="contact"></a>
