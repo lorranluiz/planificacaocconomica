@@ -2,13 +2,10 @@ const express = require('express');
 const microservicesRouter = express.Router();
 const microservicesBridges = require('../microservices/cliJsServerPyMicroservicesBridges/microservicesBridges.js');
 
-// Rota para executar o script Python e retornar a mensagem
-microservicesRouter.get('/helloMicroService/processarEExibirHelloWorld', (req, res) => {
+let helloMicroService = microservicesBridges.helloMicroService;
 
-    console.log("3 Chamou execução do microsserviço Python helloMicroService/processarEExibirHelloWorld.py");
-    
-    microservicesBridges.helloMicroService.processarEExibirHelloWorld(req, res);
-    
-  });
+// Adiciona rota do microsserviço helloMicroService
+microservicesRouter.get(helloMicroService.processarEExibirHelloWorldRoute.routePath, helloMicroService.processarEExibirHelloWorldRoute.callback);
+microservicesRouter.get(helloMicroService.processarEExibirHelloWorld2Route.routePath, helloMicroService.processarEExibirHelloWorld2Route.callback);
 
 module.exports = microservicesRouter;

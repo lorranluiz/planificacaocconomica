@@ -8,7 +8,7 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const multer = require('multer'); // Biblioteca para upload de arquivos
-const microservicesRouter = require('./routers/microServicesRouters.js'); // Importando as rotas dos microsserviços python
+const microservicesRouters = require('./routers/microServicesRouters.js'); // Importando as rotas dos microsserviços python
 const { loadSecureEnvironment, manageObfuscatedFoldersAndFiles, getSSLOptions } = require('./public/js/secure/secure.js');
 
 loadSecureEnvironment(path, fs);
@@ -78,7 +78,7 @@ jsonServerApp.put('/data', (req, res) => {
 app.use('/jsonServer', jsonServerApp);
 
 // Middleware para usar as rotas dos microsserviços python
-app.use('/microservices', microservicesRouter);
+app.use('/microservices', microservicesRouters);
 
 // Middleware para uploads
 const upload = multer({ dest: 'uploads/' });
