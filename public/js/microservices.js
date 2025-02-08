@@ -1,1 +1,1 @@
-document.write('<script src="microservices/services/hello/client/handlers.js"></script>');
+document.write('<script src="microservices/services/graficoTrabalhadoresAmazonas/client/handlers.js"></script>');
