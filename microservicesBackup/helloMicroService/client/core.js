@@ -1,0 +1,2 @@
+document.write('<script src="microservices/helloMicroService/client/processarEExibirHelloWorldClient.js"></script>');
+document.write('<script src="microservices/helloMicroService/client/processarOutraFuncao.js"></script>');

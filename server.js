@@ -117,7 +117,17 @@ app.post('/upload', upload.single('file'), (req, res) => {
 // Rota para servir arquivos estáticos da pasta "data/images"
 app.use('/data/images', express.static(path.join(__dirname, 'data', 'images')));
 
-app.use('/microservices/helloMicroService/client', express.static('microservices/helloMicroService/client'));
+// Debug logging
+app.use((req, res, next) => {
+    console.log('Request URL:', req.url);
+    next();
+});
+
+// Serve static files from microservices client directories
+app.use('/microservices', express.static('microservices'));
+
+// Register microservices routes after static files
+app.use('/microservices', require('./microservices/microServicesRouters'));
 
 // Criar servidor HTTP para redirecionar para HTTPS
 const httpServer = http.createServer((req, res) => {
@@ -158,5 +168,3 @@ httpServer.on('error', (err) => {
 httpsServer.on('error', (err) => {
   console.error('Erro no servidor HTTPS:', err);
 });
-
-

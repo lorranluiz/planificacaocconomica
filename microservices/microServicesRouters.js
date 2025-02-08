@@ -1,14 +1,10 @@
 const express = require('express');
 const microservicesRouter = express.Router();
-const microservicesBridges = require('./microservicesBridges.js');
+const helloService = require('./services/hello/index'); // Changed from microServicesIndex to index
 
-let helloMicroService = microservicesBridges.helloMicroService;
-
-// Adiciona rota do microsserviço helloMicroService
-
-//microservicesRouter.use('/microservices/helloMicroService/client', express.static('microservices/helloMicroService/client'));
-
-microservicesRouter.get(helloMicroService.processarEExibirHelloWorldRoute.routePath, helloMicroService.processarEExibirHelloWorldRoute.callback);
-microservicesRouter.get(helloMicroService.processarOutraFuncaoRoute.routePath, helloMicroService.processarOutraFuncaoRoute.callback);
+// Register hello service routes
+helloService.routes.forEach(route => {
+  microservicesRouter[route.method || 'get'](route.path, route.handler);
+});
 
 module.exports = microservicesRouter;

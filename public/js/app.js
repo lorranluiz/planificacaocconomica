@@ -22,7 +22,8 @@ document.write('<script src="js/models/core.js"></script>');
 document.write('<script src="js/models/economy.js"></script>');
 
 // Importando microservices
-document.write('<script src="js/services/microservices.js"></script>');
+//document.write('<script src="js/services/microservices.js"></script>');
+document.write('<script src="js/microservices.js"></script>');
 
 let userIsLoggedIn = false;
 			let user = null;
