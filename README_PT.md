@@ -48,12 +48,14 @@ O Estado Operário apenas realoca obrigatoriamente parte do trabalho acumulado, 
 ## 🔧 Como Usar
 ### 1. Clonar o Repositório
 ```bash
+sudo apt-get install git
 git clone https://github.com/lorranluiz/planificacaocconomica.git
 ```
 ### 2. Instalar
 ```bash
 cd planificacaocconomica
-npm install
+chmod +x build.sh
+./build.sh
 ```
 
 ## 💖 Apoie Este Projeto

@@ -61,15 +61,18 @@ The Workers' State only compulsorily reallocates part of the accumulated labor, 
 <a id="how-to-use"></a>
 ## 🔧 How to Use
 <a id="clone-the-repository"></a>
+
 ### 1. Clone the Repository
 ```bash
+sudo apt-get install git
 git clone https://github.com/lorranluiz/planificacaocconomica.git
 ```
 <a id="install"></a>
 ### 2. Install
 ```bash
 cd planificacaocconomica
-npm install
+chmod +x build.sh
+./build.sh
 ```
 
 <a id="support"></a>

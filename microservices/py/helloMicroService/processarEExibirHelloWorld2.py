@@ -1,1 +1,0 @@
-print("Hello World 2, da Função 2 do microsserviço helloMicroService")

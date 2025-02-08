@@ -1,6 +1,6 @@
 const express = require('express');
 const microservicesRouter = express.Router();
-const microservicesBridges = require('../microservices/cliJsServerPyMicroservicesBridges/microservicesBridges.js');
+const microservicesBridges = require('../microservices/microservicesBridges.js');
 
 let helloMicroService = microservicesBridges.helloMicroService;
 

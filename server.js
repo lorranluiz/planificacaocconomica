@@ -8,7 +8,7 @@ const express = require('express');
 const path = require('path');
 const cors = require('cors');
 const multer = require('multer'); // Biblioteca para upload de arquivos
-const microservicesRouters = require('./routers/microServicesRouters.js'); // Importando as rotas dos microsserviços python
+const microservicesRouters = require('./microservices/microServicesRouters.js'); // Importando as rotas dos microsserviços python
 const { loadSecureEnvironment, manageObfuscatedFoldersAndFiles, getSSLOptions } = require('./public/js/secure/secure.js');
 
 loadSecureEnvironment(path, fs);
@@ -116,6 +116,8 @@ app.post('/upload', upload.single('file'), (req, res) => {
 
 // Rota para servir arquivos estáticos da pasta "data/images"
 app.use('/data/images', express.static(path.join(__dirname, 'data', 'images')));
+
+app.use('/microservices/helloMicroService/client', express.static('microservices/helloMicroService/client'));
 
 // Criar servidor HTTP para redirecionar para HTTPS
 const httpServer = http.createServer((req, res) => {

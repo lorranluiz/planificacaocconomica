@@ -1,1 +1,0 @@
-print("Microservice ABC: Hello, World, Python no servidor!")
