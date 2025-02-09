@@ -1,1 +1,55 @@
-function _0x5a65(_0x470f1d,_0x4c19df){const _0x125b85=_0x125b();return _0x5a65=function(_0x5a651c,_0x124fae){_0x5a651c=_0x5a651c-0x94;let _0x2f1e58=_0x125b85[_0x5a651c];if(_0x5a65['CouyIB']===undefined){var _0x4e97ab=function(_0x478fa9){const _0x30ab51='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x2a9163='',_0x37b1e7='';for(let _0x5bab2b=0x0,_0x1703e5,_0x196d9b,_0xae95c8=0x0;_0x196d9b=_0x478fa9['charAt'](_0xae95c8++);~_0x196d9b&&(_0x1703e5=_0x5bab2b%0x4?_0x1703e5*0x40+_0x196d9b:_0x196d9b,_0x5bab2b++%0x4)?_0x2a9163+=String['fromCharCode'](0xff&_0x1703e5>>(-0x2*_0x5bab2b&0x6)):0x0){_0x196d9b=_0x30ab51['indexOf'](_0x196d9b);}for(let _0xde41b5=0x0,_0x1a5f64=_0x2a9163['length'];_0xde41b5<_0x1a5f64;_0xde41b5++){_0x37b1e7+='%'+('00'+_0x2a9163['charCodeAt'](_0xde41b5)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x37b1e7);};const _0x363bc8=function(_0x439504,_0x1e4878){let _0x395588=[],_0x5bf840=0x0,_0xf7fd20,_0x1683f0='';_0x439504=_0x4e97ab(_0x439504);let _0xc3a3b6;for(_0xc3a3b6=0x0;_0xc3a3b6<0x100;_0xc3a3b6++){_0x395588[_0xc3a3b6]=_0xc3a3b6;}for(_0xc3a3b6=0x0;_0xc3a3b6<0x100;_0xc3a3b6++){_0x5bf840=(_0x5bf840+_0x395588[_0xc3a3b6]+_0x1e4878['charCodeAt'](_0xc3a3b6%_0x1e4878['length']))%0x100,_0xf7fd20=_0x395588[_0xc3a3b6],_0x395588[_0xc3a3b6]=_0x395588[_0x5bf840],_0x395588[_0x5bf840]=_0xf7fd20;}_0xc3a3b6=0x0,_0x5bf840=0x0;for(let _0x20f82d=0x0;_0x20f82d<_0x439504['length'];_0x20f82d++){_0xc3a3b6=(_0xc3a3b6+0x1)%0x100,_0x5bf840=(_0x5bf840+_0x395588[_0xc3a3b6])%0x100,_0xf7fd20=_0x395588[_0xc3a3b6],_0x395588[_0xc3a3b6]=_0x395588[_0x5bf840],_0x395588[_0x5bf840]=_0xf7fd20,_0x1683f0+=String['fromCharCode'](_0x439504['charCodeAt'](_0x20f82d)^_0x395588[(_0x395588[_0xc3a3b6]+_0x395588[_0x5bf840])%0x100]);}return _0x1683f0;};_0x5a65['kfVFBN']=_0x363bc8,_0x470f1d=arguments,_0x5a65['CouyIB']=!![];}const _0x22cd5e=_0x125b85[0x0],_0x84f3f4=_0x5a651c+_0x22cd5e,_0x4c2471=_0x470f1d[_0x84f3f4];return!_0x4c2471?(_0x5a65['PsbsCR']===undefined&&(_0x5a65['PsbsCR']=!![]),_0x2f1e58=_0x5a65['kfVFBN'](_0x2f1e58,_0x124fae),_0x470f1d[_0x84f3f4]=_0x2f1e58):_0x2f1e58=_0x4c2471,_0x2f1e58;},_0x5a65(_0x470f1d,_0x4c19df);}(function(_0x82eea0,_0x47aecb){const _0x473584=_0x5a65,_0x17a200=_0x82eea0();while(!![]){try{const _0x1d4d03=parseInt(_0x473584(0xa1,'8(Mu'))/0x1*(-parseInt(_0x473584(0x99,'dAs7'))/0x2)+-parseInt(_0x473584(0x9a,'R3Br'))/0x3*(parseInt(_0x473584(0xa6,'crDG'))/0x4)+parseInt(_0x473584(0xae,'vZgY'))/0x5+-parseInt(_0x473584(0xa5,')j[4'))/0x6*(parseInt(_0x473584(0xa7,'*QH1'))/0x7)+parseInt(_0x473584(0xa9,')j[4'))/0x8+-parseInt(_0x473584(0x9e,'&KPM'))/0x9+-parseInt(_0x473584(0x97,'!jN3'))/0xa*(-parseInt(_0x473584(0xaf,'xU0a'))/0xb);if(_0x1d4d03===_0x47aecb)break;else _0x17a200['push'](_0x17a200['shift']());}catch(_0x435545){_0x17a200['push'](_0x17a200['shift']());}}}(_0x125b,0x645c8));function generateUUID(){const _0x4de768=_0x5a65,_0x363bc8=_0x4de768(0x9c,'H7DK');let _0x478fa9='';for(let _0x37b1e7=0x0;_0x37b1e7<0x16;_0x37b1e7++){_0x478fa9+=_0x363bc8[_0x4de768(0xa0,'EUK#')](Math['floor'](Math[_0x4de768(0x98,'WdJ%')]()*_0x363bc8[_0x4de768(0x9b,'H7DK')]));}const _0x30ab51=generateUUIDChecksum(_0x478fa9);let _0x2a9163=_0x478fa9+_0x30ab51;return _0x2a9163;}function generateUUIDChecksum(_0x5bab2b){const _0x3f4166=_0x5a65,_0x1703e5=_0x3f4166(0xac,'avlg');let _0x196d9b=0x0;for(let _0x1a5f64=0x0;_0x1a5f64<_0x5bab2b[_0x3f4166(0xab,'x%J$')];_0x1a5f64++){const _0x439504=_0x5bab2b[_0x1a5f64],_0x1e4878=_0x1703e5[_0x3f4166(0xa3,'cj3k')](_0x439504);_0x196d9b+=_0x1e4878*(_0x1a5f64+0x1);}const _0xae95c8=_0x196d9b%0x3e,_0xde41b5=Math['floor'](_0x196d9b/0x3e)%0x3e;return _0x1703e5[_0xae95c8]+_0x1703e5[_0xde41b5];}function _0x125b(){const _0x52c561=['s8ognCk5W6pdIG','kvFcOSkbaLz+oxqIW7zdWR8','heRdQtVcUgtdHSkk','WP/cTgnVWOiD','WOBdKJJdU8k6WONdL8kjW4hcKSoNwZm','bmkWnmkgWRddSdS','WOOeWOW6W4O/','WQCJWQezW7SrWOGLFmo3WQRcQ8k/jNzPWQNcJmk6WR/dNX93WQXPlSofW6DjW73cHbbTbKSbWRhcVmoCec0BWPpdJYBdQbZdVSkBaqWbWPpdGLpdV8kjWPBdPLf1aW','oCkkW604WQFcJ8o1','mGbmWPjKWRpcJCoAo8oGW4xcVNu','W5hdSmkeECo2WQ/cHmk6WQxcM1/cL8kA','d1FcS8o2W7BcHq','W4CKW5HTWPZcHGm','WP/cOCknwSoY','wGKksCoaWRJdTa','waRdOmkWWOldHahdHuxdKg0ZDW','WRNcRmoEbLdcOSoya2DjWPqwWP4','W5rZW7m4jmkDWPpcVmkXh0WaW6y','iqDbhe/cPay','he/cL0ldJXlcOCo1oCkjW4ZdRJnL','WRZcRCouav3cP8oCdgPaWQy8WPq','DL0tW4K5','WOZcP8otkSk7W7m','WPNdNX3dGJ7dNIOnW6zAEvlcM8kNW6tdVmo9BCksW4BcPSkMfeWFWQ/dG1hdK8oAgvlcOCkNCxvoBSoMnmkcWP8Srg1QWO7cQCk6W4S+hCoFd8kgqmk9WQJcQCkbWRyR','W4BdKmkIumovaehdTYGnaCkLW48','F2/dJSkoq8oXEmkcWRJcPYhdLuW','mHBcVd7dJSkMWP3cNGhdMHRdQmksBq','WPmICdbZW4BcLG'];_0x125b=function(){return _0x52c561;};return _0x125b();}function validateUUID(_0x395588){const _0x4a1945=_0x5a65,_0x5bf840='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';if(_0x395588[_0x4a1945(0x95,'&%47')]!==0x18)return![];const _0xf7fd20=_0x395588[_0x4a1945(0xa2,'&Y!u')](0x0,0x16),_0x1683f0=_0x395588[_0x4a1945(0xaa,'&KPM')](0x16),_0xc3a3b6=generateUUIDChecksum(_0xf7fd20);return _0x1683f0===_0xc3a3b6;}
+function generateUUID() {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let uuidBase = '';
+
+    // Gera os primeiros 22 caracteres do UUID (Base64-like)
+    for (let i = 0; i < 22; i++) {
+        uuidBase += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+
+    // Gera os 2 dígitos verificadores
+    const checksum = generateUUIDChecksum(uuidBase);
+
+    // Retorna o UUID completo (22 caracteres + 2 dígitos verificadores)
+	let uuid = uuidBase + checksum;
+	
+	//console.info("uuid: ");
+	//console.log(uuid);
+	
+    return uuid;
+}
+
+function generateUUIDChecksum(uuidBase) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let sum = 0;
+
+    // Calcula a soma ponderada dos caracteres
+    for (let i = 0; i < uuidBase.length; i++) {
+        const char = uuidBase[i];
+        const value = characters.indexOf(char); // Índice no conjunto de caracteres
+        sum += value * (i + 1); // Ponderação baseada na posição (1-based)
+    }
+
+    // Gera 2 caracteres alfanuméricos para o checksum
+    const checksumValue1 = sum % 62; // Primeiro caractere do checksum
+    const checksumValue2 = Math.floor(sum / 62) % 62; // Segundo caractere do checksum
+
+    return characters[checksumValue1] + characters[checksumValue2];
+}
+
+function validateUUID(uuid) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+
+    // Verifica o comprimento total do UUID (22 caracteres + 2 dígitos verificadores)
+    if (uuid.length !== 24) return false;
+
+    // Extrai a base e o checksum do UUID
+    const uuidBase = uuid.slice(0, 22); // Primeiros 22 caracteres
+    const checksum = uuid.slice(22);   // Últimos 2 caracteres
+
+    // Recalcula o checksum com base na base do UUID
+    const calculatedChecksum = generateUUIDChecksum(uuidBase);
+
+    // Compara o checksum fornecido com o recalculado
+    return checksum === calculatedChecksum;
+}

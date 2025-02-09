@@ -1,1 +1,340 @@
-const _0xb61d25=_0x1beb;(function(_0x26f3f8,_0x66a5a9){const _0x42f712=_0x1beb,_0x22fac6=_0x26f3f8();while(!![]){try{const _0x803b85=parseInt(_0x42f712(0x1dd,'$knk'))/0x1*(parseInt(_0x42f712(0x1f9,'8c0t'))/0x2)+parseInt(_0x42f712(0x10b,'vS@$'))/0x3*(-parseInt(_0x42f712(0x102,'vS@$'))/0x4)+parseInt(_0x42f712(0x17b,'KilJ'))/0x5+-parseInt(_0x42f712(0x18a,'qes&'))/0x6*(-parseInt(_0x42f712(0x19c,'QKH@'))/0x7)+parseInt(_0x42f712(0x1a0,'#ydo'))/0x8+-parseInt(_0x42f712(0x1a7,'j*^q'))/0x9+-parseInt(_0x42f712(0x1a5,'M3q#'))/0xa*(parseInt(_0x42f712(0xf8,'KGPG'))/0xb);if(_0x803b85===_0x66a5a9)break;else _0x22fac6['push'](_0x22fac6['shift']());}catch(_0x5c9da8){_0x22fac6['push'](_0x22fac6['shift']());}}}(_0x3ea7,0xdae23));async function handleLogin(){const _0x7537f2=_0x1beb,_0x52b082=document[_0x7537f2(0x18c,'#(!P')](_0x7537f2(0x104,'xDTc')),_0x3ddc34=_0x52b082[_0x7537f2(0x148,'RM^#')][_0x7537f2(0x132,'vept')](),_0x9718d6=document['getElementById']('password')[_0x7537f2(0x148,'RM^#')][_0x7537f2(0x18d,'KilJ')]();if(!_0x3ddc34||!_0x9718d6){showNotification(_0x7537f2(0x153,'J@Te'),![]);return;}try{const _0x38affd=await fetch(apiUrl,{'method':_0x7537f2(0x122,'xF&N'),'headers':headers}),_0x529f45=await _0x38affd[_0x7537f2(0x1ad,'RM^#')]();user=_0x529f45['users'][_0x7537f2(0x1f3,'&el)')](_0x989bc5=>_0x989bc5['username']===_0x3ddc34&&_0x989bc5[_0x7537f2(0x10e,'jqEN')]===_0x9718d6);if(user){userIsLoggedIn=!![],user={'username':user[_0x7537f2(0x135,'wSx^')],'instance':user['instance'],'pronoun':user[_0x7537f2(0x16f,'EJ82')],'jurisdiction':user[_0x7537f2(0x134,'vept')],'preposition':user[_0x7537f2(0x127,'mB(7')],'instancePrepositionJurisdictionUUID':user[_0x7537f2(0x14f,'*CFf')],'uuid':user[_0x7537f2(0x1b1,'#ydo')],'name':user[_0x7537f2(0x150,'Y*$D')]};if(user['pronoun']==='feminino')showNotification(_0x7537f2(0x1a9,'#TXn')+user['name']+'!',!![]);else user[_0x7537f2(0xfb,'#TXn')]==='masculino'?showNotification(_0x7537f2(0x145,'eoT]')+user[_0x7537f2(0x1bd,'w^y8')]+'!',!![]):showNotification(_0x7537f2(0xfe,'hNIY')+user[_0x7537f2(0x1fa,'&el)')]+'!',!![]);const _0xd4dff4=document['getElementById'](_0x7537f2(0x16a,'&el)'));_0xd4dff4[_0x7537f2(0x186,'*CFf')]['add'](_0x7537f2(0x177,'wSx^')),document[_0x7537f2(0x1ae,'vUD*')](_0x7537f2(0x18b,'xDTc'))[_0x7537f2(0xfa,'vUD*')][_0x7537f2(0x1ce,'vS@$')]=_0x7537f2(0x11a,'w^y8'),document[_0x7537f2(0x10d,'M3q#')]('loginSection')[_0x7537f2(0x168,'hNIY')][_0x7537f2(0x107,'xF&N')]='none',userIsLoggedIn=!![],document[_0x7537f2(0x16c,'cd*$')](_0x7537f2(0x100,'KilJ'))['style']['display']=_0x7537f2(0x172,'#ydo');if(user['instance']['includes'](_0x7537f2(0x19b,'RM^#')))document['getElementById']('conselheiroDeConselho')[_0x7537f2(0x149,'K)8V')][_0x7537f2(0x1cb,'KilJ')]='block',document[_0x7537f2(0x185,'#TXn')]('conselheiroDeComiteDeFabricaOuCampo')[_0x7537f2(0x1b4,'gxhe')]['display']=_0x7537f2(0x110,'eoT]'),document['getElementById'](_0x7537f2(0x14e,'K)8V'))[_0x7537f2(0x168,'hNIY')]['display']=_0x7537f2(0x13e,'#(!P'),document[_0x7537f2(0x1c2,'mB(7')](_0x7537f2(0x1d5,'QKH@'))[_0x7537f2(0x176,'zOmj')][_0x7537f2(0x1a2,'zOmj')]=_0x7537f2(0x1f2,'K)8V');else{if(user[_0x7537f2(0x11e,'[)(H')][_0x7537f2(0x136,'xF&N')]('Comitê')){document[_0x7537f2(0x160,'gxhe')](_0x7537f2(0x1a8,'b2Ej'))[_0x7537f2(0x18f,'dXRF')][_0x7537f2(0x17d,'gxhe')]='block',document['getElementById'](_0x7537f2(0x1a6,'eoT]'))[_0x7537f2(0x1c1,'j*^q')][_0x7537f2(0x13a,'$knk')]='none',document[_0x7537f2(0x12c,'n1U3')](_0x7537f2(0x144,'M3q#'))[_0x7537f2(0x193,'M3q#')]['display']=_0x7537f2(0x13c,'qes&'),document[_0x7537f2(0x1b0,'X!wZ')](_0x7537f2(0x11f,'KnR#'))[_0x7537f2(0x12f,'*CFf')]['display']=_0x7537f2(0x1aa,'mB(7');const _0x3e91e9=document[_0x7537f2(0x16c,'cd*$')]('comiteColTitle');_0x3e91e9[_0x7537f2(0x1c4,'EJ82')]=user[_0x7537f2(0x1ed,'hNIY')]===_0x7537f2(0x1e8,'b2Ej')?_0x7537f2(0x1e4,'m6BB'):_0x7537f2(0x142,'wSx^'),updateVetorTecnologicoTable();}else user[_0x7537f2(0x113,'#ydo')][_0x7537f2(0x12a,'X!wZ')](_0x7537f2(0x15b,'#(!P'))?(document[_0x7537f2(0x178,'K)8V')](_0x7537f2(0x1ff,'QTe6'))[_0x7537f2(0x19a,'#(!P')][_0x7537f2(0x115,'qes&')]='none',document['getElementById'](_0x7537f2(0x105,'vUD*'))[_0x7537f2(0x176,'zOmj')][_0x7537f2(0x1e5,'RM^#')]=_0x7537f2(0x1a3,'vUD*'),document[_0x7537f2(0x124,'qes&')](_0x7537f2(0x130,'vUD*'))[_0x7537f2(0x12d,'4]lA')][_0x7537f2(0x1f5,'urfy')]=_0x7537f2(0x1d7,'dXRF'),document[_0x7537f2(0x152,'AzD)')](_0x7537f2(0x140,'w^y8'))[_0x7537f2(0x167,'jqEN')]['display']='block'):(document[_0x7537f2(0x1c2,'mB(7')](_0x7537f2(0x195,'dXRF'))[_0x7537f2(0x1ac,'vept')][_0x7537f2(0x197,'WcPw')]=_0x7537f2(0x1aa,'mB(7'),document[_0x7537f2(0x10c,'[BmA')]('conselheiroDeComiteDeFabricaOuCampo')['style'][_0x7537f2(0x1e1,'vUD*')]=_0x7537f2(0x17f,'w^y8'),document[_0x7537f2(0x1e0,'vS@$')](_0x7537f2(0x1be,'cd*$'))[_0x7537f2(0x183,'KGPG')]['display']=_0x7537f2(0x179,'$knk'),document[_0x7537f2(0x169,'eoT]')](_0x7537f2(0x1b2,'J@Te'))[_0x7537f2(0x18f,'dXRF')][_0x7537f2(0x188,'#ydo')]=_0x7537f2(0x165,'8c0t'));}setTimeout(()=>{fetchDataFromJsonBin(),setTimeout(()=>{scrollToEndOfPage(),openProducaoMetaModal();},0x7d0);},0x3e8);}else showNotification(_0x7537f2(0x194,'Y*$D'),![]),document['getElementById']('logado')['style'][_0x7537f2(0x12b,'zs1$')]=_0x7537f2(0x1d3,'zOmj'),document[_0x7537f2(0x139,'EJ82')]('conselheiroDeConselho')[_0x7537f2(0x1dc,'0qn!')][_0x7537f2(0x180,'3mIk')]=_0x7537f2(0x110,'eoT]'),document[_0x7537f2(0x178,'K)8V')](_0x7537f2(0x12e,'vUD*'))[_0x7537f2(0x193,'M3q#')]['display']=_0x7537f2(0x138,'xF&N'),document[_0x7537f2(0x1b5,'w^y8')]('conselheiroDeAssociacaoDeMoradores')['style'][_0x7537f2(0x1d6,'4]lA')]=_0x7537f2(0x1a1,'j*^q');}catch(_0x328bb3){console['error']('Erro\x20ao\x20fazer\x20login:',_0x328bb3),showNotification(_0x7537f2(0x198,'RM^#'),![]),document['getElementById'](_0x7537f2(0x1ab,'Y*$D'))[_0x7537f2(0x11b,'urfy')][_0x7537f2(0x129,'[BmA')]='none',document['getElementById'](_0x7537f2(0x1c9,'cd*$'))['style'][_0x7537f2(0x1a2,'zOmj')]=_0x7537f2(0x158,'cd*$'),document[_0x7537f2(0x196,'4]lA')](_0x7537f2(0x1c7,'[BmA'))[_0x7537f2(0x10f,'J@Te')][_0x7537f2(0x188,'#ydo')]=_0x7537f2(0x1e3,'w%QN'),document[_0x7537f2(0x11d,'vept')]('conselheiroDeAssociacaoDeMoradores')[_0x7537f2(0x159,'xDTc')][_0x7537f2(0x1a2,'zOmj')]=_0x7537f2(0x16e,'KilJ');}}async function handleRegister(){const _0x3a82bb=_0x1beb,_0x26481e=document[_0x3a82bb(0x1c2,'mB(7')](_0x3a82bb(0x116,'w%QN'))[_0x3a82bb(0x1fb,'J@Te')][_0x3a82bb(0x108,'K)8V')](),_0x179a85=document[_0x3a82bb(0x13f,'3mIk')](_0x3a82bb(0x1cc,'wSx^'))[_0x3a82bb(0x1c6,'vS@$')][_0x3a82bb(0x1cf,'w^y8')](),_0x22b49e=document[_0x3a82bb(0x12c,'n1U3')](_0x3a82bb(0x164,'KnR#'))['value'],_0x1f8876=document[_0x3a82bb(0x161,'j*^q')](_0x3a82bb(0x1df,'[BmA'))[_0x3a82bb(0x101,'zOmj')],_0xf7f34e=document[_0x3a82bb(0x12c,'n1U3')](_0x3a82bb(0x1f1,'w^y8'))[_0x3a82bb(0x1ec,'qes&')];let _0x1c5678='',_0x58d9bf='',_0x3a0ab3='',_0x969cde='',_0x4894b3='';_0x1f8876[_0x3a82bb(0x131,'urfy')]('Trabalhador')?(_0x969cde=generateUUID(),_0x4894b3=_0x3a82bb(0x14c,'[)(H')):(_0x1c5678='\x20',_0x58d9bf=document[_0x3a82bb(0x103,'QKH@')](_0x3a82bb(0x1d0,'Y*$D'))[_0x3a82bb(0x13d,'QTe6')],_0x3a0ab3=document[_0x3a82bb(0x152,'AzD)')]('jurisdiction')[_0x3a82bb(0x117,'WcPw')][_0x3a82bb(0x15d,'m6BB')]());const _0x570ad1=(''+(_0x1f8876==_0x3a82bb(0x19f,'M3q#')?_0x3a82bb(0x1da,'cd*$'):_0x1f8876)+_0x1c5678+_0x58d9bf+_0x1c5678+_0x3a0ab3+_0x1c5678+_0x4894b3+_0x1c5678+_0x969cde)[_0x3a82bb(0x175,'$knk')]();if(!_0x26481e||!_0x179a85||!_0x1f8876||!_0x22b49e){if(!_0x1f8876['includes'](_0x3a82bb(0x15e,'WcPw'))&&(!_0x3a0ab3||!_0x58d9bf))showNotification(_0x3a82bb(0x187,'mB(7'),![]);return;}try{const _0x585039=await fetch(apiUrl,{'method':_0x3a82bb(0x1f8,'vUD*'),'headers':headers}),_0xf4d8e2=await _0x585039[_0x3a82bb(0x1d2,'[)(H')]();!_0xf4d8e2[_0x3a82bb(0x14b,'zOmj')]&&(_0xf4d8e2[_0x3a82bb(0x119,'*CFf')]=[]);if(_0xf4d8e2[_0x3a82bb(0x119,'*CFf')][_0x3a82bb(0x154,'gxhe')](_0xe10d85=>_0xe10d85[_0x3a82bb(0x1bb,'m6BB')]===_0x26481e)){showNotification('Nome\x20de\x20usuário\x20já\x20registrado.\x20Escolha\x20outro.',![]);return;}_0xf4d8e2[_0x3a82bb(0x173,'vUD*')][_0x3a82bb(0x1c0,'jqEN')]({'username':_0x26481e,'password':_0x179a85,'instance':_0x1f8876,'pronoun':_0x22b49e,'jurisdiction':_0x3a0ab3,'preposition':_0x58d9bf,'instancePrepositionJurisdictionUUID':_0x570ad1,'uuid':_0x969cde,'name':_0xf7f34e}),await fetch(apiUrl,{'method':_0x3a82bb(0x1b6,'eoT]'),'headers':headers,'body':JSON['stringify'](_0xf4d8e2)}),showNotification(_0x3a82bb(0x133,'w^y8'),!![]);}catch(_0x5e6f77){console[_0x3a82bb(0x16b,'KilJ')](_0x3a82bb(0x171,'$knk'),_0x5e6f77),showNotification(_0x3a82bb(0x155,'X!wZ'),![]);}}function showRegistrationFields(){const _0x5e6d8f=_0x1beb,_0x3a74c6=document[_0x5e6d8f(0x160,'gxhe')](_0x5e6d8f(0x1d4,'8c0t'));_0x3a74c6['style']['display']='block';}function showFields(){const _0x395789=_0x1beb,_0x372c6c=document[_0x395789(0x103,'QKH@')](_0x395789(0x1fd,'cd*$')),_0x2ad1f6=document[_0x395789(0x1ee,'Q9jU')](_0x395789(0x11c,'j*^q'));_0x372c6c['value']&&!_0x372c6c[_0x395789(0x137,'M3q#')][_0x395789(0x13b,'M3q#')](_0x395789(0x19d,'$knk'))?_0x2ad1f6[_0x395789(0x1f6,'w%QN')][_0x395789(0x14a,'xDTc')]='flex':_0x2ad1f6[_0x395789(0x15a,'&el)')][_0x395789(0x192,'QKH@')]=_0x395789(0x1d1,'Q9jU');}function showLoginSection(){const _0x33294a=_0x1beb,_0x15f800=document[_0x33294a(0x161,'j*^q')](_0x33294a(0x1db,'hNIY'));_0x15f800[_0x33294a(0x1f4,'#ydo')][_0x33294a(0x151,'0qn!')]=_0x33294a(0x121,'[)(H');const _0x4bed50=document[_0x33294a(0x13f,'3mIk')](_0x33294a(0x1ea,'0qn!'));_0x4bed50[_0x33294a(0x18f,'dXRF')]['display']=_0x33294a(0x146,'[)(H'),document[_0x33294a(0x191,'hNIY')](_0x33294a(0x17c,'*CFf'))[_0x33294a(0x141,'xF&N')][_0x33294a(0x157,'AzD)')]=_0x33294a(0x1d1,'Q9jU'),window[_0x33294a(0x128,'[BmA')]({'top':0x0,'behavior':_0x33294a(0x182,'xDTc')});const _0x1e8242=document['getElementById'](_0x33294a(0x1c5,'vept'));_0x1e8242[_0x33294a(0x174,'KilJ')]();}document[_0xb61d25(0x1de,'RM^#')](_0xb61d25(0xfc,'AzD)'))[_0xb61d25(0xff,'J@Te')]('click',showLoginSection);function showJurisdiction(){const _0x3c378d=_0xb61d25,_0x40ca51=document[_0x3c378d(0x1cd,'J@Te')]('instance'),_0x42414f=document[_0x3c378d(0x10d,'M3q#')](_0x3c378d(0x111,'#ydo'));_0x40ca51[_0x3c378d(0x10a,'gxhe')]?(_0x42414f['style'][_0x3c378d(0x14d,'EJ82')]=_0x3c378d(0x1bc,'eoT]'),_0x42414f[_0x3c378d(0x18f,'dXRF')][_0x3c378d(0x1f7,'w^y8')]='center'):_0x42414f[_0x3c378d(0x166,'RM^#')]['display']=_0x3c378d(0x15f,'m6BB');}function updateCouncilText(_0x55b8db){const _0x2d1a8f=_0xb61d25;if(_0x55b8db[_0x2d1a8f(0x1e2,'WcPw')]===_0x2d1a8f(0x1af,'zOmj')){_0x55b8db[_0x2d1a8f(0x1fe,'w^y8')]();const _0x5233c8=document[_0x2d1a8f(0x169,'eoT]')](_0x2d1a8f(0x123,'vUD*'))['value'],_0x41174d=document[_0x2d1a8f(0x161,'j*^q')](_0x2d1a8f(0x126,'J@Te'))[_0x2d1a8f(0x1c4,'EJ82')]['trim'](),_0x45d7f9=document['getElementById'](_0x2d1a8f(0x114,'jqEN'))[_0x2d1a8f(0x181,'$knk')],_0x1ace88=document[_0x2d1a8f(0x162,'0qn!')]('infoText');!(_0x5233c8&&_0x41174d&&_0x45d7f9)&&showNotification(_0x2d1a8f(0x1d8,'Q9jU'),![]);}}document[_0xb61d25(0x1ba,'KnR#')](_0xb61d25(0x118,'KGPG'))['addEventListener'](_0xb61d25(0x120,'#ydo'),updateCouncilText),document[_0xb61d25(0x156,'zOmj')](_0xb61d25(0x1b8,'w^y8'))[_0xb61d25(0x19e,'urfy')](_0xb61d25(0x1c3,'[)(H'),showFields);function _0x3ea7(){const _0x46e923=['i8kTBIZcISoCWOLekM0','W7a2fq','W5pdVdZcVZddSHLzW7BdRSoriCkd','gLbupW','W4ldOmoUc8oW','tNJcRvtcQCo+avyYaYtdNSk2W6G','vCoUzdhcGSkGW6qR','mSkZyJ3cGCo7WOLLiNJcOSoiWPDF','WP1qWRPqWOFcNYSmW6v8r8kKW6KzgmkDtCktzHm3wSkvWQ84WPKKCCo9WRTpgmkrab4','dY8nWRlcVWareG','pSoKqtVcJSkOySoQaW','W4qhomo2AG','o8oBW5/dOYFcOhm','W51RevfsDSkQhcafDa','sN0NWQRcNa','WQPyW7JcTmkheH7dRbWQW5O','W5xdPCoMo8oJhwVdTCoNWRpcU2mun8oLWRa','rXxdQSofW48ItdDTWPlcJCkRW4dcLG','aConWOhdTmk8','dmkUWONcJg8bWQtcRa','oWpcPaS+WQ/dRMpcVt9lz1hcHa','sg7cPKlcG8o+gfi','W5qCl8oPASoQvmk5WO/cJtZcLfOKomkPBX0az8oE','W6SRWPpcN8oO','vCkItwxcI8odmW','kwTRiG','WQxdRSktuCoV','vCkIWPddP1e','cCkJW4hdMJinWPFcJSkrW7BcRW','nmoGW6PFWRldOW7cP8kzW7FcJCkqWOvZ','jmk3CfldVvLnf8oRW7BcKX/cN8on','WQ/cOq3dJgOxW67cLa','W4FdTCo7eSoW','m8oNtI0','g8omhJJcGg3dRmo1WOxdLcmUWPNdVXPFWQRcNmkZkSoa','W604WPdcHmoICN0','gmoxhYxcKMFdPSoZ','WQ/cSHVdJ3ilW7xcHmofW5ddVW','W61oWQNdKvtdUW8','W6G5WPRcMmoJzN7dNG','a8ociwNcNW','vMK5WRBcIJe/amkyCe7cHq','WRenW61nyW','imkTAcJcJW','qCkdb8osCq','v3z1WPFcSmkEaWvneeNcMSoSW4HjsG','ou7cTGe1W47dShG3WPNdTgdcSCoX','ds8+WQzAWRRcSmor','BCoatKn0CIy5W6BcRYG','gSoCftxcNh7dQW','bI0IWRfq','DSkoAG','W54DmSoUBSoOx8k5','W65cWQ7dPftdVXSDf1NdTSkLW7tdKa','W6hdKmksW7GEvCo5umka','W57dTmoWf8oMhgZdOSoFWRpcP3K','h31VCef+WPBdSaldKLC','imoMW6X1WRldQJFcRq','n8oSW61QWRldPXO','W6tdKCkwW7movCkXsG','vZDMWPvpW53dRG','kYFcRmk+W63cN2VdJSkCAaxcGSkHW6m','WOdcRsFdT8oM','W5qCl8oPASoQvmk5WO/cJtZcLfOKomkQDqWjs8ouWPapWPLpWOnmWR9UntmQc8kxWQW','WRCkW7ftDq','W5qCl8oPASoQvmk5WO/cJtZcLfOMjmk0CXSfBSosWRCbWR9yWQDaWQXajb85a8ku','w8kzhCosyCoiWQ7cTW','kLNcQYK','f8kYCSkQWPBdVmksatv7WQtdLmkix8ofzgJcKCkhAmkkCHmKW64kW4LEW6dcJmob','nf7cSc0QW4/dTh4TWOtdMxC','hmoAW7FcRCkBWQqsW6a','wmkLxxNcKSogl8kT','nCkZAgldTa','x8kKuha','aCk1WRT7k8oQzCk+wCouWRVdVSobWQS','zNFcJ1GPWRxdUa','kSk8z3VdPfHfaq','W6DiWRtdHa','WOHEWRHwWOC','WRfgrCo2','W5JdTSoxW6ZdMGKlWOvvWOu/WQ1pDG','nSkZzINcHCo5WPvai3hcSq','qSk/r3NcGG','j8ogW7/cUSovWQeqWQv9W65yWPlcIW','W6dcVmk5sComWOdcPmon','imk9AMtdTfbif8oSW7dcVIlcS8oOjSoYWP7cTSo3W4/dSSknW4LonCkmWQJcMmkKi0XjASkb','h8oTtwxcI8knzCo9gmkBiG','cI4JWRC','C8kBWOldMJVcO3JdLXK','W4CkW7GrW7e','lM17i0C','wxtcSedcGCo+da','aSoFWOJdS8kQ','mrqeWPyb','aSk5WRXok8oUCq','pNzSpeFdHvWiW4hcVdihr8kjmCkZW6PskSkaWOzxW5ZcHKXfWQ4jDfDhW5hcKSoY','WQ0qW7TlCCossvdcLSkMW5lcGSkaW5i/W43dOW80W7XOWQuMdJFcK3JdMCkfnSoXWP5FWPldRW','W4yLnra','WO3dVCkTWQddOehcRa','W5zHaN1quCkYdtOEwa/dLXK','W6tdS8oNg8o7g23dOmklWQ7cP3mEkSkGWQ19WR3cQCkblSkMWR0gw8ouvuBcRSkYgYqjWQC','umkSWPhdTW','W4JdJCkhW7bBumk7gCkCW7BdTCoGWOXhC8k1mCkTWR4/iSoGWRy7mITpaSoICsjCWQddTWv8mXRcM1nliSoUW4JcL8oZucjRE8oKjCk2W6i','emojWPNdHmk1WOhdVhquW6OKWPZcQ8o7','W5vTbuHqvCkM','uSoVEsa','tMNcULZcIa','b0vanSom','WOTBsSoXD8kbkCkriLhcHq','bCorkgZcLq7cRHKAwJa','WQFdVCkwsq','iCorlh7cMXhcRWWxwIW','WR3dOmkrqq','rmkMWOJdL1GWbSoOu8oumtj4WPu','uxDLWRVcQmksaq5cce3cISoaW4a','WO7dSCkQWPxdOexcUhhcMtRcUmkHosi','ds8+WQzAWRRcSmorWPtdUCoqExBcRSoMgMq2BmogDCkHECkcms9FDZj3cYjkF8k+','ACoaqe96AYa','WO7cP2tdRG','W4iFW60iW7e','WQZcTaFdK3G','WPTjW6ZdTCku','oSoTva3cKCkbzSo8gCodqa01xW','e11womomwSoEmZr8pSk7WRb+','uqldTSooW7K','w8oLyWdcJ8kRW6ORwhXpW5W8rq','wNJcT3xcGCo6gfiEaHldK8kqW6i','wH/dQSoe','fSkIWQbqkmo6zG','W4FdOSoWeCo5ffhdRG','r2ZcJKDLWRxdRSkPFCoNW54oW7lcG3L+ECoVWRxcJSo7gYK','gmoxadJcNwZcQmo0WP3dKI8R','W4iajmoOFa','uH/dP8ouW7G','DMZcLuu','bmoyWPtdRCk8','bCogW7xcUmkqWQfsW6Xq','oNX2cK7dJfKiW4BcUH86A8kS','yhlcK0SU','uHFdVg8oW67cTG','b0xcSCksWRL0drbnWOpcKCkoW50','WRyBW69wy8oiwftcSSk9W5JcNmkPW4GZW5xdRHm','r8kQWO/dOLG0eG','dYH9W6VdJwnUimkjq2/cOKy','lmkUAs4','W5VdUSoqW5NdMG0F','Dh/cKf0G','tNdcRf/cMCo3','t2GYWRpcNa','eSogovNcLHJcQGGDqrWHfXm','lmomW4tdIctcShddNr4aWQS3wSkt','WQCsW6Lmy8oWq0BcSG','p31VzubUWPFdPuVdIvz7WQKCW5/cQXxcLSkjWP0qW7rOW7aAnfJdLqNcPIqkWOhcQSkxpgVdVa','fCoqhYhcN2JdVa','Dx1/WO3cOCkBba5fdM4','WRevW6JdTKVdRbmxea','uxlcPfhcICoW','WRHmx8owESkilmkvkeRcTqyPoW','qaldRCom','WPLtWRTbWOFcScWhW7HVqCkoW6KO','xxddMXldTW','kGFcVdS3','WO9yW6hdNmkDhH3dRrDYWRGPs0i','oa/cOZ4+WQVdUG','mmkMFxVdTa','W703lCkuWOOhmaZdKSkmeqmzW5VcP8ouASkKvGG/WQPCW4ddR1yV','twVdJa3dT3vGW7iRvY7cSwGEqKRdPmowi27cSG','WPtcVcRdNSoVe8o0jMeNgCkvW698','eCokpMZcLHZcVG','W7qzW6ylWRtcUSocWQZcO8o6qMRcPCkZW7fcC28qESkmvNKoDmkjmmoae8kPWPBcKI4NlWrEWRtdRxRdR2K3sLFcMwS','vxiOWRpcJdeZea','WQXDuSo/CW','W7ieW7OxW7hcT8ofW6m','zfpdQhzHWO/dI0NcPW5O','vMZcNuOKWRJdQCoOASoPW4a','u8ktgSo7ySojWQxcSmkZCJZdPmojW4FcLwu','f8kGzxxdSfbie8oHW63cOW','rmkpwwddGtRcT8ozWR7dQbSSWO0','wh1/WPS','e8ofWP7dSCk1WOxdQa','W5KCl8o/','x8kQu3a','E8oHnYlcOauqm8onW6xcGZBcMG','pSoNtJVcMmkiy8o8hSofBtazEdlcI8kbW6ZdMuu+','bYaIW4VdSmocw1Tpeh7cPCobW64','nLTppx16W5Ljv24FtCkOlfhcI1tcLMtcRCoHWOWGW68GW5/dHCoXkmogW7pdSmoEhs8','cComW53cOd7cVhpdNbfyW4K','awbKzq','W4qRpXtcNae','lv/cUYG8','W5SyW7Sk','W5awnCoFy8oJuCk5WOJcIXhcQxyd','mSocWPNdPmkR','W6RdMSkbW5Oxvmk5xmkaW6FdKmoWWRzx','bmombtu','W4ddS8oJhmo0fg3dOmopWRxcUG','WOZcSSkXs8kKqtxdGmoJWR3cMKC9','umk3WOxdVLe','jCkKCW7cImoWWPbekwRcGCoeWRjp','dCoDDa','WPNdPSkXWR7dO1xcUW','k8kVDd/cHCo7WP5e','W5JdRSoLh8oXfW','FSoxw2r5EYm9W6ZcTbG3W6vO','WQBdVmkAvSoKWRtcJSoz','o8oKrta','lmkGAI4','x8oVEtBcHSkIW68Rx3PIW6eqymoPW7hcNSo+jG1jamojb0/cNg/dK2ZdJH/dVfpdVq','pfPpk2PEW6vHCG','WQ/cTq3dLW','rwzOWPlcOq','cgP+rujOWPldOqxdIxTMWO8l','bYKSWRXCWRe','emkXWQnliG','k1JcPZy3W4RdShG','tSo3WP3cMg8','mmoQW7bPWRVdQGVcP8kEW7hcOmkTWQLuW5RcR8kEf8okW4NcLbVdJNyCiZvZWOe1WQ4RdbPv','WPbXye3dIYSxy8ojWRXq','x8oVEtBcHSkIW68Rx3PIW6eqySo1W6ZcGSo4iWrf','cmk/WQfB','ubNdT8orW6CIqq','gCoiW6hcRmkcWQOnW6e','W5pdPmo2o8o5hwJdPmofWQ7cIM44pq','xmo/WOlcNwyjWP4','nSkZBIy','W5G2pqxcLX02wmouWPzF','dsddO0W','dJiIWRW','gCodWOpdPa','WPlcRw3dONFcSfn7W6FdNCoWbSkUsCo1WOddNSoq','kbtcSsWZWQBdQ2FcTYr7','WPFcSc3dQ8oVf8oG','qgVdJbS','mYddVWKIW6RcHmodW7RcMCojW4uCvv1SaIdcHrhcPCo2gwLqyCkeoCk3Ch55y8o5pmoJW6dcQMRcSaVcThFdPSoRhmkLWRLj','W7JdISkCW7SQy8kxvSkkW7y','A8oVzs7cHSk8','WOrsW7ldSmkFkbxdQW1VWPu+','WPRdOmkNWRZdQq','m0BcJw4pWRhdHq','W5yoW6aHW7JcVSoaW6NcRmo7DhBcGSkJ','oSoRW61UWR/dQadcPW','x8oZWOxcQgynWORcM8k9W4ZcV8oRWPddMq','W5mAmSoQy8oNrq','hSogna','W7mLWPhcJW','WP3dOmksqCkQWRhcGSkCWOjhy2FcOX01','W5ucW6CuW7JcUSou','v8oLW78jF8oQEmkRDCoUWQS','raldQ8opW6q2vG','fLTmj2ZdVmkrsfS8nSoOWQ8Dv8kfxa','FSkFWOxcVhRdPI/dTZ8HWR4Ira','WOxdU8k5WRNdOMlcOgdcGYhcLa','W6tdKCkgW6SAx8k3xa','W79gWRBdLf0','WOftW6BdRCkqfrpdRq','bcRdUwWOW67cN8ojW6BdGCkRW4WNva','sSoHEZdcHG','q2OvcctdTmoXW7VdVCo+W5SvW7ldNxK','lmkGAI7cTSoWWPPingRcSCoCWO9cW5HR','m3zSkG','eLHxpG','aSonft3cLG','vSkEdCooEmonWRi','W64+WOBcHSoO'];_0x3ea7=function(){return _0x46e923;};return _0x3ea7();}function _0x1beb(_0x37d6ff,_0x323a93){const _0x3ea7ed=_0x3ea7();return _0x1beb=function(_0x1beb10,_0x231827){_0x1beb10=_0x1beb10-0xf8;let _0xc6a8a1=_0x3ea7ed[_0x1beb10];if(_0x1beb['PxYcYQ']===undefined){var _0x3151fd=function(_0x3ddc34){const _0x9718d6='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0x38affd='',_0x529f45='';for(let _0x989bc5=0x0,_0xd4dff4,_0x3e91e9,_0x328bb3=0x0;_0x3e91e9=_0x3ddc34['charAt'](_0x328bb3++);~_0x3e91e9&&(_0xd4dff4=_0x989bc5%0x4?_0xd4dff4*0x40+_0x3e91e9:_0x3e91e9,_0x989bc5++%0x4)?_0x38affd+=String['fromCharCode'](0xff&_0xd4dff4>>(-0x2*_0x989bc5&0x6)):0x0){_0x3e91e9=_0x9718d6['indexOf'](_0x3e91e9);}for(let _0x26481e=0x0,_0x179a85=_0x38affd['length'];_0x26481e<_0x179a85;_0x26481e++){_0x529f45+='%'+('00'+_0x38affd['charCodeAt'](_0x26481e)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x529f45);};const _0x52b082=function(_0x22b49e,_0x1f8876){let _0xf7f34e=[],_0x1c5678=0x0,_0x58d9bf,_0x3a0ab3='';_0x22b49e=_0x3151fd(_0x22b49e);let _0x969cde;for(_0x969cde=0x0;_0x969cde<0x100;_0x969cde++){_0xf7f34e[_0x969cde]=_0x969cde;}for(_0x969cde=0x0;_0x969cde<0x100;_0x969cde++){_0x1c5678=(_0x1c5678+_0xf7f34e[_0x969cde]+_0x1f8876['charCodeAt'](_0x969cde%_0x1f8876['length']))%0x100,_0x58d9bf=_0xf7f34e[_0x969cde],_0xf7f34e[_0x969cde]=_0xf7f34e[_0x1c5678],_0xf7f34e[_0x1c5678]=_0x58d9bf;}_0x969cde=0x0,_0x1c5678=0x0;for(let _0x4894b3=0x0;_0x4894b3<_0x22b49e['length'];_0x4894b3++){_0x969cde=(_0x969cde+0x1)%0x100,_0x1c5678=(_0x1c5678+_0xf7f34e[_0x969cde])%0x100,_0x58d9bf=_0xf7f34e[_0x969cde],_0xf7f34e[_0x969cde]=_0xf7f34e[_0x1c5678],_0xf7f34e[_0x1c5678]=_0x58d9bf,_0x3a0ab3+=String['fromCharCode'](_0x22b49e['charCodeAt'](_0x4894b3)^_0xf7f34e[(_0xf7f34e[_0x969cde]+_0xf7f34e[_0x1c5678])%0x100]);}return _0x3a0ab3;};_0x1beb['nCXnGo']=_0x52b082,_0x37d6ff=arguments,_0x1beb['PxYcYQ']=!![];}const _0x333f9b=_0x3ea7ed[0x0],_0x2b7da2=_0x1beb10+_0x333f9b,_0x180f62=_0x37d6ff[_0x2b7da2];return!_0x180f62?(_0x1beb['xppCoK']===undefined&&(_0x1beb['xppCoK']=!![]),_0xc6a8a1=_0x1beb['nCXnGo'](_0xc6a8a1,_0x231827),_0x37d6ff[_0x2b7da2]=_0xc6a8a1):_0xc6a8a1=_0x180f62,_0xc6a8a1;},_0x1beb(_0x37d6ff,_0x323a93);}function logout(){const _0x197641=_0xb61d25;userIsLoggedIn=![],document[_0x197641(0x184,'WcPw')](_0x197641(0x1fc,'xDTc'))['style'][_0x197641(0x14d,'EJ82')]=_0x197641(0x1ca,'EJ82');let _0x2b9e82='';if(!thisUserIsAWorkerNotCouncillor()){if(user[_0x197641(0x1b7,'0qn!')]==='feminino')_0x2b9e82=_0x197641(0x189,'j*^q');else user[_0x197641(0x1e7,'KilJ')]==='masculino'?_0x2b9e82='Conselheiro':_0x2b9e82='Conselheire';}showNotification(_0x197641(0x1f0,'$knk')+_0x2b9e82+'\x20'+user[_0x197641(0x1a4,'xF&N')]+'!',!![]),document[_0x197641(0x184,'WcPw')]('username')[_0x197641(0x109,'m6BB')]='',document['getElementById']('password')['value']='',document['getElementById'](_0x197641(0x1eb,'X!wZ'))[_0x197641(0xfd,'KGPG')]='',document[_0x197641(0x1ae,'vUD*')](_0x197641(0x112,'w%QN'))[_0x197641(0x106,'w%QN')]='',document['getElementById']('jurisdiction')['value']='',document[_0x197641(0x16d,'xDTc')](_0x197641(0x15c,'WcPw'))[_0x197641(0x1ef,'cd*$')]='',document[_0x197641(0x12c,'n1U3')]('nameRegistration')[_0x197641(0x190,'QKH@')]='',document['getElementById'](_0x197641(0x1d9,'X!wZ'))[_0x197641(0x1bf,'b2Ej')]='',clearTable(),user=null,updateInfoBar(),window[_0x197641(0x170,'J@Te')]({'top':0x0,'behavior':'smooth'}),document['getElementById'](_0x197641(0x1b9,'J@Te'))[_0x197641(0x1b4,'gxhe')]['display']='none';const _0x1cd30d=document['getElementById'](_0x197641(0x18e,'QTe6'));_0x1cd30d[_0x197641(0xf9,'eoT]')]['remove'](_0x197641(0x125,'X!wZ'));}function thisUserIsAWorkerNotCouncillor(){const _0x1815ce=_0xb61d25;return user[_0x1815ce(0x163,'[)(H')][_0x1815ce(0x199,'KGPG')]('WorkerUUID');}
+async function handleLogin() {
+    const usernameField = document.getElementById('username');
+    const username = usernameField.value.trim();
+    const password = document.getElementById('password').value.trim();
+
+    if (!username || !password) {
+        showNotification('Preencha todos os campos de login.', false);
+        return;
+    }
+
+    try {
+        // Buscar dados
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: headers
+        });
+
+        const data = await response.json();  // Parse dos dados em formato JSON
+
+        //console.info("data: ");
+        //console.log(data);
+
+        // Verifica se o usuário existe e a senha corresponde
+        user = data.users.find(
+            user => user.username === username && user.password === password
+        );
+
+        if (user) {
+            // Define os dados globais do usuário logado
+            userIsLoggedIn = true;
+            user = {
+                username: user.username,
+                instance: user.instance,
+                pronoun: user.pronoun,
+                jurisdiction: user.jurisdiction,
+                preposition: user.preposition,
+                instancePrepositionJurisdictionUUID: user.instancePrepositionJurisdictionUUID,
+                uuid: user.uuid,
+                name: user.name
+            };
+
+            // Realize outras ações de login aqui, se necessário
+            
+            if (user.pronoun === 'feminino') {
+                showNotification(`Bem-vinda, ${user.name}!`, true);
+            } else if (user.pronoun === 'masculino') {
+                showNotification(`Bem-vindo, ${user.name}!`, true);
+            } else {
+                showNotification(`Bem-vinde, ${user.name}!`, true);
+            }
+            
+            // Aplica a classe 'logged-in' ao #globeContainer para aplicar o estilo de login
+            const globeContainer = document.getElementById('globeContainer');
+            globeContainer.classList.add('logged-in'); // Adiciona a classe para alinhamento à direita
+            
+            // Exibe a div "logado"
+            document.getElementById('logado').style.display = 'block'; // Torna visível
+            
+            // Oculta a seção de login
+            document.getElementById('loginSection').style.display = 'none';
+            userIsLoggedIn = true;
+            document.getElementById('sendDataButton').style.display = 'inline-block'; // Exibe o botão para enviar dados
+            
+            // Controle de exibição das divs de telas com base na instância
+            
+        if (user.instance.includes('Conselho')) {
+            document.getElementById('conselheiroDeConselho').style.display = 'block';
+            document.getElementById('conselheiroDeComiteDeFabricaOuCampo').style.display = 'none';
+            document.getElementById('conselheiroDeAssociacaoDeMoradores').style.display = 'none';
+            document.getElementById('trabalhador').style.display = 'none';
+            
+        } else if (user.instance.includes('Comitê')) {
+            document.getElementById('conselheiroDeComiteDeFabricaOuCampo').style.display = 'block';
+            document.getElementById('conselheiroDeConselho').style.display = 'none';
+            document.getElementById('conselheiroDeAssociacaoDeMoradores').style.display = 'none';
+            document.getElementById('trabalhador').style.display = 'none';
+
+            // Atualizar o título da segunda coluna
+            const comiteColTitle = document.getElementById('comiteColTitle');
+            comiteColTitle.value = user.instance === 'Comitê de Fábrica' ? 'Nome da Fábrica' : 'Nome do Campo';
+
+            // Preencher tabela com valores padrão
+            updateVetorTecnologicoTable();
+            
+        } else if (user.instance.includes('Trabalhador')) {
+            document.getElementById('conselheiroDeComiteDeFabricaOuCampo').style.display = 'none';
+            document.getElementById('conselheiroDeConselho').style.display = 'none';
+            document.getElementById('conselheiroDeAssociacaoDeMoradores').style.display = 'none';
+            document.getElementById('trabalhador').style.display = 'block';			
+            
+        } else {
+            // Para Associação de Moradores ou outras instâncias
+            document.getElementById('conselheiroDeConselho').style.display = 'none';
+            document.getElementById('conselheiroDeComiteDeFabricaOuCampo').style.display = 'none';
+            document.getElementById('conselheiroDeAssociacaoDeMoradores').style.display = 'block';
+            document.getElementById('trabalhador').style.display = 'none';
+        }
+            
+            // Chama automaticamente a função que recebe os dados online
+            setTimeout(() => {
+                fetchDataFromJsonBin();
+                // Chama automaticamente a função que recebe os dados online
+                setTimeout(() => {
+                    scrollToEndOfPage();
+                    openProducaoMetaModal();
+                }, 2000);
+            }, 1000);
+            
+            } else {
+                showNotification('Usuário ou senha inválidos.', false);
+                document.getElementById('logado').style.display = 'none'; 
+                document.getElementById('conselheiroDeConselho').style.display = 'none';
+                document.getElementById('conselheiroDeComiteDeFabricaOuCampo').style.display = 'none';
+                document.getElementById('conselheiroDeAssociacaoDeMoradores').style.display = 'none';
+            }
+    } catch (error) {
+        console.error('Erro ao fazer login:', error);
+        showNotification('Erro ao autenticar. Tente novamente mais tarde.', false);
+        document.getElementById('logado').style.display = 'none'; 
+        document.getElementById('conselheiroDeConselho').style.display = 'none';
+        document.getElementById('conselheiroDeComiteDeFabricaOuCampo').style.display = 'none';
+        document.getElementById('conselheiroDeAssociacaoDeMoradores').style.display = 'none';
+    }
+}
+
+async function handleRegister() {
+    const username = document.getElementById('username').value.trim();
+    const password = document.getElementById('password').value.trim();
+    const pronoun = document.getElementById('pronoun').value;
+    const instance = document.getElementById('instance').value;
+    const name = document.getElementById('nameRegistration').value;
+    
+    let space = "";
+    let preposition = "";
+    let jurisdiction = "";
+    let uuid = "";
+    let uuidPreposition = "";
+
+    if(instance.includes("Trabalhador")) {
+        uuid = generateUUID();
+        uuidPreposition = "UUID:";
+    }
+    else {
+        space = " ";
+        preposition = document.getElementById('preposition').value;
+        jurisdiction = document.getElementById('jurisdiction').value.trim();
+    }
+
+    // Combina instance, preposition e jurisdiction
+    const instancePrepositionJurisdictionUUID = (`${instance=='Trabalhador'?'Worker':instance}${space}${preposition}${space}${jurisdiction}${space}${uuidPreposition}${space}${uuid}`).trim();
+
+    if (!username || !password || !instance || !pronoun) {
+        if(!instance.includes("Trabalhador") && (!jurisdiction || !preposition))
+        showNotification('Preencha todos os campos corretamente.', false);
+        return;
+    }
+
+    try {
+        
+        // Buscar dados
+        const response = await fetch(apiUrl, {
+            method: 'GET',
+            headers: headers
+        });
+
+        const data = await response.json();  // Parse dos dados em formato JSON
+
+        // Certifique-se de que a chave "users" exista no objeto
+        if (!data.users) {
+            data.users = [];
+        }
+
+        // Verifica se o nome de usuário já está registrado
+        if (data.users.some(user => user.username === username)) {
+            showNotification('Nome de usuário já registrado. Escolha outro.', false);
+            return;
+        }
+
+        // Adiciona o novo usuário com todos os dados
+        data.users.push({
+            username,
+            password,
+            instance,
+            pronoun,
+            jurisdiction,
+            preposition,
+            instancePrepositionJurisdictionUUID,
+            uuid,
+            name
+        });
+
+        // Salva de volta online
+        await fetch(apiUrl, {
+            method: 'PUT',
+            headers: headers,
+            body: JSON.stringify(data)
+        });
+
+
+        showNotification('Usuário registrado com sucesso!', true);
+    } catch (error) {
+        console.error('Erro ao salvar usuário:', error);
+        showNotification('Erro ao registrar usuário. Tente novamente mais tarde.', false);
+    }
+}
+
+// Exibe os campos de registro ao clicar no botão "Cadastre-se"
+function showRegistrationFields() {
+    const registrationFields = document.getElementById('registrationFields');
+    registrationFields.style.display = 'block'; // Exibe os campos
+}
+
+// Função para mostrar os campos adicionais quando o Instância é selecionado
+function showFields() {
+    const select = document.getElementById('instance');
+    const additionalFields = document.getElementById('additionalFields');
+    
+    if (select.value && !select.value.includes("Trabalhador")) {
+        additionalFields.style.display = 'flex'; // Exibe os campos adicionais
+    } else {
+        additionalFields.style.display = 'none'; // Oculta os campos adicionais
+    }
+}
+
+// Função para mostrar ou ocultar a seção de Login
+   function showLoginSection() {
+    const loginSection = document.getElementById("loginSection");
+    loginSection.style.display = "block"; // Torna a seção de login visível
+    const loginButton = document.getElementById("loginButton");
+    loginButton.style.display = "none"; // Oculta o botão "Faça Login"
+    // Ocultar os campos de registro, caso estejam visíveis
+    document.getElementById('registrationFields').style.display = 'none';
+    
+    // Rola a página para o topo
+    
+    // Rola suavemente para o topo da página
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+    });
+    
+    const usernameField = document.getElementById('username');
+    usernameField.focus(); // Move o cursor para o campo "Nome de Usuário"
+    
+    
+    
+}
+
+// Manter os dados inseridos no formulário quando clicar em "Faça Login"
+document.getElementById("loginButton").addEventListener("click", showLoginSection);
+
+// Função para mostrar o campo de jurisdição quando uma opção é selecionada
+function showJurisdiction() {
+    const select = document.getElementById('instance');
+    const jurisdictionContainer = document.getElementById('jurisdictionContainer');
+    
+    // Exibe o campo apenas se uma opção válida for selecionada
+    if (select.value) {
+        jurisdictionContainer.style.display = 'flex'; // Exibe o campo com layout flex
+        jurisdictionContainer.style.alignItems = 'center'; // Centraliza o rótulo e o campo
+    } else {
+        jurisdictionContainer.style.display = 'none'; // Oculta o campo
+    }
+}
+
+// Função para atualizar o texto do conselho
+function updateCouncilText(event) {
+    if (event.key === "Enter") {
+        event.preventDefault(); // Impede comportamento padrão do Enter
+
+        const instance = document.getElementById("instance").value;
+        const jurisdiction = document.getElementById("jurisdiction").value.trim();
+        const preposition = document.getElementById("preposition").value;
+        const infoText = document.getElementById("infoText");
+
+        if (!(instance && jurisdiction && preposition)) {
+            showNotification("Por favor, preencha todos os campos obrigatórios.", false);
+        }
+    }
+}
+
+// Adiciona o evento de Enter no campo de jurisdição
+document.getElementById("jurisdiction").addEventListener("keydown", updateCouncilText);
+
+// Mostra os campos adicionais ao selecionar o Instância
+document.getElementById("instance").addEventListener("change", showFields);
+
+function logout() {
+    userIsLoggedIn = false; // Altere o estado do usuário para deslogado
+    
+    document.getElementById('sendDataButton').style.display = 'none'; // Oculta o botão de enviar dados
+
+    let title = "";
+    if(!thisUserIsAWorkerNotCouncillor()) {
+        if (user.pronoun === 'feminino') {
+            title = 'Conselheira';
+        } else if (user.pronoun === 'masculino') {
+            title = 'Conselheiro';
+        } else {
+            title = 'Conselheire';
+        }
+    }
+
+    showNotification(`Até a próxima, ${title} ${user.name}!`, true); // Mensagem de confirmação
+    
+    // Limpar os campos do formulário
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('instance').value = '';
+    document.getElementById('pronoun').value = '';
+    document.getElementById('jurisdiction').value = '';
+    document.getElementById('preposition').value = '';
+    document.getElementById('nameRegistration').value = '';
+    document.getElementById('uuidQRCode').innerHTML = '';
+    clearTable();
+    user = null;
+    
+    updateInfoBar(); // Atualiza a barra de informações para refletir o estado de logout
+    
+    // Rola suavemente para o topo da página
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth',
+    });
+    
+    // Esconde a div "logado"
+    document.getElementById('logado').style.display = 'none'; // Torna invisível
+    
+     // Remove a classe 'logged-in' do #globeContainer para voltar ao alinhamento centralizado
+    const globeContainer = document.getElementById('globeContainer');
+    globeContainer.classList.remove('logged-in'); // Remove a classe para voltar ao centro
+    
+}
+
+/**
+ * Verifica se o trabalhador não é conselheiro
+ */
+function thisUserIsAWorkerNotCouncillor(){
+    return user.instancePrepositionJurisdictionUUID.includes("WorkerUUID");
+}

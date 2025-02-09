@@ -1,1 +1,609 @@
-(function(_0x156ecd,_0x3ba7f1){const _0x241d2e=_0x10d7,_0x312c79=_0x156ecd();while(!![]){try{const _0x352796=-parseInt(_0x241d2e(0x1ee,'94fT'))/0x1*(-parseInt(_0x241d2e(0x1a8,'WUic'))/0x2)+parseInt(_0x241d2e(0x196,'6@U1'))/0x3*(-parseInt(_0x241d2e(0x1c2,'mfYp'))/0x4)+parseInt(_0x241d2e(0x1f9,'@m5*'))/0x5+parseInt(_0x241d2e(0x14e,'J%6H'))/0x6+-parseInt(_0x241d2e(0x2b3,'tEEi'))/0x7+parseInt(_0x241d2e(0x236,'mfYp'))/0x8+-parseInt(_0x241d2e(0x237,'vsY*'))/0x9;if(_0x352796===_0x3ba7f1)break;else _0x312c79['push'](_0x312c79['shift']());}catch(_0x28855a){_0x312c79['push'](_0x312c79['shift']());}}}(_0x4a02,0x19b43));function populateInitialTable(){const _0x180377=_0x10d7,_0x2d66bd=document['getElementById'](_0x180377(0x1bc,'aA4v'));_0x2d66bd['innerHTML']='';const _0x320f60=0x3,_0x25e38c=0x3,_0xb43ba=document['getElementById'](_0x180377(0x226,'rLa&'))[_0x180377(0x155,'EBIN')](_0x180377(0x166,'igJ6'));_0xb43ba[_0x180377(0x248,'mbyO')]=_0x180377(0x296,'hCqD');for(let _0x291584=0x0;_0x291584<_0x25e38c;_0x291584++){const _0x586b9d=document[_0x180377(0x1f0,'6Mr2')]('th'),_0x40a6c6=document['createElement']('input');_0x40a6c6['type']='text',_0x40a6c6['value']=_0x291584<_0x320f60&&productNames[_0x291584][_0x180377(0x1a0,'0ttA')](_0x180377(0x234,'ZAWD'))?productNames[_0x291584]:_0x180377(0x219,'u^Bh')+(_0x291584<_0x320f60?productNames[_0x291584]:_0x180377(0x23a,'L4Ep')),_0x40a6c6['readOnly']=!![],addTooltipBehavior(_0x40a6c6),_0x586b9d[_0x180377(0x2a0,'ZAWD')](_0x40a6c6),_0xb43ba['appendChild'](_0x586b9d);}for(let _0x512a87=0x0;_0x512a87<_0x320f60;_0x512a87++){const _0x21a741=document[_0x180377(0x211,'7uf*')]('tr'),_0x1b9b8c=document[_0x180377(0x254,'A9AL')]('td'),_0x3035a3=document[_0x180377(0x162,'Ldg@')](_0x180377(0x2b1,'6@U1'));_0x3035a3[_0x180377(0x1ab,'0ttA')]=_0x180377(0x149,'v]dO'),_0x3035a3[_0x180377(0x228,'0ttA')]=productNames[_0x512a87],_0x3035a3[_0x180377(0x29b,'ZAWD')]=_0x2b87b7=>updateProductName(_0x512a87,_0x2b87b7['target']['value']),_0x1b9b8c[_0x180377(0x1a1,'dKy^')](_0x3035a3),_0x21a741[_0x180377(0x18f,'igJ6')](_0x1b9b8c);for(let _0x35b85c=0x0;_0x35b85c<_0x25e38c;_0x35b85c++){const _0x21658c=document[_0x180377(0x1bb,'CZuz')]('td'),_0x4b7e05=document[_0x180377(0x2a8,'mfYp')](_0x180377(0x21f,'b]]a'));_0x4b7e05[_0x180377(0x232,'u^Bh')]=_0x180377(0x20c,'7uf*'),_0x4b7e05[_0x180377(0x19b,'@m5*')]=predefinedValues[_0x512a87][_0x35b85c],_0x21658c[_0x180377(0x173,'DGW$')](_0x4b7e05),addHighlightBehavior(_0x21658c),_0x21a741[_0x180377(0x145,'6@U1')](_0x21658c);}_0x2d66bd[_0x180377(0x263,'e8Ms')](_0x21a741);}}function resizeTable(){const _0x5ad23b=_0x10d7,_0x3f0754=parseInt(document[_0x5ad23b(0x200,'nv2k')](_0x5ad23b(0x20e,'EBIN'))[_0x5ad23b(0x195,'6@U1')]),_0x471c56=parseInt(document[_0x5ad23b(0x23c,'igJ6')](_0x5ad23b(0x18b,'735w'))[_0x5ad23b(0x27e,'tEEi')]),_0x2bc531=document[_0x5ad23b(0x2a1,'dKy^')](_0x5ad23b(0x1db,'qaIk')),_0x2293db=_0x2bc531['querySelector'](_0x5ad23b(0x25b,'735w')),_0x27775b=_0x2bc531[_0x5ad23b(0x2ab,'94fT')](_0x5ad23b(0x1a2,'A9AL'));storePreviousTableData(),storePreviousDemandValues(),_0x27775b[_0x5ad23b(0x169,'XJWl')]=_0x5ad23b(0x28e,'ZAWD');for(let _0x1c9ddf=0x0;_0x1c9ddf<_0x471c56;_0x1c9ddf++){const _0x1ee0db=document['createElement']('th'),_0x35d5e5=document[_0x5ad23b(0x299,'ZAWD')](_0x5ad23b(0x25a,'ZAWD'));_0x35d5e5[_0x5ad23b(0x1d9,'igJ6')]=_0x5ad23b(0x206,'igJ6'),_0x35d5e5[_0x5ad23b(0x235,'&QVy')]=previousSectorNames[_0x1c9ddf]||(inputNames[_0x1c9ddf%inputNames[_0x5ad23b(0x156,'94fT')]][_0x5ad23b(0x28b,'EBIN')]('Rede')?''+inputNames[_0x1c9ddf%inputNames[_0x5ad23b(0x216,'e8Ms')]]:'Produção\x20de\x20'+inputNames[_0x1c9ddf%inputNames['length']]),_0x35d5e5[_0x5ad23b(0x182,'dKy^')]=!![],addTooltipBehavior(_0x35d5e5),_0x1ee0db['appendChild'](_0x35d5e5),_0x27775b[_0x5ad23b(0x1ea,'*)y8')]('tr')['appendChild'](_0x1ee0db);}_0x2293db['innerHTML']='';for(let _0x3fc44b=0x0;_0x3fc44b<_0x3f0754;_0x3fc44b++){const _0x5c49ff=document[_0x5ad23b(0x1f0,'6Mr2')]('tr'),_0x434c03=document['createElement']('td'),_0x12eb33=document[_0x5ad23b(0x233,'94fT')](_0x5ad23b(0x25a,'ZAWD'));_0x12eb33['type']=_0x5ad23b(0x230,'@76Y'),_0x12eb33[_0x5ad23b(0x1a7,'D@AT')]=previousProductNames[_0x3fc44b]||'Produto\x20'+(_0x3fc44b+0x1),_0x12eb33[_0x5ad23b(0x223,'jeY2')]=()=>updateProductName(_0x3fc44b,_0x12eb33[_0x5ad23b(0x1a7,'D@AT')]),_0x434c03[_0x5ad23b(0x22d,'&QVy')](_0x12eb33),_0x5c49ff[_0x5ad23b(0x189,'fJlE')](_0x434c03);for(let _0x2f218e=0x0;_0x2f218e<_0x471c56;_0x2f218e++){const _0x37da98=document[_0x5ad23b(0x288,'o7JT')]('td'),_0x739f92=document[_0x5ad23b(0x212,'jeY2')](_0x5ad23b(0x2b1,'6@U1'));_0x739f92[_0x5ad23b(0x255,'M59!')]=_0x5ad23b(0x239,'aA4v'),_0x739f92['value']=previousTableData[_0x3fc44b]&&previousTableData[_0x3fc44b][_0x2f218e]!==undefined?previousTableData[_0x3fc44b][_0x2f218e]:predefinedValues[_0x3fc44b%predefinedValues[_0x5ad23b(0x1c3,'dKy^')]][_0x2f218e%predefinedValues[0x0][_0x5ad23b(0x1d4,'6Mr2')]],_0x739f92['onchange']=storePreviousTableData,_0x37da98[_0x5ad23b(0x1e8,'o7JT')](_0x739f92),addHighlightBehavior(_0x37da98),_0x5c49ff['appendChild'](_0x37da98);}_0x2293db['appendChild'](_0x5c49ff);}updateFinalDemand(_0x3f0754),document[_0x5ad23b(0x200,'nv2k')](_0x5ad23b(0x1e4,'94fT'))[_0x5ad23b(0x178,'DnMQ')]&&autoFillTable(),storePreviousTableData();}function storePreviousTableData(){const _0x2f2420=_0x10d7,_0x53c69f=document[_0x2f2420(0x1ed,'WUic')](_0x2f2420(0x17e,'735w'))[_0x2f2420(0x1f5,'fJlE')]('tbody'),_0x24475f=document[_0x2f2420(0x207,'hCqD')](_0x2f2420(0x260,'e8Ms'))[_0x2f2420(0x1f4,'Ldg@')]('thead');previousTableData=[],previousProductNames=[],previousSectorNames=[],previousDemandValues=[];const _0x3a2219=_0x24475f['querySelectorAll'](_0x2f2420(0x17d,'jlt&'));_0x3a2219[_0x2f2420(0x2a4,'kz8c')]((_0xd4afc1,_0x1c65d9)=>{const _0x4c8081=_0x2f2420;if(_0x1c65d9>=0x0)previousSectorNames[_0x1c65d9]=_0xd4afc1[_0x4c8081(0x22a,'qaIk')];}),_0x53c69f[_0x2f2420(0x2ac,'DnMQ')]('tr')[_0x2f2420(0x29d,'vsY*')]((_0x2789a3,_0x3fc212)=>{const _0xa1155e=_0x2f2420,_0x3b24eb=[],_0x243a4c=_0x2789a3[_0xa1155e(0x170,'hCqD')](_0xa1155e(0x279,'0ttA'));previousProductNames[_0x3fc212]=_0x243a4c[_0xa1155e(0x1c9,'nv2k')],_0x2789a3[_0xa1155e(0x14a,'b]]a')](_0xa1155e(0x159,'b]]a'))[_0xa1155e(0x2ad,'DnMQ')](_0x45c22e=>{const _0x225a99=_0xa1155e;_0x3b24eb[_0x225a99(0x203,'WUic')](_0x45c22e[_0x225a99(0x1d6,'CZuz')]||0x0);}),previousTableData['push'](_0x3b24eb);});const _0x1cfd29=document[_0x2f2420(0x21d,'6Mr2')](_0x2f2420(0x2a3,'L4Ep'));_0x1cfd29[_0x2f2420(0x17c,'735w')](_0x4b6349=>previousDemandValues[_0x2f2420(0x26f,'S^p*')](_0x4b6349[_0x2f2420(0x19e,'fJlE')]||0x0));}function _0x4a02(){const _0x295090=['oupcVaNcQLz9lCoUkZm','WPOpWRdcLYO9W6aFeW','lCkUs1dcJ8oAWQ3cS8o9WPBdM8ohjCkwW7xcV2XLW5VcT099','fYiVW6bfpmk8icn5iG','hmk+oSo0Cq','WOJdGCoPW4O5WOWFWRqjW5mB','W6TRW7ldSde','l1ZcVGFcOub2kSoYnsq','WOS+W5e9k8o9gvakpN7dMCkN','WRvlqf/dNmk7gCo5W4xcLmoZsmkIW7azeXRcQSoucKHJiSkbBSk5W5eTW69OWQFcOce','oSk5uhhcLSoCWRtcV8o8WOZdJCoxaCkx','W4ZdSvNdR8oi','vSkRpSk/rmoTqSkuu3m9t8kaWPpcSmocktpdLaNdH8oMW7tcMKPUlCo8WQVcU1pcK2BdGqO','WRTarg/dHmkkeCo/W4pcJSoExCkeW7m','CNrpamkp','WPfpW6jUahBdJmkqWPe','WP1ZpmoRW4RcJG','WO/dNSoRW6O2WOS0','WPJdPbhdOWmlWRhcJSoYWQBcTJxdNmk8','W5a6Fw3dV8kgWQRcPWCsWPhdU8kMW5/dLSol','W7rKW67dSca','WOD3pSo5W5S','WR86E8kaW7W','ASouW4OTWQO','WPZdRGJdJXSlWP3cMmoVWR3cLYxdTmk8rK4cW4nUW7VcJCksWPdcJmk0W7yjba','W7LJjSoYtwG1WOpcG2HggYa','eHC/WQddOW','mxNcQZvaWRddJ8o2WPdcRa','WRvlxK/dMSkNkmoxW6e','W4a/AhRdQmkXWOZcOWSDWOe','WPjKn8oTW4RcG0C1ruS3WQ10','nMlcTIjrWPy','W4VcRCo+W7vCxJ7dUxVcPIrlW6qLm8kjW7Ohwmk7W5u','pmoBW4ddNeW/','WOhcPCo0W7DivH/dRW','WP4TW5GPoG','uYdcTSoFbYvfW4VcV8kIWRjvlq','vhj7rdVcMmox','t03cVqe','WQJdHNlcMCoJW4pdOX3cLCkHWPZcS8kQW7hcSNlcIColqgrHuvBcJSkYWQmfBCk1BMdcQcTJwmkTW4vqs8kiW5y','W5bSvmo2CSk5AvK6W7y','WPD5imojW5/cHwO','W7zHWRJdOYZdImoTW4pcGdBcVmkuW4C+BCkmChKVAG','WRznWRVdPdRcNhRcOZ06bSk5bq','W7JcU2JdSezOW4r1CmoFDs5juW','omo7W6ZdKmo3WQZcS38EymkIntLk','drGJWQddSSoGW7VcGG/dLa','pCoQWRpdHmoNWO3cPwDwymk+mYDVWRKs','wCkCgeyqWOupDv3dSCkgtti5WOi/','W5FcS1RdUmkYoSoxg8kQr8kQzSkzWQiiW4K','atpcUSodhXPKW4lcT8kGWQHEfJ9Nu8kDrCk/nCoWucNdKNa','crCJ','gf3cOXtcKmkxW4nnyvuJWPOhhbldJuXYW4qt','CgftcCksWO8lBexcGSoa','pMxcTc0','p1NcQXdcTNDqlSo+oJqNEq','WQNcRsjOsCkvWRTC','WQdcQs4ZW74','k8o6WQldS8oYWRVcRw5DD8kijrXk','WOFdSb/cOSofzCoqoSkNxCkGyW','lmkPquBcG8oQWRZcTSo3WPVdU8oboSkYW4NcOq','m8omW4VdMKWYE8o0W4/cHCkoW6hcLa','sZVcO8oycG','imo2WRVdN8oQWRVcHw1wD8kJkJP6WQCFdfVdV8kKnd8tWPFdT8kZ','omoqW73dJmoD','p8o/umoaiCk5W47dNCoWsCoswSoR','WQZcScj7vmoMWQPcaapcPYFcPW','W6tcH8onWO3dUJtdVmoxW7RdUCoAWROQba','W7TNsCkJ','BSoBW4O','WRBdLSkpW7ZcRMhdQCowW5BdHmoAWPa','WP5AW7dcQbyiW6K','W5/cTtL0o8o0W5/cNmo2W6/cMaKA','WR/dJsBcHmoPW5VcO0JcO8kNWP7cTCkYWR3cO1VcK8ousY4OwvZcKCkdWRiDDSkHD3hdSez4ECkYW4zxwmogW6pcS8oNgNq','WR/dKc3cLSo4W5lcJKVcLSkLWOVcRSkQ','sSopkbpdHW','WRpcOgpcGLG','WQ4+y8kWW7xcHhBcVmoDf8kAvZldUa','WPJdHmo8W50UWRS5WRafW5WliHu','W5xdHCoXWPehWPOZWRGvW4SqpKFcSmkMWOVcTJhdTX/dK2SMWORcJ8kIathcKIVcHN7cIGzsW5HOW7S','pmoQWQxdNG','s8k1W7hdMSkxoSoYD8oMWPv+WQzPW5yiW5DnWO/dHCol','mxNcQZva','t1hcTra','WQmIB8oXdq3cLYFdJqdcP0ijW78','WRiMD8obba','wSkmhfaMWRGgya','nmkYvehcJG','W7CmWRTMhKtdKSoN','F3pcPcRcHCoH','WRtcQZD8wCoUWRTxfqxdRMRcU8oBe3LUySowW5y','rmovsJ15WQai','WQBcPgpcM04','W41oW7BcNI8FW5iGpmkKBq','CNtcRcNcLmo2WQLCcCkkCmoffG','WQBcS2RcLKKVhJe4WPu1W4/cSG','W5hcO1RdKSkynSoweSkhw8knFmk7WQq','W5dcQvZdKSkvmmot','W5FcTL7dSSkAn8o4h8kaq8kR','W7z0lCo0twu','W5hdPLNdVW','W4pdSfVdN8oDW5KP','W7XmW6NcNZtcNhiNDCkSBmoC','kCk5xedcUCowWRFcRSo3WPBdUW','kuNcUIFcO0fyj8o1lqiXqHi','vsiTW6PplCkCksvyi8kVmCkht8oHdmkMWQaFCCkyjmkUuwO1W43cGCkbBmoDW6uSwCozdJj9W5NdIGzJaSkmcx7cOq','iColW4VdIueew8o0W4/cI8kFW6dcKSoeWOlcOa','j8oFW6hdJmomWOfHneH5WQVdV2ygCSo3wrFdKCom','WOhcPCoNW65j','DJJdR8ozWQtcMGG3W5tcJSo1kmo6iG','vCoanbpdLSoUy8kfW7hdPG','WOdcO03cH8orWRtdOSktffuZWQldIGVcHmofA8kwfci','WQRcR2BcMu0/lW','W7ZcRhNdLf5OW6X8E8oguJL0','WRxcOh3cKLm+hJe4WPu1W4/cSG','hZWVW7bFdmkEkIzW','W7nGWPpcPaxdVG0','zZZdT8oPWQ0','W5tdQKZdQmofW6KKwZ9pW596wW','W49Jsmo2yW','WRzAWRldQt0','qCkhdueDWOilE1tdTW','WOJcVu3cL8olWOVdLCkcdvXQ','tSofsG54WRmA','kSoWWQtdS8o/WR3cQa','hSk6lSo1','vJdcQ8oz','W5HhW7BcNG','W5xcTeVdTSkanSo+g8kmqSkQA8kg','ESkmgve','WP/cRfhcH8oa','WPzkW6iZxqlcICkHWRNcGCoyWO0L','W4mSWOzTkN9FW7mMcJddHsW','udRcPmoE','WRjqxuJdJCkD','W6iXW7S2lq','WQPexf/dJq','xfhcUshcICkgW7PjBu0eW4m6ea','vCoakGpdKmoYvSkQW5e','WO7cQeNcT8ojWORdU8kpcKrmW7NdRrO','rmobsGO','WP3dK8o2W4SUW4GOWQ4','DCoBW5yTWRS','CI/dVSo9WRZcMIa+W5/cL8osp8oh','W7hdVKVdV8oqW5THqtTwW4j0cxutmaHwpHaZW5RcMSkVptdcK1ddUSkrx8o7WOJcP8o4e8oYWRZdGNlcLCoUW7y6WOhcN2y','sfhcUqVcL8k2W7Lfz1GIW58','kglcQcG','FMJcOcBcKmoMWPG','W7TRWO7cJXNdRHrzW5pdVrVcUCkssq','nmkYsLhcImoXWO3cL8oE','qxtcPIZcLCoNWOmq','c8k7mSoeySo6q8keAM4HsmofW5ldTCoJ','WQ3dLY3cHCo1W6tcRKVcLSkRWPRcR8kS','WQOPCSkuW63cHf7cTCowdSk9qa8','sCkWWQFdICkB','vSk/WQxdMCkmamovtSkh','yhpcQcBcLmo6WOHrcmkcv8oodmojBrPrW6y1mH4/','W6lcKSojWQ3dUdxdKSoAW73dOCo8','W6vGW7BdGcNdN8oZW5ldGYhcLSkeW6i+','WQ7dHZVcGSoGW4m','W7n/lCo2s0uKWQlcQG','W798WP/cQWhdRJXqW5JdPdZcRSkV','s8kOWRVdMq','WQ80zCkWW7JcGNm','sCk2omoXyCoRECkrrgS3hmouW57dV8o1nq','W5TrW7tcKcqjW50HomkHFq','lCouW73dLCol','qCkhdueD','W7zNW63dOtW','WPbYnSojW4JcG2WTBe8HWRDLtt7cGa','Eh9tgCki','etCRW4bhpCkslsrHbmkIgCk3','W7zGW7RdSqBdLCoWW4pdIdVcOa','W7n/m8oMtvKrWO3cIMa','oe3cOHFcQG','W4yQBfRdQSkWWQlcRGWfWQFdRCkDW7O','W7THm8o2v2KZWOFcJ2Lh','p8oeW7tdI8obWOLWiv1/W6lcSNO','WP/dKmo1W5OY','WPzhW6iXxWBcISkvWRJcVCozWOW5','pNJcQqvvWOFdHG','omoWWPddN8oMWRVcPa','WRHEWQ4','d2y4W7GEy8kIFti8erei','bqyJWRddQmoqW5NcIaRdNq0','WPnLW4a7Cc0RW4KGeb0','W650o8oN','WPK5W5eUjSolovakmg/dMmkH','W5xdQLRdSG','mbm+W7xdPCorW6JcLaBdIWHyWPrwWOlcQCoQbqlcRmorW5/cOCotWQRcHConnwJcNaldUSksW5VcHmk0WOVcVCktWO/cG8kPsNFcKH4zW4GvsmoyW5VcPCoyDv7dL8kOWOueWR7dJdWhW7q7W51iW7GBbIH2','WONdOaNdKWO','W58HW64GdCorpSos','rwpcPs3cLSo6WP9FhSkczG','yhpcRdRcMCoaWOLCcCkeyCoeea','WRtcQYLSx8o9WPTJkq','oSoIumotpmokW5/dGW','WPBdRWVdGX0MWOJcPSoq','WQ3cQgJcN1eJpduPW5uZW47cQSoqW7ZcPG','ztNcOCo6WQhcJryMWPFcMCoFomoFiGyBWOxdRCkxuW','oLxcVGC','xmkBffK','W7L5kSo/xx8vWOe','WRZcUhxdM0THW611C8okwtnjwqJdMWVcM8oXW7W0cCkugSoTb8oGW6meWRldRaBcTSkOxSosBmkVnG','WQRdGYtcGSoP','hSkMjSoK','WQO0ECkgW7ZcJxpcTSoJdmkOwXFdVxLBaYa4WPfQiZvQxSkIWResWQRcUSkGuSoOeSolEmoOc8kVWP3cSW','tN5MyG','mNrqgmktWPO9ywJcI8ojlCoXF8k8hSoUWPynWRtcMmkuWOHwWO0XomkfAHhdKdy','ycJdVSoUWRhcRaa+W5/cMCodpSob','WR9axeBdMW','WOy5W5K+oSoQ','WQjNW586A8kUWOVdJMKyhmkq','W69rW6VcIZqpW7aSoSk6Bmkp','CMngdCkiWO4nAeNcG8obiSoR','WQWOBSogeINcJGFdJXhcHK8YW7tcJCoPW5KmjCkUW7es','W6XWl8oMxa','q8ooranJWRmEyW','gmk+omoLE8oY','WP3dNSoFW4yVWO04','fmkDdWPvWQicj2JdOmkDrJumWOeGWP7dL00/CCohWOdcT8kUW7uts0f6gGBdJ8oIhaKpFLdcP8okWRBcHI0','k8k9sehcNW','m8k1q1ZcJSoQWRhcS8o0WOZdN8oCj8kdW4RcVND0','W4GqWRDUaLpdLG','z3bpgCkz','kCouW6xdVmouWR94kfzOW5tcPeex','W71+WORcRXVdRZPuW5tdPt0','W5PFW6RcJIq','W7GZC8kkmrRcLsBdLGdcIKHGWRtdG8otW58OjCk1W7OvuW8aCqHehMdcNCoOWQZdO8kxWQX2WR8','jSoFW4ldJL0','W55NumogASkizv44W6COw8ojqq','s8kBgfuDWRmVDv3dV8kxtdq','xmk5WQldKmkAoSoKBq','r8khffOzWQmE','kCk5xea','WPr6W4iBFYOa','WP3dG8oWW4i','z2FcPt3cHq','sCkzdvehWRiPCvhdVSkw','WPzZjSojW5lcG288tLiqWRPjrW','w8olmcpdJSoFB8kcW7pdT0nwFtK','WO4IW6yQi8otfSooW57dVmo3xmoKWOygW7VcJZRdHwlcO2RdP8k6WOVcTITtW4jTe1pcTCkthCkBW4ORaq','W4CGALRdP8k2WQC','W4dcP0ldOSkr','WR7cTYjOwCoqWOPcaa3cTIBcOq','WOddN8oPW5OJ','W4qmWRfJh1xdUmkRWRlcPSo1WPC7','W6f3W6FdPdhdN8oBW5VdIdJcSCktW58','fqmYWRVdSSoDW77cGqFdLcSDWP5aW7lcQSoWbfFcQ8ovW4m','W4FcS0VdPCknamoEg8kmtmk7ASka','WQFcVsC0W6ldTZW2D1ZdKWZdQsv8W50','WRdcPZadW7RdHZe','W617WP/cUaZdMbXqW5JdQI3cR8kPBeNdKq','W5SLW6mXjW','hNC6W7GEC8kKEt49ea','u2LMCIa','WO4YW6OWlConbSooW5ddS8o2vmocWO8FW63cLb3cHgNcOx/cSSk6WRJcPZnhWOCKqX3cTmkwrCkqW4XHCCoHrSoaFtm3y3i','W67cK3hdHmk0WOdcM07cKmkdWQpcOq','n8oBW5RdVLqYu8o9W4tcNmkPW7BcQCoH','pSo4wSowlCkjW5/dMmo6rmoYxmo0W6m','WRlcRs8NW7xdGa','W5ylWRfWeMpdMmkRWRlcQmoKWPy9W4zlWQa','W51lW6pcItGOW7qKmmkRFCktkG','w3DMyJRcKmoNeCkQWOGf','fqm2WQFdV8oNW7/cJaBdKH0xWOi','W7T1jW','rdRcOCoOhXvi','W4JcOIrH','WPNcVSoYW6Leyr/dShpcPd5aW58kl8kq','mCooW57dNLyZFCoWW4pcHmkp','jmoBW5BdJ3S4umoSW4/cHSkF','W5bSvmo2CG','W43cS1BcK11AWQNcVSoEWQdcOH8','W4ZcSI99','WO/cOK/cT8oeWOZdVG','WPXGW50mCt4B','WPT7W4aRAG','W5VcG8kQWPPLW5WPWOKIW40PhG','WO3dSw0GFSkNW7hcVCoDW7dcKGe','w8ovqH1VWOqEFhVdGL3cU8kt','W5RcO0ddSmkaoW','WP8PW5e3m8oHd18op37dP8kHAWjVWR3dQYm','W4H3qCoXF8k+BvCZW7aEtCoYzmopW7G','WPZcR8kTW7vsrLlcPNdcRJHCW5LMimkuW6CyhmoMWOFcQ8kCWOpdP8ok','pSk5sfJcIq','kSoTWRNdMW','W5arWQzPdKldTCkOWQlcUCoJWQK9W6HxWQmDWQJdOG','vdtcV8oygW','W442W6OLnSoAf8ohW5BdSmo8vSoz','kmodW77dLa','W6VcVhpdKvm','xSkHWRVdMCkqlmocA8kIWPPY','lCo4umotlmkpW67dNCoWr8odw8oT','W59TvSogz8koya','bmkQo8oJCCoT','W5bSqmoMFSkIBG','t1ZcQaxcGCodW6nE','iCoFW7JdL8oiWQ9H','nmkYqfhcGSo2WR8','drG9WRddTmo8W47cRs8','WPWPW4WOhmo3mKGkpw8','hhuVW7WeCSkIFti8erei','WP7cOcT8qCouWR1lfG','WR8+y8kAW6VcTx7cUSoDdmk0qrZdTwH1jdi1WP5M','cwyMW6Gv','W6PSW6xdRsNdK8o5W5/dMxJcT8ksW4CVimkl','WRuYFSoggdVcNY7dHHFcKvqY','WQ8PEmky','W5/cOJb5pa','qYxcO8oiebjJW4/cS8kTWQi','xmobsXPZ','F8kfWQFcImkoW6GHk1zwW57cQwi','W4VcVCoYW69sqc7dUxxcQsvdW4iSkSkFW6eGgCkTW4VcP8osWOFdSmorW5NcISoDW48K','zCovW4GDWR9Pja','WRxcOcCLW7ddGt0','WODAWRRdOa','WQJdMZJcKG','WQlcQI0IW6i','W6rQW7ddGctdMCo2','c29QW7qEz8kszq','W6TRW7ldSdhdRSo/W5xdGta','W6dcKmoCWQNdOJtdLmoEW7hdOmo9WQ0x','WP7cQSo7W65y','D2NcUW3cGCoWWOq','WOnZm8oOW7hcIg4G','Fxrnc8kiWOm','omoRwCohpq','p8oeW7tdI8obWOLWiv1/W6lcSNOYC8o5','kmo4wSoF','W6PVWPBcVXa','WOnGW5uSzXOnW40ShW3dNYJcMCo9ka','WRZcTtDSq8orWOXgdaZcTW','WQnEWRldScS','W6XWW6/dHIRdLSoT','W7FcGmowWQZdRW','WRXrWQ7dSdO','huNcUG3cVqq','wKtcVqhcI8khW5reALuI','o8kUs1K','WOGUy8kAW7qsBCk8W5Oq','WPyIF8or','WPW+W50X','WOK8W4q5mCo8h1qgp38','tgz6CJe','cdeIpGdcUmokdmkIWOS','ifNcOWdcQLy','gSkQjCoP','WPNdRHFdOW4nWRq','owFcQYvAWOddRCo8WPxcPrS','W7xcG8ovWR3dSW','W5zStCoTDSkyFa','CJJdT8oWWRS','WQVcPcT8sa','o2xcVIfaWOhdQ8o4WPNcPbRdGmoz','EdpdUmoWWR3cMWaH','WPbMiSoPW5dcGKeXsuO2','W6HMWP/cQXe','WPZdSWddHXSlWPNcH8o5WR/cKsldOq','t1ddTWlcJmkrW6rylLOUW5mFea','WQZcScj7vmoMWQPcaapcPYFcP8oVeNC','aJCNW7e','W6NcV3ddGe8','FSo7WQddPCojWQ3cUa','W4BdRuZdU8oiW58ewZ9bW457xq','W49BW6RcLZi','zstdQ8o5','C8oxW4ddI00JASo5W4JcHmkoWQ/cLmoNWOhcQeVcKhddHW','WRhdLmknW7hdGH3dV8ohW7xdOG','WO4LW5O9m8oCoveopx/dVSk9DaD0WR0','WRJdHmo4W4eJWOe4WR0eW5PFiWldVmoJWQVcOmkKW6OeW5C4DSk7WO/cReu0WPqTWPrKWOntd8kmmCoLlL/cQGtcLmkNW6/cJSkQW4/dNG','i8oRrq','t8kmcxefWRmhFfBdPSkWwWKC','WPDAWRpcPq'];_0x4a02=function(){return _0x295090;};return _0x4a02();}function updatePreviousTableData(){const _0x11ec2d=_0x10d7,_0x1e2669=document[_0x11ec2d(0x1c0,'aA4v')](_0x11ec2d(0x22c,'ZAWD'))['querySelector'](_0x11ec2d(0x17b,'DnMQ'));previousTableData=[],_0x1e2669[_0x11ec2d(0x1ef,'mbyO')]('tr')[_0x11ec2d(0x267,'OaOH')](_0x298c75=>{const _0x20602b=_0x11ec2d,_0x1f0140=[];_0x298c75['querySelectorAll'](_0x20602b(0x21e,'5XhH'))[_0x20602b(0x177,'f%wg')](_0x400e4c=>{const _0x425fd5=_0x20602b;_0x1f0140[_0x425fd5(0x198,'@76Y')](_0x400e4c[_0x425fd5(0x184,'Ldg@')]||0x0);}),previousTableData[_0x20602b(0x245,'OaOH')](_0x1f0140);});}function autoFillTable(){const _0x1fbba1=_0x10d7,_0x3fe1e9=document['getElementById'](_0x1fbba1(0x221,'fnwb'))['querySelectorAll'](_0x1fbba1(0x240,'mLBC')),_0x9c2385=[_0x1fbba1(0x191,'nv2k'),_0x1fbba1(0x287,'u^Bh'),_0x1fbba1(0x16c,'fJlE'),'Geladeiras',_0x1fbba1(0x273,'7uf*')];_0x3fe1e9[_0x1fbba1(0x214,'94fT')]((_0x33c186,_0x4946af)=>{const _0x3e9801=_0x1fbba1;_0x33c186[_0x3e9801(0x20f,'jeY2')][0x0][_0x3e9801(0x264,'5XhH')]('input[type=\x22text\x22]')[_0x3e9801(0x1f3,'5XhH')]=_0x9c2385[_0x4946af%_0x9c2385['length']];let _0x5b4876=[],_0x4fee24=0x0;for(let _0x58a492=0x1;_0x58a492<_0x33c186[_0x3e9801(0x20f,'jeY2')][_0x3e9801(0x183,'o7JT')];_0x58a492++){let _0xa8aea5=_0x4946af===_0x58a492?(Math[_0x3e9801(0x28c,'@76Y')]()*0.05)[_0x3e9801(0x28d,'mLBC')](0x2):(Math['random']()*0.1)['toFixed'](0x2);_0x5b4876[_0x3e9801(0x14f,'v]dO')](parseFloat(_0xa8aea5)),_0x4fee24+=parseFloat(_0xa8aea5);}_0x4fee24>=0x1&&(_0x5b4876=_0x5b4876[_0x3e9801(0x1f8,'f%wg')](_0x9521b4=>(_0x9521b4/_0x4fee24*0.9)[_0x3e9801(0x268,'WUic')](0x2))),_0x5b4876['forEach']((_0x2cf5ee,_0x494b8e)=>{const _0x2d0728=_0x3e9801;_0x33c186[_0x2d0728(0x259,'5XhH')][_0x494b8e+0x1][_0x2d0728(0x1f5,'fJlE')](_0x2d0728(0x20d,'fJlE'))[_0x2d0728(0x187,'A9AL')]=_0x2cf5ee;});});}function getTableData(){const _0x27b238=_0x10d7,_0x4329df=document[_0x27b238(0x274,'7uf*')]('#inputTable\x20tbody'),_0x4c1961=_0x4329df['querySelectorAll']('tr');return Array[_0x27b238(0x1e9,'OaOH')](_0x4c1961)[_0x27b238(0x269,'$(z8')](_0x4dc3b8=>{const _0x620403=_0x27b238,_0x3bfbd1=_0x4dc3b8[_0x620403(0x1a5,'fJlE')](_0x620403(0x1da,'tEEi'));return Array[_0x620403(0x15b,'WUic')](_0x3bfbd1)[_0x620403(0x1b0,'Ldg@')](_0x7e8597=>parseFloat(_0x7e8597[_0x620403(0x2af,'L4Ep')])||0x0);});}function confirmClearTable(){const _0x39cd33=_0x10d7,_0x467b8e=confirm(_0x39cd33(0x270,'XJWl'));_0x467b8e&&clearTable();}function clearTable(){const _0x3a45ff=_0x10d7,_0x33d303=document[_0x3a45ff(0x2b4,'6Mr2')](_0x3a45ff(0x226,'rLa&'))[_0x3a45ff(0x143,'mfYp')]('tbody\x20tr');_0x33d303[_0x3a45ff(0x150,'&QVy')](_0x5b754a=>{const _0x4480dd=_0x3a45ff,_0x1326ef=_0x5b754a[_0x4480dd(0x1c6,'kz8c')](_0x4480dd(0x222,'&QVy'));_0x1326ef['forEach'](_0x44b157=>_0x44b157[_0x4480dd(0x1c8,'dKy^')]='0');});const _0x5696e5=document['querySelectorAll'](_0x3a45ff(0x27d,'D@AT'));_0x5696e5[_0x3a45ff(0x181,'7uf*')](_0x5d1e41=>_0x5d1e41['value']='0'),optimizedStatus={};const _0x2acca7=document['querySelectorAll'](_0x3a45ff(0x1e5,'DGW$'));_0x2acca7[_0x3a45ff(0x199,'J%6H')](_0x21277d=>_0x21277d['style']['backgroundColor']='');document[_0x3a45ff(0x251,'735w')]('productionGoal')&&(document[_0x3a45ff(0x293,'5XhH')]('productionGoal')['value']='');document[_0x3a45ff(0x1c5,'J%6H')](_0x3a45ff(0x258,'u^Bh'))['value']='',document[_0x3a45ff(0x1c5,'J%6H')](_0x3a45ff(0x1b3,'*)y8'))[_0x3a45ff(0x241,'f%wg')]='',document[_0x3a45ff(0x2b4,'6Mr2')](_0x3a45ff(0x2b5,'Ldg@'))['value']='',optimizationInputs={},optimizationResults={},document['getElementById'](_0x3a45ff(0x252,'tEEi'))[_0x3a45ff(0x1cf,'aA4v')]='',isPlanified=![],togglePlanificationElements(),document[_0x3a45ff(0x1b1,'ZAWD')](_0x3a45ff(0x280,'nv2k'))[_0x3a45ff(0x16e,'jlt&')]='',document[_0x3a45ff(0x262,'kz8c')](_0x3a45ff(0x24f,'7uf*'))[_0x3a45ff(0x18a,'$(z8')]='',document[_0x3a45ff(0x2a2,'fnwb')](_0x3a45ff(0x244,'igJ6'))[_0x3a45ff(0x292,'o7JT')]='',document['getElementById']('comiteColTitle')[_0x3a45ff(0x28f,'mbyO')]='',document[_0x3a45ff(0x21b,'*)y8')](_0x3a45ff(0x1f2,'WUic'))['value']='',document[_0x3a45ff(0x251,'735w')](_0x3a45ff(0x1fc,'tEEi'))[_0x3a45ff(0x228,'0ttA')]='',document['getElementById']('conselhoPopularAssociadoDeComiteOuTrabalhadorTelaTrabalhador')[_0x3a45ff(0x261,'*)y8')]='';const _0x5758da=document[_0x3a45ff(0x185,'5XhH')]('#vetorTecnologicoTable\x20tbody\x20input');_0x5758da[_0x3a45ff(0x163,'qaIk')](_0x51a48b=>_0x51a48b[_0x3a45ff(0x1ec,'DnMQ')]='');const _0x5d7e8d=document['querySelectorAll'](_0x3a45ff(0x282,'o7JT'));_0x5d7e8d['forEach'](_0x4e2603=>_0x4e2603[_0x3a45ff(0x1b7,'@76Y')]=''),document[_0x3a45ff(0x207,'hCqD')]('workerLimitProposta')[_0x3a45ff(0x28a,'e8Ms')]='',document[_0x3a45ff(0x1ed,'WUic')](_0x3a45ff(0x15c,'mfYp'))[_0x3a45ff(0x1d6,'CZuz')]='',document['getElementById'](_0x3a45ff(0x1b5,'mbyO'))[_0x3a45ff(0x24d,'M59!')]='',document[_0x3a45ff(0x298,'qaIk')](_0x3a45ff(0x290,'mbyO'))[_0x3a45ff(0x178,'DnMQ')]=![],document[_0x3a45ff(0x220,'0ttA')](_0x3a45ff(0x157,'CZuz'))['value']='';const _0x38194b=document[_0x3a45ff(0x1e3,'ZAWD')]('#producaoMetaTable\x20tbody\x20input');_0x38194b[_0x3a45ff(0x199,'J%6H')](_0x233689=>_0x233689[_0x3a45ff(0x180,'b]]a')]=''),previousTableData=[],previousProductNames=[],previousSectorNames=[],previousDemandValues=[],propostaDados={},totalSocialWorkDessaJurisdicao=0x0,councilData=null,currentProductIndex=null,modalContext=null,document[_0x3a45ff(0x1f6,'@m5*')](_0x3a45ff(0x23f,'EBIN'))[_0x3a45ff(0x295,'u^Bh')]='',document[_0x3a45ff(0x23e,'&QVy')](_0x3a45ff(0x1cb,'J%6H'))[_0x3a45ff(0x297,'6Mr2')]='',document[_0x3a45ff(0x2a2,'fnwb')]('associacaoDeMoradoresAssociadaDeTrabalhador')[_0x3a45ff(0x1fe,'fnwb')]='',document['getElementById'](_0x3a45ff(0x289,'hCqD'))[_0x3a45ff(0x1c7,'735w')]='',document[_0x3a45ff(0x1ed,'WUic')]('partipacaoIndividualEstimadaNoTrabalhoSocial')[_0x3a45ff(0x295,'u^Bh')]='';}function resizeTableForData(_0x24cd08,_0x6f0878){const _0x4e94fb=_0x10d7;document[_0x4e94fb(0x1df,'D@AT')](_0x4e94fb(0x151,'vsY*'))[_0x4e94fb(0x18a,'$(z8')]=_0x24cd08,document['getElementById'](_0x4e94fb(0x1d8,'6@U1'))[_0x4e94fb(0x23b,'aA4v')]=_0x6f0878,resizeTable();}function fillTableWithData(_0x5f1468){const _0x4ea057=_0x10d7,_0x3919c8=document[_0x4ea057(0x283,'0ttA')](_0x4ea057(0x257,'@76Y')),_0x55eea3=document['querySelector'](_0x4ea057(0x1e7,'igJ6'));_0x3919c8[_0x4ea057(0x275,'fJlE')]='',_0x55eea3['innerHTML']=_0x4ea057(0x202,'mLBC');if(_0x5f1468[_0x4ea057(0x156,'94fT')]===0x0){showNotification(_0x4ea057(0x243,'S^p*'),![]);return;}const _0x422713=_0x5f1468[0x0]['length'];for(let _0x2fd992=0x0;_0x2fd992<_0x422713;_0x2fd992++){const _0xfdcd77=document['createElement']('th'),_0x2361cd=document[_0x4ea057(0x224,'D@AT')](_0x4ea057(0x1f1,'DGW$'));_0x2361cd[_0x4ea057(0x27f,'@76Y')]=_0x4ea057(0x231,'DGW$'),_0x2361cd[_0x4ea057(0x1a7,'D@AT')]=_0x4ea057(0x18e,'*)y8')+(_0x2fd992+0x1),_0x2361cd[_0x4ea057(0x19c,'qaIk')]=()=>updateSectorName(_0x2fd992,_0x2361cd[_0x4ea057(0x29f,'7uf*')]),_0x2361cd[_0x4ea057(0x272,'L4Ep')]=!![],addTooltipBehavior(_0x2361cd),_0xfdcd77[_0x4ea057(0x26c,'vsY*')](_0x2361cd),_0x55eea3[_0x4ea057(0x14b,'6Mr2')](_0xfdcd77);}_0x5f1468[_0x4ea057(0x22f,'WUic')]((_0xede5f6,_0x532d50)=>{const _0x244d3b=_0x4ea057,_0x3afb3a=document[_0x244d3b(0x17f,'@m5*')]('tr'),_0x4c4c93=document[_0x244d3b(0x16b,'jlt&')]('td'),_0x297db2=document[_0x244d3b(0x1cc,'e8Ms')](_0x244d3b(0x18d,'$(z8'));_0x297db2['type']=_0x244d3b(0x29c,'mbyO'),_0x297db2['value']=_0x244d3b(0x20b,'mfYp')+(_0x532d50+0x1),_0x297db2[_0x244d3b(0x227,'A9AL')]=()=>updateProductName(_0x532d50,_0x297db2[_0x244d3b(0x174,'EBIN')]),_0x4c4c93[_0x244d3b(0x173,'DGW$')](_0x297db2),_0x3afb3a['appendChild'](_0x4c4c93),_0xede5f6['forEach'](_0x3dc2d8=>{const _0x2bb0f1=_0x244d3b,_0x44f165=document[_0x2bb0f1(0x2a9,'735w')]('td'),_0x5b206d=document[_0x2bb0f1(0x1fb,'v]dO')](_0x2bb0f1(0x1b9,'735w'));_0x5b206d[_0x2bb0f1(0x281,'6@U1')]='number',_0x5b206d[_0x2bb0f1(0x174,'EBIN')]=_0x3dc2d8||0x0,_0x44f165['appendChild'](_0x5b206d),addHighlightBehavior(_0x44f165),_0x3afb3a['appendChild'](_0x44f165);}),_0x3919c8[_0x244d3b(0x161,'M59!')](_0x3afb3a);});}function updateVetorTecnologicoTable(){const _0x1e0f34=_0x10d7,_0x512005=parseInt(document['getElementById'](_0x1e0f34(0x2aa,'XJWl'))['value'],0xa),_0x38e871=document['getElementById'](_0x1e0f34(0x16d,'nv2k')),_0x4a4924=_0x38e871[_0x1e0f34(0x1ea,'*)y8')](_0x1e0f34(0x160,'D@AT')),_0x4bf914=document[_0x1e0f34(0x1f5,'fJlE')](_0x1e0f34(0x21c,'rLa&'))[_0x1e0f34(0x28f,'mbyO')],_0x2ccf44=[];_0x4a4924[_0x1e0f34(0x158,'qaIk')]('tr')[_0x1e0f34(0x1dc,'dKy^')]((_0x94bd1b,_0x13c972)=>{const _0x752dca=_0x1e0f34,_0x3b3a13=[];_0x94bd1b[_0x752dca(0x188,'vsY*')]('td\x20input')[_0x752dca(0x214,'94fT')]((_0x11b130,_0x86d167)=>{const _0x19aa47=_0x752dca;_0x3b3a13[_0x86d167]=_0x11b130[_0x19aa47(0x1c8,'dKy^')];}),_0x2ccf44[_0x13c972]=_0x3b3a13;}),_0x4a4924[_0x1e0f34(0x253,'e8Ms')]='';for(let _0x4666c3=0x0;_0x4666c3<_0x512005;_0x4666c3++){const _0x11dc5c=document[_0x1e0f34(0x19f,'OaOH')]('tr'),_0x17c6ff=document['createElement']('td'),_0x18dd3b=document[_0x1e0f34(0x1fb,'v]dO')](_0x1e0f34(0x20a,'mbyO'));_0x18dd3b['type']=_0x1e0f34(0x26d,'e8Ms'),_0x18dd3b['value']=_0x2ccf44[_0x4666c3]&&_0x2ccf44[_0x4666c3][0x0]!==undefined?_0x2ccf44[_0x4666c3][0x0]:_0x1e0f34(0x1b2,'$(z8')+(_0x4666c3+0x1),_0x18dd3b[_0x1e0f34(0x246,'7uf*')]=syncProductionNames,_0x17c6ff[_0x1e0f34(0x14b,'6Mr2')](_0x18dd3b),_0x11dc5c[_0x1e0f34(0x194,'CZuz')](_0x17c6ff);const _0x12e5d7=document['createElement']('td'),_0x215322=document[_0x1e0f34(0x19f,'OaOH')](_0x1e0f34(0x2a7,'mLBC'));_0x215322[_0x1e0f34(0x27a,'*)y8')]=_0x1e0f34(0x1d2,'OaOH'),_0x215322[_0x1e0f34(0x19b,'@m5*')]=_0x2ccf44[_0x4666c3]&&_0x2ccf44[_0x4666c3][0x1]!==undefined&&_0x2ccf44[_0x4666c3][0x1]!==''?_0x2ccf44[_0x4666c3][0x1]:'0',_0x12e5d7[_0x1e0f34(0x1b6,'rLa&')](_0x215322),_0x11dc5c[_0x1e0f34(0x294,'A9AL')](_0x12e5d7),_0x4a4924['appendChild'](_0x11dc5c);}updateEstoqueDemandaTable(_0x512005),syncProductionNames(),document[_0x1e0f34(0x146,'XJWl')](_0x1e0f34(0x2b2,'L4Ep'))[_0x1e0f34(0x275,'fJlE')]=_0x1e0f34(0x1af,'mLBC')+_0x4bf914;}function updateEstoqueDemandaTable(_0x3759b1){const _0x25aa30=_0x10d7,_0x419a7d=document[_0x25aa30(0x26e,'CZuz')]('#estoqueDemandaTable\x20tbody'),_0x34d1fe=Array[_0x25aa30(0x186,'Ldg@')](_0x419a7d[_0x25aa30(0x1ef,'mbyO')]('tr'))[_0x25aa30(0x1e6,'XJWl')](_0x159af7=>({'bemDeProducao':_0x159af7[_0x25aa30(0x1c1,'o7JT')][0x0][_0x25aa30(0x25f,'735w')][_0x25aa30(0x27b,'ZAWD')](),'estoque':_0x159af7[_0x25aa30(0x15a,'mbyO')][0x1][_0x25aa30(0x1ea,'*)y8')]('input')[_0x25aa30(0x297,'6Mr2')][_0x25aa30(0x193,'CZuz')](),'demanda':_0x159af7[_0x25aa30(0x284,'aA4v')][0x2]['querySelector'](_0x25aa30(0x1b9,'735w'))[_0x25aa30(0x265,'mLBC')][_0x25aa30(0x29e,'mLBC')]()}));_0x419a7d[_0x25aa30(0x24e,'M59!')]='';for(let _0x25bce1=0x0;_0x25bce1<_0x3759b1;_0x25bce1++){const _0x58e353=document['createElement']('tr'),_0x2270c4=document[_0x25aa30(0x24c,'nv2k')]('td');_0x2270c4[_0x25aa30(0x21a,'mbyO')]=_0x34d1fe[_0x25bce1]?.['bemDeProducao']||_0x25aa30(0x1f7,'qaIk')+(_0x25bce1+0x1),_0x58e353[_0x25aa30(0x2b0,'jlt&')](_0x2270c4);const _0x5582aa=document[_0x25aa30(0x242,'0ttA')]('td'),_0xe73d10=document['createElement'](_0x25aa30(0x205,'OaOH'));_0xe73d10[_0x25aa30(0x217,'S^p*')]=_0x25aa30(0x285,'CZuz'),_0xe73d10[_0x25aa30(0x22a,'qaIk')]=_0x34d1fe[_0x25bce1]?.['estoque']||0x0,_0x5582aa[_0x25aa30(0x294,'A9AL')](_0xe73d10),_0x58e353[_0x25aa30(0x210,'u^Bh')](_0x5582aa);const _0x593978=document['createElement']('td'),_0x3c51d2=document[_0x25aa30(0x2a9,'735w')](_0x25aa30(0x1ca,'f%wg'));_0x3c51d2['type']='number',_0x3c51d2[_0x25aa30(0x15d,'DGW$')]=_0x34d1fe[_0x25bce1]?.[_0x25aa30(0x22e,'EBIN')]||0x0,_0x593978[_0x25aa30(0x250,'@m5*')](_0x3c51d2),_0x58e353[_0x25aa30(0x194,'CZuz')](_0x593978),_0x419a7d[_0x25aa30(0x18f,'igJ6')](_0x58e353);}}function addHighlightBehavior(_0x34cdef){const _0x2edb1f=_0x10d7;_0x34cdef[_0x2edb1f(0x24a,'@76Y')]('mouseover',()=>{const _0x41bbf5=_0x2edb1f,_0xb4b5b5=document['getElementById']('inputTable'),_0x455766=_0x34cdef[_0x41bbf5(0x225,'jeY2')],_0x3a2f8c=Array[_0x41bbf5(0x190,'mbyO')](_0x455766[_0x41bbf5(0x27c,'e8Ms')])[_0x41bbf5(0x168,'mbyO')](_0x34cdef);Array[_0x41bbf5(0x15f,'5XhH')](_0xb4b5b5['rows'])[_0x41bbf5(0x1c4,'mLBC')](_0x3dd241=>{const _0x31fdcc=_0x41bbf5;_0x3dd241[_0x31fdcc(0x19d,'0ttA')][_0x3a2f8c]&&_0x3dd241[_0x31fdcc(0x1aa,'u^Bh')][_0x3a2f8c]['classList'][_0x31fdcc(0x147,'e8Ms')](_0x31fdcc(0x278,'jeY2'));});}),_0x34cdef[_0x2edb1f(0x25c,'dKy^')]('mouseout',()=>{const _0x36402e=_0x2edb1f,_0xab1f51=document[_0x36402e(0x25e,'rLa&')]('inputTable'),_0x29a25c=_0x34cdef[_0x36402e(0x26a,'jlt&')],_0x43d035=Array[_0x36402e(0x186,'Ldg@')](_0x29a25c[_0x36402e(0x29a,'M59!')])[_0x36402e(0x165,'qaIk')](_0x34cdef);Array[_0x36402e(0x171,'nv2k')](_0xab1f51[_0x36402e(0x238,'DGW$')])[_0x36402e(0x256,'nv2k')](_0x3fcbd6=>{const _0x11d666=_0x36402e;_0x3fcbd6[_0x11d666(0x172,'v]dO')][_0x43d035]&&_0x3fcbd6[_0x11d666(0x22b,'$(z8')][_0x43d035]['classList']['remove'](_0x11d666(0x16f,'735w'));});});}function populateTechMatrix(_0x30abbe,_0x1abfa8){const _0x5430b6=_0x10d7,_0x16b8f5=document[_0x5430b6(0x1bd,'mbyO')](_0x5430b6(0x1e1,'XJWl'))[_0x5430b6(0x201,'mLBC')](_0x5430b6(0x276,'Ldg@')),_0x30281d=document[_0x5430b6(0x247,'A9AL')](_0x5430b6(0x1ce,'OaOH'))[_0x5430b6(0x283,'0ttA')](_0x5430b6(0x18c,'@m5*'));_0x16b8f5[_0x5430b6(0x277,'J%6H')]=_0x5430b6(0x1bf,'@76Y'),_0x1abfa8['forEach'](_0x26be36=>{const _0x14686f=_0x5430b6,_0x4db2a6=document['createElement']('th'),_0x5cf554=document[_0x14686f(0x1fd,'tEEi')](_0x14686f(0x152,'vsY*'));_0x5cf554[_0x14686f(0x217,'S^p*')]='text',_0x5cf554[_0x14686f(0x2a5,'94fT')]=_0x26be36[_0x14686f(0x1d5,'b]]a')](_0x14686f(0x179,'$(z8'))?_0x26be36:_0x14686f(0x219,'u^Bh')+_0x26be36,_0x5cf554['readOnly']=!![],addTooltipBehavior(_0x5cf554),_0x4db2a6[_0x14686f(0x1d0,'kz8c')](_0x5cf554),_0x16b8f5[_0x14686f(0x26b,'XJWl')](_0x4db2a6);}),_0x30281d[_0x5430b6(0x1cf,'aA4v')]='',_0x30abbe['forEach']((_0x1583ec,_0x59285c)=>{const _0x700689=_0x5430b6,_0x21476e=document[_0x700689(0x19f,'OaOH')]('tr'),_0x2be440=document[_0x700689(0x2a9,'735w')]('td'),_0xd1ffd5=document[_0x700689(0x2a6,'fJlE')](_0x700689(0x25d,'o7JT'));_0xd1ffd5['type']=_0x700689(0x1a6,'rLa&'),_0xd1ffd5[_0x700689(0x1cd,'XJWl')]=_0x1abfa8[_0x59285c],_0xd1ffd5[_0x700689(0x167,'5XhH')]=()=>updateProductName(_0x59285c,_0xd1ffd5[_0x700689(0x295,'u^Bh')]),_0x2be440[_0x700689(0x215,'94fT')](_0xd1ffd5),_0x21476e[_0x700689(0x145,'6@U1')](_0x2be440),_0x1583ec[_0x700689(0x148,'DGW$')](_0x15417d=>{const _0x32b437=_0x700689,_0x3fb2cd=document[_0x32b437(0x1a3,'J%6H')]('td'),_0x38c6f5=document[_0x32b437(0x1de,'$(z8')](_0x32b437(0x2a7,'mLBC'));_0x38c6f5[_0x32b437(0x17a,'tEEi')]=_0x32b437(0x164,'@76Y'),_0x38c6f5[_0x32b437(0x1ff,'jeY2')]=_0x15417d,_0x3fb2cd['appendChild'](_0x38c6f5),addHighlightBehavior(_0x3fb2cd),_0x21476e[_0x32b437(0x1ba,'*)y8')](_0x3fb2cd);}),_0x30281d['appendChild'](_0x21476e);});}function _0x10d7(_0xf5a33f,_0x4e900e){const _0x4a024e=_0x4a02();return _0x10d7=function(_0x10d707,_0x51a955){_0x10d707=_0x10d707-0x142;let _0x2378ee=_0x4a024e[_0x10d707];if(_0x10d7['YAiRtt']===undefined){var _0x359a83=function(_0x320f60){const _0x25e38c='abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+/=';let _0xb43ba='',_0x291584='';for(let _0x586b9d=0x0,_0x40a6c6,_0x512a87,_0x21a741=0x0;_0x512a87=_0x320f60['charAt'](_0x21a741++);~_0x512a87&&(_0x40a6c6=_0x586b9d%0x4?_0x40a6c6*0x40+_0x512a87:_0x512a87,_0x586b9d++%0x4)?_0xb43ba+=String['fromCharCode'](0xff&_0x40a6c6>>(-0x2*_0x586b9d&0x6)):0x0){_0x512a87=_0x25e38c['indexOf'](_0x512a87);}for(let _0x1b9b8c=0x0,_0x3035a3=_0xb43ba['length'];_0x1b9b8c<_0x3035a3;_0x1b9b8c++){_0x291584+='%'+('00'+_0xb43ba['charCodeAt'](_0x1b9b8c)['toString'](0x10))['slice'](-0x2);}return decodeURIComponent(_0x291584);};const _0x2d66bd=function(_0x2b87b7,_0x35b85c){let _0x21658c=[],_0x4b7e05=0x0,_0x3f0754,_0x471c56='';_0x2b87b7=_0x359a83(_0x2b87b7);let _0x2bc531;for(_0x2bc531=0x0;_0x2bc531<0x100;_0x2bc531++){_0x21658c[_0x2bc531]=_0x2bc531;}for(_0x2bc531=0x0;_0x2bc531<0x100;_0x2bc531++){_0x4b7e05=(_0x4b7e05+_0x21658c[_0x2bc531]+_0x35b85c['charCodeAt'](_0x2bc531%_0x35b85c['length']))%0x100,_0x3f0754=_0x21658c[_0x2bc531],_0x21658c[_0x2bc531]=_0x21658c[_0x4b7e05],_0x21658c[_0x4b7e05]=_0x3f0754;}_0x2bc531=0x0,_0x4b7e05=0x0;for(let _0x2293db=0x0;_0x2293db<_0x2b87b7['length'];_0x2293db++){_0x2bc531=(_0x2bc531+0x1)%0x100,_0x4b7e05=(_0x4b7e05+_0x21658c[_0x2bc531])%0x100,_0x3f0754=_0x21658c[_0x2bc531],_0x21658c[_0x2bc531]=_0x21658c[_0x4b7e05],_0x21658c[_0x4b7e05]=_0x3f0754,_0x471c56+=String['fromCharCode'](_0x2b87b7['charCodeAt'](_0x2293db)^_0x21658c[(_0x21658c[_0x2bc531]+_0x21658c[_0x4b7e05])%0x100]);}return _0x471c56;};_0x10d7['nQgfDs']=_0x2d66bd,_0xf5a33f=arguments,_0x10d7['YAiRtt']=!![];}const _0x2e04c5=_0x4a024e[0x0],_0x4ea414=_0x10d707+_0x2e04c5,_0x5698f5=_0xf5a33f[_0x4ea414];return!_0x5698f5?(_0x10d7['Vxcuhx']===undefined&&(_0x10d7['Vxcuhx']=!![]),_0x2378ee=_0x10d7['nQgfDs'](_0x2378ee,_0x51a955),_0xf5a33f[_0x4ea414]=_0x2378ee):_0x2378ee=_0x5698f5,_0x2378ee;},_0x10d7(_0xf5a33f,_0x4e900e);}function populateFinalDemand(_0x5c6085){const _0x2ea1e2=_0x10d7,_0x2bf686=document[_0x2ea1e2(0x213,'94fT')](_0x2ea1e2(0x1ae,'CZuz'));_0x2bf686[_0x2ea1e2(0x23d,'fnwb')]='',_0x5c6085['forEach']((_0x5f5316,_0xbd6a09)=>{const _0x2ee040=_0x2ea1e2,_0x284967=document[_0x2ee040(0x1d1,'dKy^')]('tr'),_0x35f71d=document[_0x2ee040(0x1a9,'S^p*')]('td');_0x35f71d[_0x2ee040(0x16a,'CZuz')]=getProductNames()[_0xbd6a09]||_0x2ee040(0x249,'7uf*')+(_0xbd6a09+0x1),_0x284967[_0x2ee040(0x1d0,'kz8c')](_0x35f71d);const _0x6820ef=document[_0x2ee040(0x15e,'L4Ep')]('td'),_0x380931=document[_0x2ee040(0x1a9,'S^p*')](_0x2ee040(0x1be,'S^p*'));_0x380931['type']=_0x2ee040(0x197,'*)y8'),_0x380931[_0x2ee040(0x208,'hCqD')]=_0x5f5316,_0x380931['id']=_0x2ee040(0x142,'DnMQ')+_0xbd6a09,_0x6820ef['appendChild'](_0x380931),_0x284967[_0x2ee040(0x19a,'OaOH')](_0x6820ef);const _0x556ac9=document[_0x2ee040(0x2a9,'735w')]('td'),_0x5a29d8=document['createElement']('button');_0x5a29d8[_0x2ee040(0x14c,'6Mr2')]='Otimizar',_0x5a29d8[_0x2ee040(0x291,'mfYp')]=()=>openOptimizationModal(_0xbd6a09),_0x556ac9['appendChild'](_0x5a29d8),_0x284967[_0x2ee040(0x26c,'vsY*')](_0x556ac9),_0x2bf686[_0x2ee040(0x1b8,'mLBC')](_0x284967),updateOptimizeButtonColor(_0xbd6a09);});}function updateColumnTitles(_0x7c9aef){const _0x25487d=_0x10d7,_0x153bb4=document[_0x25487d(0x1f6,'@m5*')]('inputTable')[_0x25487d(0x1d7,'DGW$')](_0x25487d(0x1eb,'fJlE')),_0x1ebdc3=_0x153bb4['querySelectorAll']('th');_0x7c9aef[_0x25487d(0x1c4,'mLBC')]((_0xa0fdc9,_0x35d6b5)=>{const _0x4fdfda=_0x25487d,_0x42f333=_0x1ebdc3[_0x35d6b5+0x1];if(_0x42f333){const _0x4d655e=_0x42f333[_0x4fdfda(0x144,'u^Bh')](_0x4fdfda(0x14d,'qaIk'));_0x4d655e&&(_0x4d655e[_0x4fdfda(0x23b,'aA4v')]=_0xa0fdc9['includes'](_0x4fdfda(0x192,'hCqD'))?_0xa0fdc9:_0x4fdfda(0x286,'vsY*')+_0xa0fdc9,_0x4d655e[_0x4fdfda(0x209,'ZAWD')]=!![],addTooltipBehavior(_0x4d655e));}});}function synchronizeFinalDemandProducts(){const _0x40f917=_0x10d7,_0x660024=document['querySelectorAll'](_0x40f917(0x1ac,'6Mr2')),_0x5b7242=document[_0x40f917(0x1a5,'fJlE')](_0x40f917(0x1d3,'b]]a'));_0x660024[_0x40f917(0x218,'S^p*')]((_0x17c3a9,_0x4941fb)=>{const _0x4860d4=_0x40f917,_0x226e03=_0x17c3a9[_0x4860d4(0x24b,'tEEi')](_0x4860d4(0x204,'M59!'))[_0x4860d4(0x271,'J%6H')];_0x5b7242[_0x4941fb]&&(_0x5b7242[_0x4941fb][_0x4860d4(0x229,'S^p*')](_0x4860d4(0x1e0,'WUic'))['textContent']=_0x226e03);});}function syncProductionNames(){const _0x3ab065=_0x10d7,_0x536ad6=document[_0x3ab065(0x1e2,'WUic')](_0x3ab065(0x176,'b]]a')),_0xb2706f=document[_0x3ab065(0x2ae,'A9AL')]('#estoqueDemandaTable\x20tbody\x20tr');_0x536ad6[_0x3ab065(0x181,'7uf*')]((_0x3cc633,_0x17faf9)=>{const _0x3b1ece=_0x3ab065,_0x56a297=_0x3cc633[_0x3b1ece(0x1d7,'DGW$')](_0x3b1ece(0x1dd,'735w')),_0x3dc9a0=_0xb2706f[_0x17faf9]?.[_0x3b1ece(0x274,'7uf*')](_0x3b1ece(0x1a4,'igJ6'));_0x56a297&&_0x3dc9a0&&(_0x3dc9a0['textContent']=_0x56a297[_0x3b1ece(0x174,'EBIN')]);});}
+// Função para preencher a tabela com valores iniciais baseados em predefinedValues
+function populateInitialTable() {
+    const tbody = document.getElementById('inputTechnologicalMatrixTableBody');
+    tbody.innerHTML = ''; // Limpa qualquer conteúdo existente na tabela
+
+    const initialRows = 3;
+    const initialCols = 3;
+
+    // Atualiza o cabeçalho da tabela
+    const thead = document.getElementById('inputTable').querySelector('thead tr');
+    thead.innerHTML = '<th>Produtos / Setores Produtivos</th>';
+    for (let colIndex = 0; colIndex < initialCols; colIndex++) {
+        const sectorHeader = document.createElement('th');
+        const sectorInput = document.createElement('input');
+        sectorInput.type = 'text';
+        sectorInput.value = colIndex < initialRows && productNames[colIndex].includes("Rede") ? productNames[colIndex] : `Produção de ${colIndex < initialRows ? productNames[colIndex] : "Outro"}`;
+        sectorInput.readOnly = true; // Define como apenas leitura
+        addTooltipBehavior(sectorInput); // Adiciona o comportamento de tooltip
+        sectorHeader.appendChild(sectorInput);
+        thead.appendChild(sectorHeader);
+    }
+
+    // Atualiza as linhas da tabela
+    for (let rowIndex = 0; rowIndex < initialRows; rowIndex++) {
+        const row = document.createElement('tr');
+
+        // Adicionar o campo de entrada para o nome do produto
+        const productNameCell = document.createElement('td');
+        const productInput = document.createElement('input');
+        productInput.type = 'text';
+        productInput.value = productNames[rowIndex];
+        productInput.oninput = (e) => updateProductName(rowIndex, e.target.value);
+        productNameCell.appendChild(productInput);
+        row.appendChild(productNameCell);
+
+        // Adicionar as células restantes
+        for (let colIndex = 0; colIndex < initialCols; colIndex++) {
+            const cell = document.createElement('td');
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.value = predefinedValues[rowIndex][colIndex];
+            cell.appendChild(input);
+            addHighlightBehavior(cell); // Adiciona o comportamento de destaque
+            row.appendChild(cell);
+        }
+
+        tbody.appendChild(row);
+    }
+}
+
+// Função para redimensionar a tabela e preservar dados antigos
+function resizeTable() {
+    const numRows = parseInt(document.getElementById('numRows').value);
+    const numCols = parseInt(document.getElementById('numCols').value);
+
+    const table = document.getElementById('inputTable');
+    const tbody = table.querySelector('tbody');
+    const thead = table.querySelector('thead');
+
+    // Armazenar os dados antigos antes do redimensionamento
+    storePreviousTableData();
+    storePreviousDemandValues();
+
+    // Atualiza o cabeçalho da tabela com os nomes dos setores produtivos
+    thead.innerHTML = '<tr><th>Produtos / Setor Produtivo</th></tr>';
+    for (let j = 0; j < numCols; j++) {
+        const sectorHeader = document.createElement('th');
+        const sectorInput = document.createElement('input');
+        sectorInput.type = 'text';
+        sectorInput.value = previousSectorNames[j] || (inputNames[j % inputNames.length].includes('Rede') ? `${inputNames[j % inputNames.length]}` : `Produção de ${inputNames[j % inputNames.length]}`);
+        sectorInput.readOnly = true;
+        addTooltipBehavior(sectorInput); // Adiciona o comportamento de tooltip
+        sectorHeader.appendChild(sectorInput);
+        thead.querySelector('tr').appendChild(sectorHeader);
+    }
+
+    // Redimensiona o corpo da tabela preservando os dados antigos
+    tbody.innerHTML = '';
+    for (let i = 0; i < numRows; i++) {
+        const row = document.createElement('tr');
+
+        // Nome do produto
+        const productNameCell = document.createElement('td');
+        const productInput = document.createElement('input');
+        productInput.type = 'text';
+        productInput.value = previousProductNames[i] || `Produto ${i + 1}`;
+        //productInput.onchange = () => syncProductName(i, productInput.value);  // Sincroniza nome de produto
+        productInput.oninput = () => updateProductName(i, productInput.value);
+        productNameCell.appendChild(productInput);
+        row.appendChild(productNameCell);
+
+        for (let j = 0; j < numCols; j++) {
+            const cell = document.createElement('td');
+            const input = document.createElement('input');
+            input.type = 'number';
+
+            // Preenche com o valor antigo ou usa um valor padrão
+            input.value = (previousTableData[i] && previousTableData[i][j] !== undefined)
+                ? previousTableData[i][j]
+                : predefinedValues[i % predefinedValues.length][j % predefinedValues[0].length];
+
+            input.onchange = storePreviousTableData;
+            cell.appendChild(input);
+            addHighlightBehavior(cell); // Adiciona o comportamento de destaque
+            row.appendChild(cell);
+        }
+
+        tbody.appendChild(row);
+    }
+
+    // Atualiza a seção de demanda final com os nomes dos produtos e valores de demanda preservados
+    updateFinalDemand(numRows);
+
+    // Se preenchimento automático estiver habilitado, preenche automaticamente novos campos
+    if (document.getElementById('autoFillCheckbox').checked) {
+        autoFillTable();
+    }
+
+    // Atualiza os dados antigos
+    storePreviousTableData();
+}
+
+// Função para armazenar os dados antigos da tabela, incluindo nomes dos produtos e setores
+function storePreviousTableData() {
+    const tbody = document.getElementById('inputTable').querySelector('tbody');
+    const thead = document.getElementById('inputTable').querySelector('thead');
+
+    previousTableData = [];
+    previousProductNames = [];
+    previousSectorNames = [];
+    previousDemandValues = []; // Armazenar os valores de demanda
+
+    // Armazena os nomes dos setores
+    const sectorHeaders = thead.querySelectorAll('th input');
+    sectorHeaders.forEach((input, index) => {
+        //if (index > 0) previousSectorNames[index - 1] = input.value;
+        if (index >= 0) previousSectorNames[index] = input.value;
+    });
+
+    // Armazena os dados da tabela e os nomes dos produtos
+    tbody.querySelectorAll('tr').forEach((row, index) => {
+        const rowData = [];
+        const productInput = row.querySelector('td:first-child input');
+        previousProductNames[index] = productInput.value;
+
+        row.querySelectorAll('td:not(:first-child) input').forEach((input) => {
+            rowData.push(input.value || 0);
+        });
+        previousTableData.push(rowData);
+    });
+
+    // Armazena os valores de demanda atuais
+    const demandInputs = document.querySelectorAll('#finalDemandInputs input[type="number"]');
+    demandInputs.forEach(input => previousDemandValues.push(input.value || 0));
+}
+
+// Função para atualizar os dados antigos da tabela
+function updatePreviousTableData() {
+    const tbody = document.getElementById('inputTable').querySelector('tbody');
+    previousTableData = [];
+    tbody.querySelectorAll('tr').forEach((row) => {
+        const rowData = [];
+        row.querySelectorAll('input[type="number"]').forEach((input) => {
+            rowData.push(input.value || 0);
+        });
+        previousTableData.push(rowData);
+    });
+}
+
+function autoFillTable() {
+    const rows = document.getElementById('inputTable').querySelectorAll('tbody tr');
+    const productNames = ["Automóveis", "Computadores", "Celulares", "Geladeiras", "Televisores"];
+
+    rows.forEach((row, i) => {
+        row.cells[0].querySelector('input[type="text"]').value = productNames[i % productNames.length];
+        let rowValues = [];
+        let sum = 0;
+
+        for (let j = 1; j < row.cells.length; j++) {
+            let value = i === j ? (Math.random() * 0.05).toFixed(2) : (Math.random() * 0.1).toFixed(2);
+            rowValues.push(parseFloat(value));
+            sum += parseFloat(value);
+        }
+
+        if (sum >= 1) {
+            rowValues = rowValues.map(value => (value / sum * 0.9).toFixed(2));
+        }
+
+        rowValues.forEach((value, j) => {
+            row.cells[j + 1].querySelector('input[type="number"]').value = value;
+        });
+    });
+}
+
+function getTableData() {
+    const tbody = document.querySelector('#inputTable tbody');
+    const rows = tbody.querySelectorAll('tr');
+
+    return Array.from(rows).map(row => {
+        const cells = row.querySelectorAll('td:not(:first-child) input[type="number"]');
+        return Array.from(cells).map(input => parseFloat(input.value) || 0);
+    });
+}
+
+function confirmClearTable() {
+    const confirmation = confirm("Tem certeza de que deseja limpar a tabela? Todos os dados serão perdidos.");
+    if (confirmation) {
+        clearTable(); // Chama a função de limpeza se confirmado
+    }
+}
+
+
+function clearTable() {
+    const rows = document.getElementById('inputTable').querySelectorAll('tbody tr');
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('input[type="number"]');
+        cells.forEach(cell => cell.value = '0');
+    });
+
+    // Limpa os valores de demanda e status de otimização
+    const demandInputs = document.querySelectorAll('#finalDemandInputs input[type="number"]');
+    demandInputs.forEach(input => input.value = '0');
+    optimizedStatus = {};  // Resetar o status de otimização
+
+    // Atualiza os botões "Otimizar" para o estado padrão
+    const optimizeButtons = document.querySelectorAll('#finalDemandInputs button');
+    optimizeButtons.forEach(button => button.style.backgroundColor = '');
+
+    // Limpa os valores nas janelas modais de otimização
+    if (document.getElementById('productionGoal')) {
+        document.getElementById('productionGoal').value = '';
+    }
+    document.getElementById('workerLimit').value = '';
+    document.getElementById('workerHours').value = '';
+    document.getElementById('productionTime').value = '';
+
+    // Limpa os dados de otimização armazenados para cada produto
+    optimizationInputs = {};
+    optimizationResults = {};
+
+    // Limpa os resultados de "Planificar"
+    document.getElementById('result').innerHTML = '';
+
+    // Oculta o título "Planificação Otimizada" e a tabela
+    isPlanified = false; // Marca que a planificação foi resetada
+    togglePlanificationElements(); // Atualiza visibilidade
+
+    // Limpa campos adicionais conforme solicitado
+    document.getElementById('conselhoPopularAssociadoDeConselhoPopular').value = '';
+    document.getElementById('quantidadeBensProducao').value = '';
+    document.getElementById('setorUnidade').value = '';
+    document.getElementById('comiteColTitle').value = '';
+    document.getElementById('limiteEfetivoTrabalhadores').value = '';
+    document.getElementById('conselhoPopularAssociadoDeComiteOuTrabalhador').value = '';
+    document.getElementById('conselhoPopularAssociadoDeComiteOuTrabalhadorTelaTrabalhador').value = '';
+    
+
+    // Limpa todos os campos das colunas "Bens de Produção" e "Quantidade necessária para produzir 1 unidade"
+    const vetorTecnologicoInputs = document.querySelectorAll('#vetorTecnologicoTable tbody input');
+    vetorTecnologicoInputs.forEach(input => input.value = '');
+
+    // Limpa todos os valores das colunas "Bem de Produção", "Estoque" e "Demanda"
+    const estoqueDemandaInputs = document.querySelectorAll('#estoqueDemandaTable tbody input');
+    estoqueDemandaInputs.forEach(input => input.value = '');
+
+    // Limpa todos os valores da janela modal "Proposta para demais Trabalhadores"
+    document.getElementById('workerLimitProposta').value = '';
+    document.getElementById('workerHoursProposta').value = '';
+    document.getElementById('productionTimeProposta').value = '';
+    document.getElementById('nightShiftProposta').checked = false;
+    document.getElementById('weeklyScaleProposta').value = '';
+
+    // Limpa os campos das colunas "Produto", "Quantidade Produzida" e "Quantidade que Falta ser Produzida"
+    const producaoMetaInputs = document.querySelectorAll('#producaoMetaTable tbody input');
+    producaoMetaInputs.forEach(input => input.value = '');
+
+    // Adicionalmente, limpa as variáveis associadas na memória
+    previousTableData = [];
+    previousProductNames = [];
+    previousSectorNames = [];
+    previousDemandValues = [];
+    propostaDados = {};
+    totalSocialWorkDessaJurisdicao = 0;
+    councilData = null;
+    currentProductIndex = null;
+    modalContext = null;
+    
+    //Limpeza de variáveis e campos da tela de Trabalhador
+    document.getElementById('name').value = '';
+    document.getElementById('comiteAssociadoDeTrabalhador').value = '';
+    document.getElementById('associacaoDeMoradoresAssociadaDeTrabalhador').value = '';
+    document.getElementById('hoursAtElectronicPoint').value = '';
+    document.getElementById('partipacaoIndividualEstimadaNoTrabalhoSocial').value = '';
+    
+}
+
+function resizeTableForData(numRows, numCols) {
+		document.getElementById('numRows').value = numRows;
+		document.getElementById('numCols').value = numCols;
+		resizeTable(); // Redimensiona a tabela usando a função existente
+	}
+
+    function fillTableWithData(inputTableData) {
+		const tbody = document.querySelector('#inputTable tbody');
+		const thead = document.querySelector('#inputTable thead tr');
+
+		// Limpa a tabela existente
+		tbody.innerHTML = '';
+		thead.innerHTML = '<th>Produtos / Setores Produtivos</th>';
+
+		if (inputTableData.length === 0) {
+			showNotification("Tabela vazia recebida, nenhuma alteração feita.", false);
+			return;
+		}
+
+		// Atualiza os cabeçalhos da tabela com base no número de colunas
+		const numCols = inputTableData[0].length;
+		for (let j = 0; j < numCols; j++) {
+			const sectorHeader = document.createElement('th');
+			const sectorInput = document.createElement('input');
+			sectorInput.type = 'text';
+			sectorInput.value = `Setor ${j + 1}`;
+			sectorInput.oninput = () => updateSectorName(j, sectorInput.value);
+			sectorInput.readOnly = true;
+			addTooltipBehavior(sectorInput); // Adiciona o comportamento de tooltip
+			sectorHeader.appendChild(sectorInput);
+			thead.appendChild(sectorHeader);
+		}
+
+		// Preenche a tabela com os dados recebidos
+		inputTableData.forEach((row, rowIndex) => {
+			const tableRow = document.createElement('tr');
+
+			// Adiciona uma célula para o nome do produto
+			const productNameCell = document.createElement('td');
+			const productInput = document.createElement('input');
+			productInput.type = 'text';
+			productInput.value = `Produto ${rowIndex + 1}`;
+			productInput.oninput = () => updateProductName(rowIndex, productInput.value);
+			productNameCell.appendChild(productInput);
+			tableRow.appendChild(productNameCell);
+
+			// Preenche os valores das colunas
+			row.forEach(value => {
+				const cell = document.createElement('td');
+				const input = document.createElement('input');
+				input.type = 'number';
+				input.value = value || 0;
+				cell.appendChild(input);
+				addHighlightBehavior(cell); // Adiciona o comportamento de destaque
+				tableRow.appendChild(cell);
+			});
+
+			tbody.appendChild(tableRow);
+		});
+
+		//showNotification("Tabela preenchida com os dados recebidos.", true);
+	}
+
+	function updateVetorTecnologicoTable() {
+		const quantidadeBensProducao = parseInt(document.getElementById('quantidadeBensProducao').value, 10);
+		const table = document.getElementById('vetorTecnologicoTable');
+		const tbody = table.querySelector('tbody');
+		const productColumnTitle = document.querySelector('#producaoMetaTable tbody tr td:first-child input').value;
+
+		// Salvar os dados antigos da tabela "Vetor Tecnológico"
+		const previousData = [];
+		tbody.querySelectorAll('tr').forEach((row, rowIndex) => {
+			const rowData = [];
+			row.querySelectorAll('td input').forEach((input, colIndex) => {
+				rowData[colIndex] = input.value; // Armazena o valor da célula
+			});
+			previousData[rowIndex] = rowData;
+		});
+		
+
+		// Limpar o conteúdo atual da tabela
+		tbody.innerHTML = '';
+
+		// Criar novas linhas preservando dados antigos
+		for (let i = 0; i < quantidadeBensProducao; i++) {
+			const row = document.createElement('tr');
+
+			// Criar célula do nome do bem de produção
+			const productCell = document.createElement('td');
+			const productInput = document.createElement('input');
+			productInput.type = 'text';
+			productInput.value = previousData[i] && previousData[i][0] !== undefined ? previousData[i][0] : `Bem ${i + 1}`;
+			productInput.oninput = syncProductionNames; // Atualiza nomes automaticamente
+			productCell.appendChild(productInput);
+			row.appendChild(productCell);
+
+			// Criar célula do valor tecnológico
+			const valueCell = document.createElement('td');
+			const valueInput = document.createElement('input');
+			valueInput.type = 'number';
+			valueInput.value = previousData[i] && previousData[i][1] !== undefined && previousData[i][1] !== ''
+				? previousData[i][1]
+				: '0'; // Define vazio se não houver valor anterior
+			valueCell.appendChild(valueInput);
+			row.appendChild(valueCell);
+
+			tbody.appendChild(row);
+		}
+
+		// Atualizar a tabela de estoque e demanda preservando dados
+		updateEstoqueDemandaTable(quantidadeBensProducao);
+		syncProductionNames(); // Sincroniza os nomes iniciais
+		
+		document.querySelector('#vetorTecnologicoTable thead tr th:nth-child(2)').innerHTML = `Quantidade necessária para produzir 1 unidade de ${productColumnTitle}`;
+		
+	}
+
+
+	function updateEstoqueDemandaTable(quantidadeBensProducao) {
+		const tableBody = document.querySelector("#estoqueDemandaTable tbody");
+
+		// Salvar os dados existentes antes de limpar a tabela
+		const previousData = Array.from(tableBody.querySelectorAll("tr")).map(row => ({
+			bemDeProducao: row.cells[0].textContent.trim(),
+			estoque: row.cells[1].querySelector("input").value.trim(),
+			demanda: row.cells[2].querySelector("input").value.trim()
+		}));
+
+		// Limpar a tabela
+		tableBody.innerHTML = '';
+
+		// Criar novas linhas preservando dados antigos
+		for (let i = 0; i < quantidadeBensProducao; i++) {
+			const row = document.createElement('tr');
+
+			// Coluna "Bem de Produção"
+			const bemDeProducaoCell = document.createElement('td');
+			bemDeProducaoCell.textContent = previousData[i]?.bemDeProducao || `Bem ${i + 1}`;
+			row.appendChild(bemDeProducaoCell);
+
+			// Coluna "Estoque"
+			const estoqueCell = document.createElement('td');
+			const estoqueInput = document.createElement('input');
+			estoqueInput.type = 'number';
+			estoqueInput.value = previousData[i]?.estoque || 0; // Mantém o valor ou define como 0
+			estoqueCell.appendChild(estoqueInput);
+			row.appendChild(estoqueCell);
+
+			// Coluna "Demanda"
+			const demandaCell = document.createElement('td');
+			const demandaInput = document.createElement('input');
+			demandaInput.type = 'number';
+			demandaInput.value = previousData[i]?.demanda || 0; // Mantém o valor ou define como 0
+			demandaCell.appendChild(demandaInput);
+			row.appendChild(demandaCell);
+
+			tableBody.appendChild(row);
+		}
+	}
+
+function addHighlightBehavior(cell) {
+    cell.addEventListener('mouseover', () => {
+        const table = document.getElementById('inputTable');
+        const row = cell.parentElement;
+        const cellIndex = Array.from(row.children).indexOf(cell);
+
+        // Destaca a coluna
+        Array.from(table.rows).forEach(row => {
+            if (row.cells[cellIndex]) {
+                row.cells[cellIndex].classList.add('highlight-column');
+            }
+        });
+    });
+
+    cell.addEventListener('mouseout', () => {
+        const table = document.getElementById('inputTable');
+        const row = cell.parentElement;
+        const cellIndex = Array.from(row.children).indexOf(cell);
+
+        // Remove o destaque da coluna
+        Array.from(table.rows).forEach(row => {
+            if (row.cells[cellIndex]) {
+                row.cells[cellIndex].classList.remove('highlight-column');
+            }
+        });
+    });
+}
+
+function populateTechMatrix(techMatrix, productNames) {
+    const thead = document.getElementById('inputTable').querySelector('thead tr');
+    const tbody = document.getElementById('inputTable').querySelector('tbody');
+
+    // Atualizar os títulos das colunas
+    thead.innerHTML = '<th>Produtos / Setor Produtivo</th>'; // Redefine o cabeçalho
+    productNames.forEach(productName => {
+        const sectorHeader = document.createElement('th');
+        const sectorInput = document.createElement('input');
+        sectorInput.type = 'text';
+        sectorInput.value = productName.includes('Rede') ? productName : `Produção de ${productName}`;
+        sectorInput.readOnly = true; // Define como apenas leitura
+        addTooltipBehavior(sectorInput); // Adiciona o comportamento de tooltip
+        sectorHeader.appendChild(sectorInput);
+        thead.appendChild(sectorHeader);
+    });
+
+    // Atualizar os dados da tabela
+    tbody.innerHTML = ''; // Limpa a tabela existente
+    techMatrix.forEach((row, rowIndex) => {
+        const tr = document.createElement('tr');
+        const productNameCell = document.createElement('td');
+        const productInput = document.createElement('input');
+        productInput.type = 'text';
+        productInput.value = productNames[rowIndex];
+        productInput.oninput = () => updateProductName(rowIndex, productInput.value);
+        productNameCell.appendChild(productInput);
+        tr.appendChild(productNameCell);
+
+        row.forEach(value => {
+            const cell = document.createElement('td');
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.value = value;
+            cell.appendChild(input);
+            addHighlightBehavior(cell); // Adiciona o comportamento de destaque
+            tr.appendChild(cell);
+        });
+
+        tbody.appendChild(tr);
+    });
+}
+
+function populateFinalDemand(finalDemand) {
+    const demandContainer = document.getElementById('finalDemandInputs');
+    demandContainer.innerHTML = ''; // Limpa a tabela antes de preencher
+
+    finalDemand.forEach((demand, index) => {
+        const row = document.createElement('tr');
+
+        // Coluna do nome do produto
+        const productNameCell = document.createElement('td');
+        productNameCell.textContent = getProductNames()[index] || `Produto ${index + 1}`;
+        row.appendChild(productNameCell);
+
+        // Entrada de demanda
+        const demandInputCell = document.createElement('td');
+        const demandInput = document.createElement('input');
+        demandInput.type = 'number';
+        demandInput.value = demand;
+        demandInput.id = `demand${index}`;
+        demandInputCell.appendChild(demandInput);
+        row.appendChild(demandInputCell);
+
+        // Botão de ação
+        const actionCell = document.createElement('td');
+        const optimizeButton = document.createElement('button');
+        optimizeButton.textContent = 'Otimizar';
+        optimizeButton.onclick = () => openOptimizationModal(index); // Reatribuir o evento de clique
+        actionCell.appendChild(optimizeButton);
+        row.appendChild(actionCell);
+
+        demandContainer.appendChild(row);
+
+        // Atualizar a cor do botão com base no status de otimização
+        updateOptimizeButtonColor(index);
+    });
+}
+
+function updateColumnTitles(productNames) {
+    const headerRow = document.getElementById('inputTable').querySelector('thead tr');
+
+    // Ignorar a primeira célula (que contém "Produtos / Setores Produtivos")
+    const columnHeaders = headerRow.querySelectorAll('th');
+
+    productNames.forEach((productName, index) => {
+        const columnHeader = columnHeaders[index + 1]; // +1 para ignorar a primeira célula
+        if (columnHeader) {
+            const input = columnHeader.querySelector('input');
+            if (input) {
+                input.value = productName.includes('Rede') ? productName : `Produção de ${productName}`; // Atualiza o título
+                input.readOnly = true; // Configura como somente leitura
+                addTooltipBehavior(input); // Adiciona o comportamento de tooltip
+            }
+        }
+    });
+}
+
+function synchronizeFinalDemandProducts() {
+
+    const productRows = document.querySelectorAll('#inputTable tbody tr');
+        const demandRows = document.querySelectorAll('#finalDemandInputs tr');
+
+        productRows.forEach((productRow, index) => {
+            const productName = productRow.querySelector('td:first-child input').value;
+            if (demandRows[index]) {
+                demandRows[index].querySelector('td:first-child').textContent = productName;
+            }
+        });
+        
+}
+
+function syncProductionNames() {
+    const vetorRows = document.querySelectorAll('#vetorTecnologicoTable tbody tr');
+    const estoqueRows = document.querySelectorAll('#estoqueDemandaTable tbody tr');
+
+    vetorRows.forEach((vetorRow, index) => {
+        const productInput = vetorRow.querySelector('td:first-child input');
+        const estoqueCell = estoqueRows[index]?.querySelector('td:first-child');
+
+        if (productInput && estoqueCell) {
+            estoqueCell.textContent = productInput.value; // Atualiza o nome
+        }
+    });
+}
