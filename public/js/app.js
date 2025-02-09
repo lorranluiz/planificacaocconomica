@@ -208,9 +208,9 @@ let userIsLoggedIn = false;
 		closeOptimizationModal();	
 
 		optimizedStatus[currentProductIndex] = true; // Marca o produto como otimizado
-		updateOptimizeButtonColor(currentProductIndex); // Atualiza a cor do botão
+		//updateOptimizeButtonColor(currentProductIndex); // Atualiza a cor do botão
 
-		closeOptimizationModal(); // Fecha o modal após salvar
+		//closeOptimizationModal(); // Fecha o modal após salvar
 
 		// Verifica se a tabela de "Planificação Otimizada" está visível e executa a função "planify" automaticamente
 		//const resultDiv = document.getElementById('result');

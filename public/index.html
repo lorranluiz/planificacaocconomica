@@ -1,4 +1,4 @@
-	<!DOCTYPE html>
+<!DOCTYPE html>
 	<html lang="pt-BR">
 	<head>
 		<meta charset="UTF-8">
@@ -382,6 +382,7 @@
 
 	<div id="vetorTecnologicoSection">
 		<h2>Vetor Tecnológico</h2>
+		<button id="estimarVetorTecnologico" class="action-button">Estimar Vetor Tecnológico</button>
 		<table id="vetorTecnologicoTable" class="input-section">
 			<thead>
 				<tr>
@@ -582,5 +583,50 @@
 
 	<script src="js/models/distribution.js"></script>
 	<script src="js/app.js"></script>
+	<script>
+document.getElementById("estimarVetorTecnologico").addEventListener("click", async () => {
+  try {
+    // Get the current sector from the form input
+    const setorUnidade = document.getElementById("setorUnidade").value;
+    
+    // Get the response from data.json
+    const response = await fetch(apiUrl, {
+      method: 'GET', 
+      headers: headers
+    });
+    
+    const data = await response.json();
+    const mundialData = data["Conselho Popular Intercontinental da Terra"];
+    
+    // Get the column index for this sector in the input table
+    const sectorIndex = mundialData.sectorNames.indexOf(setorUnidade);
+    
+    if (sectorIndex !== -1) {
+      // Get all bem cells from the form
+      const bemCells = document.querySelectorAll("#vetorTecnologicoTable tbody tr td:first-child input");
+      
+      // For each bem cell
+      bemCells.forEach((bemInput, i) => {
+        const productName = bemInput.value;
+        const productIndex = mundialData.productNames.indexOf(productName);
+        
+        if (productIndex !== -1) {
+          // Get the coefficient from the input table
+          const value = mundialData.inputTable[productIndex][sectorIndex];
+          
+          // Find the value cell next to this bem cell and update it
+          const valueCell = bemInput.closest("tr").querySelector("td:nth-child(2) input");
+          if (valueCell) {
+			valueCell.value = parseFloat(value) === 0 ? 0.01 : value;
+          }
+        }
+      });
+    }
+  } catch (error) {
+    console.error("Error estimating technological vector:", error);
+    showNotification("Erro ao estimar vetor tecnológico", false);
+  }
+});
+</script>
 	</body>
 	</html>

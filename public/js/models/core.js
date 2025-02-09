@@ -85,11 +85,14 @@ function planify() {
 //COLOCAR AQUI NESSA FUNÇÃO TRECHO QUE, SEJA O CONSELHO QUE FOR, SOMA A CADA SUB-CONSELHO (COMEÇANDO DE ZERO) O TRABALHO SOCIAL TOTAL REALIZADO, ASSIM NO CONSELHO MUNDIAL, AO EXECUTAR ESSA FUNÇÃO, JÁ TEM SEMPRE O VALOR DO TRABALHO SOCIAL TOTAL ATUALIZADO. COMO CONSEGUE O TRABALHO TOTAL REALIZADO DE UM CONSELHO? VEM DE QUAL ATRIBUTO?
 async function fetchEstimates() {
 		
+    let mensagensCadastreOProduto = "";
+
 	if (!confirm("Alguns dados da Matriz Tecnológica atual serão perdidos e substituídos por dados da estimativa calculada. Tem certeza que deseja prosseguir?")) {
 		return; // Sai da função se o usuário desistir
 	}
 		
     try {
+        showNotification("Calculando estimativas, aguarde um instante..."); // Exibe a notificação de carregamento
         const response = await fetch(apiUrl, {
 			method: 'GET',
 			headers: headers
@@ -97,6 +100,7 @@ async function fetchEstimates() {
 
 
         if (!response.ok) {
+            showNotification("Erro ao buscar dados do JSONBIN.");
             throw new Error("Erro ao buscar dados do JSONBIN.");
         }
 
@@ -584,12 +588,13 @@ if (!user.instancePrepositionJurisdictionUUID.includes("Distrital") && !user.ins
 									currentProductIndex = productIndex;
 									
 									//Salvar modal (pra ajustar botão inclusive)
-									setTimeout(() => {
+									//setTimeout(() => {
 										saveOptimizationInputs();
-									}, 3000);
+									//}, 3000);
 										
                                     } else {
-                                        showNotification(`Cadastre o produto ${bemDeProducao}, pois é um bem de produção do setor ${setorUnidade}.`, false);
+                                        mensagensCadastreOProduto += `> Cadastre o produto ${bemDeProducao}, pois é um bem de produção do setor ${setorUnidade}.\n`
+                                        //console.info(`Cadastre o produto ${bemDeProducao}, pois é um bem de produção do setor ${setorUnidade}.`); //Para aqui e não faz o resto
                                     }
                                 });
 								
@@ -600,11 +605,16 @@ if (!user.instancePrepositionJurisdictionUUID.includes("Distrital") && !user.ins
                         }
                     }
                 } else {
+                    showNotification(`Nenhum vetor tecnológico encontrado para o setor ${setorUnidade}.`, false);
                     //resultMessage = `Nenhum vetor tecnológico encontrado para o setor ${setorUnidade}.`;
                 }
 
                 console.info(resultMessage);
             });
+
+            console.info(`\n\nATENÇÃO! CADASTRE ESSES PRODUTOS ABAIXO! Mesmo que não seja desse conselho, pois será demandado de outro a partir da demanda desse conselho aqui (a inserida, com os valores da não a planejada deste conselho) \n\n ${mensagensCadastreOProduto}`);
+            showNotification("Processamento de estimativas concluído.");
+
         } else {
             console.error("data não é um objeto válido.");
             alert("Ocorreu um erro ao processar os dados. Tente novamente.");
