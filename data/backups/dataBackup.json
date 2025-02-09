@@ -615,7 +615,7 @@
       "Produção de Automóvel"
     ],
     "setorUnidade": "",
-    "limiteEfetivoTrabalhadores": 293,
+    "limiteEfetivoTrabalhadores": "",
     "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
     "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Regional Estadual da Região Serrana do Rio de Janeiro",
     "estoqueDemanda": [],
@@ -667,19 +667,18 @@
         "productionTime": 0.9,
         "nightShift": false,
         "weeklyScale": 1,
-        "productionGoal": 1347058130717.1816
+        "productionGoal": 1003477600460.0826
       }
     },
     "optimizationResults": {
       "2": {
-        "totalHours": 1212352317645.4636,
-        "workersNeeded": 303088079412,
+        "totalHours": 903129840414.0743,
+        "workersNeeded": 225782460104,
         "factoriesNeeded": 2,
-        "totalShifts": 463437431,
-        "minimumProductionTime": 3244062013,
-        "totalEmploymentPeriod": "1269691 anos, 7 meses, 6 dias",
-        "weeklyScale": 1,
-        "plannedFinalDemand": 1347058130720
+        "totalShifts": 345233120,
+        "minimumProductionTime": 2416631836,
+        "totalEmploymentPeriod": "945844 anos, 2 meses",
+        "weeklyScale": 1
       }
     },
     "productNames": [
@@ -691,72 +690,7 @@
       "Produzir SAO JKLFG",
       "Produzir SAO MNOP2",
       "Produzir SAO PQRS"
-    ],
-    "limiteEfetivoTrabalhadores": "478",
-    "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
-    "setorUnidade": "",
-    "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Regional Estadual da Região Metropolitana do Rio de Janeiro",
-    "estoqueDemanda": [
-      {
-        "bemDeProducao": "Raio X",
-        "estoque": "",
-        "demanda": ""
-      },
-      {
-        "bemDeProducao": "Benzetacil",
-        "estoque": "",
-        "demanda": ""
-      },
-      {
-        "bemDeProducao": "Maca",
-        "estoque": "",
-        "demanda": ""
-      },
-      {
-        "bemDeProducao": "Seringa",
-        "estoque": "",
-        "demanda": ""
-      },
-      {
-        "bemDeProducao": "Agulha",
-        "estoque": "",
-        "demanda": ""
-      },
-      {
-        "bemDeProducao": "Tomógrafo",
-        "estoque": "",
-        "demanda": ""
-      },
-      {
-        "bemDeProducao": "Jaleco",
-        "estoque": "",
-        "demanda": ""
-      }
-    ],
-    "producaoMeta": [
-      {
-        "produto": "",
-        "quantidadeProduzida": "",
-        "quantidadeMeta": ""
-      }
-    ],
-    "comiteColTitle": "",
-    "propostaTrabalhadores": {},
-    "vetorTecnologico": [
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      ""
-    ],
-    "totalSocialWorkDessaJurisdicao": 0,
-    "comiteAssociadoDeTrabalhador": "",
-    "associacaoDeMoradoresAssociadaDeTrabalhador": "",
-    "partipacaoIndividualEstimadaNoTrabalhoSocial": 0,
-    "hoursAtElectronicPoint": 0,
-    "effectivelyPlannedProductionTime": 0.3
+    ]
   },
   "users": [
     {
@@ -796,8 +730,7 @@
       "pronoun": "neutro",
       "jurisdiction": "São Gonçalo",
       "preposition": "de",
-      "instancePrepositionJurisdictionUUID": "Conselho Popular Municipal de São Gonçalo",
-      "name": "Nina e Maya"
+      "instancePrepositionJurisdictionUUID": "Conselho Popular Municipal de São Gonçalo"
     },
     {
       "username": "abc1",
@@ -806,8 +739,7 @@
       "pronoun": "feminino",
       "jurisdiction": "Itaboraí",
       "preposition": "de",
-      "instancePrepositionJurisdictionUUID": "Conselho Popular Municipal de Itaboraí",
-      "name": "Elena de Zara"
+      "instancePrepositionJurisdictionUUID": "Conselho Popular Municipal de Itaboraí"
     },
     {
       "username": "ccc1",
@@ -816,8 +748,7 @@
       "pronoun": "feminino",
       "jurisdiction": "Secretário",
       "preposition": "de",
-      "instancePrepositionJurisdictionUUID": "Comitê do Campo de Secretário",
-      "name": "Enzo e Luna"
+      "instancePrepositionJurisdictionUUID": "Comitê do Campo de Secretário"
     },
     {
       "username": "ccf1",
@@ -826,8 +757,16 @@
       "pronoun": "feminino",
       "jurisdiction": "Mercedes-Benz",
       "preposition": "da",
-      "instancePrepositionJurisdictionUUID": "Comitê de Fábrica da Mercedes-Benz",
-      "name": "Alex de Luna"
+      "instancePrepositionJurisdictionUUID": "Comitê de Fábrica da Mercedes-Benz"
+    },
+    {
+      "username": "cam1",
+      "password": "cam1",
+      "instance": "Associação de Moradores",
+      "pronoun": "feminino",
+      "jurisdiction": "São Domingo",
+      "preposition": "de",
+      "instancePrepositionJurisdictionUUID": "Associação de Moradores de São Domingo"
     },
     {
       "username": "ccc2",
@@ -836,8 +775,7 @@
       "pronoun": "feminino",
       "jurisdiction": "Rondonópolis",
       "preposition": "de",
-      "instancePrepositionJurisdictionUUID": "Comitê do Campo de Rondonópolis",
-      "name": "Luna de Leo"
+      "instancePrepositionJurisdictionUUID": "Comitê do Campo de Rondonópolis"
     },
     {
       "username": "ccfd1",
@@ -856,8 +794,7 @@
       "pronoun": "feminino",
       "jurisdiction": "São José dos Campos",
       "preposition": "de",
-      "instancePrepositionJurisdictionUUID": "Conselho Popular Municipal de São José dos Campos",
-      "name": "Zara Silva"
+      "instancePrepositionJurisdictionUUID": "Conselho Popular Municipal de São José dos Campos"
     },
     {
       "username": "ccf2",
@@ -876,8 +813,7 @@
       "pronoun": "feminino",
       "jurisdiction": "CCE",
       "preposition": "da",
-      "instancePrepositionJurisdictionUUID": "Comitê de Fábrica da CCE",
-      "name": "Eden de Enzo"
+      "instancePrepositionJurisdictionUUID": "Comitê de Fábrica da CCE"
     },
     {
       "username": "ccfd3",
@@ -886,8 +822,7 @@
       "pronoun": "feminino",
       "jurisdiction": "Industrial II",
       "preposition": "de",
-      "instancePrepositionJurisdictionUUID": "Conselho Popular Distrital de Fábrica de Industrial II",
-      "name": "Leo Ribeiro"
+      "instancePrepositionJurisdictionUUID": "Conselho Popular Distrital de Fábrica de Industrial II"
     },
     {
       "username": "ccmmanaus",
@@ -906,8 +841,7 @@
       "pronoun": "feminino",
       "jurisdiction": "Panasonic",
       "preposition": "da",
-      "instancePrepositionJurisdictionUUID": "Comitê de Fábrica da Panasonic",
-      "name": "Eden Lima"
+      "instancePrepositionJurisdictionUUID": "Comitê de Fábrica da Panasonic"
     },
     {
       "username": "ccfd2",
@@ -916,8 +850,7 @@
       "pronoun": "feminino",
       "jurisdiction": "Eugênio de Melo",
       "preposition": "de",
-      "instancePrepositionJurisdictionUUID": "Conselho Popular Distrital de Fábrica de Eugênio de Melo",
-      "name": "Eden e Ravi"
+      "instancePrepositionJurisdictionUUID": "Conselho Popular Distrital de Fábrica de Eugênio de Melo"
     },
     {
       "username": "ccfd4",
@@ -926,8 +859,7 @@
       "pronoun": "feminino",
       "jurisdiction": "Industrial II",
       "preposition": "de",
-      "instancePrepositionJurisdictionUUID": "Conselho Popular Distrital de Fábrica de Industrial II",
-      "name": "Zara de Nina"
+      "instancePrepositionJurisdictionUUID": "Conselho Popular Distrital de Fábrica de Industrial II"
     },
     {
       "username": "ccfd5",
@@ -936,8 +868,7 @@
       "pronoun": "feminino",
       "jurisdiction": "São Francisco Xavier",
       "preposition": "de",
-      "instancePrepositionJurisdictionUUID": "Conselho Popular Distrital de Fábrica de São Francisco Xavier",
-      "name": "Leo Silva"
+      "instancePrepositionJurisdictionUUID": "Conselho Popular Distrital de Fábrica de São Francisco Xavier"
     },
     {
       "username": "ccrslposse1",
@@ -946,8 +877,7 @@
       "pronoun": "feminino",
       "jurisdiction": "Logística da Posse",
       "preposition": "de",
-      "instancePrepositionJurisdictionUUID": "Comitê de Rede de Serviço de Logística da Posse",
-      "name": "Eden Pereira"
+      "instancePrepositionJurisdictionUUID": "Comitê de Rede de Serviço de Logística da Posse"
     },
     {
       "username": "ccdrsposse1",
@@ -956,8 +886,7 @@
       "pronoun": "feminino",
       "jurisdiction": "Posse",
       "preposition": "da",
-      "instancePrepositionJurisdictionUUID": "Conselho Popular Distrital de Rede de Serviços da Posse",
-      "name": "Luna de Gael"
+      "instancePrepositionJurisdictionUUID": "Conselho Popular Distrital de Rede de Serviços da Posse"
     },
     {
       "username": "ccrseducposse1",
@@ -966,8 +895,7 @@
       "pronoun": "feminino",
       "jurisdiction": "Educação da Posse",
       "preposition": "de",
-      "instancePrepositionJurisdictionUUID": "Comitê de Rede de Serviço de Educação da Posse",
-      "name": "Leo e Ravi"
+      "instancePrepositionJurisdictionUUID": "Comitê de Rede de Serviço de Educação da Posse"
     },
     {
       "username": "ccrssaudeposse1",
@@ -976,8 +904,7 @@
       "pronoun": "feminino",
       "jurisdiction": "Saúde da Posse",
       "preposition": "de",
-      "instancePrepositionJurisdictionUUID": "Comitê de Rede de Serviço de Saúde da Posse",
-      "name": "Nina Souza"
+      "instancePrepositionJurisdictionUUID": "Comitê de Rede de Serviço de Saúde da Posse"
     },
     {
       "username": "ccrdposse1",
@@ -986,8 +913,7 @@
       "pronoun": "feminino",
       "jurisdiction": "Posse",
       "preposition": "da",
-      "instancePrepositionJurisdictionUUID": "Comitê de Rede da Posse",
-      "name": "Gael e Nina"
+      "instancePrepositionJurisdictionUUID": "Comitê de Rede da Posse"
     },
     {
       "username": "ccdrdposse1",
@@ -996,8 +922,7 @@
       "pronoun": "feminino",
       "jurisdiction": "Posse",
       "preposition": "da",
-      "instancePrepositionJurisdictionUUID": "Conselho Popular Distrital de Rede de Distribuição da Posse",
-      "name": "Ravi Ribeiro"
+      "instancePrepositionJurisdictionUUID": "Conselho Popular Distrital de Rede de Distribuição da Posse"
     },
     {
       "username": "ccreRJ",
@@ -1006,8 +931,7 @@
       "pronoun": "feminino",
       "jurisdiction": "Região Serrana do Rio de Janeiro",
       "preposition": "da",
-      "instancePrepositionJurisdictionUUID": "Conselho Popular Regional Estadual da Região Serrana do Rio de Janeiro",
-      "name": "Luna Gomes"
+      "instancePrepositionJurisdictionUUID": "Conselho Popular Regional Estadual da Região Serrana do Rio de Janeiro"
     },
     {
       "username": "cceRJ",
@@ -1016,8 +940,7 @@
       "pronoun": "feminino",
       "jurisdiction": "Rio de Janeiro",
       "preposition": "do",
-      "instancePrepositionJurisdictionUUID": "Conselho Popular Estadual do Rio de Janeiro",
-      "name": "Nina Ribeiro"
+      "instancePrepositionJurisdictionUUID": "Conselho Popular Estadual do Rio de Janeiro"
     },
     {
       "username": "ccrnSudeste",
@@ -1112,17 +1035,6 @@
       "instancePrepositionJurisdictionUUID": "Conselho Popular Regional Nacional do Norte do Brasil",
       "uuid": "",
       "name": "Maria Joana"
-    },
-    {
-      "username": "ccerjmetro",
-      "password": "ccerjmetro",
-      "instance": "Conselho Popular Regional Estadual",
-      "pronoun": "feminino",
-      "jurisdiction": "Região Metropolitana do Rio de Janeiro",
-      "preposition": "da",
-      "instancePrepositionJurisdictionUUID": "Conselho Popular Regional Estadual da Região Metropolitana do Rio de Janeiro",
-      "uuid": "",
-      "name": "Maria da Silva"
     }
   ],
   "Conselho Popular Municipal do Rio de Janeiro": {
@@ -1177,75 +1089,9 @@
         "totalShifts": 5558,
         "minimumProductionTime": 6484,
         "totalEmploymentPeriod": "7 anos, 7 meses, 2 semanas",
-        "weeklyScale": 3,
-        "plannedFinalDemand": 2222890
+        "weeklyScale": 3
       }
-    },
-    "limiteEfetivoTrabalhadores": "253",
-    "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
-    "setorUnidade": "",
-    "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Regional Estadual da Região Metropolitana do Rio de Janeiro",
-    "estoqueDemanda": [
-      {
-        "bemDeProducao": "Raio X",
-        "estoque": "",
-        "demanda": ""
-      },
-      {
-        "bemDeProducao": "Benzetacil",
-        "estoque": "",
-        "demanda": ""
-      },
-      {
-        "bemDeProducao": "Maca",
-        "estoque": "",
-        "demanda": ""
-      },
-      {
-        "bemDeProducao": "Seringa",
-        "estoque": "",
-        "demanda": ""
-      },
-      {
-        "bemDeProducao": "Agulha",
-        "estoque": "",
-        "demanda": ""
-      },
-      {
-        "bemDeProducao": "Tomógrafo",
-        "estoque": "",
-        "demanda": ""
-      },
-      {
-        "bemDeProducao": "Jaleco",
-        "estoque": "",
-        "demanda": ""
-      }
-    ],
-    "producaoMeta": [
-      {
-        "produto": "",
-        "quantidadeProduzida": "",
-        "quantidadeMeta": ""
-      }
-    ],
-    "comiteColTitle": "",
-    "propostaTrabalhadores": {},
-    "vetorTecnologico": [
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      ""
-    ],
-    "totalSocialWorkDessaJurisdicao": 0,
-    "comiteAssociadoDeTrabalhador": "",
-    "associacaoDeMoradoresAssociadaDeTrabalhador": "",
-    "partipacaoIndividualEstimadaNoTrabalhoSocial": 0,
-    "hoursAtElectronicPoint": 0,
-    "effectivelyPlannedProductionTime": 0.3
+    }
   },
   "Conselho Popular Municipal de Itaboraí": {
     "inputTable": [
@@ -1385,8 +1231,7 @@
         "totalShifts": 11748,
         "minimumProductionTime": 6853,
         "totalEmploymentPeriod": "16 anos, 1 mês, 4 dias",
-        "weeklyScale": 6,
-        "plannedFinalDemand": 23494770
+        "weeklyScale": 6
       },
       "2": {
         "totalHours": 8116457.195274491,
@@ -1395,8 +1240,7 @@
         "totalShifts": 579747,
         "minimumProductionTime": 4058229,
         "totalEmploymentPeriod": "1588 anos, 4 meses, 1 semana",
-        "weeklyScale": 1,
-        "plannedFinalDemand": 9018290
+        "weeklyScale": 1
       },
       "4": {
         "totalHours": 7061722.336683727,
@@ -1405,8 +1249,7 @@
         "totalShifts": 11770,
         "minimumProductionTime": 20597,
         "totalEmploymentPeriod": "16 anos, 1 mês, 2 semanas, 1 dia",
-        "weeklyScale": 2,
-        "plannedFinalDemand": 17654310
+        "weeklyScale": 2
       },
       "6": {
         "totalHours": 39432468.88483298,
@@ -1415,75 +1258,9 @@
         "totalShifts": 24646,
         "minimumProductionTime": 43130,
         "totalEmploymentPeriod": "33 anos, 9 meses, 1 semana, 1 dia",
-        "weeklyScale": 2,
-        "plannedFinalDemand": 98581170
+        "weeklyScale": 2
       }
-    },
-    "limiteEfetivoTrabalhadores": "315",
-    "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
-    "setorUnidade": "",
-    "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Regional Estadual da Região Metropolitana do Rio de Janeiro",
-    "estoqueDemanda": [
-      {
-        "bemDeProducao": "Raio X",
-        "estoque": "0",
-        "demanda": "0"
-      },
-      {
-        "bemDeProducao": "Benzetacil",
-        "estoque": "0",
-        "demanda": "0"
-      },
-      {
-        "bemDeProducao": "Maca",
-        "estoque": "0",
-        "demanda": "0"
-      },
-      {
-        "bemDeProducao": "Seringa",
-        "estoque": "0",
-        "demanda": "0"
-      },
-      {
-        "bemDeProducao": "Agulha",
-        "estoque": "0",
-        "demanda": "0"
-      },
-      {
-        "bemDeProducao": "Tomógrafo",
-        "estoque": "0",
-        "demanda": "0"
-      },
-      {
-        "bemDeProducao": "Jaleco",
-        "estoque": "0",
-        "demanda": "0"
-      }
-    ],
-    "producaoMeta": [
-      {
-        "produto": "Produto 1",
-        "quantidadeProduzida": "",
-        "quantidadeMeta": "0"
-      }
-    ],
-    "comiteColTitle": "",
-    "propostaTrabalhadores": {},
-    "vetorTecnologico": [
-      "0",
-      "0",
-      "0",
-      "0",
-      "0",
-      "0",
-      "0"
-    ],
-    "totalSocialWorkDessaJurisdicao": 0,
-    "comiteAssociadoDeTrabalhador": "",
-    "associacaoDeMoradoresAssociadaDeTrabalhador": "",
-    "partipacaoIndividualEstimadaNoTrabalhoSocial": 0,
-    "hoursAtElectronicPoint": 0,
-    "effectivelyPlannedProductionTime": 0.3
+    }
   },
   "Comitê de Fábrica da Mercedes-Benz": {
     "inputTable": [
@@ -1566,7 +1343,7 @@
     ],
     "limiteEfetivoTrabalhadores": "200",
     "conselhoPopularAssociadoDeComiteOuTrabalhador": "Conselho Popular Distrital de Fábrica de Eugênio de Melo",
-    "conselhoPopularAssociadoDeConselhoPopular": "",
+    "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Municipal de São José dos Campos",
     "totalSocialWorkDessaJurisdicao": 0,
     "comiteAssociadoDeTrabalhador": "",
     "associacaoDeMoradoresAssociadaDeTrabalhador": "",
@@ -1778,10 +1555,7 @@
       "6",
       "53",
       "8"
-    ],
-    "limiteEfetivoTrabalhadores": 66,
-    "conselhoPopularAssociadoDeComiteOuTrabalhador": "Conselho Popular Distrital de Fábrica de São Francisco Xavier",
-    "conselhoPopularAssociadoDeConselhoPopular": ""
+    ]
   },
   "Comitê do Campo de Rondonópolis": {
     "inputTable": [
@@ -1957,10 +1731,7 @@
       "200",
       "1000",
       "5000"
-    ],
-    "limiteEfetivoTrabalhadores": 335,
-    "conselhoPopularAssociadoDeComiteOuTrabalhador": "Conselho Popular Distrital do Centro de Manaus",
-    "conselhoPopularAssociadoDeConselhoPopular": ""
+    ]
   },
   "Conselho Popular Municipal de São José dos Campos": {
     "inputTable": [
@@ -2170,7 +1941,7 @@
       }
     },
     "setorUnidade": "Produção de Vidro",
-    "limiteEfetivoTrabalhadores": 400,
+    "limiteEfetivoTrabalhadores": "",
     "conselhoPopularAssociado": "",
     "estoqueDemanda": [],
     "producaoMeta": [
@@ -2310,7 +2081,7 @@
       }
     },
     "setorUnidade": "",
-    "limiteEfetivoTrabalhadores": 176,
+    "limiteEfetivoTrabalhadores": "",
     "conselhoPopularAssociado": "",
     "estoqueDemanda": [],
     "producaoMeta": [
@@ -3300,7 +3071,7 @@
     "setorUnidade": "Produção de Televisão",
     "limiteEfetivoTrabalhadores": "500",
     "conselhoPopularAssociadoDeComiteOuTrabalhador": "Conselho Popular Distrital de Fábrica de Industrial II",
-    "conselhoPopularAssociadoDeConselhoPopular": "",
+    "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Municipal de Manaus",
     "estoqueDemanda": [
       {
         "bemDeProducao": "Plástico",
@@ -3336,8 +3107,8 @@
     "producaoMeta": [
       {
         "produto": "Televisão",
-        "quantidadeProduzida": 165493,
-        "quantidadeMeta": 607235
+        "quantidadeProduzida": "3.357",
+        "quantidadeMeta": "5.592"
       }
     ],
     "comiteColTitle": "Fábrica da CCE",
@@ -3858,7 +3629,7 @@
       }
     },
     "setorUnidade": "",
-    "limiteEfetivoTrabalhadores": 285,
+    "limiteEfetivoTrabalhadores": "",
     "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
     "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Regional Estadual Metropolitano do Amazonas",
     "estoqueDemanda": [
@@ -4211,7 +3982,7 @@
       }
     },
     "setorUnidade": "",
-    "limiteEfetivoTrabalhadores": 73,
+    "limiteEfetivoTrabalhadores": "",
     "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
     "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Municipal de São José dos Campos",
     "estoqueDemanda": [],
@@ -4876,7 +4647,7 @@
       }
     },
     "setorUnidade": "",
-    "limiteEfetivoTrabalhadores": 106,
+    "limiteEfetivoTrabalhadores": "",
     "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
     "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Municipal de Petrópolis",
     "estoqueDemanda": [
@@ -5059,8 +4830,8 @@
     "producaoMeta": [
       {
         "produto": "Rede de Educação",
-        "quantidadeProduzida": 553857,
-        "quantidadeMeta": 587453
+        "quantidadeProduzida": "0.100",
+        "quantidadeMeta": "0"
       }
     ],
     "comiteColTitle": "Rede de Educação da Posse",
@@ -5156,8 +4927,8 @@
     "producaoMeta": [
       {
         "produto": "Rede de Saúde",
-        "quantidadeProduzida": 142060,
-        "quantidadeMeta": 744149
+        "quantidadeProduzida": "2000.000",
+        "quantidadeMeta": "0"
       }
     ],
     "comiteColTitle": "Rede de Saúde da Posse",
@@ -5320,7 +5091,7 @@
         "productionTime": 0.5,
         "nightShift": false,
         "weeklyScale": 2,
-        "productionGoal": 8947.707327890417
+        "productionGoal": 8191.5007909077885
       },
       "7": {
         "workerLimit": 50,
@@ -5328,53 +5099,52 @@
         "productionTime": 0.9,
         "nightShift": false,
         "weeklyScale": 3,
-        "productionGoal": 16464.70007169658
+        "productionGoal": 15744.886001819954
       },
       "8": {
         "workerLimit": 50,
         "workerHours": 0.2,
         "productionTime": 0.3,
         "nightShift": true,
-        "weeklyScale": 3,
-        "productionGoal": 15646.287932528467
+        "weeklyScale": 3
       }
     },
     "optimizationResults": {
       "1": {
-        "totalHours": 4473.853663945209,
-        "workersNeeded": 1119,
+        "totalHours": 4095.7503954538943,
+        "workersNeeded": 1024,
         "factoriesNeeded": 2,
-        "totalShifts": 23,
-        "minimumProductionTime": 79,
-        "totalEmploymentPeriod": "3 semanas, 2 dias",
+        "totalShifts": 21,
+        "minimumProductionTime": 72,
+        "totalEmploymentPeriod": "3 semanas",
         "weeklyScale": 2,
-        "plannedFinalDemand": 8950
+        "plannedFinalDemand": 8189.999999999999
       },
       "7": {
-        "totalHours": 14818.230064526924,
-        "workersNeeded": 4940,
+        "totalHours": 3148.977200363991,
+        "workersNeeded": 1050,
         "factoriesNeeded": 1,
-        "totalShifts": 297,
-        "minimumProductionTime": 692,
-        "totalEmploymentPeriod": "9 meses, 3 semanas, 6 dias",
+        "totalShifts": 63,
+        "minimumProductionTime": 147,
+        "totalEmploymentPeriod": "2 meses, 3 dias",
         "weeklyScale": 3,
-        "plannedFinalDemand": 16460
+        "plannedFinalDemand": 15740
       },
       "8": {
-        "totalHours": 4693.88637975854,
-        "workersNeeded": 7824,
+        "totalHours": 4468.756602701994,
+        "workersNeeded": 7448,
         "factoriesNeeded": 1,
-        "totalShifts": 470,
-        "minimumProductionTime": 548,
-        "totalEmploymentPeriod": "7 meses, 3 semanas, 4 dias",
+        "totalShifts": 447,
+        "minimumProductionTime": 522,
+        "totalEmploymentPeriod": "7 meses, 2 semanas",
         "weeklyScale": 3,
-        "plannedFinalDemand": 15650
+        "plannedFinalDemand": 14900
       }
     },
     "setorUnidade": "",
-    "limiteEfetivoTrabalhadores": "238",
+    "limiteEfetivoTrabalhadores": "",
     "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
-    "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Municipal de Petrópolis",
+    "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Distrital de Rede de Serviços da Posse",
     "estoqueDemanda": [],
     "producaoMeta": [
       {
@@ -5385,13 +5155,7 @@
     ],
     "comiteColTitle": "",
     "propostaTrabalhadores": {},
-    "vetorTecnologico": [],
-    "totalSocialWorkDessaJurisdicao": 0,
-    "comiteAssociadoDeTrabalhador": "",
-    "associacaoDeMoradoresAssociadaDeTrabalhador": "",
-    "partipacaoIndividualEstimadaNoTrabalhoSocial": 0,
-    "hoursAtElectronicPoint": 0,
-    "effectivelyPlannedProductionTime": 0.3
+    "vetorTecnologico": []
   },
   "Comitê de Rede da Posse": {
     "inputTable": [
@@ -6210,7 +5974,7 @@
       }
     },
     "setorUnidade": "",
-    "limiteEfetivoTrabalhadores": 230,
+    "limiteEfetivoTrabalhadores": "",
     "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
     "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Estadual do Rio de Janeiro",
     "estoqueDemanda": [],
@@ -6971,7 +6735,7 @@
       }
     },
     "setorUnidade": "",
-    "limiteEfetivoTrabalhadores": 126,
+    "limiteEfetivoTrabalhadores": "",
     "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
     "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Regional Nacional do Sudeste do Brasil",
     "estoqueDemanda": [],
@@ -7732,7 +7496,7 @@
       }
     },
     "setorUnidade": "",
-    "limiteEfetivoTrabalhadores": 275,
+    "limiteEfetivoTrabalhadores": "",
     "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
     "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Nacional do Brasil",
     "estoqueDemanda": [],
@@ -9581,7 +9345,7 @@
       }
     },
     "setorUnidade": "Produção de Plástico",
-    "limiteEfetivoTrabalhadores": 309,
+    "limiteEfetivoTrabalhadores": "",
     "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
     "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Regional Continental do Brasil",
     "estoqueDemanda": [],
@@ -11430,7 +11194,7 @@
       }
     },
     "setorUnidade": "",
-    "limiteEfetivoTrabalhadores": 244,
+    "limiteEfetivoTrabalhadores": "",
     "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
     "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Intercontinental da Terra",
     "estoqueDemanda": [],
@@ -13279,7 +13043,7 @@
       }
     },
     "setorUnidade": "",
-    "limiteEfetivoTrabalhadores": 97,
+    "limiteEfetivoTrabalhadores": "",
     "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
     "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Continental da América do Sul",
     "estoqueDemanda": [],
@@ -15129,7 +14893,7 @@
     },
     "setorUnidade": "Produção de Caminhão",
     "limiteEfetivoTrabalhadores": "0.08",
-    "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
+    "conselhoPopularAssociadoDeComiteOuTrabalhador": "Produção de Raio X",
     "conselhoPopularAssociadoDeConselhoPopular": "Conselho Interplanetário do Sistema Solar",
     "estoqueDemanda": [],
     "producaoMeta": [
@@ -15707,7 +15471,7 @@
     },
     "setorUnidade": "Produção de Plástico",
     "limiteEfetivoTrabalhadores": "0.07",
-    "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
+    "conselhoPopularAssociadoDeComiteOuTrabalhador": "Produção de Cobre",
     "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Estadual do Amazonas",
     "estoqueDemanda": [],
     "producaoMeta": [
@@ -16222,7 +15986,7 @@
       }
     },
     "setorUnidade": "",
-    "limiteEfetivoTrabalhadores": 178,
+    "limiteEfetivoTrabalhadores": "",
     "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
     "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Regional Nacional do Norte do Brasil",
     "estoqueDemanda": [],
@@ -16738,7 +16502,7 @@
       }
     },
     "setorUnidade": "",
-    "limiteEfetivoTrabalhadores": 498,
+    "limiteEfetivoTrabalhadores": "",
     "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
     "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Nacional do Brasil",
     "estoqueDemanda": [],
@@ -16758,106 +16522,5 @@
     "partipacaoIndividualEstimadaNoTrabalhoSocial": null,
     "hoursAtElectronicPoint": 0,
     "effectivelyPlannedProductionTime": 0
-  },
-  "Conselho Popular Regional Estadual da Região Metropolitana do Rio de Janeiro": {
-    "inputTable": [
-      [
-        0.1,
-        0.05,
-        0.05
-      ],
-      [
-        0.04,
-        0,
-        0.04
-      ],
-      [
-        0.09,
-        0.03,
-        0
-      ]
-    ],
-    "productNames": [
-      "Automóveis",
-      "Computadores",
-      "Celulares"
-    ],
-    "sectorNames": [
-      "Produção de Automóveis",
-      "Produção de Computadores",
-      "Produção de Celulares"
-    ],
-    "finalDemand": [
-      30,
-      40,
-      50
-    ],
-    "optimizationInputs": {},
-    "optimizationResults": {},
-    "setorUnidade": "",
-    "limiteEfetivoTrabalhadores": "",
-    "conselhoPopularAssociadoDeComiteOuTrabalhador": "",
-    "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Estadual do Rio de Janeiro",
-    "estoqueDemanda": [
-      {
-        "bemDeProducao": "Raio X",
-        "estoque": "",
-        "demanda": ""
-      },
-      {
-        "bemDeProducao": "Benzetacil",
-        "estoque": "",
-        "demanda": ""
-      },
-      {
-        "bemDeProducao": "Maca",
-        "estoque": "",
-        "demanda": ""
-      },
-      {
-        "bemDeProducao": "Seringa",
-        "estoque": "",
-        "demanda": ""
-      },
-      {
-        "bemDeProducao": "Agulha",
-        "estoque": "",
-        "demanda": ""
-      },
-      {
-        "bemDeProducao": "Tomógrafo",
-        "estoque": "",
-        "demanda": ""
-      },
-      {
-        "bemDeProducao": "Jaleco",
-        "estoque": "",
-        "demanda": ""
-      }
-    ],
-    "producaoMeta": [
-      {
-        "produto": "",
-        "quantidadeProduzida": "",
-        "quantidadeMeta": ""
-      }
-    ],
-    "comiteColTitle": "",
-    "propostaTrabalhadores": {},
-    "vetorTecnologico": [
-      "",
-      "",
-      "",
-      "",
-      "",
-      "",
-      ""
-    ],
-    "totalSocialWorkDessaJurisdicao": 0,
-    "comiteAssociadoDeTrabalhador": "",
-    "associacaoDeMoradoresAssociadaDeTrabalhador": "",
-    "partipacaoIndividualEstimadaNoTrabalhoSocial": 0,
-    "hoursAtElectronicPoint": 0,
-    "effectivelyPlannedProductionTime": 0.3
   }
 }

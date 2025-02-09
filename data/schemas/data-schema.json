@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "PlanificacaoEconomica Data Schema",
+  "description": "Schema para validar os dados salvos e carregados via api.js.",
+  "type": "object",
+  "properties": {
+    "users": {
+      "description": "Cadastro dos usuários",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "email": { "type": "string", "format": "email" },
+          "password": { "type": "string", "minLength": 6 }
+        },
+        "required": ["name", "email", "password"],
+        "additionalProperties": false
+      }
+    },
+    "products": {
+      "description": "Produtos cadastrados",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "services": {
+      "description": "Serviços cadastrados",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "sectors": {
+      "description": "Setores e áreas de atuação",
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    },
+    "matrizTecnologica": {
+      "description": "Dados numéricos técnicos da matriz tecnológica (valores entre 0 e 1, nunca 1)",
+      "type": "object",
+      "properties": {
+        "hoursAtElectronicPoint": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMaximum": 1
+        },
+        "partipacaoIndividualEstimadaNoTrabalhoSocial": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMaximum": 1
+        },
+        "effectivePlannedProductionTime": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMaximum": 1
+        }
+      },
+      "required": ["hoursAtElectronicPoint", "partipacaoIndividualEstimadaNoTrabalhoSocial", "effectivePlannedProductionTime"],
+      "additionalProperties": false
+    },
+    "demand": {
+      "description": "Demanda final e dados associados",
+      "type": "object",
+      "properties": {
+        "finalDemand": {
+          "type": "array",
+          "items": { "type": "number", "minimum": 0 },
+          "minItems": 1
+        },
+        "setorUnidade": { "type": "string" },
+        "limiteEfetivoTrabalhadores": { "type": "string" }
+      },
+      "required": ["finalDemand"],
+      "additionalProperties": false
+    },
+    "optimization": {
+      "description": "Inputs e resultados de otimização",
+      "type": "object",
+      "properties": {
+        "optimizationInputs": { "type": "object" },
+        "optimizationResults": { "type": "object" }
+      },
+      "additionalProperties": true
+    },
+    "config": {
+      "description": "Configurações gerais, como nomes de produtos, setores, etc.",
+      "type": "object",
+      "properties": {
+        "productNames": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "sectorNames": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        },
+        "conselhoPopularAssociadoDeComiteOuTrabalhador": { "type": "string" }
+      },
+      "required": ["productNames", "sectorNames"],
+      "additionalProperties": true
+    }
+  },
+  "required": ["users", "products", "services", "sectors", "matrizTecnologica", "demand", "optimization", "config"],
+  "additionalProperties": false
+}
