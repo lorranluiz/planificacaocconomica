@@ -1,0 +1,1139 @@
+{
+  "países": [
+    {
+      "nome": "Peru",
+      "regiões": [
+        {
+          "nome": "Costa",
+          "estados": ["Lima", "La Libertad"]
+        },
+        {
+          "nome": "Sierra",
+          "estados": ["Cusco", "Puno"]
+        },
+        {
+          "nome": "Selva",
+          "estados": ["Loreto", "Madre de Dios"]
+        }
+      ]
+    },
+    {
+      "nome": "Argentina",
+      "regiões": [
+        {
+          "nome": "Noroeste",
+          "estados": ["Salta", "Jujuy"]
+        },
+        {
+          "nome": "Nordeste",
+          "estados": ["Misiones", "Corrientes"]
+        },
+        {
+          "nome": "Cuyo",
+          "estados": ["Mendoza", "San Juan"]
+        },
+        {
+          "nome": "Centro",
+          "estados": ["Córdoba", "Santa Fe"]
+        },
+        {
+          "nome": "Patagônia",
+          "estados": ["Chubut", "Santa Cruz"]
+        }
+      ]
+    },
+    {
+      "nome": "Paraguai",
+      "regiões": [
+        {
+          "nome": "Região Oriental",
+          "estados": ["Central", "Alto Paraná"]
+        },
+        {
+          "nome": "Região Ocidental",
+          "estados": ["Boquerón", "Presidente Hayes"]
+        }
+      ]
+    },
+    {
+      "nome": "Guiana",
+      "regiões": [
+        {
+          "nome": "Região Leste",
+          "estados": ["Berbice Oriental-Corentyne", "Cuyuni-Mazaruni"]
+        },
+        {
+          "nome": "Região Oeste",
+          "estados": ["Barima-Waini", "Pomeroon-Supenaam"]
+        }
+      ]
+    },	
+	{
+      "nome": "Suriname",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Paramaribo", "Wanica"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Sipaliwini"]
+        }
+      ]
+    },
+    {
+      "nome": "Espanha",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Galícia", "País Basco"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Andaluzia", "Múrcia"]
+        },
+        {
+          "nome": "Leste",
+          "estados": ["Catalunha", "Comunidade Valenciana"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Extremadura", "Castela e Leão"]
+        }
+      ]
+    },
+    {
+      "nome": "Itália",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Lombardia", "Vêneto"]
+        },
+        {
+          "nome": "Centro",
+          "estados": ["Lácio", "Toscana"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Campânia", "Calábria"]
+        },
+        {
+          "nome": "Ilhas",
+          "estados": ["Sicília", "Sardenha"]
+        }
+      ]
+    },
+    {
+      "nome": "Bélgica",
+      "regiões": [
+        {
+          "nome": "Flandres",
+          "estados": ["Antuérpia", "Flandres Oriental"]
+        },
+        {
+          "nome": "Valônia",
+          "estados": ["Liège", "Hainaut"]
+        },
+        {
+          "nome": "Bruxelas-Capital",
+          "estados": ["Bruxelas"]
+        }
+      ]
+    },
+	{
+      "nome": "França",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Alta França", "Normandia"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Provença-Alpes-Costa Azul", "Occitânia"]
+        },
+        {
+          "nome": "Leste",
+          "estados": ["Grande Leste", "Borgonha-Franco-Condado"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Bretanha", "País do Loire"]
+        }
+      ]
+    },
+    {
+      "nome": "Romênia",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Maramureș", "Suceava"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Giurgiu", "Călărași"]
+        },
+        {
+          "nome": "Leste",
+          "estados": ["Iași", "Vaslui"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Timiș", "Arad"]
+        }
+      ]
+    },
+    {
+      "nome": "Ucrânia",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Kiev", "Chernihiv"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Odessa", "Mykolaiv"]
+        },
+        {
+          "nome": "Leste",
+          "estados": ["Kharkiv", "Luhansk"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Lviv", "Ivano-Frankivsk"]
+        }
+      ]
+    },
+    {
+      "nome": "Finlândia",
+      "regiões": [
+        {
+          "nome": "Sul",
+          "estados": ["Uusimaa", "Finlândia Própria"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Ostrobótnia", "Satakunta"]
+        },
+        {
+          "nome": "Leste",
+          "estados": ["Carélia do Norte", "Savônia do Norte"]
+        },
+        {
+          "nome": "Norte",
+          "estados": ["Lapônia", "Ostrobótnia do Norte"]
+        }
+      ]
+    },
+	{
+      "nome": "Suécia",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Norrbotten", "Västerbotten"]
+        },
+        {
+          "nome": "Centro",
+          "estados": ["Dalarna", "Västmanland"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Skåne", "Blekinge"]
+        }
+      ]
+    },
+    {
+      "nome": "Austrália",
+      "regiões": [
+        {
+          "nome": "Sudeste",
+          "estados": ["Nova Gales do Sul", "Vitória"]
+        },
+        {
+          "nome": "Nordeste",
+          "estados": ["Queensland"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Austrália Meridional"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Austrália Ocidental"]
+        },
+        {
+          "nome": "Centro",
+          "estados": ["Território do Norte"]
+        },
+        {
+          "nome": "Sudeste",
+          "estados": ["Tasmânia"]
+        }
+      ]
+    },
+    {
+      "nome": "Nova Zelândia",
+      "regiões": [
+        {
+          "nome": "Ilha Norte",
+          "estados": ["Auckland", "Wellington"]
+        },
+        {
+          "nome": "Ilha Sul",
+          "estados": ["Canterbury", "Otago"]
+        }
+      ]
+    },
+    {
+      "nome": "Papua-Nova Guiné",
+      "regiões": [
+        {
+          "nome": "Região das Terras Altas",
+          "estados": ["Província das Terras Altas do Sul", "Província das Terras Altas Ocidentais"]
+        },
+        {
+          "nome": "Região das Ilhas",
+          "estados": ["Província da Nova Bretanha Oriental", "Província da Nova Irlanda"]
+        },
+        {
+          "nome": "Região Momase",
+          "estados": ["Província de Morobe", "Província de Madang"]
+        },
+        {
+          "nome": "Região de Papua",
+          "estados": ["Província Central", "Província de Milne Bay"]
+        }
+      ]
+    },
+	    {
+      "nome": "Ilhas Salomão",
+      "regiões": [
+        {
+          "nome": "Província Central",
+          "estados": ["Central"]
+        },
+        {
+          "nome": "Província de Choiseul",
+          "estados": ["Choiseul"]
+        },
+        {
+          "nome": "Província de Guadalcanal",
+          "estados": ["Guadalcanal"]
+        },
+        {
+          "nome": "Província de Isabel",
+          "estados": ["Isabel"]
+        },
+        {
+          "nome": "Província de Makira-Ulawa",
+          "estados": ["Makira-Ulawa"]
+        },
+        {
+          "nome": "Província de Malaita",
+          "estados": ["Malaita"]
+        },
+        {
+          "nome": "Província de Rennell e Bellona",
+          "estados": ["Rennell e Bellona"]
+        },
+        {
+          "nome": "Província de Temotu",
+          "estados": ["Temotu"]
+        },
+        {
+          "nome": "Província Ocidental",
+          "estados": ["Ocidental"]
+        },
+        {
+          "nome": "Cidade de Honiara",
+          "estados": ["Honiara"]
+        }
+      ]
+    },
+    {
+      "nome": "Palau",
+      "regiões": [
+        {
+          "nome": "Estado de Aimeliik",
+          "estados": ["Aimeliik"]
+        },
+        {
+          "nome": "Estado de Airai",
+          "estados": ["Airai"]
+        },
+        {
+          "nome": "Estado de Angaur",
+          "estados": ["Angaur"]
+        },
+        {
+          "nome": "Estado de Hatohobei",
+          "estados": ["Hatohobei"]
+        },
+        {
+          "nome": "Estado de Kayangel",
+          "estados": ["Kayangel"]
+        },
+        {
+          "nome": "Estado de Koror",
+          "estados": ["Koror"]
+        },
+        {
+          "nome": "Estado de Melekeok",
+          "estados": ["Melekeok"]
+        },
+        {
+          "nome": "Estado de Ngaraard",
+          "estados": ["Ngaraard"]
+        },
+        {
+          "nome": "Estado de Ngarchelong",
+          "estados": ["Ngarchelong"]
+        },
+        {
+          "nome": "Estado de Ngardmau",
+          "estados": ["Ngardmau"]
+        },
+        {
+          "nome": "Estado de Ngatpang",
+          "estados": ["Ngatpang"]
+        },
+        {
+          "nome": "Estado de Ngchesar",
+          "estados": ["Ngchesar"]
+        },
+        {
+          "nome": "Estado de Ngeremlengui",
+          "estados": ["Ngeremlengui"]
+        },
+        {
+          "nome": "Estado de Ngiwal",
+          "estados": ["Ngiwal"]
+        },
+        {
+          "nome": "Estado de Peleliu",
+          "estados": ["Peleliu"]
+        },
+        {
+          "nome": "Estado de Sonsorol",
+          "estados": ["Sonsorol"]
+        }
+      ]
+    },
+    {
+      "nome": "Estados Federados da Micronésia",
+      "regiões": [
+        {
+          "nome": "Estado de Chuuk",
+          "estados": ["Chuuk"]
+        },
+        {
+          "nome": "Estado de Kosrae",
+          "estados": ["Kosrae"]
+        },
+        {
+          "nome": "Estado de Pohnpei",
+          "estados": ["Pohnpei"]
+        },
+        {
+          "nome": "Estado de Yap",
+          "estados": ["Yap"]
+        }
+      ]
+    },
+    {
+      "nome": "Samoa",
+      "regiões": [
+        {
+          "nome": "Região de A'ana",
+          "estados": ["A'ana"]
+        },
+        {
+          "nome": "Região de Aiga-i-le-Tai",
+          "estados": ["Aiga-i-le-Tai"]
+        },
+        {
+          "nome": "Região de Atua",
+          "estados": ["Atua"]
+        },
+        {
+          "nome": "Região de Fa'asaleleaga",
+          "estados": ["Fa'asaleleaga"]
+        },
+        {
+          "nome": "Região de Gaga'emauga",
+          "estados": ["Gaga'emauga"]
+        },
+        {
+          "nome": "Região de Gaga'ifomauga",
+          "estados": ["Gaga'ifomauga"]
+        },
+        {
+          "nome": "Região de Palauli",
+          "estados": ["Palauli"]
+        },
+        {
+          "nome": "Região de Satupa'itea",
+          "estados": ["Satupa'itea"]
+        },
+        {
+          "nome": "Região de Tuamasaga",
+          "estados": ["Tuamasaga"]
+        },
+        {
+          "nome": "Região de Va'a-o-Fonoti",
+          "estados": ["Va'a-o-Fonoti"]
+        },
+        {
+          "nome": "Região de Vaisigano",
+          "estados": ["Vaisigano"]
+        }
+      ]
+    },
+	    {
+      "nome": "Tonga",
+      "regiões": [
+        {
+          "nome": "Divisão de Tongatapu",
+          "estados": ["Kolofo'ou", "Kolomotu'a"]
+        },
+        {
+          "nome": "Divisão de Vava'u",
+          "estados": ["Neiafu", "Pangaimotu"]
+        },
+        {
+          "nome": "Divisão de Ha'apai",
+          "estados": ["Pangai", "Foa"]
+        },
+        {
+          "nome": "Divisão de 'Eua",
+          "estados": ["'Eua Motu'a", "'Eua Fo'ou"]
+        },
+        {
+          "nome": "Divisão de Ongo Niua",
+          "estados": ["Niua Toputapu", "Niua Fo'ou"]
+        }
+      ]
+    },
+    {
+      "nome": "Namíbia",
+      "regiões": [
+        {
+          "nome": "Região de Erongo",
+          "estados": ["Swakopmund", "Walvis Bay"]
+        },
+        {
+          "nome": "Região de Khomas",
+          "estados": ["Windhoek"]
+        },
+        {
+          "nome": "Região de Otjozondjupa",
+          "estados": ["Otjiwarongo", "Grootfontein"]
+        },
+        {
+          "nome": "Região de Oshana",
+          "estados": ["Oshakati", "Ondangwa"]
+        },
+        {
+          "nome": "Região de Kavango Oriental",
+          "estados": ["Rundu"]
+        }
+      ]
+    },
+    {
+      "nome": "África do Sul",
+      "regiões": [
+        {
+          "nome": "Província do Cabo Ocidental",
+          "estados": ["Cidade do Cabo", "Stellenbosch"]
+        },
+        {
+          "nome": "Província de Gauteng",
+          "estados": ["Joanesburgo", "Pretória"]
+        },
+        {
+          "nome": "Província de KwaZulu-Natal",
+          "estados": ["Durban", "Pietermaritzburg"]
+        },
+        {
+          "nome": "Província do Cabo Oriental",
+          "estados": ["Port Elizabeth", "East London"]
+        },
+        {
+          "nome": "Província de Mpumalanga",
+          "estados": ["Nelspruit", "Witbank"]
+        }
+      ]
+    },
+    {
+      "nome": "Chade",
+      "regiões": [
+        {
+          "nome": "Região de N'Djamena",
+          "estados": ["N'Djamena"]
+        },
+        {
+          "nome": "Região de Logone Ocidental",
+          "estados": ["Moundou"]
+        },
+        {
+          "nome": "Região de Chari-Baguirmi",
+          "estados": ["Massakory"]
+        },
+        {
+          "nome": "Região de Ouaddaï",
+          "estados": ["Abéché"]
+        },
+        {
+          "nome": "Região de Borkou",
+          "estados": ["Faya-Largeau"]
+        }
+      ]
+    },
+	    {
+      "nome": "República Democrática do Congo",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Mongala", "Haut-Uele"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Haut-Katanga", "Lualaba"]
+        },
+        {
+          "nome": "Leste",
+          "estados": ["Nord-Kivu", "Sud-Kivu"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Kongo Central", "Kwango"]
+        }
+      ]
+    },
+    {
+      "nome": "Gana",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Região Norte", "Região Nordeste"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Região Central", "Região Ocidental"]
+        },
+        {
+          "nome": "Leste",
+          "estados": ["Região do Volta", "Região Oriental"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Região Ocidental", "Região Ocidental do Norte"]
+        }
+      ]
+    },
+    {
+      "nome": "Nigéria",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Kano", "Kaduna"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Lagos", "Rivers"]
+        },
+        {
+          "nome": "Leste",
+          "estados": ["Enugu", "Anambra"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Oyo", "Ogun"]
+        }
+      ]
+    },
+    {
+      "nome": "Quênia",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Turkana", "Marsabit"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Kajiado", "Narok"]
+        },
+        {
+          "nome": "Leste",
+          "estados": ["Garissa", "Wajir"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Kisumu", "Kakamega"]
+        }
+      ]
+    },
+	    {
+      "nome": "República Democrática do Congo",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Mongala", "Haut-Uele"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Haut-Katanga", "Lualaba"]
+        },
+        {
+          "nome": "Leste",
+          "estados": ["Nord-Kivu", "Sud-Kivu"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Kongo Central", "Kwango"]
+        }
+      ]
+    },
+    {
+      "nome": "Gana",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Região Norte", "Região Nordeste"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Região Central", "Região Ocidental"]
+        },
+        {
+          "nome": "Leste",
+          "estados": ["Região do Volta", "Região Oriental"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Região Ocidental", "Região Ocidental do Norte"]
+        }
+      ]
+    },
+    {
+      "nome": "Nigéria",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Kano", "Kaduna"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Lagos", "Rivers"]
+        },
+        {
+          "nome": "Leste",
+          "estados": ["Enugu", "Anambra"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Oyo", "Ogun"]
+        }
+      ]
+    },
+    {
+      "nome": "Quênia",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Turkana", "Marsabit"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Kajiado", "Narok"]
+        },
+        {
+          "nome": "Leste",
+          "estados": ["Garissa", "Wajir"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Kisumu", "Kakamega"]
+        }
+      ]
+    },
+	    {
+      "nome": "Tanzânia",
+      "regiões": [
+        {
+          "nome": "Costa",
+          "estados": ["Dar es Salaam", "Tanga", "Lindi"]
+        },
+        {
+          "nome": "Norte",
+          "estados": ["Arusha", "Kilimanjaro", "Manyara"]
+        },
+        {
+          "nome": "Centro",
+          "estados": ["Dodoma", "Singida", "Tabora"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Mbeya", "Iringa", "Ruvuma"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Kigoma", "Rukwa", "Katavi"]
+        }
+      ]
+    },
+    {
+      "nome": "Argélia",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Argel", "Orã", "Constantina"]
+        },
+        {
+          "nome": "Centro",
+          "estados": ["Blida", "Bouira", "Médéa"]
+        },
+        {
+          "nome": "Leste",
+          "estados": ["Annaba", "Batna", "Sétif"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Tlemcen", "Sidi Bel Abbes", "Mostaganem"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Tamanrasset", "Adrar", "Illizi"]
+        }
+      ]
+    },
+    {
+      "nome": "Egito",
+      "regiões": [
+        {
+          "nome": "Delta do Nilo",
+          "estados": ["Cairo", "Gizé", "Alexandria"]
+        },
+        {
+          "nome": "Vale do Nilo",
+          "estados": ["Luxor", "Aswan", "Qena"]
+        },
+        {
+          "nome": "Deserto Ocidental",
+          "estados": ["Matruh", "Nova Valáquia", "Faiyum"]
+        },
+        {
+          "nome": "Deserto Oriental",
+          "estados": ["Mar Vermelho", "Suez", "Ismailia"]
+        },
+        {
+          "nome": "Península do Sinai",
+          "estados": ["Sul do Sinai", "Norte do Sinai"]
+        }
+      ]
+    },
+    {
+      "nome": "Cazaquistão",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Akmola", "Kostanay", "Pavlodar"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Almaty", "Jambyl", "Turkistan"]
+        },
+        {
+          "nome": "Leste",
+          "estados": ["Kazakhstan Oriental", "Almaty"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Atyrau", "Mangystau", "Kazakhstan Ocidental"]
+        },
+        {
+          "nome": "Centro",
+          "estados": ["Karaganda", "Ulytau"]
+        }
+      ]
+    },
+	    {
+      "nome": "Uzbequistão",
+      "regiões": [
+        {
+          "nome": "Região Central",
+          "estados": ["Tashkent", "Sirdaryo", "Jizzakh"]
+        },
+        {
+          "nome": "Região Oriental",
+          "estados": ["Andijon", "Namangan", "Fergana"]
+        },
+        {
+          "nome": "Região Ocidental",
+          "estados": ["Karakalpakstan", "Khorezm", "Navoi"]
+        },
+        {
+          "nome": "Região Meridional",
+          "estados": ["Kashkadarya", "Surkhandarya", "Samarkand"]
+        }
+      ]
+    },
+    {
+      "nome": "Arábia Saudita",
+      "regiões": [
+        {
+          "nome": "Região Oeste",
+          "estados": ["Meca", "Medina", "Tabuk"]
+        },
+        {
+          "nome": "Região Central",
+          "estados": ["Riyadh", "Al-Qassim", "Ha'il"]
+        },
+        {
+          "nome": "Região Leste",
+          "estados": ["Província Oriental", "Al-Jawf", "Fronteira do Norte"]
+        },
+        {
+          "nome": "Região Sul",
+          "estados": ["Asir", "Jazan", "Najran", "Al-Bahah"]
+        }
+      ]
+    },
+    {
+      "nome": "Turquia",
+      "regiões": [
+        {
+          "nome": "Região de Mármara",
+          "estados": ["Istambul", "Edirne", "Bursa"]
+        },
+        {
+          "nome": "Região do Egeu",
+          "estados": ["Izmir", "Aydın", "Manisa"]
+        },
+        {
+          "nome": "Região do Mediterrâneo",
+          "estados": ["Antália", "Adana", "Mersin"]
+        },
+        {
+          "nome": "Região da Anatólia Central",
+          "estados": ["Ancara", "Konya", "Kayseri"]
+        },
+        {
+          "nome": "Região do Mar Negro",
+          "estados": ["Samsun", "Trabzon", "Zonguldak"]
+        },
+        {
+          "nome": "Região da Anatólia Oriental",
+          "estados": ["Erzurum", "Van", "Malatya"]
+        },
+        {
+          "nome": "Região do Sudeste da Anatólia",
+          "estados": ["Gaziantep", "Şanlıurfa", "Diyarbakır"]
+        }
+      ]
+    },
+    {
+      "nome": "China",
+      "regiões": [
+        {
+          "nome": "Províncias",
+          "estados": [
+            "Anhui",
+            "Cantão",
+            "Fujian",
+            "Gansu",
+            "Guizhou",
+            "Hainan",
+            "Hebei",
+            "Heilongjiang",
+            "Henan",
+            "Hubei",
+            "Hunan",
+            "Jiangsu",
+            "Jiangxi",
+            "Jilin",
+            "Liaoning",
+            "Qinghai",
+            "Shaanxi",
+            "Shandong",
+            "Shanxi",
+            "Sichuan",
+            "Yunnan",
+            "Zhejiang"
+          ]
+        },
+        {
+          "nome": "Regiões Autônomas",
+          "estados": [
+            "Guangxi",
+            "Mongólia Interior",
+            "Ningxia",
+            "Xinjiang",
+            "Tibete"
+          ]
+        },
+        {
+          "nome": "Cidades Administrativas",
+          "estados": ["Chongqing", "Pequim", "Tianjin", "Xangai"]
+        },
+        {
+          "nome": "Zonas Administrativas Especiais",
+          "estados": ["Hong Kong", "Macau"]
+        }
+      ]
+    },
+{
+      "nome": "Coreia do Sul",
+      "regiões": [
+        {
+          "nome": "Região de Seul",
+          "estados": ["Seul"]
+        },
+        {
+          "nome": "Região de Gyeonggi",
+          "estados": ["Gyeonggi"]
+        },
+        {
+          "nome": "Região de Gangwon",
+          "estados": ["Gangwon"]
+        },
+        {
+          "nome": "Região de Chungcheong",
+          "estados": ["Chungcheong do Norte", "Chungcheong do Sul"]
+        },
+        {
+          "nome": "Região de Jeolla",
+          "estados": ["Jeolla do Norte", "Jeolla do Sul"]
+        },
+        {
+          "nome": "Região de Gyeongsang",
+          "estados": ["Gyeongsang do Norte", "Gyeongsang do Sul"]
+        },
+        {
+          "nome": "Região de Jeju",
+          "estados": ["Jeju"]
+        }
+      ]
+    },
+    {
+      "nome": "Indonésia",
+      "regiões": [
+        {
+          "nome": "Sumatra",
+          "estados": ["Aceh", "Sumatra do Norte", "Sumatra Ocidental", "Riau", "Jambi", "Sumatra do Sul", "Bengkulu", "Lampung", "Ilhas Bangka Belitung", "Ilhas Riau"]
+        },
+        {
+          "nome": "Java",
+          "estados": ["Jacarta", "Java Ocidental", "Banten", "Java Central", "Yogyakarta", "Java Oriental"]
+        },
+        {
+          "nome": "Kalimantan",
+          "estados": ["Kalimantan Ocidental", "Kalimantan Central", "Kalimantan do Sul", "Kalimantan Oriental", "Kalimantan do Norte"]
+        },
+        {
+          "nome": "Sulawesi",
+          "estados": ["Sulawesi do Norte", "Gorontalo", "Sulawesi Central", "Sulawesi Ocidental", "Sulawesi do Sul", "Sulawesi do Sudeste"]
+        },
+        {
+          "nome": "Ilhas menores da Sonda",
+          "estados": ["Bali", "Nusa Tenggara Ocidental", "Nusa Tenggara Oriental"]
+        },
+        {
+          "nome": "Molucas",
+          "estados": ["Molucas", "Molucas do Norte"]
+        },
+        {
+          "nome": "Papua",
+          "estados": ["Papua Ocidental", "Papua"]
+        }
+      ]
+    },
+    {
+      "nome": "Vietnã",
+      "regiões": [
+        {
+          "nome": "Noroeste",
+          "estados": ["Lai Châu", "Điện Biên", "Sơn La", "Hòa Bình"]
+        },
+        {
+          "nome": "Nordeste",
+          "estados": ["Lào Cai", "Yên Bái", "Phú Thọ", "Hà Giang", "Tuyên Quang", "Cao Bằng", "Bắc Kạn", "Thái Nguyên", "Lạng Sơn", "Bắc Giang", "Quảng Ninh"]
+        },
+        {
+          "nome": "Delta do Rio Vermelho",
+          "estados": ["Hà Nội", "Vĩnh Phúc", "Bắc Ninh", "Hà Nam", "Hưng Yên", "Hải Dương", "Hải Phòng", "Thái Bình", "Nam Định", "Ninh Bình"]
+        },
+        {
+          "nome": "Costa Central do Norte",
+          "estados": ["Thanh Hóa", "Nghệ An", "Hà Tĩnh", "Quảng Bình", "Quảng Trị", "Thừa Thiên-Huế"]
+        },
+        {
+          "nome": "Costa Central do Sul",
+          "estados": ["Đà Nẵng", "Quảng Nam", "Quảng Ngãi", "Bình Định", "Phú Yên", "Khánh Hòa", "Ninh Thuận", "Bình Thuận"]
+        },
+        {
+          "nome": "Planaltos Centrais",
+          "estados": ["Kon Tum", "Gia Lai", "Đắk Lắk", "Đắk Nông", "Lâm Đồng"]
+        },
+        {
+          "nome": "Sudeste",
+          "estados": ["Thành phố Hồ Chí Minh", "Bà Rịa-Vũng Tàu", "Bình Dương", "Bình Phước", "Đồng Nai", "Tây Ninh"]
+        },
+        {
+          "nome": "Delta do Mekong",
+          "estados": ["Long An", "Tiền Giang", "Bến Tre", "Trà Vinh", "Vĩnh Long", "Đồng Tháp", "An Giang", "Kiên Giang", "Cần Thơ", "Hậu Giang", "Sóc Trăng", "Bạc Liêu", "Cà Mau"]
+        }
+      ]
+    },
+	    {
+      "nome": "Índia",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Uttar Pradesh", "Uttarakhand"]
+        },
+        {
+          "nome": "Nordeste",
+          "estados": ["Assam", "Manipur"]
+        },
+        {
+          "nome": "Leste",
+          "estados": ["Bengala Ocidental", "Odisha"]
+        },
+        {
+          "nome": "Centro-Oeste",
+          "estados": ["Madhya Pradesh", "Chhattisgarh"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Maharashtra", "Gujarat"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Karnataka", "Tamil Nadu"]
+        }
+      ]
+    },
+    {
+      "nome": "Paquistão",
+      "regiões": [
+        {
+          "nome": "Norte",
+          "estados": ["Gilgit-Baltistão", "Caxemira Livre"]
+        },
+        {
+          "nome": "Leste",
+          "estados": ["Punjab"]
+        },
+        {
+          "nome": "Sul",
+          "estados": ["Sindh"]
+        },
+        {
+          "nome": "Oeste",
+          "estados": ["Baluchistão"]
+        }
+      ]
+    }
+
+  ]
+}

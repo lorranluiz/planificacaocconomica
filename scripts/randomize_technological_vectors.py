@@ -8,13 +8,13 @@ def get_random_value():
     rand = random.random() * 100
     
     if rand <= 81:  # 81% chance
-        return round(random.uniform(0.01, 0.03), 2)
+        return round(random.uniform(0.00001, 0.00499), 2)
     elif rand <= 93:  # 12% chance
-        return 0.04
+        return 0.005
     elif rand <= 98:  # 5% chance
-        return round(random.uniform(0.05, 0.08), 2)
+        return round(random.uniform(0.00005, 0.00008), 2)
     else:  # 2% chance
-        return 0.09
+        return 0.02
 
 def randomize_vectors(data):
     for key, entity in data.items():

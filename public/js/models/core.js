@@ -159,7 +159,7 @@ if (!user.instancePrepositionJurisdictionUUID.includes("Distrital") && !user.ins
 							//console.info("matrix: ");
 							//console.log(matrix);
 							
-                            averagedMatrix[key].sum += parseFloat(value);
+                            averagedMatrix[key].sum += value;
                             averagedMatrix[key].count += 1;
                         }
                     });
@@ -324,7 +324,7 @@ if (!user.instancePrepositionJurisdictionUUID.includes("Distrital") && !user.ins
                 input.readOnly = true;
 
                 const key = `${productName}:${targetProductName.includes("Rede") ? targetProductName : `Produção de ${targetProductName}`}`;
-                input.value = averagedMatrix[key] !== undefined ? averagedMatrix[key].toFixed(2) : 0;
+                input.value = averagedMatrix[key] !== undefined ? averagedMatrix[key].toFixed(5) : 0;
                 cell.appendChild(input);
                 addHighlightBehavior(cell); // Adiciona o comportamento de destaque
                 row.appendChild(cell);
@@ -494,7 +494,7 @@ if (!user.instancePrepositionJurisdictionUUID.includes("Distrital") && !user.ins
 						//console.info("limiteEfetivoTrabalhadores/limiteEfetivoTrabalhadoresTotal = productionUnitWeight: ");
 						//console.log(productionUnitWeight);
 						
-                        const adjustedTechnologicalVectors = vetorTecnologico.map(value => (value * productionUnitWeight).toFixed(2));
+                        const adjustedTechnologicalVectors = vetorTecnologico.map(value => (value * productionUnitWeight).toFixed(5));
 						const adjustedDemandVectors = vetorDemanda.map(value => (value * productionUnitWeight).toFixed(2));
 						const adjustedProposalVectors = vetorProposta.map(value => (value * productionUnitWeight).toFixed(2));
 						adjustedProposalVectors[0]=limiteEfetivoTrabalhadoresTotal; //não calcula o peso do limiteEfetivoTrabalhadores, pois ele é real, efetivo, e é usado para o calculo do peso (não pode ser peso dele mesmo)
@@ -521,7 +521,7 @@ if (!user.instancePrepositionJurisdictionUUID.includes("Distrital") && !user.ins
                         resultMessage += `pesoDaUnidadeDeProdução=${productionUnitWeight.toFixed(2)}\n`;
                         resultMessage += `Vetor Tecnológico Médio: ${adjustedTechnologicalVectors.join(", ")}\n`;
 
-                        const weightedAverageTechnologicalVector = summedTechnologicalVectors.map(sum => (sum / filteredRecords.length).toFixed(2));
+                        const weightedAverageTechnologicalVector = summedTechnologicalVectors.map(sum => (sum / filteredRecords.length).toFixed(5));
                         resultMessage += `Média Ponderada dos Vetores Tecnológicos: ${weightedAverageTechnologicalVector.join(", ")}`;
 						
 						const weightedAverageDemandVector = summedDemandVectors.map(sum => (sum / filteredRecords.length).toFixed(2));

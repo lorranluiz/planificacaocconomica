@@ -178,7 +178,7 @@ for council_key, council in list(data.items()):
             # Create vetorTecnologico with the same number of entries as estoqueDemanda.
             vetor = []
             for _ in range(len(estoque_demanda)):
-                vetor.append(str(round(random.uniform(0.02, 0.3), 2)))
+                vetor.append(str(round(random.uniform(0.00002, 0.02), 5)))
             new_committee["vetorTecnologico"] = vetor
             # Set remaining constant fields.
             new_committee["totalSocialWorkDessaJurisdicao"] = 0
@@ -264,14 +264,14 @@ for council_key, council in data.items():
                 council["finalDemand"].append(random_int(1, 1000))
                 # Expand inputTable: First, add one new column to each existing row.
                 for row in council["inputTable"]:
-                    row.append(round(random.uniform(0.01, 0.4), 2))
+                    row.append(round(random.uniform(0.00001, 0.02), 5))
                 # Determine new column count.
                 if council["inputTable"]:
                     new_col_count = len(council["inputTable"][0])
                 else:
                     new_col_count = 1
                 # Add a new row with new_col_count entries.
-                new_row = [round(random.uniform(0.01, 0.4), 2) for _ in range(new_col_count)]
+                new_row = [round(random.uniform(0.00001, 0.02), 5) for _ in range(new_col_count)]
                 council["inputTable"].append(new_row)
                 print(f"Updated council '{council_key}' with new product '{product}'.")
 

@@ -88,9 +88,9 @@ for key, committee in data.items():
                 for prod, value in committee["inputTable"].items():
                     # If the value is 0 or falsy, assign a random float between 0.01 and 0.4.
                     if not value:
-                        committee["inputTable"][prod] = random_float(0.01, 0.4)
+                        committee["inputTable"][prod] = round(random.uniform(0.00002, 0.02), 5);
             elif isinstance(committee["inputTable"], list):
-                committee["inputTable"] = [random_float(0.01, 0.4) if not v else v
+                committee["inputTable"] = [round(random.uniform(0.00002, 0.02), 5) if not v else v
                                            for v in committee["inputTable"]]
 
         # 2. Process "Estoque e Demanda" (field "estoqueEDemanda")

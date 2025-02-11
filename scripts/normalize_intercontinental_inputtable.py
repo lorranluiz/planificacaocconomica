@@ -28,14 +28,14 @@ def normalize_matrix(matrix):
     normalized = []
     for row in matrix:
         # First replace all zeros with 0.01
-        modified_row = [0.01 if x == 0 else x for x in row]
+        modified_row = [0.00001 if x == 0 else x for x in row]
         
         # Calculate sum and normalize
         row_sum = sum(modified_row)
         if row_sum > 0:
             normalized_row = [x/row_sum for x in modified_row]
             # Ensure minimum 0.01
-            normalized_row = [max(0.01, x) for x in normalized_row]
+            normalized_row = [max(0.00001, x) for x in normalized_row]
             # Final normalization to ensure sum = 1
             row_sum = sum(normalized_row)
             normalized_row = [x/row_sum for x in normalized_row]

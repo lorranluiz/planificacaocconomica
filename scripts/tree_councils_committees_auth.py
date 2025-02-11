@@ -17,7 +17,7 @@ def get_user_credentials(data, entity_name):
             username = user.get("username", "")
             password = user.get("password", "")
             if username and password:
-                return f"({username}|{password})"
+                return f"( {username} | {password} )"
     return "(no auth)"
 
 def is_council(key, obj):
