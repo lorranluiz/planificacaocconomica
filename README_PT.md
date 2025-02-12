@@ -25,7 +25,7 @@ Este projeto é uma ferramenta open-source para planificação econômica otimiz
 ## ℹ️ O Que É Isso?
 Esse aplicativo é uma aplicação prática que reúne tudo o que a classe trabalhadora desenvolveu social e tecnicamente, tudo o que desenvolveu com suas lições históricas, para a organização de sua própria produção. Grande parte do que os próprios trabalhadores fizeram hoje ainda é usado contra eles próprios, em benefício de uma ínfima minoria que conforma a chamada burguesia que, para isso, extrai para si mesma lucros abismais em relação aos salários pagos para a reprodução do trabalho dos trabalhadores, além da manutenção do desemprego de uma parte dos trabalhadores para a manutenção do chamado exército de reserva, que permite otimizar a exploração dos trabalhadores e os lucros da burguesia. Uma nefasta característica endêmica disso são os ciclos nos quais a burguesia, para manter sua taxa de lucro, apela para a destruição de forças produtivas (por meio de guerras ou deixando rolar solta uma pandemia) ou por meio do estímulo à ideologias que estimulem divisões no seio da classe trabalhadora, por meio de polarizações políticas superficiais ou por meio do fomento a ideologias que embasam as opressões, novas ou já existentes (principalmente xenofobia, racismo, LGBTfobia, machismo e capacitismo).
 
-Não criamos nada que a classe trabalhadora já não tenha criado, apenas compilamos sua esplêndida criação.
+Não criamos nada que a classe trabalhadora já não tenha criado, apenas compilamos sua esplêndida criação e lhe demos uma orientação política emancipatória.
 
 ## 💡 Como Acoplar Produção e Distribuição
 A distribuição não existe independente da produção.  
