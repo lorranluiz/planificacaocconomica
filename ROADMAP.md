@@ -69,9 +69,9 @@ mas que seja lido e funciuone normalmente no navegador, só está embaralhado.
 
 -----------------
 
-[~] 6) Testar analise de dados do data.json no deepseek ou outro
+[ok] 6) Testar analise de dados do data.json no deepseek ou outro
 - [ok] deepseek com problema de uploads de arquivos, mas no chatgpt funcionou perfeitamente
-- [~] Microserviços: pegar códigos python gerados e incorporar ao código, ver como exibir para o cliente. usar códigos do python como microserviços, o PM2 e Node já gerenciam isso para que chamadas a programas python se comportem como microserviços separadas, para cada usuário que fez a requisição.
+- [ok] Microserviços: pegar códigos python gerados e incorporar ao código, ver como exibir para o cliente. usar códigos do python como microserviços, o PM2 e Node já gerenciam isso para que chamadas a programas python se comportem como microserviços separadas, para cada usuário que fez a requisição.
 
 [ok] Criar um botão, na tela inicial, de login, que quando o usuário clica exibe um Alert cujo o conteúdo de texto foi processado em um python que rodou no servidor. Colocar inicialmente "Hello, World, Python no servidor!"
 
@@ -80,7 +80,7 @@ mas que seja lido e funciuone normalmente no navegador, só está embaralhado.
 
 [ok] 6.1.1.2) Depois, detecte cada produto demandado nos comitês "filhos" de um comitê distrital (os campos "bemDeProducao" dentro de "estoqueDemanda" do comitê filho) e verifique se todos eles estão em "productNames" do conselho pai que o comitê está associado. Se não, inseri-lo em ""productNames", inserir o nome do setor em "sectorNames" ("Produção de", se o "bemDeProducao" não contiver a expressão "Rede de"), inserir mais um valor numério em "finalDemand" (entre 1 e 1000) e inserir mais uma linha e mais uma coluna na matriz "inputTable" com números entre 0.01 e 0.4.
 
-[~->] 6.1.2) Depois,
+[ok] 6.1.2) Depois,
 
 [ok] criar script que cria conselhos de cada continente, que ainda não tiver sido criado, associados ao Conselho da Terra
 
@@ -90,33 +90,41 @@ mas que seja lido e funciuone normalmente no navegador, só está embaralhado.
 
 [ok] em seguida, das regiões nacionais de cada país(exemplo, norte, sul, leste, oeste e as interseções dessas regiões, conforme existam em cada país) de cada país criado,
 
-em seguida, 2 estados de cada região nacional criada de cada país,
+[ok] em seguida, 2 estados de cada região nacional criada de cada país,
 
-em seguida 2 cidades de cada estado criado,
+[ok] em seguida 2 cidades de cada estado criado,
 
-em seguida 2 bairros de cada cidade criada, e 1 Conselho de Distribuição e Serviços para cada bairro criado,
+[ok] em seguida 2 distritos de cada cidade criada, e 1 Conselho de Distribuição e Serviços para cada bairro criado,
 
-garantindo que cada conselho está associado a um conselho acima criado anteriormente que de fato faça sentido com a realidade (por exemplo, um país que no mundo real está na região Leste do Continente Europeu deve estar associado a essa região, e essa região a esse continente, não com outra região de outro continente, e assim por diante com tudo o que solicitei que o script crie.
+[ok] garantindo que cada conselho está associado a um conselho acima criado anteriormente que, na medida do possível, de fato faça sentido com a realidade (por exemplo, um país que no mundo real está na região Leste do Continente Europeu deve estar associado a essa região, e essa região a esse continente, não com outra região de outro continente, e assim por diante com tudo o que solicitei que o script crie.
 
 [ok] Para cada novo conselho criado já cadastre um novo conselheiro para esse conselho, use um nome que tenha a ver com o país daquele conselho, para ficar mais real, crie os nomes de usuário para login fáceis de intuitivos de lembrar, e uma mesma senha para todos, 123. 80% dos conselheiros criados devem ser mulheres.
 
 [ok] Não apague informação já existente no arquivo de dados, só crie essas novas.
 
-Para cada bairro do mundo criado por esse script devem estar sendo oferecidos 3 serviços e serem produzidos produtos de 2 setores diferentes nesse bairro (mas podem ser setores que existem em outros bairros ou setores novos, crie alguns setores e serviços novos para parecer real os dados, coloque os nomes dos Comitês, Conselhos, Setores, Produtos e Serviços, tudo e todos traduzidos para português, para que eu entenda, pois falo português). Preencha devidamente e de maneira criativa e consistente cada campo criado no arquivo de dados.
+[ok] Para cada bairro do mundo criado por esse script devem estar sendo oferecidos 3 serviços e serem produzidos produtos de 2 setores diferentes nesse bairro (mas podem ser setores que existem em outros bairros ou setores novos, crie alguns setores e serviços novos para parecer real os dados, coloque os nomes dos Comitês, Conselhos, Setores, Produtos e Serviços, tudo e todos traduzidos para português, para que eu entenda, pois falo português). Preencha devidamente e de maneira criativa e consistente cada campo criado no arquivo de dados.
 
-6.1.3) Depois, gerar script que cria novos usuários não conselheiro, como Julia, com nomes reais associados ao local do mundo em que o usuário for criado. Perceba que ala tem um UUID, veja como isso é armazenado no arquivo de dados e veja como os dados dela são salvos em torno desse UUID e respeite isso. Crie 1 usuário para cada Conselho de Distribuição e Serviços que existe associado a cada bairro em todo o mundo existente no sistema. Use nomes de usuário para login fáceis e intuitivos de serem lembrados, e como senha use 123 para todos. 70% dos usuários criados devem ser mulheres. Para cada usuário criado já crie uma demanda que ele tenha feito (como se tivesse ido na tela para retirada de produtos e escolhido produtos serviços para retirada) escolha 3 produtos e 3 serviços existentes no sistema para cada usuário, não seja muito repetitivo, varie nas escolhas, para que pareçam usuários reais que tenham escolhido.Crie valores quaisquer e diferentes entre 30 a 100 horas de trabalho no ponto eletrônico de cada usuário criado, criado. Preencha devidamente e de maneira criativa e consistente cada campo criado no arquivo de dados.
+6.2) Otimizar Persistência
 
-6.1.4) Depois que eu fizer isso, continuar testando o script de gráficos do Amazonas, pra ver se aparece mais coisas.
+[===>>>>] Antes de criar novos usuários não conselheiros destravar o sistema.
+Otimizar armazenamento de dados, tanto em seu tamanho quanto em velocidade de leitura, sem diminuir o conteúdo significativo dos dados em si. Estudar e buscar alternativas, tentar com indexação (índices que tiram redundâncias, ver como fazer leitura), tentar com Mongo.DB, SQLite ou outro banco sendo o critério ser o de que o banco deve ser o mais fácil possível de converter o conteúdo .json e adaptar todas as chamadas de leitura dele com seus filtros (fazer busca automatica em todo código pra achar comando de filtro, pois os filtros que devem ser passados nas "querys" ajax, seja por url, string ou como for, e a resposta deve ser do mesmo tipo, se vier em .json já filtrada melhor ainda, mais rápido e não preciso mexer em mais nenhuma outra parte do código), ver SQL tbm (mySQL ou outro melhor ou mais rápido, gratuito, de preferência opensource). Mais pra frente quem saber ver se não tem algo parecido com Hibernate em javascript (carregando apenas o necessário e persistindo de maneira intuitiva os objetos).
 
-6.1.5) Se tudo for criado certo, pedir pra ele ver os scripts criados e as condições e critérios de cada tipo e campo de dado, e criar um script capaz de criar do zero um novo arquivo de dados completo, com todas as especificações que dei para criação de dados de todas as parte do mundo e para criação de conselheiros e de usuários não conselheiros. Esse script só deve receber 1 parâmetro numérico, ali onde especifiquei que é para criar 2 de cada comitê ou conselho associado abaixo de cada conselho criado, e 2 conselheiros e 2 usuários conselheiros, tudo especificado e associado como solicitei, 2 setores diferentes de produção e 2 de serviço em cada bairro, esse número 2, usado em todas as regras que específico acima, agora nesse novo script pode ser variável, podendo ser 3 ou qualquer valor que o usuário especificar como parâmetro ao rodar o script, sendo 2 o padrão.
 
-6.1.6) Depois que fizer o script acima, fazer um que faça o mesmo que acima, porém com dados numéricos diferentes, respeitando todas as condições, limites, faixas e critérios desses números, e mantendo todos os dados de texto inalterados. Esse novo script deve gerar dados números diferentes toda vez pois ele será usado para criar uma história, com cada arquivo novo data.json criado agora como se fosse os dados que existiram de fato em algum momento. Irei posteriormente fazer outro script para comparar esses arquivos data.json simulando uma análise histórica, mas não é pra fazer isso agora, agora é só pra fazer o que solicito inicial mente. O nome do arquivo criado deve ser dataANOMES.json, com o ano começando em 2024 e o mês 12, e indo mês a mês a partir do último criado. Quando for criar um novo ver se já não existe outro com esse padrão de nome criado, se sim, criar para o mês seguinte, por exemplo, o prêmio data202412.json, depois data202501.json e assim por diante.
+7) Pós otimização na persistência (velocidade e tamanho, fim do download de tudo e de busca em tudo)
 
-6.1.7) Depois, criar script que faça um gráfico da variação da demanda dos 3 setores com maior demanda média no Brasil nos últimos 5 meses.
+7.1) Depois, gerar script que cria novos usuários não conselheiro, como Julia, com nomes reais associados ao local do mundo em que o usuário for criado. Perceba que ala tem um UUID, veja como isso é armazenado no arquivo de dados e veja como os dados dela são salvos em torno desse UUID e respeite isso. Crie 1 usuário para cada Conselho de Distribuição e Serviços que existe associado a cada bairro em todo o mundo existente no sistema. Use nomes de usuário para login fáceis e intuitivos de serem lembrados, e como senha use 123 para todos. 70% dos usuários criados devem ser mulheres. Para cada usuário criado já crie uma demanda que ele tenha feito (como se tivesse ido na tela para retirada de produtos e escolhido produtos serviços para retirada) escolha 3 produtos e 3 serviços existentes no sistema para cada usuário, não seja muito repetitivo, varie nas escolhas, para que pareçam usuários reais que tenham escolhido.Crie valores quaisquer e diferentes entre 30 a 100 horas de trabalho no ponto eletrônico de cada usuário criado, criado. Preencha devidamente e de maneira criativa e consistente cada campo criado no arquivo de dados.
 
-6.1.8) Todos os gráficos gerados usar o mesmo microserviceCanvaArea, aí só mundo o script, e depois só crio os botões ou o que for e os conectores para o script, o retorno de todos é tratado da mesma forma (para os gráficos, o mesmo depois para retorno escrito. Colocar pra responder em uma div específica. Manter o estilo, não mudar praticamente cores etc.
+7.2) Depois que eu fizer isso, continuar testando o script de gráficos do Amazonas, pra ver se aparece mais coisas.
 
-6.2)
+7.3) Se tudo for criado certo, pedir pra ele ver os scripts criados e as condições e critérios de cada tipo e campo de dado, e criar um script capaz de criar do zero um novo arquivo de dados completo, com todas as especificações que dei para criação de dados de todas as parte do mundo e para criação de conselheiros e de usuários não conselheiros. Esse script só deve receber 1 parâmetro numérico, ali onde especifiquei que é para criar 2 de cada comitê ou conselho associado abaixo de cada conselho criado, e 2 conselheiros e 2 usuários conselheiros, tudo especificado e associado como solicitei, 2 setores diferentes de produção e 2 de serviço em cada bairro, esse número 2, usado em todas as regras que específico acima, agora nesse novo script pode ser variável, podendo ser 3 ou qualquer valor que o usuário especificar como parâmetro ao rodar o script, sendo 2 o padrão.
+
+7.4) Depois que fizer o script acima, fazer um que faça o mesmo que acima, porém com dados numéricos diferentes, respeitando todas as condições, limites, faixas e critérios desses números, e mantendo todos os dados de texto inalterados. Esse novo script deve gerar dados números diferentes toda vez pois ele será usado para criar uma história, com cada arquivo novo data.json criado agora como se fosse os dados que existiram de fato em algum momento. Irei posteriormente fazer outro script para comparar esses arquivos data.json simulando uma análise histórica, mas não é pra fazer isso agora, agora é só pra fazer o que solicito inicial mente. O nome do arquivo criado deve ser dataANOMES.json, com o ano começando em 2024 e o mês 12, e indo mês a mês a partir do último criado. Quando for criar um novo ver se já não existe outro com esse padrão de nome criado, se sim, criar para o mês seguinte, por exemplo, o prêmio data202412.json, depois data202501.json e assim por diante.
+
+7.5) Depois, criar script que faça um gráfico da variação da demanda dos 3 setores com maior demanda média no Brasil nos últimos 5 meses.
+
+7.6) Todos os gráficos gerados usar o mesmo microserviceCanvaArea, aí só mundo o script, e depois só crio os botões ou o que for e os conectores para o script, o retorno de todos é tratado da mesma forma (para os gráficos, o mesmo depois para retorno escrito. Colocar pra responder em uma div específica. Manter o estilo, não mudar praticamente cores etc.
+
+7.7)
 - [OUTRO CAMPO, MAS QUE SAI DESSE:
 OTIMIZAÇÃO DA PLANIFICAÇÃO (DOS CALCULOS LOCAIS DE (i) OTIMIZAÇÃO E DE (ii) ESTIMATIVA)]
 Otimização da velocidade e desempenho dos códigos decentralizados de otimização da planificação e calculo das estimativas. Avaliar se é possível rodar no usuário programas python compilados (pra não precisar instalar e chamar todo o python), e a página web apenas faz chamadas locais (como o login online do LOL faz chamando o cliente local no usuário, passando essas informações ou recebendo dele informações por um link). O "servidor" local com os programas python deverá estar rodando. Caso ele instale esses programas no dispositivo dele;
