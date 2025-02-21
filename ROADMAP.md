@@ -109,6 +109,22 @@ mas que seja lido e funciuone normalmente no navegador, só está embaralhado.
 [===>>>>] Antes de criar novos usuários não conselheiros destravar o sistema.
 Otimizar armazenamento de dados, tanto em seu tamanho quanto em velocidade de leitura, sem diminuir o conteúdo significativo dos dados em si. Estudar e buscar alternativas, tentar com indexação (índices que tiram redundâncias, ver como fazer leitura), tentar com Mongo.DB, SQLite ou outro banco sendo o critério ser o de que o banco deve ser o mais fácil possível de converter o conteúdo .json e adaptar todas as chamadas de leitura dele com seus filtros (fazer busca automatica em todo código pra achar comando de filtro, pois os filtros que devem ser passados nas "querys" ajax, seja por url, string ou como for, e a resposta deve ser do mesmo tipo, se vier em .json já filtrada melhor ainda, mais rápido e não preciso mexer em mais nenhuma outra parte do código), ver SQL tbm (mySQL ou outro melhor ou mais rápido, gratuito, de preferência opensource). Mais pra frente quem saber ver se não tem algo parecido com Hibernate em javascript (carregando apenas o necessário e persistindo de maneira intuitiva os objetos).
 
+- Antes de começar: Criar backups (mais de um, do arquivo completo de conselhos, no google drive e localmente)
+- Restaurar o ambiente do servidor (incluindo python) e rodá-lo no wsl, com todas as funcionalidades, incluindo a geração de gráfico com python online.
+- Continuar para o próximo passo.
+
+6.2.1) a) Desenhar, a partir das 3 telas (conselho, comitê e usuário não conselheiro) o banco de dados.
+b) Com o desenho do banco de dados em mãos ir para as funções fetch que baixam os dados e fazem as buscas, as pesquisas, e ver se o desenho responde a todas elas (e como ele responderia, se fosse uma query ou não, etc).
+c) A partir disso, ver a partir das querys possíveis ou a partir das bibliotecas possíveis (tipo Hibernate) quais seriam as que menos causariam impacto no código, nas funções fetch, para consulta de dados (de preferência alguma que não precise de query, tipo Hibernate para javascript).
+d) A partir disso, escolher a tecnologia que usa isso, o método de consulta (se query ou tipo Hibernate), escolher com base na tecnologia que seja mais fácil ou mais automático (se já existe, se possível) de fazer a transição dos dados de .json para essa tecnologia, de maneira automática e consistente (seguindo ou dentro do modelo desenhado (ou modelado) de banco de dados inicialmente).
+e) A partir disso, desenvolver os códigos ou scripts para essa transição (se já não tiver nada que faça automaticamente ou que facilite isso, mas provavelmente escrever em detalhes permite melhor modelagem), e executá-los, testá-los se estão consistentes etc (tudo isso com os dados reduzidos de data.json, não o completo ainda).
+f) Começar a passar então os trechos de código fetch para a nova forma de chamada e consulta/busca de dados (se com query ou tipo Hibernate).
+g) Testar e ver inconsistências, encontrá-las, e ver como resolvê-las. Resolvê-las todas, o sistema deve voltar funcionar exatamente como antes, mas mais rápido e fluido. Mais fluido, natural, profissional, aumentar a usabilidade, profissionalizar a usabilidade dos dados.
+h) Preparar para a próxima etapa, ver se script python responde corretamente à mesma consulta, fazer outro que faça a mesma consulta, mudando a forma de leitura de dados nele, mas entregando a mesma saída, mantendo todo o resto na camada javascript e do cliente (que deve continuar usando .json para comunicação, se possível, mesmo que/se integrado com query ou Hibernate em algum momento, em alguns trechos).
+i.1) Tendo funcionado, tendo atendido isso, passar para a próxima etapa, que é a preparação para novos scripts python de consulta e análise de dados, com geração de gráficos otimizados (personalizados, se possível, mais pra frente) etc.
+i.2) [*** NOVA FUNCIONALIDADE, SERÁ NOVO SETOR INDEPENDENTE AQUI DO ARQUIVO DE ROADMAP]
+        De repente com uma tabela, mais pra frente, uma tela ou trecho de tela, janela modal ou coisa do tipo, com um formulário, com todos os tipos de consultas possíveis e saídas possívels, com um python que responda a isso e gere a saída desejada, formatada, colorida, com textos, informações etc.
+
 
 7) Pós otimização na persistência (velocidade e tamanho, fim do download de tudo e de busca em tudo)
 
