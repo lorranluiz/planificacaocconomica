@@ -58,6 +58,28 @@ SET default_tablespace = '';
 SET default_table_access_method = heap;
 
 --
+-- Name: demand_stock; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.demand_stock (
+    id_instance integer NOT NULL,
+    id_social_materialization integer NOT NULL,
+    stock numeric(16,6) NOT NULL,
+    demand numeric(16,6) NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.demand_stock OWNER TO postgres;
+
+--
+-- Name: TABLE demand_stock; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE public.demand_stock IS 'estoqueDemanda, de Comitê, com o id_social_materialization sendo o bemDeProducao';
+
+
+--
 -- Name: demand_vector; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -81,11 +103,24 @@ CREATE TABLE public.instance (
     id_social_materialization integer,
     worker_effective_limit integer NOT NULL,
     popular_council_associated_with_committee_or_worker integer,
-    popular_council_associated_with_popular_council integer
+    popular_council_associated_with_popular_council integer,
+    produced_quantity numeric(16,2),
+    target_quantity numeric(16,2),
+    committee_name character varying(150),
+    total_social_work_of_this_jurisdiction integer DEFAULT 0,
+    id_associated_worker_committee integer,
+    id_associated_worker_residents_association integer
 );
 
 
 ALTER TABLE public.instance OWNER TO postgres;
+
+--
+-- Name: TABLE instance; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE public.instance IS 'Conselho, Comitê ou Trabalhador.';
+
 
 --
 -- Name: COLUMN instance.type; Type: COMMENT; Schema: public; Owner: postgres
@@ -120,6 +155,48 @@ COMMENT ON COLUMN public.instance.popular_council_associated_with_committee_or_w
 --
 
 COMMENT ON COLUMN public.instance.popular_council_associated_with_popular_council IS 'Referência ao conselho popular associado a este conselho popular. No caso do Conselho da Intercontinental da Terra Pode ser NULL, não estando associado a um outro conselho superior.';
+
+
+--
+-- Name: COLUMN instance.produced_quantity; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.instance.produced_quantity IS 'quantidadeProduzida, de Comitê (era de producaoMeta) - Quantidade que já foi produzida pela instância';
+
+
+--
+-- Name: COLUMN instance.target_quantity; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.instance.target_quantity IS 'quantidadeMeta, de Comitê (era de producaoMeta) - Meta de produção estabelecida para a instância';
+
+
+--
+-- Name: COLUMN instance.committee_name; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.instance.committee_name IS 'comiteColTitle, nome do Comitê';
+
+
+--
+-- Name: COLUMN instance.total_social_work_of_this_jurisdiction; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.instance.total_social_work_of_this_jurisdiction IS 'totalSocialWorkDessaJurisdicao, anteriormente.';
+
+
+--
+-- Name: COLUMN instance.id_associated_worker_committee; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.instance.id_associated_worker_committee IS 'Trabalhador não-conselheiro. Comitê do local em que ele trabalha. Referência ao comitê de trabalhadores associado a esta instância. Pode ser NULL se não houver um comitê associado.';
+
+
+--
+-- Name: COLUMN instance.id_associated_worker_residents_association; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.instance.id_associated_worker_residents_association IS 'Referência à Associação de Moradores associada a este Trabalhador (instância do tipo Trabalhador). Pode ser NULL, mas senão, deve corresponder a um id existente.';
 
 
 --
@@ -164,7 +241,8 @@ CREATE TABLE public.optimization_inputs_results (
     minimum_production_time numeric(10,2) NOT NULL,
     total_employment_period interval NOT NULL,
     planned_final_demand numeric(16,6) NOT NULL,
-    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    id_instance integer NOT NULL
 );
 
 
@@ -182,6 +260,13 @@ COMMENT ON TABLE public.optimization_inputs_results IS 'O que fica nas janelas m
 --
 
 COMMENT ON COLUMN public.optimization_inputs_results.id_social_materialization IS 'Produto ou serviço associado.';
+
+
+--
+-- Name: COLUMN optimization_inputs_results.id_instance; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.optimization_inputs_results.id_instance IS 'Referência à instância associada a este resultado de otimização';
 
 
 --
@@ -345,6 +430,37 @@ ALTER SEQUENCE public.user_id_seq OWNED BY public."user".id;
 
 
 --
+-- Name: workers_proposal; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.workers_proposal (
+    worker_limit integer NOT NULL,
+    worker_hours numeric(10,2) NOT NULL,
+    production_time numeric(10,2) NOT NULL,
+    night_shift boolean NOT NULL,
+    weekly_scale integer NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
+    id_instance integer NOT NULL
+);
+
+
+ALTER TABLE public.workers_proposal OWNER TO postgres;
+
+--
+-- Name: TABLE workers_proposal; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE public.workers_proposal IS 'propostaTrabalhadores, de Comitê.';
+
+
+--
+-- Name: COLUMN workers_proposal.id_instance; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.workers_proposal.id_instance IS 'Referência à instância associada a este resultado de otimização';
+
+
+--
 -- Name: instance id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -413,6 +529,22 @@ ALTER TABLE ONLY public."user"
 
 
 --
+-- Name: demand_stock fk_demand_stock_instance; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.demand_stock
+    ADD CONSTRAINT fk_demand_stock_instance FOREIGN KEY (id_instance) REFERENCES public.instance(id);
+
+
+--
+-- Name: demand_stock fk_demand_stock_social_materialization; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.demand_stock
+    ADD CONSTRAINT fk_demand_stock_social_materialization FOREIGN KEY (id_social_materialization) REFERENCES public.social_materialization(id);
+
+
+--
 -- Name: demand_vector fk_demand_vector_instance; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -450,6 +582,38 @@ ALTER TABLE ONLY public.instance
 
 ALTER TABLE ONLY public.instance
     ADD CONSTRAINT fk_instance_social_materialization FOREIGN KEY (id_social_materialization) REFERENCES public.social_materialization(id);
+
+
+--
+-- Name: instance fk_instance_worker_committee; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.instance
+    ADD CONSTRAINT fk_instance_worker_committee FOREIGN KEY (id_associated_worker_committee) REFERENCES public.instance(id);
+
+
+--
+-- Name: instance fk_instance_worker_residents_association; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.instance
+    ADD CONSTRAINT fk_instance_worker_residents_association FOREIGN KEY (id_associated_worker_residents_association) REFERENCES public.instance(id);
+
+
+--
+-- Name: optimization_inputs_results fk_optimization_inputs_results_instance; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.optimization_inputs_results
+    ADD CONSTRAINT fk_optimization_inputs_results_instance FOREIGN KEY (id_instance) REFERENCES public.instance(id);
+
+
+--
+-- Name: workers_proposal fk_optimization_inputs_results_instance_0; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.workers_proposal
+    ADD CONSTRAINT fk_optimization_inputs_results_instance_0 FOREIGN KEY (id_instance) REFERENCES public.instance(id);
 
 
 --

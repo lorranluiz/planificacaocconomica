@@ -228,7 +228,7 @@ Colocar um .java no servidor, intermediário, que, depois que o .java correto pe
     "producaoMeta": [           //Vai ser montado pelo .java intermediário, carregando diretamente de instance. 
                                 separar campos, mas juntar apenas aqui (ao invés de ser esse vetor desnecessário no db)                                 
       {
-        "produto": "Produto Produzido",
+        "produto": "Produto Produzido", //ja está no id_social_materialization
         "quantidadeProduzida": "0.000",
         "quantidadeMeta": "10000"
       }
