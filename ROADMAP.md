@@ -109,9 +109,158 @@ mas que seja lido e funciuone normalmente no navegador, só está embaralhado.
 [===>>>>] Antes de criar novos usuários não conselheiros destravar o sistema.
 Otimizar armazenamento de dados, tanto em seu tamanho quanto em velocidade de leitura, sem diminuir o conteúdo significativo dos dados em si. Estudar e buscar alternativas, tentar com indexação (índices que tiram redundâncias, ver como fazer leitura), tentar com Mongo.DB, SQLite ou outro banco sendo o critério ser o de que o banco deve ser o mais fácil possível de converter o conteúdo .json e adaptar todas as chamadas de leitura dele com seus filtros (fazer busca automatica em todo código pra achar comando de filtro, pois os filtros que devem ser passados nas "querys" ajax, seja por url, string ou como for, e a resposta deve ser do mesmo tipo, se vier em .json já filtrada melhor ainda, mais rápido e não preciso mexer em mais nenhuma outra parte do código), ver SQL tbm (mySQL ou outro melhor ou mais rápido, gratuito, de preferência opensource). Mais pra frente quem saber ver se não tem algo parecido com Hibernate em javascript (carregando apenas o necessário e persistindo de maneira intuitiva os objetos).
 
-- Antes de começar: Criar backups (mais de um, do arquivo completo de conselhos, no google drive e localmente)
-- Restaurar o ambiente do servidor (incluindo python) e rodá-lo no wsl, com todas as funcionalidades, incluindo a geração de gráfico com python online.
-- Continuar para o próximo passo.
+- [ok] Antes de começar: Criar backups (mais de um, do arquivo completo de conselhos, no google drive e localmente)
+- [ok] Restaurar o ambiente do servidor (incluindo python) e rodá-lo no wsl, com todas as funcionalidades, incluindo a geração de gráfico com python online.
+
+Para logar no postgreSQL:
+sudo -i -u postgres
+
+Para gerar o SQL da estrutura de todo o banco de dados:
+PGPASSWORD=planecon123 pg_dump -h 127.0.0.1 -p 5432 -U postgres --schema-only planecon > /mnt/g/Downloads/GitHubClones/planificacaoEconomica/dump.sql
+
+Para ver o status do postgreSQL:
+systemctl status postgresql
+
+Para ver o log do postgreSQL:
+tail -n 50 /var/log/postgresql/postgresql-16-main.log
+
+Para iniciar o shell do postgreSQL:
+psql
+
+
+
+Colocar um .java no servidor, intermediário, que, depois que o .java correto pega os dados corretamente, de maneira organizada, o java intermediário "embaralha" pra criar a resposta como se tivesse sendo lido o arquivo json abaixo, porém apenas com o dado do conselho/instância/usuário solicitado carregado, única e exclusivamente.
+
+
+"Conselho Popular Municipal de Petrópolis": {
+    "inputTable": [         //Vai ser montado pelo .java intermediário (iterando os vetores tecnologicos dos produtos)
+      [
+        0.01,
+        0.02,
+        0.03,
+        0.06,
+        0.06
+      ],
+      [
+        0.08,
+        0.03,
+        0.06,
+        0.05,
+        0.07,
+        0.01,
+        0.02
+      ]
+    ],
+    "finalDemand": [        //Vai ser montado pelo .java intermediário, carregando o vetor demando diretamente 
+      50,
+      100,
+      40,
+      0.01,
+      0,
+      0,
+      0,
+      0,
+      500,
+      100,
+      150
+    ],
+    "optimizationInputs": { //Vai ser montado pelo .java intermediário, carregando diretamente de uma nova tabela 
+                            "optimization_inputs_results" com esses campos abaixo, e "id_social_materialization", para associar ao produto ou serviço
+      "0": {},
+      "1": {
+        "workerLimit": 500,
+        "workerHours": 2,
+        "productionTime": 0.3,
+        "nightShift": true,
+        "weeklyScale": 4,
+        "productionGoal": 6995437.219838782
+      },
+      "2": {}
+    },
+    "optimizationResults": {    //Vai ser montado pelo .java intermediário, carregando diretamente de uma nova 
+                                tabela "optimization_inputs_results" com esses campos abaixo, e  "id_social_materialization", para associar ao produto ou serviço
+      "1": {
+        "totalHours": 2098631.1659516348,
+        "workersNeeded": 262329,
+        "factoriesNeeded": 3,
+        "totalShifts": 2099,
+        "minimumProductionTime": 1837,
+        "totalEmploymentPeriod": "2 anos, 10 meses, 2 semanas, 6 dias",
+        "weeklyScale": 4,
+        "plannedFinalDemand": 6995440
+      },
+      "3": {
+        "totalHours": 3722399.8664519256,
+        "workersNeeded": 177258,
+        "factoriesNeeded": 6,
+        "totalShifts": 760,
+        "minimumProductionTime": 887,
+        "totalEmploymentPeriod": "1 ano, 2 semanas, 1 dia",
+        "weeklyScale": 3,
+        "plannedFinalDemand": 7444800
+      }
+    },
+    "productNames": [       //Vai ser montado pelo .java intermediário, carregando diretamente de materialização   
+                            social
+      "Rede de Saúde",
+      "Rede de Educação",
+      "Rede Logística Rodoviária",
+      "Projetor",
+      "Quadro Branco"
+    ],
+    "sectorNames": [        //Vai ser montado pelo .java intermediário, carregando diretamente de materialização   
+                            social, o respectivo setor associado de cada item
+      "Rede de Saúde",
+      "Rede de Educação",
+      "Rede Logística Rodoviária",
+      "Produção de Projetor",
+      "Produção de Quadro Branco"
+    ],
+    "setorUnidade": "",     //Vai ser montado pelo .java intermediário, carregando diretamente de instance
+    "limiteEfetivoTrabalhadores": "",   //Vai ser montado pelo .java intermediário, carregando diretamente de
+                                        instance
+    "conselhoPopularAssociadoDeComiteOuTrabalhador": "",    //Vai ser montado pelo .java intermediário,
+                                                            carregando diretamente de instance
+    "conselhoPopularAssociadoDeConselhoPopular": "Conselho Popular Regional Estadual da Região Serrana do Rio de Janeiro",                  //Vai ser montado pelo .java intermediário,
+                                carregando diretamente de instance
+    "estoqueDemanda": [],       //Vai ser montado pelo .java intermediário,
+                                ver se precisa criar mais uma tabela
+    "producaoMeta": [           //Vai ser montado pelo .java intermediário, carregando diretamente de instance. 
+                                separar campos, mas juntar apenas aqui (ao invés de ser esse vetor desnecessário no db)                                 
+      {
+        "produto": "Produto Produzido",
+        "quantidadeProduzida": "0.000",
+        "quantidadeMeta": "10000"
+      }
+    ],
+    "comiteColTitle": "",               //Vai ser montado pelo .java intermediário, carregando diretamente de 
+                                        instance
+    "propostaTrabalhadores": {},        //Vai ser montado pelo .java intermediário, ver se crio tabela
+                                        separada (pra evitar salvar vetor como .json dentro do campo)
+    "vetorTecnologico": [],                 //Vai ser montado pelo .java intermediário, carregando do
+                                            tensor tecnologico associado
+    "totalSocialWorkDessaJurisdicao": 0,    //Vai ser montado pelo .java intermediário, carregando diretamente 
+                                            de instance
+    "comiteAssociadoDeTrabalhador": "",     //Vai ser montado pelo .java intermediário, carregando diretamente de 
+                                            instance
+    "associacaoDeMoradoresAssociadaDeTrabalhador": "",  //Vai ser montado pelo .java intermediário, de tabela 
+                                                        associada a ser criada, com nomes das associações de moradores (etc)
+    "partipacaoIndividualEstimadaNoTrabalhoSocial": 0,  //Vai ser montado pelo .java intermediário, carregando 
+                                                        diretamente de instance
+    "hoursAtElectronicPoint": 0,    //Vai ser montado pelo .java intermediário, carregando diretamente de instance
+    "effectivelyPlannedProductionTime": 0   //Vai ser montado pelo .java intermediário, carregando diretamente de 
+                                            instance
+
+
+
+
+
+
+
+
+
+
+
 
 6.2.1) a) Desenhar, a partir das 3 telas (conselho, comitê e usuário não conselheiro) o banco de dados.
 b) Com o desenho do banco de dados em mãos ir para as funções fetch que baixam os dados e fazem as buscas, as pesquisas, e ver se o desenho responde a todas elas (e como ele responderia, se fosse uma query ou não, etc).
