@@ -225,7 +225,6 @@ Colocar um .java no servidor, intermediário, que, depois que o .java correto pe
                                 carregando diretamente de instance
     "estoqueDemanda": [],       //Vai ser montado pelo .java intermediário,
                                 ver se precisa criar mais uma tabela
-    teste
     "producaoMeta": [           //Vai ser montado pelo .java intermediário, carregando diretamente de instance. 
                                 separar campos, mas juntar apenas aqui (ao invés de ser esse vetor desnecessário no db)                                 
       {
