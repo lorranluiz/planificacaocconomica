@@ -260,11 +260,28 @@ Colocar um .java no servidor, intermediário, que, depois que o .java correto pe
 
 [~] f.1) Java no servidor que irá consultar e alimentar as chamadas de fetch (para leitura e escrita no banco de dados).
       - Começar a desenvolver o Java.
-      
+      - Passar dados de data.json para banco de dados
 
+      - Criar ambiente Servidor Java Web
+        - Hello World Servidor Java Web
+        - Conectar com PostgreSQL
+          - JPA, Criar classes já conectados com tabelas
+            - Hello World Banco de Dados
+
+      - Pensar script iterar dados, alimentar objetos e persistir na tabela, um por um, com barra de progresso.
+
+      - Carregar e mostrar na tabela alguns dados, com dependências, etc, tudo orientado a objetos.
+
+      - Ver o que fetch solicita carregar, montar json com conteúdo solicitado (a partir de objetos carregados, criar classe java intermediária (temporária talvez) pra cuidar especificamente disso).
+
+      - Criar classe que recebe fetch para gravar, que faz o processo inverso, passa para objetos e persiste. Ver se está persistindo.
+
+      - Ver possibilidade de refletir esses objetos no JavaScript (os que forem necessários), em teste, código a parte. Se sim, criar código que calcula a matriz de otimização usando esses objetos. Mas manter o micro processamento no cliente, ao invés de centralizado (o processamento).
+
+      - Ver se vai otimizar velocidade de processamento de dados usar esses objetos no cliente, no JavaScript, se sim, usar, se não, só otimizar o que já é feito, mas mantendo estrutura de código.
 
 g) Testar e ver inconsistências, encontrá-las, e ver como resolvê-las. Resolvê-las todas, o sistema deve voltar funcionar exatamente como antes, mas mais rápido e fluido. Mais fluido, natural, profissional, aumentar a usabilidade, profissionalizar a usabilidade dos dados.
-h) Preparar para a próxima etapa, ver se script python responde corretamente à mesma consulta, fazer outro que faça a mesma consulta, mudando a forma de leitura de dados nele, mas entregando a mesma saída, mantendo todo o resto na camada javascript e do cliente (que deve continuar usando .json para comunicação, se possível, mesmo que/se integrado com query ou Hibernate em algum momento, em alguns trechos).
+h) Preparar para a próxima etapa, ver se script python responde corretamente à mesma consulta (integração python-Java, python para processamento de dados matemáticos, gráficos, etc), fazer outro que faça a mesma consulta, mudando a forma de leitura de dados nele, mas entregando a mesma saída, mantendo todo o resto na camada javascript e do cliente (que deve continuar usando .json para comunicação, se possível, mesmo que/se integrado com query ou Hibernate em algum momento, em alguns trechos).
 i.1) Tendo funcionado, tendo atendido isso, passar para a próxima etapa, que é a preparação para novos scripts python de consulta e análise de dados, com geração de gráficos otimizados (personalizados, se possível, mais pra frente) etc.
 i.2) [*** NOVA FUNCIONALIDADE, SERÁ NOVO SETOR INDEPENDENTE AQUI DO ARQUIVO DE ROADMAP]
         De repente com uma tabela, mais pra frente, uma tela ou trecho de tela, janela modal ou coisa do tipo, com um formulário, com todos os tipos de consultas possíveis e saídas possívels, com um python que responda a isso e gere a saída desejada, formatada, colorida, com textos, informações etc.
