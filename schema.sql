@@ -109,7 +109,9 @@ CREATE TABLE public.instance (
     committee_name character varying(150),
     total_social_work_of_this_jurisdiction integer DEFAULT 0,
     id_associated_worker_committee integer,
-    id_associated_worker_residents_association integer
+    id_associated_worker_residents_association integer,
+    estimated_individual_participation_in_social_work numeric(20,10),
+    hours_at_electronic_point numeric(10,2)
 );
 
 
@@ -196,7 +198,21 @@ COMMENT ON COLUMN public.instance.id_associated_worker_committee IS 'Trabalhador
 -- Name: COLUMN instance.id_associated_worker_residents_association; Type: COMMENT; Schema: public; Owner: postgres
 --
 
-COMMENT ON COLUMN public.instance.id_associated_worker_residents_association IS 'Referência à Associação de Moradores associada a este Trabalhador (instância do tipo Trabalhador). Pode ser NULL, mas senão, deve corresponder a um id existente.';
+COMMENT ON COLUMN public.instance.id_associated_worker_residents_association IS 'Trabalhador não-conselheiro. Referência à Associação de Moradores associada a este Trabalhador (instância do tipo Trabalhador). Pode ser NULL, mas senão, deve corresponder a um id existente.';
+
+
+--
+-- Name: COLUMN instance.estimated_individual_participation_in_social_work; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.instance.estimated_individual_participation_in_social_work IS 'Trabalhador não-conselheiro. partipacaoIndividualEstimadaNoTrabalhoSocial - Estimativa da participação individual no trabalho social';
+
+
+--
+-- Name: COLUMN instance.hours_at_electronic_point; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.instance.hours_at_electronic_point IS 'Trabalhador não-conselheiro. Horas registradas no ponto eletrônico do Trabalhador';
 
 
 --
