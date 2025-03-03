@@ -251,23 +251,18 @@ Colocar um .java no servidor, intermediário, que, depois que o .java correto pe
     "effectivelyPlannedProductionTime": 0   //Vai ser montado pelo .java intermediário, carregando diretamente de 
                                             instance
 
+6.2.1) [ok] a) Desenhar, a partir das 3 telas (conselho, comitê e usuário não conselheiro) o banco de dados.
+[ok] b) Com o desenho do banco de dados em mãos ir para as funções fetch que baixam os dados e fazem as buscas, as pesquisas, e ver se o desenho responde a todas elas (e como ele responderia, se fosse uma query ou não, etc).
+[ok] c) A partir disso, ver a partir das querys possíveis ou a partir das bibliotecas possíveis (tipo Hibernate) quais seriam as que menos causariam impacto no código, nas funções fetch, para consulta de dados (de preferência alguma que não precise de query, tipo Hibernate para javascript).
+[ok] d) A partir disso, escolher a tecnologia que usa isso, o método de consulta (se query ou tipo Hibernate), escolher com base na tecnologia que seja mais fácil ou mais automático (se já existe, se possível) de fazer a transição dos dados de .json para essa tecnologia, de maneira automática e consistente (seguindo ou dentro do modelo desenhado (ou modelado) de banco de dados inicialmente).
+[ok] e) A partir disso, desenvolver os códigos ou scripts para essa transição (se já não tiver nada que faça automaticamente ou que facilite isso, mas provavelmente escrever em detalhes permite melhor modelagem), e executá-los, testá-los se estão consistentes etc (tudo isso com os dados reduzidos de data.json, não o completo ainda).
+[~] f) Começar a passar então os trechos de código fetch para a nova forma de chamada e consulta/busca de dados (se com query ou tipo Hibernate).
+
+[~] f.1) Java no servidor que irá consultar e alimentar as chamadas de fetch (para leitura e escrita no banco de dados).
+      - Começar a desenvolver o Java.
+      
 
 
-
-
-
-
-
-
-
-
-
-6.2.1) a) Desenhar, a partir das 3 telas (conselho, comitê e usuário não conselheiro) o banco de dados.
-b) Com o desenho do banco de dados em mãos ir para as funções fetch que baixam os dados e fazem as buscas, as pesquisas, e ver se o desenho responde a todas elas (e como ele responderia, se fosse uma query ou não, etc).
-c) A partir disso, ver a partir das querys possíveis ou a partir das bibliotecas possíveis (tipo Hibernate) quais seriam as que menos causariam impacto no código, nas funções fetch, para consulta de dados (de preferência alguma que não precise de query, tipo Hibernate para javascript).
-d) A partir disso, escolher a tecnologia que usa isso, o método de consulta (se query ou tipo Hibernate), escolher com base na tecnologia que seja mais fácil ou mais automático (se já existe, se possível) de fazer a transição dos dados de .json para essa tecnologia, de maneira automática e consistente (seguindo ou dentro do modelo desenhado (ou modelado) de banco de dados inicialmente).
-e) A partir disso, desenvolver os códigos ou scripts para essa transição (se já não tiver nada que faça automaticamente ou que facilite isso, mas provavelmente escrever em detalhes permite melhor modelagem), e executá-los, testá-los se estão consistentes etc (tudo isso com os dados reduzidos de data.json, não o completo ainda).
-f) Começar a passar então os trechos de código fetch para a nova forma de chamada e consulta/busca de dados (se com query ou tipo Hibernate).
 g) Testar e ver inconsistências, encontrá-las, e ver como resolvê-las. Resolvê-las todas, o sistema deve voltar funcionar exatamente como antes, mas mais rápido e fluido. Mais fluido, natural, profissional, aumentar a usabilidade, profissionalizar a usabilidade dos dados.
 h) Preparar para a próxima etapa, ver se script python responde corretamente à mesma consulta, fazer outro que faça a mesma consulta, mudando a forma de leitura de dados nele, mas entregando a mesma saída, mantendo todo o resto na camada javascript e do cliente (que deve continuar usando .json para comunicação, se possível, mesmo que/se integrado com query ou Hibernate em algum momento, em alguns trechos).
 i.1) Tendo funcionado, tendo atendido isso, passar para a próxima etapa, que é a preparação para novos scripts python de consulta e análise de dados, com geração de gráficos otimizados (personalizados, se possível, mais pra frente) etc.
