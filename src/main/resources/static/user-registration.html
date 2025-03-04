@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Cadastro de Usuário</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .alert {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .hidden {
+            display: none;
+        }
+        pre {
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Teste de Cadastro (user_test)</h1>
+        
+        <div id="successAlert" class="alert alert-success hidden">
+            Usuário teste criado com sucesso!
+        </div>
+        
+        <div id="errorAlert" class="alert alert-danger hidden">
+            Erro ao criar usuário teste.
+        </div>
+        
+        <form id="userForm">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password">
+            </div>
+            
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name">
+            </div>
+            
+            <div class="form-group">
+                <label for="pronoun">Pronoun:</label>
+                <input type="text" id="pronoun" name="pronoun" placeholder="e.g. he/him, she/her, they/them">
+            </div>
+            
+            <div class="form-group">
+                <label for="type">User Type (as string):</label>
+                <select id="type" name="type">
+                    <option value="ADMIN">ADMIN</option>
+                    <option value="COUNCILLOR">COUNCILLOR</option>
+                    <option value="NON-COUNCILLOR">NON-COUNCILLOR</option>
+                    <option value="WORKER">WORKER</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="instanceId">Instance ID (as string):</label>
+                <input type="text" id="instanceId" name="instanceId" placeholder="Digite o ID da instância">
+            </div>
+            
+            <button type="submit">Salvar Dados de Teste</button>
+        </form>
+
+        <h3>Resultado:</h3>
+        <pre id="resultJson">Nenhum dado enviado ainda.</pre>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Form submission
+            document.getElementById('userForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Hide alerts
+                document.getElementById('successAlert').classList.add('hidden');
+                document.getElementById('errorAlert').classList.add('hidden');
+                
+                const userData = {
+                    username: document.getElementById('username').value,
+                    password: document.getElementById('password').value,
+                    name: document.getElementById('name').value,
+                    pronoun: document.getElementById('pronoun').value,
+                    type: document.getElementById('type').value,
+                    instanceId: document.getElementById('instanceId').value
+                };
+                
+                // Mostrar os dados que serão enviados
+                document.getElementById('resultJson').textContent = JSON.stringify(userData, null, 2);
+                
+                fetch('/api/user-test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Status: ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Show success message
+                    document.getElementById('successAlert').textContent = 
+                        'Usuário teste criado com sucesso! ID: ' + data.id;
+                    document.getElementById('successAlert').classList.remove('hidden');
+                    
+                    // Mostrar resposta completa
+                    document.getElementById('resultJson').textContent = 
+                        'Enviado: ' + JSON.stringify(userData, null, 2) + 
+                        '\n\nResposta: ' + JSON.stringify(data, null, 2);
+                })
+                .catch(error => {
+                    // Show error message
+                    document.getElementById('errorAlert').textContent = 
+                        'Erro ao criar usuário teste: ' + error.message;
+                    document.getElementById('errorAlert').classList.remove('hidden');
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

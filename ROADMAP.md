@@ -259,18 +259,18 @@ Colocar um .java no servidor, intermediário, que, depois que o .java correto pe
 [~] f) Começar a passar então os trechos de código fetch para a nova forma de chamada e consulta/busca de dados (se com query ou tipo Hibernate).
 
 [~] f.1) Java no servidor que irá consultar e alimentar as chamadas de fetch (para leitura e escrita no banco de dados).
-      - Começar a desenvolver o Java.
-      - Passar dados de data.json para banco de dados
+      [~] - Começar a desenvolver o Java.
+      [~] - Passar dados de data.json para banco de dados
 
-      - Criar ambiente Servidor Java Web
-        - Hello World Servidor Java Web
-        - Conectar com PostgreSQL
-          - JPA, Criar classes já conectados com tabelas
-            - Hello World Banco de Dados
+      [ok] - Criar ambiente Servidor Java Web
+        [ok] - Hello World Servidor Java Web
+        [ok] - Conectar com PostgreSQL
+          [ok] - JPA, Criar classes já conectados com tabelas
+            [ok] - Hello World Banco de Dados
 
-      - Pensar script iterar dados, alimentar objetos e persistir na tabela, um por um, com barra de progresso.
+      [~] - Pensar script iterar dados, alimentar objetos e persistir na tabela, um por um, com barra de progresso.
 
-      - Carregar e mostrar na tabela alguns dados, com dependências, etc, tudo orientado a objetos.
+      [~] - Carregar e mostrar na tabela alguns dados, com dependências, etc, tudo orientado a objetos.
 
       - Ver o que fetch solicita carregar, montar json com conteúdo solicitado (a partir de objetos carregados, criar classe java intermediária (temporária talvez) pra cuidar especificamente disso).
 
