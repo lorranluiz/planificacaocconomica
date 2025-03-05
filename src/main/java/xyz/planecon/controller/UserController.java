@@ -6,6 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import xyz.planecon.model.entity.Instance;
 import xyz.planecon.model.entity.User;
+import xyz.planecon.model.enums.PronounType;
 import xyz.planecon.model.enums.UserType;
 import xyz.planecon.service.InstanceService;
 import xyz.planecon.service.UserService;
@@ -43,7 +44,7 @@ public class UserController {
             user.setUsername((String) userData.get("username"));
             user.setPassword((String) userData.get("password"));
             user.setName((String) userData.get("name"));
-            user.setPronoun((String) userData.get("pronoun"));
+            user.setPronoun(PronounType.valueOf((String) userData.get("pronoun")));
             user.setType(UserType.valueOf((String) userData.get("type")));
             user.setCreatedAt(LocalDateTime.now());
             
@@ -66,6 +67,13 @@ public class UserController {
     @GetMapping("/types")
     public List<String> getUserTypes() {
         return Arrays.stream(UserType.values())
+                .map(Enum::name)
+                .toList();
+    }
+    
+    @GetMapping("/pronouns")
+    public List<String> getPronounTypes() {
+        return Arrays.stream(PronounType.values())
                 .map(Enum::name)
                 .toList();
     }

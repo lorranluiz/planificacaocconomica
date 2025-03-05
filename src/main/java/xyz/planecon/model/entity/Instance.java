@@ -6,7 +6,9 @@ import xyz.planecon.model.enums.InstanceType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -21,14 +23,14 @@ public class Instance {
     private LocalDateTime createdAt;
     
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "type", nullable = false)
     private InstanceType type;
     
     @ManyToOne
     @JoinColumn(name = "id_social_materialization")
     private SocialMaterialization socialMaterialization;
     
-    @Column(name = "worker_effective_limit", nullable = false)
+    @Column(name = "worker_effective_limit")
     private Integer workerEffectiveLimit;
     
     @ManyToOne
@@ -45,7 +47,7 @@ public class Instance {
     @Column(name = "target_quantity", precision = 16, scale = 2)
     private BigDecimal targetQuantity;
     
-    @Column(name = "committee_name", length = 150)
+    @Column(name = "committee_name")
     private String committeeName;
     
     @Column(name = "total_social_work_of_this_jurisdiction")
@@ -67,20 +69,23 @@ public class Instance {
     
     // Relationships
     @OneToMany(mappedBy = "instance")
-    private Set<DemandStock> demandStocks = new HashSet<>();
+    private List<DemandStock> demandStocks;
     
     @OneToMany(mappedBy = "instance")
-    private Set<DemandVector> demandVectors = new HashSet<>();
+    private List<DemandVector> demandVectors;
+    
+    // Remova ou corrija este mapeamento, pois não existe 'instance' em TechnologicalTensor
+    /*
+    @OneToMany(mappedBy = "instance")
+    private List<TechnologicalTensor> technologicalTensors;
+    */
     
     @OneToMany(mappedBy = "instance")
-    private Set<TechnologicalTensor> technologicalTensors = new HashSet<>();
-    
-    @OneToMany(mappedBy = "instance")
-    private Set<OptimizationInputsResults> optimizationResults = new HashSet<>();
+    private List<OptimizationInputsResults> optimizationResults = new ArrayList<>();
     
     @OneToMany(mappedBy = "instance")
     private Set<WorkersProposal> workersProposals = new HashSet<>();
     
     @OneToMany(mappedBy = "instance")
-    private Set<User> users = new HashSet<>();
+    private List<User> users;
 }

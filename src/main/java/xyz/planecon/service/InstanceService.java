@@ -1,40 +1,34 @@
 package xyz.planecon.service;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import xyz.planecon.model.entity.Instance;
-import xyz.planecon.model.enums.InstanceType;
 import xyz.planecon.repository.InstanceRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 @Service
-@RequiredArgsConstructor
 public class InstanceService {
-    private final InstanceRepository instanceRepository;
-    
+
+    @Autowired
+    private InstanceRepository instanceRepository;
+
     public List<Instance> getAllInstances() {
-        return instanceRepository.findAll();
+        // Converter Iterable para List usando StreamSupport
+        return StreamSupport.stream(instanceRepository.findAll().spliterator(), false)
+                .collect(Collectors.toList());
     }
-    
+
     public Optional<Instance> getInstanceById(Integer id) {
         return instanceRepository.findById(id);
     }
     
-    public List<Instance> getInstancesByType(InstanceType type) {
-        return instanceRepository.findByType(type);
-    }
-    
-    public List<Instance> getInstancesByCouncil(Instance council) {
-        return instanceRepository.findByPopularCouncilAssociatedWithCommitteeOrWorker(council);
-    }
-    
+    // Adicionar este método para corrigir o erro de compilação
     public Instance saveInstance(Instance instance) {
         return instanceRepository.save(instance);
-    }
-    
-    public void deleteInstance(Integer id) {
-        instanceRepository.deleteById(id);
     }
 }

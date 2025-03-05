@@ -23,7 +23,7 @@ public class SocialMaterialization {
     private LocalDateTime createdAt;
     
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "type", nullable = false)
     private SocialMaterializationType type;
     
     @ManyToOne

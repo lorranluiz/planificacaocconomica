@@ -3,6 +3,7 @@ package xyz.planecon.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -16,6 +17,9 @@ public class Sector {
     
     @Column(name = "name", length = 100, nullable = false)
     private String name;
+    
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
     
     @OneToMany(mappedBy = "sector")
     private Set<SocialMaterialization> socialMaterializations = new HashSet<>();

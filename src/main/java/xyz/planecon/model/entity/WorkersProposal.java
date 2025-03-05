@@ -20,12 +20,20 @@ public class WorkersProposal {
     @JoinColumn(name = "id_instance", insertable = false, updatable = false)
     private Instance instance;
     
-    @ManyToOne
-    @JoinColumn(name = "id_social_materialization", insertable = false, updatable = false)
-    private SocialMaterialization socialMaterialization;
+    @Column(name = "worker_limit", nullable = false)
+    private Integer workerLimit;
     
-    @Column(name = "quantity", precision = 16, scale = 2)
-    private BigDecimal quantity;
+    @Column(name = "worker_hours", nullable = false)
+    private BigDecimal workerHours;
+    
+    @Column(name = "production_time", nullable = false)
+    private BigDecimal productionTime;
+    
+    @Column(name = "night_shift", nullable = false)
+    private Boolean nightShift;
+    
+    @Column(name = "weekly_scale", nullable = false)
+    private Integer weeklyScale;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
@@ -38,8 +46,5 @@ public class WorkersProposal {
         
         @Column(name = "id_instance")
         private Integer instanceId;
-        
-        @Column(name = "id_social_materialization")
-        private Integer socialMaterializationId;
     }
 }

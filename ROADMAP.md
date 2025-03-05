@@ -268,6 +268,20 @@ Colocar um .java no servidor, intermediário, que, depois que o .java correto pe
           [ok] - JPA, Criar classes já conectados com tabelas
             [ok] - Hello World Banco de Dados
 
+      - Ver campos nulos (no db designer), ver campo a campo, e suas relações, e pedir pra gerar script python que carrega esses campos com valores existentes nas tabelas com que esses campos se relacionam, de modo que não fique mais nenhum campo nulo no banco de dados, e todos sejam preenchidos seguindo as condições de relacionamento.
+
+      - Depois fazer telas com objetos para carregar e para editar e salvar esses campos nessas tabelas, respeitando os tipos e condições (carregando listas de opções, quando relações com outras tabelas). Fazer isso com todas, pois essas páginas e objetos serão a base para a implementação real no código com a lógica e o sistema de planificação já prontos.
+
+      - Por último, a partir das páginas e objetos anteriores, criar código Java e página que recebe e exibe os objetos como json.
+      Depois criar objetos Java exatamente partir do data.json (pedir script py que faca arquivo .Java com esses objetos, de modo que a resposta do servidor seja um .json exatamente com a estrutura de data.json, inicialmente sem dados, só a estrutura), criar página que carrega e exibe esse data.json gerado na hora (sem armazenar em disco, é "virtual" e temporário, só para a requisição).
+      Depois fazer outro .java juntando os objetos que já carregam os dados com a geração do data.json "virtual" temporário requisitado. Os dados carregados nos objetos devem ser ou colocados diretamente nos respectivos campos dos objetos do data.json ou processados para preencher os objetos do data.json (como a matriz tecnológica e os vetores de demanda, principalmente, e outros que existirem e forem necessários). Colocar consulta por usuário, que carrega a instância dele e todos esses dados e monta o data.json da requisição desse usuário e exibe na tela. Pode ter um campo nessa tela, sem nada carregado inicialmente, para login e senha do usuário, dali, carrega os dados e exibe o data.json gerado na tela.
+      Dali, criar o .Java que recebe os dados da tela de login real e retorna esse data.json da requisição para o fetch que já existe no login do sistema real, que solicita os dados de data.json do servidor, se o usuário e senha estiverem corretos e existirem (ver apenas a requisição para conferir se ele existe, e implementar no java do servidor). Usar a lógica de rotas que já existe no Java e já funciona, de @rota na anotação e a função que deve ser executada e retorna o data.json esperado em baixo (com mero return desde texto de data.json gerado).
+
+      - Depois que tiver tudo funcionando como antes, fazer script preciso que leia data.json e popular o banco, mas garantindo que nenhum campo fique nulo, preenchendo com ids de valores que existem nas tabelas relacionadas, e nos tipos corretos. Fazer e refazer, testar até passar tudo corretamente. Começar com poucos dados, pra testar e ganhar tempo, depois finalizar testando até concluir com os dados do data.json completo, com os dados parciais de todo o mundo (todos os continentes e dentro deles).
+      Depois testar sistema, logar e ver se carrega, se carregar, ver a velocidade de uso (carregando e salvando dados) e comparar com antes.
+
+      - Se carregar e salvar tudo corretamente, e todos os dados do data.json grande já estiverem no novo banco de dados, a missão estará cumprida. Ir para próximas etapas (profissionalização do tema, tradução, documentação, artigos, etc).
+
       [~] - Pensar script iterar dados, alimentar objetos e persistir na tabela, um por um, com barra de progresso.
 
       [~] - Carregar e mostrar na tabela alguns dados, com dependências, etc, tudo orientado a objetos.

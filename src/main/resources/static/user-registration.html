@@ -74,6 +74,17 @@
             border-radius: 4px;
             overflow-x: auto;
         }
+        .loading {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+        }
+        .info-box {
+            background-color: #e7f3fe;
+            border-left: 5px solid #2196F3;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -105,23 +116,32 @@
             </div>
             
             <div class="form-group">
-                <label for="pronoun">Pronoun:</label>
-                <input type="text" id="pronoun" name="pronoun" placeholder="e.g. he/him, she/her, they/them">
-            </div>
-            
-            <div class="form-group">
-                <label for="type">User Type (as string):</label>
-                <select id="type" name="type">
-                    <option value="ADMIN">ADMIN</option>
-                    <option value="COUNCILLOR">COUNCILLOR</option>
-                    <option value="NON-COUNCILLOR">NON-COUNCILLOR</option>
-                    <option value="WORKER">WORKER</option>
+                <label for="pronoun">Pronoun Type:</label>
+                <select id="pronoun" name="pronoun">
+                    <option value="HE_HIM">HE_HIM</option>
+                    <option value="SHE_HER">SHE_HER</option>
+                    <option value="THEY_THEM">THEY_THEM</option>
                 </select>
             </div>
             
             <div class="form-group">
-                <label for="instanceId">Instance ID (as string):</label>
-                <input type="text" id="instanceId" name="instanceId" placeholder="Digite o ID da instância">
+                <label for="type">User Type:</label>
+                <select id="type" name="type">
+                    <option value="COUNCILLOR">COUNCILLOR</option>
+                    <option value="NON_COUNCILLOR">NON_COUNCILLOR</option>
+                </select>
+            </div>
+            
+            <div id="instanceContainer" class="form-group">
+                <label for="instanceId">Instance:</label>
+                <select id="instanceId" name="instanceId">
+                    <option value="">Carregando instâncias...</option>
+                </select>
+                <div id="instanceLoading" class="loading">Carregando lista de instâncias...</div>
+            </div>
+            
+            <div id="instanceInfoBox" class="info-box hidden">
+                <p>Uma nova instância WORKER será criada automaticamente para este usuário NON_COUNCILLOR.</p>
             </div>
             
             <button type="submit">Salvar Dados de Teste</button>
@@ -133,6 +153,103 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Carregar todas as instâncias ao iniciar a página
+            let allInstances = []; // Armazenar todas as instâncias
+            
+            // Função para buscar instâncias do servidor
+            function fetchInstances() {
+                document.getElementById('instanceLoading').style.display = 'block';
+                const instanceSelect = document.getElementById('instanceId');
+                instanceSelect.innerHTML = '<option value="">Carregando...</option>';
+                
+                fetch('/api/instances-simple')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Falha ao carregar instâncias');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Armazenar todas as instâncias
+                        allInstances = data;
+                        
+                        // Verificar e atualizar a visualização com base no tipo de usuário selecionado
+                        updateUserTypeView();
+                        
+                        // Esconder mensagem de carregamento
+                        document.getElementById('instanceLoading').style.display = 'none';
+                    })
+                    .catch(error => {
+                        instanceSelect.innerHTML = '<option value="">Erro ao carregar instâncias</option>';
+                        document.getElementById('errorAlert').textContent = 'Erro ao carregar instâncias: ' + error.message;
+                        document.getElementById('errorAlert').classList.remove('hidden');
+                        document.getElementById('instanceLoading').style.display = 'none';
+                        console.error('Error:', error);
+                    });
+            }
+            
+            // Função para atualizar opções de instância com base no tipo de usuário
+            function updateInstanceOptions() {
+                const instanceSelect = document.getElementById('instanceId');
+                
+                // Limpar opções anteriores
+                instanceSelect.innerHTML = '';
+                
+                // Adicionar opção padrão
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Selecione uma instância';
+                instanceSelect.appendChild(defaultOption);
+                
+                // Filtrar instâncias do tipo COUNCIL ou COMMITTEE
+                const filteredInstances = allInstances.filter(instance => 
+                    instance.type === 'COUNCIL' || instance.type === 'COMMITTEE'
+                );
+                
+                // Adicionar instâncias filtradas
+                filteredInstances.forEach(instance => {
+                    const option = document.createElement('option');
+                    option.value = instance.id;
+                    
+                    // Formatação do texto da opção baseada no tipo de instância
+                    let optionText = `${instance.id} - `;
+                    if (instance.type === 'COMMITTEE' && instance.committeeName) {
+                        optionText += `${instance.committeeName} (${instance.type})`;
+                    } else if (instance.type === 'COUNCIL') {
+                        optionText += `Council ${instance.id} (${instance.type})`;
+                    } else {
+                        optionText += `Instance ${instance.id} (${instance.type})`;
+                    }
+                    
+                    option.textContent = optionText;
+                    instanceSelect.appendChild(option);
+                });
+            }
+            
+            // Função para atualizar a visibilidade dos elementos com base no tipo de usuário
+            function updateUserTypeView() {
+                const userType = document.getElementById('type').value;
+                const instanceContainer = document.getElementById('instanceContainer');
+                const instanceInfoBox = document.getElementById('instanceInfoBox');
+                
+                if (userType === 'COUNCILLOR') {
+                    // Para COUNCILLOR, mostrar o dropdown de instâncias e esconder a info box
+                    instanceContainer.classList.remove('hidden');
+                    instanceInfoBox.classList.add('hidden');
+                    updateInstanceOptions(); // Carregar opções de instância para COUNCILLOR
+                } else {
+                    // Para NON_COUNCILLOR, esconder o dropdown de instâncias e mostrar a info box
+                    instanceContainer.classList.add('hidden');
+                    instanceInfoBox.classList.remove('hidden');
+                }
+            }
+            
+            // Adicionar listener para mudanças no tipo de usuário
+            document.getElementById('type').addEventListener('change', updateUserTypeView);
+            
+            // Carregar instâncias ao iniciar a página
+            fetchInstances();
+            
             // Form submission
             document.getElementById('userForm').addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -141,14 +258,35 @@
                 document.getElementById('successAlert').classList.add('hidden');
                 document.getElementById('errorAlert').classList.add('hidden');
                 
+                const userType = document.getElementById('type').value;
+                
+                // Construir o objeto userData com base no tipo de usuário
                 const userData = {
                     username: document.getElementById('username').value,
                     password: document.getElementById('password').value,
                     name: document.getElementById('name').value,
                     pronoun: document.getElementById('pronoun').value,
-                    type: document.getElementById('type').value,
-                    instanceId: document.getElementById('instanceId').value
+                    type: userType
                 };
+                
+                // Se for COUNCILLOR, incluir o instanceId
+                if (userType === 'COUNCILLOR') {
+                    const instanceId = document.getElementById('instanceId').value;
+                    if (!instanceId) {
+                        document.getElementById('errorAlert').textContent = 'Selecione uma instância.';
+                        document.getElementById('errorAlert').classList.remove('hidden');
+                        return;
+                    }
+                    userData.instanceId = parseInt(instanceId);
+                }
+                // Para NON_COUNCILLOR, não é necessário incluir instanceId
+                
+                // Validar campos obrigatórios
+                if (!userData.username || !userData.password || !userData.name) {
+                    document.getElementById('errorAlert').textContent = 'Todos os campos obrigatórios devem ser preenchidos.';
+                    document.getElementById('errorAlert').classList.remove('hidden');
+                    return;
+                }
                 
                 // Mostrar os dados que serão enviados
                 document.getElementById('resultJson').textContent = JSON.stringify(userData, null, 2);
@@ -162,20 +300,33 @@
                 })
                 .then(response => {
                     if (!response.ok) {
-                        throw new Error('Status: ' + response.status);
+                        return response.text().then(text => {
+                            throw new Error('Status: ' + response.status + ' - ' + text);
+                        });
                     }
                     return response.json();
                 })
                 .then(data => {
                     // Show success message
-                    document.getElementById('successAlert').textContent = 
-                        'Usuário teste criado com sucesso! ID: ' + data.id;
+                    let successMessage = 'Usuário teste criado com sucesso! ID: ' + data.id;
+                    
+                    // Adicionar informação adicional para NON_COUNCILLOR
+                    if (userData.type === 'NON_COUNCILLOR') {
+                        successMessage += '\nUma nova instância WORKER foi criada automaticamente (ID: ' + data.instanceId + ').';
+                    }
+                    
+                    document.getElementById('successAlert').textContent = successMessage;
                     document.getElementById('successAlert').classList.remove('hidden');
                     
                     // Mostrar resposta completa
                     document.getElementById('resultJson').textContent = 
                         'Enviado: ' + JSON.stringify(userData, null, 2) + 
                         '\n\nResposta: ' + JSON.stringify(data, null, 2);
+                    
+                    // Recarregar instâncias para atualizar a lista se necessário
+                    if (userData.type === 'NON_COUNCILLOR') {
+                        fetchInstances();
+                    }
                 })
                 .catch(error => {
                     // Show error message

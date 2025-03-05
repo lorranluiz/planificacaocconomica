@@ -1,7 +1,9 @@
 package xyz.planecon.model.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
@@ -12,6 +14,8 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "optimization_inputs_results")
+@NoArgsConstructor
+@AllArgsConstructor
 public class OptimizationInputsResults {
     @EmbeddedId
     private OptimizationInputsResultsId id;
@@ -62,8 +66,19 @@ public class OptimizationInputsResults {
     @Column(name = "minimum_production_time", precision = 10, scale = 2, nullable = false)
     private BigDecimal minimumProductionTime;
     
+    // Modificar o tipo do campo
     @Column(name = "total_employment_period", nullable = false)
-    private Duration totalEmploymentPeriod;
+    private Long totalEmploymentPeriodSeconds; // Armazenado em segundos
+    
+    // Métodos helper para converter de/para Duration (opcionais)
+    @Transient // Não será persistido no banco
+    public Duration getTotalEmploymentPeriodAsDuration() {
+        return totalEmploymentPeriodSeconds != null ? Duration.ofSeconds(totalEmploymentPeriodSeconds) : null;
+    }
+
+    public void setTotalEmploymentPeriodFromDuration(Duration duration) {
+        this.totalEmploymentPeriodSeconds = duration != null ? duration.getSeconds() : null;
+    }
     
     @Column(name = "planned_final_demand", precision = 16, scale = 6, nullable = false)
     private BigDecimal plannedFinalDemand;
@@ -73,6 +88,8 @@ public class OptimizationInputsResults {
     
     @Data
     @Embeddable
+    @NoArgsConstructor
+    @AllArgsConstructor
     @EqualsAndHashCode
     public static class OptimizationInputsResultsId implements Serializable {
         private static final long serialVersionUID = 1L;

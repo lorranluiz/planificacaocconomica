@@ -1,59 +1,70 @@
 package xyz.planecon.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import xyz.planecon.model.entity.Instance;
 import xyz.planecon.model.enums.InstanceType;
+import xyz.planecon.repository.InstanceRepository;
 import xyz.planecon.service.InstanceService;
+import xyz.planecon.dto.InstanceDto;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/instances")
+@RequestMapping("/api")
 @RequiredArgsConstructor
 public class InstanceController {
     private final InstanceService instanceService;
-    
-    @GetMapping
-    public List<Instance> getAllInstances() {
-        return instanceService.getAllInstances();
+
+    @Autowired
+    private InstanceRepository instanceRepository;
+
+    @GetMapping("/instances")
+    public ResponseEntity<List<InstanceDto>> getAllInstances() {
+        List<Instance> instances = (List<Instance>) instanceRepository.findAll();
+        List<InstanceDto> instanceDtos = instances.stream()
+            .map(InstanceDto::fromEntity)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(instanceDtos);
     }
-    
-    @GetMapping("/{id}")
-    public ResponseEntity<Instance> getInstanceById(@PathVariable Integer id) {
+
+    @GetMapping("/instances/{id}")
+    public ResponseEntity<InstanceDto> getInstanceById(@PathVariable Integer id) {
         return instanceService.getInstanceById(id)
-                .map(ResponseEntity::ok)
+                .map(instance -> ResponseEntity.ok(InstanceDto.fromEntity(instance)))
                 .orElse(ResponseEntity.notFound().build());
     }
-    
-    @GetMapping("/type/{type}")
-    public List<Instance> getInstancesByType(@PathVariable InstanceType type) {
-        return instanceService.getInstancesByType(type);
+
+    @GetMapping("/instances/type/{type}")
+    public ResponseEntity<List<InstanceDto>> getInstancesByType(@PathVariable InstanceType type) {
+        List<Instance> instances = instanceRepository.findByType(type);
+        List<InstanceDto> instanceDtos = instances.stream()
+            .map(InstanceDto::fromEntity)
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(instanceDtos);
     }
-    
-    @PostMapping
-    public Instance createInstance(@RequestBody Instance instance) {
-        return instanceService.saveInstance(instance);
-    }
-    
-    @PutMapping("/{id}")
-    public ResponseEntity<Instance> updateInstance(@PathVariable Integer id, @RequestBody Instance instance) {
+
+    @PutMapping("/instances/{id}")
+    public ResponseEntity<InstanceDto> updateInstance(@PathVariable Integer id, @RequestBody Instance instance) {
         if (!instanceService.getInstanceById(id).isPresent()) {
             return ResponseEntity.notFound().build();
         }
-        
+
         instance.setId(id);
-        return ResponseEntity.ok(instanceService.saveInstance(instance));
+        Instance savedInstance = instanceService.saveInstance(instance);
+        return ResponseEntity.ok(InstanceDto.fromEntity(savedInstance));
     }
     
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/instances/{id}")
     public ResponseEntity<Void> deleteInstance(@PathVariable Integer id) {
         if (!instanceService.getInstanceById(id).isPresent()) {
             return ResponseEntity.notFound().build();
         }
-        
-        instanceService.deleteInstance(id);
+
+        instanceRepository.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

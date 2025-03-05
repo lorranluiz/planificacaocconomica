@@ -1,47 +1,55 @@
 package xyz.planecon.model.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
 @Table(name = "technological_tensor")
+@NoArgsConstructor
+@AllArgsConstructor
 public class TechnologicalTensor {
+    
     @EmbeddedId
     private TechnologicalTensorId id;
     
     @ManyToOne
-    @JoinColumn(name = "id_instance", insertable = false, updatable = false)
+    @MapsId("inputSocialMaterializationId")
+    @JoinColumn(name = "id_production_input", nullable = false)
+    private SocialMaterialization inputSocialMaterialization;
+    
+    @ManyToOne
+    @MapsId("outputSocialMaterializationId")
+    @JoinColumn(name = "id_social_materialization", nullable = false)
+    private SocialMaterialization outputSocialMaterialization;
+    
+    @Column(name = "technical_coefficient_element_value", nullable = false)
+    private BigDecimal technicalCoefficientElementValue;
+
+    @ManyToOne
+    @JoinColumn(name = "id_instance", nullable = false)
     private Instance instance;
-    
-    @ManyToOne
-    @JoinColumn(name = "id_production_input", insertable = false, updatable = false)
-    private SocialMaterialization productionInput;
-    
-    @ManyToOne
-    @JoinColumn(name = "id_production_output", insertable = false, updatable = false)
-    private SocialMaterialization productionOutput;
-    
-    @Column(name = "value", precision = 16, scale = 6)
-    private BigDecimal value;
+
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
     
     @Data
     @Embeddable
-    @EqualsAndHashCode
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class TechnologicalTensorId implements Serializable {
         private static final long serialVersionUID = 1L;
         
-        @Column(name = "id_instance")
-        private Integer instanceId;
-        
         @Column(name = "id_production_input")
-        private Integer productionInputId;
+        private Integer inputSocialMaterializationId;
         
-        @Column(name = "id_production_output")
-        private Integer productionOutputId;
+        @Column(name = "id_social_materialization")
+        private Integer outputSocialMaterializationId;
     }
 }

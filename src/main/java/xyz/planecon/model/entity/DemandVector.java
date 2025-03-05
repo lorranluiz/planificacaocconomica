@@ -1,41 +1,46 @@
 package xyz.planecon.model.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Data
 @Entity
 @Table(name = "demand_vector")
+@NoArgsConstructor
+@AllArgsConstructor
+@IdClass(DemandVector.DemandVectorId.class)
 public class DemandVector {
-    @EmbeddedId
-    private DemandVectorId id;
     
+    @Id
     @ManyToOne
-    @MapsId("instanceId")
-    @JoinColumn(name = "id_instance")
-    private Instance instance;
-    
-    @ManyToOne
-    @MapsId("socialMaterializationId")
-    @JoinColumn(name = "id_social_materialization")
+    @JoinColumn(name = "id_social_materialization", nullable = false)
     private SocialMaterialization socialMaterialization;
     
-    @Column(name = "value")
-    private Double value;
+    @Id
+    @ManyToOne
+    @JoinColumn(name = "id_instance", nullable = false)
+    private Instance instance;
+    
+    @Column(name = "demand", nullable = false)
+    private BigDecimal demand;
+
+    // Adicionar o campo createdAt
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
     
     @Data
-    @Embeddable
-    @EqualsAndHashCode
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class DemandVectorId implements Serializable {
         private static final long serialVersionUID = 1L;
         
-        @Column(name = "id_instance")
-        private Integer instanceId;
-        
-        @Column(name = "id_social_materialization")
-        private Integer socialMaterializationId;
+        private Integer socialMaterialization;
+        private Integer instance;
     }
 }
