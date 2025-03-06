@@ -5,27 +5,219 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Planejamento Econômico</title>
     <style>
+        /* Variáveis de temas */
+        :root {
+            /* Tema Ocean (padrão) */
+            --primary-color: #2c3e50;
+            --primary-color-light: #3498db;
+            --primary-color-dark: #1f2d3d;
+            --secondary-color: #2ecc71;
+            --secondary-color-dark: #27ae60;
+            --text-color: #333;
+            --bg-color: #f5f5f5;
+            --card-bg: #ffffff;
+            --card-border: rgba(0, 0, 0, 0.1);
+            --header-text: #ffffff;
+            --accent-color: #3498db;
+            --error-color: #e74c3c;
+        }
+        
+        /* Tema Night */
+        [data-theme="night"] {
+            --primary-color: #1a1a1a;
+            --primary-color-light: #2c2c2c;
+            --primary-color-dark: #121212;
+            --secondary-color: #444444;
+            --secondary-color-dark: #333333;
+            --text-color: #e0e0e0;
+            --bg-color: #202020;
+            --card-bg: #2c2c2c;
+            --card-border: rgba(255, 255, 255, 0.1);
+            --header-text: #ffffff;
+            --accent-color: #565656;
+            --error-color: #ff6b6b;
+        }
+        
+        /* Tema Sunlight */
+        [data-theme="sunlight"] {
+            --primary-color: #ff7e00;
+            --primary-color-light: #ffb74d;
+            --primary-color-dark: #e65100;
+            --secondary-color: #ffa726;
+            --secondary-color-dark: #fb8c00;
+            --text-color: #4e342e;
+            --bg-color: #fffde7;
+            --card-bg: #fff8e1;
+            --card-border: rgba(255, 126, 0, 0.2);
+            --header-text: #ffffff;
+            --accent-color: #ffb74d;
+            --error-color: #d32f2f;
+        }
+        
+        /* Tema Bolchevick */
+        [data-theme="bolchevick"] {
+            --primary-color: #c62828;
+            --primary-color-light: #e53935;
+            --primary-color-dark: #b71c1c;
+            --secondary-color: #ef5350;
+            --secondary-color-dark: #d32f2f;
+            --text-color: #3e2723;
+            --bg-color: #ffebee;
+            --card-bg: #ffffff;
+            --card-border: rgba(198, 40, 40, 0.2);
+            --header-text: #ffffff;
+            --accent-color: #ef5350;
+            --error-color: #880e4f;
+        }
+        
+        /* Estilos para seletor de temas */
+        .theme-selector {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+        
+        .theme-toggle-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .theme-toggle-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .theme-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 5px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 4px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.16);
+            width: 200px;
+            z-index: 1100;
+            display: none;
+        }
+        
+        .theme-option {
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .theme-option:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .theme-preview {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        
+        .ocean-preview {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+        }
+        
+        .night-preview {
+            background: linear-gradient(135deg, #1a1a1a, #444444);
+        }
+        
+        .sunlight-preview {
+            background: linear-gradient(135deg, #ff7e00, #ffb74d);
+        }
+        
+        .bolchevick-preview {
+            background: linear-gradient(135deg, #c62828, #ef5350);
+        }
+        
+        .theme-name {
+            color: var(--text-color);
+            font-weight: 500;
+        }
+
+        /* Atualização dos estilos existentes para usar variáveis */
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
+            background-color: var(--bg-color);
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             min-height: 100vh;
+            color: var(--text-color);
         }
         
         header {
-            background-color: #2c3e50;
-            color: white;
+            background-color: var(--primary-color);
+            color: var(--header-text);
             padding: 1rem 0;
             text-align: center;
+            position: relative;
         }
         
-        h1 {
-            margin: 0;
-            font-weight: 400;
+        .welcome-box, .logged-in-section, .modal-content {
+            background-color: var(--card-bg);
+            box-shadow: 0 2px 10px var(--card-border);
         }
+        
+        .welcome-box h2, .logged-in-section h3 {
+            color: var(--primary-color);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color-light);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-color-dark);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--secondary-color-dark);
+        }
+        
+        footer {
+            background-color: var(--primary-color);
+            color: var(--header-text);
+        }
+        
+        .badge-councillor {
+            background-color: var(--primary-color-light);
+        }
+        
+        .badge-non-councillor {
+            background-color: var(--secondary-color);
+        }
+        
+        .matrix-cell.has-value {
+            background-color: rgba(var(--primary-color-light-rgb, 52, 152, 219), 0.2);
+            color: var(--primary-color);
+        }
+        
+        .matrix-cell.has-value:hover {
+            background-color: rgba(var(--primary-color-light-rgb, 52, 152, 219), 0.3);
+        }
+        
+        /* Continue atualizando outros elementos aqui... */
+        
+        /* Restante dos estilos... */
         
         .main-content {
             flex: 1;
@@ -491,6 +683,29 @@
 <body>
     <header>
         <h1>Sistema de Planejamento Econômico</h1>
+        <div class="theme-selector">
+            <button id="themeToggleBtn" class="theme-toggle-btn">
+                <i class="fas fa-palette"></i> Tema
+            </button>
+            <div id="themeMenu" class="theme-menu">
+                <div class="theme-option" data-theme="ocean">
+                    <span class="theme-preview ocean-preview"></span>
+                    <span class="theme-name">Ocean</span>
+                </div>
+                <div class="theme-option" data-theme="night">
+                    <span class="theme-preview night-preview"></span>
+                    <span class="theme-name">Night</span>
+                </div>
+                <div class="theme-option" data-theme="sunlight">
+                    <span class="theme-preview sunlight-preview"></span>
+                    <span class="theme-name">Sunlight</span>
+                </div>
+                <div class="theme-option" data-theme="bolchevick">
+                    <span class="theme-preview bolchevick-preview"></span>
+                    <span class="theme-name">Bolchevick</span>
+                </div>
+            </div>
+        </div>
     </header>
     
     <div class="main-content">
@@ -1161,6 +1376,52 @@ Sem coeficiente registrado">0</td>`;
             
             return date.toLocaleDateString('pt-BR', options);
         }
+    </script>
+
+    <!-- Adicione este código antes do último </script> do documento -->
+
+    <script>
+        // Configuração do seletor de tema
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elementos do seletor de tema
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            const themeMenu = document.getElementById('themeMenu');
+            const themeOptions = document.querySelectorAll('.theme-option');
+            
+            // Aplicar tema salvo (se existir)
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            
+            // Abrir/fechar menu de temas
+            themeToggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (themeMenu.style.display === 'block') {
+                    themeMenu.style.display = 'none';
+                } else {
+                    themeMenu.style.display = 'block';
+                }
+            });
+            
+            // Fechar menu ao clicar fora
+            document.addEventListener('click', function() {
+                themeMenu.style.display = 'none';
+            });
+            
+            // Prevenir fechamento ao clicar dentro do menu
+            themeMenu.addEventListener('click', function(e) {
+                e.stopPropagation();
+            });
+            
+            // Selecionar tema
+            themeOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    document.documentElement.setAttribute('data-theme', theme);
+                    localStorage.setItem('preferredTheme', theme);
+                    themeMenu.style.display = 'none';
+                });
+            });
+        });
     </script>
 </body>
 </html>
