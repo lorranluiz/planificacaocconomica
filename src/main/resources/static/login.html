@@ -298,6 +298,7 @@
             
             function handleLogin(e) {
                 e.preventDefault();
+                console.log("Login submetido");
                 
                 // Limpar alertas anteriores
                 errorAlert.style.display = 'none';
@@ -305,6 +306,15 @@
                 
                 const username = document.getElementById('username').value;
                 const password = document.getElementById('password').value;
+                
+                console.log("Enviando requisição para /api/auth/login");
+                
+                // Mostrar feedback para o usuário que o login está sendo processado
+                errorAlert.textContent = "Processando...";
+                errorAlert.style.display = 'block';
+                errorAlert.style.backgroundColor = '#e2e3e5';
+                errorAlert.style.color = '#383d41';
+                errorAlert.style.borderColor = '#d6d8db';
                 
                 fetch('/api/auth/login', {
                     method: 'POST',
@@ -314,12 +324,18 @@
                     body: JSON.stringify({ username, password })
                 })
                 .then(response => {
+                    console.log("Resposta recebida:", response.status);
+                    
                     if (!response.ok) {
-                        throw new Error('Nome de usuário ou senha incorretos');
+                        return response.text().then(text => {
+                            throw new Error(text || 'Nome de usuário ou senha incorretos');
+                        });
                     }
                     return response.json();
                 })
                 .then(user => {
+                    console.log("Login bem-sucedido:", user);
+                    
                     // Salvar no localStorage
                     localStorage.setItem('currentUser', JSON.stringify(user));
                     
@@ -328,10 +344,19 @@
                     
                     // Buscar relatório detalhado
                     fetchUserInstanceReport(user.id);
+                    
+                    // Feedback de sucesso
+                    successAlert.textContent = "Login realizado com sucesso!";
+                    successAlert.style.display = 'block';
+                    errorAlert.style.display = 'none';
                 })
                 .catch(error => {
+                    console.error("Erro de login:", error);
                     errorAlert.textContent = error.message;
                     errorAlert.style.display = 'block';
+                    errorAlert.style.backgroundColor = '#f8d7da';
+                    errorAlert.style.color = '#721c24';
+                    errorAlert.style.borderColor = '#f5c6cb';
                 });
             }
             
@@ -356,23 +381,33 @@
                 document.getElementById('instanceContainer').style.display = 'none';
                 document.getElementById('relatedContainer').style.display = 'none';
                 
-                fetch(`/api/user-instance/report/${userId}`)
+                // Corrigido para usar a nova URL
+                fetch(`/api/user-report/${userId}`)
                     .then(response => {
+                        console.log("Resposta do relatório:", response.status);
                         if (!response.ok) {
-                            throw new Error('Falha ao carregar relatório da instância');
+                            return response.text().then(text => {
+                                throw new Error(text || 'Falha ao carregar relatório da instância');
+                            });
                         }
                         return response.json();
                     })
                     .then(data => {
+                        console.log("Dados do relatório recebidos:", data);
                         renderInstanceReport(data);
                         renderRelatedEntities(data);
                     })
                     .catch(error => {
-                        console.error('Erro:', error);
+                        console.error('Erro ao buscar detalhes:', error);
                         document.getElementById('instanceContainer').innerHTML = 
                             `<div class="alert alert-danger" style="display:block">Erro ao carregar relatório: ${error.message}</div>`;
                         document.getElementById('instanceContainer').style.display = 'block';
                         document.getElementById('instanceLoading').style.display = 'none';
+                        
+                        document.getElementById('relatedContainer').innerHTML = 
+                            `<div class="alert alert-danger" style="display:block">Erro ao carregar entidades relacionadas.</div>`;
+                        document.getElementById('relatedContainer').style.display = 'block';
+                        document.getElementById('relatedLoading').style.display = 'none';
                     });
             }
             

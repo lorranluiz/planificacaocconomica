@@ -17,7 +17,6 @@ public class UserService {
     private UserRepository userRepository;
 
     public List<User> getAllUsers() {
-        // Converter Iterable para List usando StreamSupport
         return StreamSupport.stream(userRepository.findAll().spliterator(), false)
                 .collect(Collectors.toList());
     }
@@ -26,8 +25,17 @@ public class UserService {
         return userRepository.findById(id);
     }
 
+    public Optional<User> authenticate(String username, String password) {
+        User user = userRepository.findByUsername(username);
+        
+        if (user != null && password.equals(user.getPassword())) {
+            return Optional.of(user);
+        }
+        
+        return Optional.empty();
+    }
+
     public Optional<User> getUserByUsername(String username) {
-        // Assuming findByUsername returns User, not Optional<User>
         User user = userRepository.findByUsername(username);
         return Optional.ofNullable(user);
     }

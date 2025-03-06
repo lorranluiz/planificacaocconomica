@@ -110,7 +110,7 @@
             margin-top: auto;
         }
         
-        /* Estilos para modal de login */
+        /* Estilos para modal de login e cadastro */
         .modal {
             display: none;
             position: fixed;
@@ -131,6 +131,8 @@
             max-width: 400px;
             padding: 2rem;
             position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
         }
         
         .close {
@@ -151,7 +153,7 @@
             font-weight: 600;
         }
         
-        .form-group input {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 0.75rem;
             border: 1px solid #ddd;
@@ -208,6 +210,282 @@
             background-color: #27ae60;
             color: white;
         }
+        
+        /* Estilos específicos para o modal de registro */
+        .register-modal-content {
+            max-width: 600px;
+        }
+        
+        .register-modal-content h2 {
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            color: #2c3e50;
+            text-align: center;
+        }
+        
+        .registration-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        
+        .registration-form .form-group.full-width {
+            grid-column: span 2;
+        }
+        
+        @media (max-width: 768px) {
+            .registration-form {
+                grid-template-columns: 1fr;
+            }
+            
+            .registration-form .form-group.full-width {
+                grid-column: span 1;
+            }
+        }
+        
+        /* Estilo adicional para o formulário de cadastro */
+        .loading-text {
+            font-style: italic;
+            color: #666;
+            font-size: 0.9em;
+            margin-top: 5px;
+        }
+        
+        .info-message {
+            background-color: #e7f3fe;
+            border-left: 4px solid #2196F3;
+            padding: 10px;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        
+        /* Corrigir a largura do dropdown de instâncias */
+        #reg-instance {
+            width: 100%;
+        }
+        
+        /* Certifique-se de que inputs e selects tenham a mesma aparência */
+        select {
+            height: 38px; /* Mesma altura dos inputs */
+            background-color: white;
+        }
+
+        /* Estilo para os detalhes da instância */
+        .instance-details {
+            margin-top: 1rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            border-left: 4px solid #3498db;
+        }
+        
+        .instance-details p {
+            margin: 0.5rem 0;
+        }
+        
+        .instance-details strong {
+            color: #2c3e50;
+        }
+
+        /* Estilos para a seção de tensores */
+        .tensors-section {
+            margin-top: 2rem;
+        }
+        
+        .tensors-section h4 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+        }
+        
+        .tensors-container {
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .tensor-card {
+            background-color: #fff;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .tensor-card h5 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            color: #3498db;
+        }
+        
+        .tensor-coefficient {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #e74c3c;
+            margin-bottom: 0.5rem;
+        }
+        
+        .tensor-label {
+            font-weight: bold;
+            color: #555;
+            margin-right: 5px;
+        }
+        
+        .tensor-value {
+            color: #333;
+        }
+        
+        .tensor-badge {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+        
+        .badge-input {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .badge-output {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .loading-spinner {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 0.5rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Estilo para quando não há tensores */
+        .no-tensors {
+            text-align: center;
+            padding: 1rem;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Estilos para a tabela de matriz de tensores */
+        .matrix-container {
+            margin-top: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .matrix-container h5 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            text-align: center;
+        }
+        
+        .table-responsive {
+            overflow-x: auto;
+            margin-bottom: 1rem;
+        }
+        
+        .tensor-matrix-table {
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 0.85rem;
+            border: 2px solid #aaa; /* Borda externa mais grossa */
+        }
+        
+        .tensor-matrix-table th, .tensor-matrix-table td {
+            border: 1px solid #aaa; /* Bordas internas visíveis */
+            padding: 8px;
+            text-align: center;
+        }
+        
+        .tensor-matrix-table thead {
+            background-color: #f5f5f5;
+            border-bottom: 2px solid #aaa; /* Borda inferior do cabeçalho mais grossa */
+        }
+        
+        .corner-header {
+            background-color: #e9ecef;
+            font-style: italic;
+            font-size: 0.8rem;
+            border-right: 2px solid #aaa; /* Borda direita mais grossa */
+            border-bottom: 2px solid #aaa; /* Borda inferior mais grossa */
+        }
+        
+        .input-header, .output-header {
+            background-color: #f0f0f0;
+            font-weight: 600;
+        }
+        
+        .input-header {
+            text-align: left;
+            border-right: 2px solid #aaa; /* Borda direita mais grossa */
+        }
+        
+        .output-header {
+            border-bottom: 2px solid #aaa; /* Borda inferior mais grossa */
+        }
+        
+        .matrix-cell.has-value {
+            background-color: #e8f4fc;
+            font-weight: bold;
+            color: #2980b9;
+            cursor: help;
+            transition: background-color 0.2s;
+        }
+        
+        .matrix-cell.has-value:hover {
+            background-color: #d1e7f7;
+        }
+        
+        .matrix-cell.zero {
+            color: #999;
+            background-color: #f8f8f8;
+            cursor: help;
+            transition: background-color 0.2s;
+        }
+        
+        .matrix-cell.zero:hover {
+            background-color: #eeeeee;
+        }
+        
+        .tensor-legend {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background-color: #f8f9fa;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            border: 1px solid #ddd;
+        }
+        
+        .tensor-legend p {
+            margin: 0.2rem 0;
+            color: #666;
+        }
+        
+        /* Media query para tabelas muito grandes em telas pequenas */
+        @media (max-width: 768px) {
+            .tensor-matrix-table {
+                font-size: 0.75rem;
+            }
+            
+            .tensor-matrix-table th, .tensor-matrix-table td {
+                padding: 5px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -238,6 +516,18 @@
                 <p>Nome de usuário: <strong id="userUsername"></strong></p>
                 <p>Tipo: <span id="userTypeBadge" class="badge"></span></p>
                 <p>Instância: <span id="userInstance"></span></p>
+                <div id="instanceDetails" class="instance-details" style="display: none;"></div>
+                
+                <!-- Nova seção para tensores tecnológicos -->
+                <div class="tensors-section">
+                    <h4>Tensores Tecnológicos</h4>
+                    <div id="tensorsLoading" class="loading-spinner">
+                        <div class="spinner"></div>
+                        <p>Carregando tensores...</p>
+                    </div>
+                    <div id="tensorsContainer" class="tensors-container" style="display: none;"></div>
+                    <div id="tensorsError" class="error-message" style="display: none;"></div>
+                </div>
             </div>
             <div class="button-container">
                 <button id="logoutBtn" class="btn btn-primary">
@@ -267,6 +557,65 @@
         </div>
     </div>
     
+    <!-- Modal de Cadastro -->
+    <div id="registerModal" class="modal">
+        <div class="modal-content register-modal-content">
+            <span class="close" id="closeRegisterModal">&times;</span>
+            <h2>Cadastro de Novo Usuário</h2>
+            <form id="registrationForm">
+                <div class="registration-form">
+                    <div class="form-group">
+                        <label for="reg-name">Nome:</label>
+                        <input type="text" id="reg-name" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-username">Nome de usuário:</label>
+                        <input type="text" id="reg-username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-password">Senha:</label>
+                        <input type="password" id="reg-password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-confirm-password">Confirmar senha:</label>
+                        <input type="password" id="reg-confirm-password" name="confirmPassword" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-user-type">Tipo de usuário:</label>
+                        <select id="reg-user-type" name="type" required>
+                            <option value="">Selecione...</option>
+                            <option value="COUNCILLOR">Conselheiro</option>
+                            <option value="NON_COUNCILLOR">Não Conselheiro</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="reg-pronoun">Pronome:</label>
+                        <select id="reg-pronoun" name="pronoun" required>
+                            <option value="">Selecione...</option>
+                            <option value="HE_HIM">Ele/Dele</option>
+                            <option value="SHE_HER">Ela/Dela</option>
+                            <option value="THEY_THEM">Elu/Delu</option>
+                        </select>
+                    </div>
+                    <!-- Nova seção para instância (inicialmente oculta) -->
+                    <div id="instanceContainer" class="form-group full-width" style="display: none;">
+                        <label for="reg-instance">Instância:</label>
+                        <select id="reg-instance" name="instanceId">
+                            <option value="">Carregando instâncias...</option>
+                        </select>
+                        <div id="instanceLoading" class="loading-text">Carregando lista de instâncias...</div>
+                    </div>
+                    <!-- Caixa de informação para usuários não conselheiros -->
+                    <div id="instanceInfoBox" class="form-group full-width info-message" style="display: none;">
+                        <p>Uma nova instância WORKER será criada automaticamente para este usuário.</p>
+                    </div>
+                </div>
+                <div id="registerError" class="error-message"></div>
+                <button type="submit" class="btn btn-secondary" style="width: 100%; margin-top: 1rem;">Cadastrar</button>
+            </form>
+        </div>
+    </div>
+    
     <footer>
         <p>&copy; 2025 Sistema de Planejamento Econômico</p>
     </footer>
@@ -274,27 +623,36 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Verificar se há um usuário logado no localStorage
-            checkLoggedInUser();
-            
             // Elementos DOM
             const loginBtn = document.getElementById('loginBtn');
             const registerBtn = document.getElementById('registerBtn');
             const loginModal = document.getElementById('loginModal');
+            const registerModal = document.getElementById('registerModal');
             const closeLoginModal = document.getElementById('closeLoginModal');
+            const closeRegisterModal = document.getElementById('closeRegisterModal');
             const loginForm = document.getElementById('loginForm');
+            const registrationForm = document.getElementById('registrationForm');
             const loginError = document.getElementById('loginError');
+            const registerError = document.getElementById('registerError');
             const logoutBtn = document.getElementById('logoutBtn');
             const welcomeBox = document.getElementById('welcomeBox');
             const loggedInSection = document.getElementById('loggedInSection');
             
+            // Verificar se há um usuário logado no localStorage
+            checkLoggedInUser();
+            
             // Event Listeners
             loginBtn.addEventListener('click', openLoginModal);
-            closeLoginModal.addEventListener('click', closeModal);
-            window.addEventListener('click', outsideModalClick);
+            registerBtn.addEventListener('click', openRegisterModal);
+            closeLoginModal.addEventListener('click', () => closeModal(loginModal));
+            closeRegisterModal.addEventListener('click', () => closeModal(registerModal));
+            window.addEventListener('click', function(e) {
+                if (e.target === loginModal) closeModal(loginModal);
+                if (e.target === registerModal) closeModal(registerModal);
+            });
             loginForm.addEventListener('submit', handleLogin);
+            registrationForm.addEventListener('submit', handleRegistration);
             logoutBtn.addEventListener('click', handleLogout);
-            registerBtn.addEventListener('click', redirectToRegister);
             
             // Funções
             function openLoginModal() {
@@ -303,14 +661,14 @@
                 loginForm.reset(); // Resetar formulário
             }
             
-            function closeModal() {
-                loginModal.style.display = 'none';
+            function openRegisterModal() {
+                registerModal.style.display = 'flex';
+                registerError.textContent = ''; // Limpar mensagens de erro anteriores
+                registrationForm.reset(); // Resetar formulário
             }
             
-            function outsideModalClick(e) {
-                if (e.target === loginModal) {
-                    closeModal();
-                }
+            function closeModal(modal) {
+                modal.style.display = 'none';
             }
             
             function handleLogin(e) {
@@ -343,13 +701,101 @@
                     localStorage.setItem('currentUser', JSON.stringify(data));
                     
                     // Fechar modal
-                    closeModal();
+                    closeModal(loginModal);
                     
                     // Atualizar interface para usuário logado
                     displayLoggedInUser(data);
                 })
                 .catch(error => {
                     loginError.textContent = error.message;
+                });
+            }
+            
+            function handleRegistration(e) {
+                e.preventDefault();
+                
+                const name = document.getElementById('reg-name').value;
+                const username = document.getElementById('reg-username').value;
+                const password = document.getElementById('reg-password').value;
+                const confirmPassword = document.getElementById('reg-confirm-password').value;
+                const type = document.getElementById('reg-user-type').value;
+                const pronoun = document.getElementById('reg-pronoun').value;
+                
+                // Validações básicas
+                if (!name || !username || !password || !confirmPassword || !type || !pronoun) {
+                    registerError.textContent = 'Preencha todos os campos';
+                    return;
+                }
+                
+                if (password !== confirmPassword) {
+                    registerError.textContent = 'As senhas não coincidem';
+                    return;
+                }
+                
+                // Construir objeto de dados
+                const userData = {
+                    name,
+                    username,
+                    password,
+                    type,
+                    pronoun
+                };
+                
+                // Se for COUNCILLOR, incluir o instanceId
+                if (type === 'COUNCILLOR') {
+                    const instanceId = document.getElementById('reg-instance').value;
+                    if (!instanceId) {
+                        registerError.textContent = 'Selecione uma instância para o conselheiro';
+                        return;
+                    }
+                    userData.instanceId = parseInt(instanceId);
+                }
+                
+                console.log('Enviando dados:', userData);
+                
+                // Fazer requisição para a API de registro
+                fetch('/api/users/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                })
+                .then(response => {
+                    console.log('Status da resposta:', response.status);
+                    
+                    if (!response.ok) {
+                        // Tentar obter informações detalhadas sobre o erro
+                        return response.json().then(errorData => {
+                            console.error('Detalhes do erro:', errorData);
+                            throw new Error(errorData.message || 'Erro ao cadastrar usuário');
+                        }).catch(err => {
+                            // Se não conseguir obter um JSON válido, use o texto ou status
+                            if (err instanceof SyntaxError) {
+                                return response.text().then(text => {
+                                    throw new Error(text || `Erro ${response.status}: Falha no cadastro`);
+                                });
+                            }
+                            throw err;
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Cadastro bem-sucedido:', data);
+                    
+                    // Fechar modal
+                    closeModal(registerModal);
+                    
+                    // Mostrar mensagem de sucesso
+                    alert('Cadastro realizado com sucesso! Faça login para continuar.');
+                    
+                    // Abrir modal de login
+                    openLoginModal();
+                })
+                .catch(error => {
+                    console.error('Erro completo:', error);
+                    registerError.textContent = error.message || 'Erro desconhecido ao cadastrar';
                 });
             }
             
@@ -360,10 +806,6 @@
                 // Mostrar seção de boas-vindas
                 welcomeBox.style.display = 'block';
                 loggedInSection.style.display = 'none';
-            }
-            
-            function redirectToRegister() {
-                window.location.href = '/user-registration.html';
             }
             
             function checkLoggedInUser() {
@@ -392,19 +834,333 @@
                 let instanceText = '';
                 if (user.instanceId) {
                     instanceText = `ID: ${user.instanceId} - Tipo: ${user.instanceType}`;
+                    
                     if (user.committeeName) {
                         instanceText += ` (${user.committeeName})`;
                     }
+                    
+                    // Adicionar dados do setor se disponível
+                    if (user.sector) {
+                        instanceText += `<br>Setor: ${user.sector.name}`;
+                    }
+                    
+                    // Adicionar dados específicos do tipo de instância
+                    const instanceDetails = document.getElementById('instanceDetails');
+                    if (instanceDetails) {
+                        let detailsHTML = '';
+                        
+                        if (user.instanceType === 'WORKER') {
+                            detailsHTML += `<p><strong>Participação estimada:</strong> ${user.estimatedParticipation || 'N/A'}</p>`;
+                            detailsHTML += `<p><strong>Horas registradas:</strong> ${user.hoursAtElectronicPoint || 'N/A'}</p>`;
+                        } else if (user.instanceType === 'COMMITTEE') {
+                            detailsHTML += `<p><strong>Limite de trabalhadores:</strong> ${user.workerEffectiveLimit || 'N/A'}</p>`;
+                            detailsHTML += `<p><strong>Quantidade produzida:</strong> ${user.producedQuantity || 'N/A'}</p>`;
+                            detailsHTML += `<p><strong>Meta de produção:</strong> ${user.targetQuantity || 'N/A'}</p>`;
+                            
+                            if (user.socialMaterialization) {
+                                detailsHTML += `<p><strong>Produto:</strong> ${user.socialMaterialization.name}</p>`;
+                            }
+                        } else if (user.instanceType === 'COUNCIL') {
+                            detailsHTML += `<p><strong>Conselho Popular</strong></p>`;
+                        }
+                        
+                        instanceDetails.innerHTML = detailsHTML;
+                        instanceDetails.style.display = detailsHTML ? 'block' : 'none';
+                    }
+                    
+                    // Carregar tensores tecnológicos para esta instância
+                    loadTensors(user.instanceId);
+                    document.querySelector('.tensors-section').style.display = 'block';
+                    
                 } else {
                     instanceText = 'Nenhuma instância associada';
+                    document.querySelector('.tensors-section').style.display = 'none';
                 }
-                document.getElementById('userInstance').textContent = instanceText;
+                document.getElementById('userInstance').innerHTML = instanceText;
                 
                 // Esconder seção de boas-vindas e mostrar seção de usuário logado
                 welcomeBox.style.display = 'none';
                 loggedInSection.style.display = 'block';
             }
+            
+            // Obter os elementos do DOM relacionados ao tipo de usuário
+            const userTypeSelect = document.getElementById('reg-user-type');
+            const instanceContainer = document.getElementById('instanceContainer');
+            const instanceInfoBox = document.getElementById('instanceInfoBox');
+            const instanceSelect = document.getElementById('reg-instance');
+            const instanceLoading = document.getElementById('instanceLoading');
+            
+            // Armazenar todas as instâncias
+            let allInstances = [];
+            
+            // Adicionar event listener para mudança no tipo de usuário
+            userTypeSelect.addEventListener('change', function() {
+                updateUserTypeView();
+            });
+            
+            // Função para atualizar a visualização com base no tipo de usuário
+            function updateUserTypeView() {
+                const userType = userTypeSelect.value;
+                
+                if (userType === 'COUNCILLOR') {
+                    // Para Conselheiros, mostrar seleção de instância
+                    instanceContainer.style.display = 'block';
+                    instanceInfoBox.style.display = 'none';
+                    
+                    // Carregar instâncias se ainda não tiverem sido carregadas
+                    if (allInstances.length === 0) {
+                        fetchInstances();
+                    } else {
+                        updateInstanceOptions();
+                    }
+                } else if (userType === 'NON_COUNCILLOR') {
+                    // Para Não Conselheiros, ocultar seleção e mostrar mensagem informativa
+                    instanceContainer.style.display = 'none';
+                    instanceInfoBox.style.display = 'block';
+                } else {
+                    // Se nenhum tipo for selecionado, ocultar ambos
+                    instanceContainer.style.display = 'none';
+                    instanceInfoBox.style.display = 'none';
+                }
+            }
+            
+            // Função para buscar instâncias do servidor
+            function fetchInstances() {
+                instanceLoading.style.display = 'block';
+                instanceSelect.innerHTML = '<option value="">Carregando...</option>';
+                
+                // Alterando a URL para a nova rota
+                fetch('/api/instances-basic')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Falha ao carregar instâncias');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Armazenar todas as instâncias
+                        allInstances = data;
+                        
+                        // Atualizar opções no select
+                        updateInstanceOptions();
+                        
+                        // Esconder mensagem de carregamento
+                        instanceLoading.style.display = 'none';
+                    })
+                    .catch(error => {
+                        instanceSelect.innerHTML = '<option value="">Erro ao carregar instâncias</option>';
+                        registerError.textContent = 'Erro ao carregar instâncias: ' + error.message;
+                        instanceLoading.style.display = 'none';
+                        console.error('Erro:', error);
+                    });
+            }
+            
+            // Função para atualizar opções de instância
+            function updateInstanceOptions() {
+                // Limpar opções anteriores
+                instanceSelect.innerHTML = '';
+                
+                // Adicionar opção padrão
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Selecione uma instância';
+                instanceSelect.appendChild(defaultOption);
+                
+                // Filtrar instâncias do tipo COUNCIL ou COMMITTEE
+                const filteredInstances = allInstances.filter(instance => 
+                    instance.type === 'COUNCIL' || instance.type === 'COMMITTEE'
+                );
+                
+                // Adicionar instâncias filtradas
+                filteredInstances.forEach(instance => {
+                    const option = document.createElement('option');
+                    option.value = instance.id;
+                    
+                    // Formatação do texto da opção baseada no tipo de instância
+                    let optionText = `${instance.id} - `;
+                    if (instance.type === 'COMMITTEE' && instance.committeeName) {
+                        optionText += `${instance.committeeName} (${instance.type})`;
+                    } else if (instance.type === 'COUNCIL') {
+                        optionText += `Council ${instance.id} (${instance.type})`;
+                    } else {
+                        optionText += `Instance ${instance.id} (${instance.type})`;
+                    }
+                    
+                    option.textContent = optionText;
+                    instanceSelect.appendChild(option);
+                });
+            }
         });
+
+        // Função para carregar tensores tecnológicos
+        function loadTensors(instanceId) {
+            // Mostrar carregamento
+            document.getElementById('tensorsLoading').style.display = 'flex';
+            document.getElementById('tensorsContainer').style.display = 'none';
+            document.getElementById('tensorsError').style.display = 'none';
+            
+            fetch(`/api/tensors/by-instance/${instanceId}`)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Falha ao carregar tensores tecnológicos');
+                    }
+                    return response.json();
+                })
+                .then(tensors => {
+                    const container = document.getElementById('tensorsContainer');
+                    
+                    // Verificar se há tensores para exibir
+                    if (tensors.length === 0) {
+                        container.innerHTML = '<div class="no-tensors">Nenhum tensor tecnológico encontrado para esta instância.</div>';
+                    } else {
+                        // Organizar os dados para a representação matricial
+                        const matrixData = organizeMatrixData(tensors);
+                        
+                        // Gerar a tabela HTML
+                        const tableHtml = generateMatrixTable(matrixData);
+                        
+                        container.innerHTML = tableHtml;
+                    }
+                    
+                    // Esconder carregamento e mostrar conteúdo
+                    document.getElementById('tensorsLoading').style.display = 'none';
+                    container.style.display = 'block';
+                })
+                .catch(error => {
+                    console.error('Erro ao carregar tensores:', error);
+                    document.getElementById('tensorsLoading').style.display = 'none';
+                    document.getElementById('tensorsError').textContent = error.message;
+                    document.getElementById('tensorsError').style.display = 'block';
+                });
+        }
+        
+        // Função para organizar os dados dos tensores em formato de matriz
+        function organizeMatrixData(tensors) {
+            // Extrair todos os inputs e outputs únicos
+            const uniqueInputs = [];
+            const uniqueOutputs = [];
+            const matrix = {};
+            
+            // Primeiro passo: identificar todos os inputs e outputs únicos
+            tensors.forEach(tensor => {
+                const inputId = tensor.input.id;
+                const outputId = tensor.output.id;
+                
+                if (!uniqueInputs.find(i => i.id === inputId)) {
+                    uniqueInputs.push({
+                        id: inputId,
+                        name: tensor.input.name,
+                        type: tensor.input.type
+                    });
+                }
+                
+                if (!uniqueOutputs.find(o => o.id === outputId)) {
+                    uniqueOutputs.push({
+                        id: outputId,
+                        name: tensor.output.name,
+                        type: tensor.output.type
+                    });
+                }
+                
+                // Inicializar a matriz
+                if (!matrix[inputId]) {
+                    matrix[inputId] = {};
+                }
+                
+                // Armazenar o coeficiente e metadados na posição correta da matriz
+                matrix[inputId][outputId] = {
+                    coefficient: tensor.coefficient,
+                    createdAt: tensor.createdAt
+                };
+            });
+            
+            // Ordenar inputs e outputs por nome
+            uniqueInputs.sort((a, b) => a.name.localeCompare(b.name));
+            uniqueOutputs.sort((a, b) => a.name.localeCompare(b.name));
+            
+            return {
+                inputs: uniqueInputs,
+                outputs: uniqueOutputs,
+                matrix: matrix
+            };
+        }
+        
+        // Função para gerar a tabela HTML da matriz
+        function generateMatrixTable(matrixData) {
+            const { inputs, outputs, matrix } = matrixData;
+            
+            let html = '<div class="matrix-container">';
+            html += '<h5>Matriz de Coeficientes Tecnológicos</h5>';
+            html += '<div class="table-responsive">';
+            html += '<table class="tensor-matrix-table">';
+            
+            // Cabeçalho da tabela
+            html += '<thead><tr><th class="corner-header">Input ↓ / Output →</th>';
+            
+            outputs.forEach(output => {
+                html += `<th class="output-header" title="${output.type}">${output.name}</th>`;
+            });
+            
+            html += '</tr></thead><tbody>';
+            
+            // Linhas da tabela (inputs)
+            inputs.forEach(input => {
+                html += `<tr><th class="input-header" title="${input.type}">${input.name}</th>`;
+                
+                // Colunas (outputs)
+                outputs.forEach(output => {
+                    const cell = matrix[input.id] && matrix[input.id][output.id];
+                    
+                    if (cell) {
+                        // Célula com valor
+                        html += `<td class="matrix-cell has-value" title="Input: ${input.name} (${input.type})
+Output: ${output.name} (${output.type})
+Criado em: ${formatDate(cell.createdAt)}">${cell.coefficient}</td>`;
+                    } else {
+                        // Célula sem valor (mostrar 0 em vez de -)
+                        html += `<td class="matrix-cell zero" title="Input: ${input.name} (${input.type})
+Output: ${output.name} (${output.type})
+Sem coeficiente registrado">0</td>`;
+                    }
+                });
+                
+                html += '</tr>';
+            });
+            
+            html += '</tbody></table></div>';
+            
+            // Legenda
+            html += '<div class="tensor-legend">';
+            html += '<p><strong>Legenda:</strong> Os valores representam os coeficientes tecnológicos entre inputs (linhas) e outputs (colunas). Zeros indicam ausência de relação.</p>';
+            html += '<p><small>Passe o mouse sobre as células para ver mais informações.</small></p>';
+            html += '</div>';
+            
+            html += '</div>';
+            
+            return html;
+        }
+        
+        // Função para formatar data
+        function formatDate(dateString) {
+            if (!dateString) return 'Data não disponível';
+            
+            const date = new Date(dateString);
+            
+            // Verificar se a data é válida
+            if (isNaN(date.getTime())) {
+                return 'Data inválida';
+            }
+            
+            const options = { 
+                day: '2-digit',
+                month: '2-digit',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            
+            return date.toLocaleDateString('pt-BR', options);
+        }
     </script>
 </body>
 </html>

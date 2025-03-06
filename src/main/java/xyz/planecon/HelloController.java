@@ -1,17 +1,25 @@
 package xyz.planecon;
 
 import org.springframework.http.MediaType;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import jakarta.servlet.http.HttpServletRequest;
 
-@RestController
+@Controller // Alterado de RestController para Controller para permitir redirecionamento
 public class HelloController {
 
-    @GetMapping(value = "/", produces = MediaType.TEXT_HTML_VALUE)
+    @GetMapping("/")
+    public String home() {
+        // Redireciona para index.html
+        return "redirect:/index.html";
+    }
+    
+    @GetMapping(value = "/hello", produces = MediaType.TEXT_HTML_VALUE)
+    @ResponseBody // Necessário para retornar HTML diretamente
     public String hello() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         String scheme = request.getScheme();
@@ -29,6 +37,7 @@ public class HelloController {
     }
     
     @GetMapping("/security-info")
+    @ResponseBody
     public String securityInfo() {
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
         StringBuilder info = new StringBuilder();

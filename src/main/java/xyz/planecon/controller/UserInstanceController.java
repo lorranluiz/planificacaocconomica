@@ -7,144 +7,135 @@ import xyz.planecon.model.entity.*;
 import xyz.planecon.repository.*;
 
 import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @RestController
-@RequestMapping("/api/user-instance")
+@RequestMapping("/api/user-report") // Mudando o caminho base para evitar conflitos
 public class UserInstanceController {
 
     @Autowired
     private UserRepository userRepository;
     
     @Autowired
-    private InstanceRepository instanceRepository;
-    
-    @Autowired
     private WorkersProposalRepository workersProposalRepository;
     
     @Autowired
     private DemandStockRepository demandStockRepository;
-    
-    @Autowired
-    private DemandVectorRepository demandVectorRepository;
 
-    @GetMapping("/report/{userId}")
-    public ResponseEntity<?> getUserInstanceReport(@PathVariable Integer userId) {
+    @GetMapping("/{userId}") // Caminho mais simples agora que mudamos o base path
+    public ResponseEntity<?> getUserReport(@PathVariable Integer userId) {
         try {
             // Buscar o usuário
             Optional<User> userOpt = userRepository.findById(userId);
-            if (userOpt.isEmpty()) {
+            if (!userOpt.isPresent()) {
                 return ResponseEntity.notFound().build();
             }
             
             User user = userOpt.get();
-            
-            // Preparar o objeto de resposta
             Map<String, Object> report = new HashMap<>();
             
-            // Adicionar informações do usuário
-            Map<String, Object> userData = new HashMap<>();
-            userData.put("id", user.getId());
-            userData.put("username", user.getUsername());
-            userData.put("name", user.getName());
-            userData.put("type", user.getType().toString());
-            userData.put("pronoun", user.getPronoun().toString());
+            // Dados básicos do usuário
+            report.put("user", Map.of(
+                "id", user.getId(),
+                "name", user.getName(),
+                "username", user.getUsername(),
+                "type", user.getType().toString(),
+                "pronoun", user.getPronoun().toString()
+            ));
             
-            report.put("user", userData);
-            
-            // Verificar se o usuário tem uma instância associada
+            // Verificar se o usuário tem instância
             Instance instance = user.getInstance();
             if (instance == null) {
-                report.put("message", "Este usuário não possui uma instância associada");
                 return ResponseEntity.ok(report);
             }
             
-            // Adicionar informações básicas da instância
-            Map<String, Object> instanceData = new HashMap<>();
-            instanceData.put("id", instance.getId());
-            instanceData.put("type", instance.getType().toString());
-            instanceData.put("committeeName", instance.getCommitteeName());
+            // Dados da instância
+            Map<String, Object> instanceInfo = new HashMap<>();
+            instanceInfo.put("id", instance.getId());
+            instanceInfo.put("type", instance.getType().toString());
+            instanceInfo.put("committeeName", instance.getCommitteeName());
             
-            // Adicionar informações com base no tipo de instância
+            // Detalhes específicos por tipo
             switch (instance.getType()) {
                 case WORKER:
-                    instanceData.put("estimatedParticipation", instance.getEstimatedIndividualParticipationInSocialWork());
-                    instanceData.put("hoursAtElectronicPoint", instance.getHoursAtElectronicPoint());
+                    instanceInfo.put("estimatedParticipation", 
+                        safeToString(instance.getEstimatedIndividualParticipationInSocialWork()));
+                    instanceInfo.put("hoursAtElectronicPoint", 
+                        safeToString(instance.getHoursAtElectronicPoint()));
+                    
+                    // Adicionar comitê associado, se houver
+                    if (instance.getAssociatedWorkerCommittee() != null) {
+                        instanceInfo.put("associatedCommittee", Map.of(
+                            "id", instance.getAssociatedWorkerCommittee().getId(),
+                            "name", instance.getAssociatedWorkerCommittee().getCommitteeName()
+                        ));
+                    }
                     break;
                     
                 case COMMITTEE:
-                    instanceData.put("workerEffectiveLimit", instance.getWorkerEffectiveLimit());
-                    instanceData.put("totalSocialWork", instance.getTotalSocialWorkOfThisJurisdiction());
-                    instanceData.put("producedQuantity", instance.getProducedQuantity());
-                    instanceData.put("targetQuantity", instance.getTargetQuantity());
+                    instanceInfo.put("workerEffectiveLimit", instance.getWorkerEffectiveLimit());
+                    instanceInfo.put("totalSocialWork", 
+                        safeToString(instance.getTotalSocialWorkOfThisJurisdiction()));
+                    instanceInfo.put("producedQuantity", 
+                        safeToString(instance.getProducedQuantity()));
+                    instanceInfo.put("targetQuantity", 
+                        safeToString(instance.getTargetQuantity()));
                     break;
                     
                 case COUNCIL:
-                    instanceData.put("totalSocialWork", instance.getTotalSocialWorkOfThisJurisdiction());
+                    instanceInfo.put("totalSocialWork", 
+                        safeToString(instance.getTotalSocialWorkOfThisJurisdiction()));
                     break;
             }
-            
-            report.put("instance", instanceData);
+                        
+            report.put("instance", instanceInfo);
             
             // Adicionar entidades relacionadas
             Map<String, Object> relatedEntities = new HashMap<>();
             
-            // Buscar propostas dos trabalhadores
+            // Adicionar propostas de trabalhadores
             List<WorkersProposal> proposals = workersProposalRepository.findByInstance(instance);
             if (!proposals.isEmpty()) {
-                relatedEntities.put("workersProposals", proposals.stream().map(wp -> {
-                    Map<String, Object> proposalData = new HashMap<>();
-                    proposalData.put("id", wp.getId());
-                    proposalData.put("workerLimit", wp.getWorkerLimit());
-                    proposalData.put("workerHours", wp.getWorkerHours());
-                    proposalData.put("productionTime", wp.getProductionTime());
-                    proposalData.put("nightShift", wp.getNightShift());
-                    proposalData.put("weeklyScale", wp.getWeeklyScale());
-                    return proposalData;
-                }).collect(Collectors.toList()));
+                List<Map<String, Object>> proposalsList = new ArrayList<>();
+                
+                for (WorkersProposal proposal : proposals) {
+                    proposalsList.add(Map.of(
+                        "id", proposal.getId(),
+                        "workerLimit", proposal.getWorkerLimit(),
+                        "workerHours", safeToString(proposal.getWorkerHours()),
+                        "productionTime", safeToString(proposal.getProductionTime()),
+                        "weeklyScale", proposal.getWeeklyScale(),
+                        "nightShift", proposal.getNightShift()
+                    ));
+                }
+                
+                relatedEntities.put("workersProposals", proposalsList);
             }
             
-            // Buscar estoques de demanda
+            // Adicionar estoques de demanda
             List<DemandStock> stocks = demandStockRepository.findByInstance(instance);
             if (!stocks.isEmpty()) {
-                relatedEntities.put("demandStocks", stocks.stream().map(ds -> {
-                    Map<String, Object> stockData = new HashMap<>();
-                    stockData.put("id", ds.getId());
-                    stockData.put("demand", ds.getDemand());
-                    stockData.put("stock", ds.getStock());
+                List<Map<String, Object>> stocksList = new ArrayList<>();
+                
+                for (DemandStock stock : stocks) {
+                    Map<String, Object> stockInfo = new HashMap<>();
+                    stockInfo.put("id", stock.getId());
+                    stockInfo.put("demand", safeToString(stock.getDemand()));
+                    stockInfo.put("stock", safeToString(stock.getStock()));
                     
-                    // Verificando se há uma materialização social associada
-                    if (ds.getSocialMaterialization() != null) {
-                        stockData.put("socialMaterialization", ds.getSocialMaterialization().getName());
-                    } else {
-                        stockData.put("socialMaterialization", "N/A");
+                    if (stock.getSocialMaterialization() != null) {
+                        stockInfo.put("socialMaterialization", stock.getSocialMaterialization().getName());
                     }
                     
-                    return stockData;
-                }).collect(Collectors.toList()));
+                    stocksList.add(stockInfo);
+                }
+                
+                relatedEntities.put("demandStocks", stocksList);
             }
             
-            // Buscar vetores de demanda
-            List<DemandVector> vectors = demandVectorRepository.findByInstance(instance);
-            if (!vectors.isEmpty()) {
-                relatedEntities.put("demandVectors", vectors.stream().map(dv -> {
-                    Map<String, Object> vectorData = new HashMap<>();
-                    // Remove ID or use a composite key if needed since DemandVector is a pivot table
-                    vectorData.put("demand", dv.getDemand());
-                    
-                    // Verificando se há uma materialização social associada
-                    if (dv.getSocialMaterialization() != null) {
-                        vectorData.put("socialMaterialization", dv.getSocialMaterialization().getName());
-                    } else {
-                        vectorData.put("socialMaterialization", "N/A");
-                    }
-                    
-                    return vectorData;
-                }).collect(Collectors.toList()));
+            // Adicionar entidades relacionadas se não estiver vazio
+            if (!relatedEntities.isEmpty()) {
+                report.put("relatedEntities", relatedEntities);
             }
-            
-            report.put("relatedEntities", relatedEntities);
             
             return ResponseEntity.ok(report);
             
@@ -152,5 +143,9 @@ public class UserInstanceController {
             e.printStackTrace();
             return ResponseEntity.status(500).body("Erro ao gerar relatório: " + e.getMessage());
         }
+    }
+    
+    private String safeToString(Object obj) {
+        return obj != null ? obj.toString() : null;
     }
 }
