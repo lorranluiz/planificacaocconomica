@@ -20,6 +20,8 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 
 @Component
 public class BigDatabaseSeeder implements CommandLineRunner {
@@ -123,11 +125,240 @@ public class BigDatabaseSeeder implements CommandLineRunner {
         // Verificar se o banco de dados já está populado
         if (isDatabasePopulated()) {
             System.out.println("Banco de dados já está populado. Pulando etapa de seed.");
+            
+            // Chamada para correção e ativação de constraints em uma transação separada
+            fixAndEnableConstraints();
             return;
         }
         
         System.out.println("Iniciando população massiva do banco de dados...");
+        disableConstraints();
         massiveDatabaseSeedIntegrator.executeMassiveDataGeneration(TARGET_ENTITIES);
+        
+        // Não chamamos enableConstraints() aqui para evitar problemas de transação
+        // Chamada para correção e ativação de constraints em uma transação separada
+        fixAndEnableConstraints();
+    }
+    
+    /**
+     * Método que chama o bean de si mesmo para executar em uma nova transação
+     */
+    private void fixAndEnableConstraints() {
+        // Chamar um método de outro bean (neste caso, uma referência ao próprio bean)
+        // faz com que o Spring crie uma nova transação
+        BigDatabaseSeeder self = applicationContext.getBean(BigDatabaseSeeder.class);
+        self.correctionAndConstraintActivation();
+    }
+    
+    @Autowired
+    private ApplicationContext applicationContext;
+    
+    /**
+     * Método para correção e ativação de constraints em uma transação separada
+     */
+    @Transactional
+    public void correctionAndConstraintActivation() {
+        try {
+            System.out.println("\n=== INICIANDO CORREÇÃO DE DADOS E ATIVAÇÃO DE CONSTRAINTS (NOVA TRANSAÇÃO) ===");
+            
+            // 1. Primeiro corrigir dados do tipo COUNCIL
+            fixCouncilData();
+            
+            // 2. Depois adicionar a constraint do council
+            addCouncilConstraint();
+            
+            // 3. Corrigir dados worker
+            fixWorkerData();
+            
+            // 4. Adicionar constraint worker
+            addWorkerConstraint();
+            
+            // 5. Corrigir dados committee
+            fixCommitteeData();
+            
+            // 6. Adicionar constraint committee
+            addCommitteeConstraint();
+            
+            System.out.println("=== CORREÇÃO E ATIVAÇÃO DE CONSTRAINTS CONCLUÍDAS COM SUCESSO ===\n");
+        } catch (Exception e) {
+            System.err.println("\n❌ ERRO DURANTE CORREÇÃO E ATIVAÇÃO: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Método específico para corrigir dados do tipo COUNCIL
+     */
+    private void fixCouncilData() {
+        System.out.println("Corrigindo dados do tipo COUNCIL...");
+        
+        // Corrigir total_social_work_of_this_jurisdiction
+        int updatedTotalSocialWork = entityManager.createNativeQuery(
+            "UPDATE instance SET total_social_work_of_this_jurisdiction = 50000 " +
+            "WHERE type = 'COUNCIL' AND total_social_work_of_this_jurisdiction IS NULL"
+        ).executeUpdate();
+        
+        System.out.println("- Campos total_social_work_of_this_jurisdiction atualizados: " + updatedTotalSocialWork);
+        
+        // Corrigir self-references
+        int selfRefUpdates = entityManager.createNativeQuery(
+            "UPDATE instance SET popular_council_associated_with_popular_council = id " +
+            "WHERE type = 'COUNCIL' AND popular_council_associated_with_popular_council IS NULL"
+        ).executeUpdate();
+        
+        System.out.println("- Self-references criadas: " + selfRefUpdates);
+        
+        // Forçar sincronização com banco
+        entityManager.flush();
+        
+        // Verificar se ainda há problemas
+        Long remainingViolations = (Long) entityManager.createNativeQuery(
+            "SELECT COUNT(*) FROM instance " +
+            "WHERE type = 'COUNCIL' AND " +
+            "(total_social_work_of_this_jurisdiction IS NULL OR popular_council_associated_with_popular_council IS NULL)"
+        ).getSingleResult();
+        
+        if (remainingViolations > 0) {
+            throw new RuntimeException("Ainda existem " + remainingViolations + " violações em COUNCIL após correções.");
+        }
+    }
+    
+    /**
+     * Método específico para adicionar a constraint do COUNCIL
+     */
+    private void addCouncilConstraint() {
+        System.out.println("Adicionando constraint para COUNCIL...");
+        
+        entityManager.createNativeQuery(
+            "ALTER TABLE instance DROP CONSTRAINT IF EXISTS chk_council_columns"
+        ).executeUpdate();
+        
+        entityManager.createNativeQuery(
+            "ALTER TABLE instance ADD CONSTRAINT chk_council_columns " +
+            "CHECK (type != 'COUNCIL' OR (" +
+            "total_social_work_of_this_jurisdiction IS NOT NULL AND " +
+            "popular_council_associated_with_popular_council IS NOT NULL))"
+        ).executeUpdate();
+        
+        System.out.println("Constraint chk_council_columns adicionada com sucesso!");
+    }
+    
+    /**
+     * Método específico para corrigir dados do tipo WORKER
+     */
+    private void fixWorkerData() {
+        System.out.println("Corrigindo dados do tipo WORKER...");
+        
+        // Obter IDs de referência
+        Integer councilId = null;
+        Integer committeeId = null;
+        
+        try {
+            councilId = (Integer) entityManager.createNativeQuery(
+                "SELECT id FROM instance WHERE type = 'COUNCIL' LIMIT 1"
+            ).getSingleResult();
+            
+            committeeId = (Integer) entityManager.createNativeQuery(
+                "SELECT id FROM instance WHERE type = 'COMMITTEE' LIMIT 1"
+            ).getSingleResult();
+        } catch (Exception e) {
+            System.err.println("Erro ao obter IDs de referência: " + e.getMessage());
+        }
+        
+        if (councilId == null || committeeId == null) {
+            System.err.println("IDs de referência não encontrados. Pulando correção de WORKER.");
+            return;
+        }
+        
+        // Corrigir workers com campos nulos
+        int updatedWorkers = entityManager.createNativeQuery(
+            "UPDATE instance SET " +
+            "popular_council_associated_with_committee_or_worker = " + councilId + ", " +
+            "id_associated_worker_committee = " + committeeId + ", " +
+            "id_associated_worker_residents_association = 0, " +
+            "estimated_individual_participation_in_social_work = 0.0000001, " +
+            "hours_at_electronic_point = 20 " +
+            "WHERE type = 'WORKER' AND " +
+            "(popular_council_associated_with_committee_or_worker IS NULL OR " +
+            "id_associated_worker_committee IS NULL OR " +
+            "id_associated_worker_residents_association IS NULL OR " +
+            "id_associated_worker_residents_association != 0 OR " +
+            "estimated_individual_participation_in_social_work IS NULL OR " +
+            "hours_at_electronic_point IS NULL)"
+        ).executeUpdate();
+        
+        System.out.println("- Workers corrigidos: " + updatedWorkers);
+        
+        // Forçar sincronização com banco
+        entityManager.flush();
+    }
+    
+    /**
+     * Método específico para adicionar a constraint do WORKER
+     */
+    private void addWorkerConstraint() {
+        System.out.println("Adicionando constraint para WORKER...");
+        
+        entityManager.createNativeQuery(
+            "ALTER TABLE instance DROP CONSTRAINT IF EXISTS chk_worker_columns"
+        ).executeUpdate();
+        
+        entityManager.createNativeQuery(
+            "ALTER TABLE instance ADD CONSTRAINT chk_worker_columns " +
+            "CHECK (type != 'WORKER' OR (" +
+            "popular_council_associated_with_committee_or_worker IS NOT NULL AND " +
+            "id_associated_worker_committee IS NOT NULL AND " +
+            "id_associated_worker_residents_association = 0 AND " +
+            "estimated_individual_participation_in_social_work IS NOT NULL AND " +
+            "hours_at_electronic_point IS NOT NULL))"
+        ).executeUpdate();
+        
+        System.out.println("Constraint chk_worker_columns adicionada com sucesso!");
+    }
+    
+    /**
+     * Método específico para corrigir dados do tipo COMMITTEE
+     */
+    private void fixCommitteeData() {
+        System.out.println("Corrigindo dados do tipo COMMITTEE...");
+        
+        // Corrigir committees sem worker_effective_limit
+        int updatedCommittees = entityManager.createNativeQuery(
+            "UPDATE instance SET worker_effective_limit = 20 " +
+            "WHERE type = 'COMMITTEE' AND worker_effective_limit IS NULL"
+        ).executeUpdate();
+        
+        System.out.println("- Committees corrigidos: " + updatedCommittees);
+        
+        // Corrigir instâncias não-COMMITTEE com worker_effective_limit não nulo
+        int updatedNonCommittees = entityManager.createNativeQuery(
+            "UPDATE instance SET worker_effective_limit = NULL " +
+            "WHERE type != 'COMMITTEE' AND worker_effective_limit IS NOT NULL"
+        ).executeUpdate();
+        
+        System.out.println("- Não-committees corrigidos: " + updatedNonCommittees);
+        
+        // Forçar sincronização com banco
+        entityManager.flush();
+    }
+    
+    /**
+     * Método específico para adicionar a constraint do COMMITTEE
+     */
+    private void addCommitteeConstraint() {
+        System.out.println("Adicionando constraint para COMMITTEE...");
+        
+        entityManager.createNativeQuery(
+            "ALTER TABLE instance DROP CONSTRAINT IF EXISTS chk_worker_effective_limit"
+        ).executeUpdate();
+        
+        entityManager.createNativeQuery(
+            "ALTER TABLE instance ADD CONSTRAINT chk_worker_effective_limit " +
+            "CHECK ((type = 'COMMITTEE' AND worker_effective_limit IS NOT NULL) OR " +
+            "(type != 'COMMITTEE' AND worker_effective_limit IS NULL))"
+        ).executeUpdate();
+        
+        System.out.println("Constraint chk_worker_effective_limit adicionada com sucesso!");
     }
     
     /**
@@ -250,6 +481,66 @@ public class BigDatabaseSeeder implements CommandLineRunner {
      */
     private void enableConstraints() {
         try {
+            // 1. Diagnosticar as violações existentes
+            diagnosticConstraintViolations();
+            
+            System.out.println("\n=== CORREÇÃO AUTOMÁTICA DE VIOLAÇÕES DE CONSTRAINTS ===");
+            
+            // Primeiro conserta todos os campos total_social_work_of_this_jurisdiction nulos
+            int updatedTotalSocialWork = entityManager.createNativeQuery(
+                "UPDATE instance SET total_social_work_of_this_jurisdiction = 50000 " +
+                "WHERE type = 'COUNCIL' AND total_social_work_of_this_jurisdiction IS NULL"
+            ).executeUpdate();
+            
+            System.out.println("Conselhos atualizados com total_social_work_of_this_jurisdiction: " + updatedTotalSocialWork);
+            
+            // Forced commit para garantir que a primeira parte foi persistida
+            entityManager.flush();
+            
+            // Agora identifica todos os conselhos sem referência e corrige
+            List<Integer> councilsWithoutRef = entityManager.createNativeQuery(
+                "SELECT id FROM instance " +
+                "WHERE type = 'COUNCIL' AND popular_council_associated_with_popular_council IS NULL"
+            ).getResultList();
+            
+            if (!councilsWithoutRef.isEmpty()) {
+                System.out.println("Encontrados " + councilsWithoutRef.size() + " conselhos sem referência");
+                
+                // Para cada conselho sem referência, faz uma self-reference explícita
+                for (Integer id : councilsWithoutRef) {
+                    int updated = entityManager.createNativeQuery(
+                        "UPDATE instance SET popular_council_associated_with_popular_council = " + id +
+                        " WHERE id = " + id
+                    ).executeUpdate();
+                    
+                    if (updated != 1) {
+                        System.err.println("⚠️ Falha ao atualizar self-reference para conselho ID: " + id);
+                    }
+                }
+                
+                System.out.println("Self-references criadas para " + councilsWithoutRef.size() + " conselhos");
+            }
+            
+            // Forçar commit novamente
+            entityManager.flush();
+            
+            // Verificar se ainda há violações
+            Long remainingViolations = (Long) entityManager.createNativeQuery(
+                "SELECT COUNT(*) FROM instance " +
+                "WHERE type = 'COUNCIL' AND " +
+                "(total_social_work_of_this_jurisdiction IS NULL OR popular_council_associated_with_popular_council IS NULL)"
+            ).getSingleResult();
+            
+            if (remainingViolations > 0) {
+                throw new RuntimeException("Ainda existem " + remainingViolations + 
+                    " violações após tentativas de correção. Aborting constraint activation.");
+            }
+            
+            // 3. Adicionar as constraints de volta
+            entityManager.createNativeQuery(
+                "ALTER TABLE instance DROP CONSTRAINT IF EXISTS chk_council_columns"
+            ).executeUpdate();
+            
             entityManager.createNativeQuery(
                 "ALTER TABLE instance ADD CONSTRAINT chk_council_columns " +
                 "CHECK (type != 'COUNCIL' OR (" +
@@ -257,24 +548,228 @@ public class BigDatabaseSeeder implements CommandLineRunner {
                 "popular_council_associated_with_popular_council IS NOT NULL))"
             ).executeUpdate();
             
-            entityManager.createNativeQuery(
-                "ALTER TABLE instance ADD CONSTRAINT chk_worker_columns " +
-                "CHECK (type != 'WORKER' OR (" +
-                "popular_council_associated_with_committee_or_worker IS NOT NULL AND " +
-                "id_associated_worker_committee IS NOT NULL AND " +
-                "id_associated_worker_residents_association = 0 AND " +
-                "estimated_individual_participation_in_social_work IS NOT NULL AND " +
-                "hours_at_electronic_point IS NOT NULL))"
-            ).executeUpdate();
+            System.out.println("Constraint chk_council_columns reativada com sucesso!");
             
-            entityManager.createNativeQuery(
-                "ALTER TABLE instance ADD CONSTRAINT chk_worker_effective_limit " +
-                "CHECK ((type = 'COMMITTEE' AND worker_effective_limit IS NOT NULL) OR " +
-                "(type != 'COMMITTEE' AND worker_effective_limit IS NULL))"
-            ).executeUpdate();
+            // Adicionar as outras constraints
+            try {
+                entityManager.createNativeQuery(
+                    "ALTER TABLE instance DROP CONSTRAINT IF EXISTS chk_worker_columns"
+                ).executeUpdate();
+                
+                entityManager.createNativeQuery(
+                    "ALTER TABLE instance ADD CONSTRAINT chk_worker_columns " +
+                    "CHECK (type != 'WORKER' OR (" +
+                    "popular_council_associated_with_committee_or_worker IS NOT NULL AND " +
+                    "id_associated_worker_committee IS NOT NULL AND " +
+                    "id_associated_worker_residents_association = 0 AND " +
+                    "estimated_individual_participation_in_social_work IS NOT NULL AND " +
+                    "hours_at_electronic_point IS NOT NULL))"
+                ).executeUpdate();
+                
+                System.out.println("Constraint chk_worker_columns reativada com sucesso!");
+            } catch (Exception e) {
+                System.err.println("Erro ao reativar chk_worker_columns: " + e.getMessage());
+            }
+            
+            try {
+                entityManager.createNativeQuery(
+                    "ALTER TABLE instance DROP CONSTRAINT IF EXISTS chk_worker_effective_limit"
+                ).executeUpdate();
+                
+                entityManager.createNativeQuery(
+                    "ALTER TABLE instance ADD CONSTRAINT chk_worker_effective_limit " +
+                    "CHECK ((type = 'COMMITTEE' AND worker_effective_limit IS NOT NULL) OR " +
+                    "(type != 'COMMITTEE' AND worker_effective_limit IS NULL))"
+                ).executeUpdate();
+                
+                System.out.println("Constraint chk_worker_effective_limit reativada com sucesso!");
+            } catch (Exception e) {
+                System.err.println("Erro ao reativar chk_worker_effective_limit: " + e.getMessage());
+            }
         } catch (Exception e) {
-            System.err.println("Erro ao recriar constraint: " + e.getMessage());
+            System.err.println("\n❌ ERRO AO RECRIAR CONSTRAINT: " + e.getMessage());
+            e.printStackTrace();
+            
+            // Mostrar informações mais detalhadas sobre as violações
+            System.err.println("\n=== DETALHAMENTO DAS VIOLAÇÕES RESTANTES ===");
+            try {
+                // Verificar violações usando SQL nativo para garantir precisão
+                List<Object[]> violations = entityManager.createNativeQuery(
+                    "SELECT id, committee_name, total_social_work_of_this_jurisdiction, " +
+                    "popular_council_associated_with_popular_council " +
+                    "FROM instance " +
+                    "WHERE type = 'COUNCIL' AND " +
+                    "(total_social_work_of_this_jurisdiction IS NULL OR " +
+                    "popular_council_associated_with_popular_council IS NULL) " +
+                    "LIMIT 20"
+                ).getResultList();
+                
+                System.err.println("Registros com violações (limitados a 20):");
+                System.err.println("ID | Nome | TotalSocialWork | PopularCouncil");
+                System.err.println("------------------------------------------");
+                
+                for (Object[] record : violations) {
+                    System.err.println(record[0] + " | " + record[1] + " | " + record[2] + " | " + record[3]);
+                }
+                
+                // Total de violações
+                Object count = entityManager.createNativeQuery(
+                    "SELECT COUNT(*) FROM instance " +
+                    "WHERE type = 'COUNCIL' AND " +
+                    "(total_social_work_of_this_jurisdiction IS NULL OR " +
+                    "popular_council_associated_with_popular_council IS NULL)"
+                ).getSingleResult();
+                
+                System.err.println("\nTotal de conselhos que violam a constraint: " + count);
+                
+                // Sugestão de correção manual
+                System.err.println("\nComando SQL para correção manual:");
+                System.err.println(
+                    "UPDATE instance SET " +
+                    "total_social_work_of_this_jurisdiction = 50000, " +
+                    "popular_council_associated_with_popular_council = id " +
+                    "WHERE type = 'COUNCIL' AND " +
+                    "(total_social_work_of_this_jurisdiction IS NULL OR popular_council_associated_with_popular_council IS NULL);"
+                );
+                
+            } catch (Exception ex) {
+                System.err.println("Erro ao executar diagnóstico detalhado: " + ex.getMessage());
+            }
         }
+    }
+    
+    /**
+     * Diagnóstico detalhado para uma violação específica
+     */
+    private void diagnosticConstraintViolationDetail(String entityType, String condition) {
+        String query = "SELECT i.id, i.type, i.committeeName FROM Instance i WHERE ";
+        
+        if (entityType != null) {
+            query += "i.type = '" + entityType + "' AND ";
+        }
+        
+        query += "(" + condition + ") LIMIT 10";
+        
+        List<Object[]> violations = entityManager.createQuery(query, Object[].class).getResultList();
+        
+        System.err.println("Primeiras 10 instâncias que violam a constraint:");
+        System.err.println("ID | Tipo | Nome");
+        System.err.println("--------------------");
+        
+        for (Object[] record : violations) {
+            System.err.println(record[0] + " | " + record[1] + " | " + record[2]);
+        }
+        
+        // Exibir query SQL nativa para inspeção manual
+        System.err.println("\nQuery SQL para inspeção manual no banco de dados:");
+        String sqlQuery = "SELECT id, type, committee_name FROM instance WHERE ";
+        if (entityType != null) {
+            sqlQuery += "type = '" + entityType + "' AND ";
+        }
+        
+        // Converter condições JPQL para SQL
+        String sqlCondition = condition
+            .replace("popularCouncilAssociatedWithPopularCouncil", "popular_council_associated_with_popular_council")
+            .replace("totalSocialWorkOfThisJurisdiction", "total_social_work_of_this_jurisdiction")
+            .replace("popularCouncilAssociatedWithCommitteeOrWorker", "popular_council_associated_with_committee_or_worker")
+            .replace("associatedWorkerCommittee", "id_associated_worker_committee")
+            .replace("associatedWorkerResidentsAssociation", "id_associated_worker_residents_association")
+            .replace("estimatedIndividualParticipationInSocialWork", "estimated_individual_participation_in_social_work")
+            .replace("hoursAtElectronicPoint", "hours_at_electronic_point")
+            .replace("workerEffectiveLimit", "worker_effective_limit");
+        
+        sqlQuery += "(" + sqlCondition + ") LIMIT 10;";
+        System.err.println(sqlQuery);
+    }
+    
+    /**
+     * Diagnostica violações de constraints antes de tentar ativá-las
+     */
+    private void diagnosticConstraintViolations() {
+        System.out.println("\n=== DIAGNÓSTICO DE VIOLAÇÕES DE CONSTRAINTS ===");
+        
+        // Diagnóstico para chk_council_columns
+        List<Object[]> violatingCouncils = entityManager.createQuery(
+            "SELECT i.id, i.type, i.committeeName, i.totalSocialWorkOfThisJurisdiction, " +
+            "      (CASE WHEN i.popularCouncilAssociatedWithPopularCouncil IS NULL THEN 'NULL' " +
+            "            ELSE i.popularCouncilAssociatedWithPopularCouncil.id END) " +
+            "FROM Instance i " +
+            "WHERE i.type = 'COUNCIL' AND " +
+            "      (i.totalSocialWorkOfThisJurisdiction IS NULL OR " +
+            "       i.popularCouncilAssociatedWithPopularCouncil IS NULL)",
+            Object[].class
+        ).getResultList();
+        
+        if (!violatingCouncils.isEmpty()) {
+            System.out.println("\nViolação da constraint chk_council_columns detectada em " + 
+                              violatingCouncils.size() + " registros:");
+            System.out.println("ID | Tipo | Nome | TotalSocialWork | PopularCouncil");
+            System.out.println("----------------------------------------------------");
+            for (Object[] record : violatingCouncils) {
+                System.out.println(record[0] + " | " + record[1] + " | " + record[2] + " | " +
+                                  record[3] + " | " + record[4]);
+            }
+        } else {
+            System.out.println("Nenhuma violação para chk_council_columns detectada.");
+        }
+        
+        // Diagnóstico para chk_worker_columns
+        List<Object[]> violatingWorkers = entityManager.createQuery(
+            "SELECT i.id, i.type, i.committeeName, " +
+            "      (CASE WHEN i.popularCouncilAssociatedWithCommitteeOrWorker IS NULL THEN 'NULL' " +
+            "            ELSE i.popularCouncilAssociatedWithCommitteeOrWorker.id END), " +
+            "      (CASE WHEN i.associatedWorkerCommittee IS NULL THEN 'NULL' " +
+            "            ELSE i.associatedWorkerCommittee.id END), " +
+            "      (CASE WHEN i.associatedWorkerResidentsAssociation IS NULL THEN 'NULL' " +
+            "            ELSE i.associatedWorkerResidentsAssociation.id END), " +
+            "      i.estimatedIndividualParticipationInSocialWork, i.hoursAtElectronicPoint " +
+            "FROM Instance i " +
+            "WHERE i.type = 'WORKER' AND " +
+            "      (i.popularCouncilAssociatedWithCommitteeOrWorker IS NULL OR " +
+            "       i.associatedWorkerCommittee IS NULL OR " +
+            "       i.associatedWorkerResidentsAssociation IS NULL OR " +
+            "       i.associatedWorkerResidentsAssociation.id != 0 OR " + 
+            "       i.estimatedIndividualParticipationInSocialWork IS NULL OR " +
+            "       i.hoursAtElectronicPoint IS NULL)",
+            Object[].class
+        ).getResultList();
+        
+        if (!violatingWorkers.isEmpty()) {
+            System.out.println("\nViolação da constraint chk_worker_columns detectada em " + 
+                              violatingWorkers.size() + " registros:");
+            System.out.println("ID | Tipo | Nome | PopularCouncil | WorkerCommittee | ResidentsAssoc | EstimatedParticipation | Hours");
+            System.out.println("--------------------------------------------------------------------------------------------------");
+            for (Object[] record : violatingWorkers) {
+                System.out.println(record[0] + " | " + record[1] + " | " + record[2] + " | " +
+                                  record[3] + " | " + record[4] + " | " + record[5] + " | " +
+                                  record[6] + " | " + record[7]);
+            }
+        } else {
+            System.out.println("Nenhuma violação para chk_worker_columns detectada.");
+        }
+        
+        // Diagnóstico para chk_worker_effective_limit
+        List<Object[]> violatingEffectiveLimit = entityManager.createQuery(
+            "SELECT i.id, i.type, i.committeeName, i.workerEffectiveLimit " +
+            "FROM Instance i " +
+            "WHERE (i.type = 'COMMITTEE' AND i.workerEffectiveLimit IS NULL) OR " +
+            "      (i.type != 'COMMITTEE' AND i.workerEffectiveLimit IS NOT NULL)",
+            Object[].class
+        ).getResultList();
+        
+        if (!violatingEffectiveLimit.isEmpty()) {
+            System.out.println("\nViolação da constraint chk_worker_effective_limit detectada em " + 
+                              violatingEffectiveLimit.size() + " registros:");
+            System.out.println("ID | Tipo | Nome | WorkerEffectiveLimit");
+            System.out.println("---------------------------------------");
+            for (Object[] record : violatingEffectiveLimit) {
+                System.out.println(record[0] + " | " + record[1] + " | " + record[2] + " | " + record[3]);
+            }
+        } else {
+            System.out.println("Nenhuma violação para chk_worker_effective_limit detectada.");
+        }
+        
+        System.out.println("\n=== FIM DO DIAGNÓSTICO ===\n");
     }
     
     /**
