@@ -2,7 +2,6 @@ xyz/planecon/service/InstanceService.class
 xyz/planecon/controller/SocialMaterializationController.class
 xyz/planecon/repository/WorkersProposalRepository.class
 xyz/planecon/Application.class
-xyz/planecon/config/adapter/InstanceAdapter.class
 xyz/planecon/repository/OptimizationInputsResultsRepository.class
 xyz/planecon/model/entity/TechnologicalTensor$TechnologicalTensorId.class
 xyz/planecon/dto/LoginRequest.class
@@ -13,11 +12,8 @@ xyz/planecon/model/entity/WorkersProposal.class
 xyz/planecon/config/ServerConfig.class
 xyz/planecon/dto/UserResponse.class
 xyz/planecon/model/entity/Sector.class
-xyz/planecon/config/MassiveDatabaseSeedIntegrator.class
-xyz/planecon/config/UserGenerator.class
 xyz/planecon/controller/UserController.class
 xyz/planecon/model/entity/TechnologicalTensorId.class
-xyz/planecon/config/adapter/WorkersProposalAdapter.class
 xyz/planecon/config/WebConfig.class
 xyz/planecon/repository/DemandStockRepository.class
 xyz/planecon/model/enums/PronounType.class
@@ -35,7 +31,6 @@ xyz/planecon/model/entity/SocialMaterialization.class
 xyz/planecon/controller/UserInstanceController$1.class
 xyz/planecon/repository/SectorRepository.class
 xyz/planecon/controller/InstanceSimpleController.class
-xyz/planecon/config/DatabaseSeeder.class
 xyz/planecon/controller/UserTestController.class
 xyz/planecon/config/DatabaseConfig.class
 xyz/planecon/model/enums/UserType.class
@@ -43,8 +38,6 @@ xyz/planecon/model/enums/SocialMaterializationType.class
 xyz/planecon/config/SecurityConfig.class
 xyz/planecon/controller/UserInstanceController.class
 xyz/planecon/model/entity/DemandVector.class
-xyz/planecon/config/BigDatabaseSeeder.class
-xyz/planecon/config/InstanceHierarchyGenerator.class
 xyz/planecon/model/entity/WorkersProposal$WorkersProposalId.class
 xyz/planecon/repository/InstanceRepository.class
 xyz/planecon/model/entity/OptimizationInputsResults.class
