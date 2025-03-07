@@ -39,4 +39,58 @@ public class User {
     @ManyToOne
     @JoinColumn(name = "id_instance")
     private Instance instance;
+
+    // Setters
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setType(UserType type) {
+        this.type = type;
+    }
+
+    public void setPronoun(PronounType pronoun) {
+        this.pronoun = pronoun;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public void setInstance(Instance instance) {
+        this.instance = instance;
+    }
+
+    // Getters
+    public Integer getId() {
+        return id;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public UserType getType() {
+        return type;
+    }
+
+    public PronounType getPronoun() {
+        return pronoun;
+    }
+
+    public Instance getInstance() {
+        return instance;
+    }
 }
