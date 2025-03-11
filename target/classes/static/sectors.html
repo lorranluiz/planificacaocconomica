@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Materializações Sociais - Sistema de Planejamento Econômico</title>
+    <title>Setores - Sistema de Planejamento Econômico</title>
     <link rel="stylesheet" href="/css/common-styles.css">
 </head>
 <body>
     <div class="container">
-        <!-- O cabeçalho será inserido aqui pelo script -->
-
-        <h1>Materializações Sociais</h1>
+        <h1>Setores</h1>
         
         <!-- Abas para navegar entre listar e cadastrar -->
         <div class="tabs">
@@ -20,7 +18,7 @@
         
         <!-- Conteúdo da aba de listagem -->
         <div id="list-tab" class="tab-content active">
-            <button id="loadButton">Carregar Materializações</button>
+            <button id="loadButton">Carregar Setores</button>
             
             <div id="loading" class="loading">Carregando dados...</div>
             <div id="error" class="message error"></div>
@@ -32,8 +30,6 @@
                         <tr>
                             <th>ID</th>
                             <th>Nome</th>
-                            <th>Tipo</th>
-                            <th>Setor</th>
                             <th>Criado em</th>
                         </tr>
                     </thead>
@@ -44,35 +40,15 @@
         
         <!-- Conteúdo da aba de cadastro -->
         <div id="create-tab" class="tab-content">
-            <div id="formLoadingMessage" class="loading">Carregando setores...</div>
             <div id="formErrorMessage" class="message error"></div>
             <div id="formSuccessMessage" class="message success"></div>
             
             <form id="createForm" class="form-container">
-                <h2>Nova Materialização Social</h2>
+                <h2>Novo Setor</h2>
                 
                 <div class="form-group">
                     <label for="name">Nome<span class="required">*</span></label>
-                    <input type="text" id="name" name="name" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="type">Tipo<span class="required">*</span></label>
-                    <select id="type" name="type" required>
-                        <option value="">Selecione...</option>
-                        <option value="SERVICE">SERVIÇO</option>
-                        <option value="PRODUCT">PRODUTO</option>
-                    </select>
-                </div>
-                
-                <div class="form-group">
-                    <label for="sector">Setor<span class="required">*</span></label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <select id="sector" name="sector" required style="flex: 1">
-                            <option value="">Carregando setores...</option>
-                        </select>
-                        <button type="button" class="secondary" style="min-width: 80px" onclick="window.open('/sectors.html#create', '_blank')">Novo</button>
-                    </div>
+                    <input type="text" id="name" name="name" required maxlength="100">
                 </div>
                 
                 <div class="form-buttons">
@@ -81,55 +57,64 @@
                 </div>
             </form>
         </div>
-    </div> <!-- Fechamento do container -->
+    </div>
+
     <script src="/common-header.js"></script>
+
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Inserir o cabeçalho comum
-            insertCommonHeader();
-            
-            // Elementos da página
+            // Primeiro carregar a estrutura da página e elementos críticos
             const loadButton = document.getElementById('loadButton');
             const loading = document.getElementById('loading');
             const error = document.getElementById('error');
             const tableBody = document.querySelector('#dataTable tbody');
             const counter = document.getElementById('counter');
             const createForm = document.getElementById('createForm');
-            const formLoadingMessage = document.getElementById('formLoadingMessage');
             const formErrorMessage = document.getElementById('formErrorMessage');
             const formSuccessMessage = document.getElementById('formSuccessMessage');
-            const sectorSelect = document.getElementById('sector');
             const submitButton = document.getElementById('submitButton');
             const cancelButton = document.getElementById('cancelButton');
             const tabs = document.querySelectorAll('.tab');
             const tabContents = document.querySelectorAll('.tab-content');
             
-            // Carregar dados automaticamente ao abrir a página
-            loadMaterializations();
-            
+            // Inserir cabeçalho comum com verificação de segurança
+            if (typeof insertCommonHeader === 'function') {
+                insertCommonHeader();
+            } else {
+                console.error('Função insertCommonHeader não encontrada. Verifique se o arquivo common-header.js está carregado corretamente.');
+            }
+
             // ----------------- GERENCIAMENTO DE ABAS -----------------
             tabs.forEach(tab => {
                 tab.addEventListener('click', function() {
-                    // Remover classe ativa de todas as abas
+                    // Remover classe ativa de todas as abas e conteúdos
                     tabs.forEach(t => t.classList.remove('active'));
                     tabContents.forEach(c => c.classList.remove('active'));
                     
                     // Adicionar classe ativa na aba clicada
                     this.classList.add('active');
-                    const tabId = this.getAttribute('data-tab');
-                    document.getElementById(tabId + '-tab').classList.add('active');
                     
-                    // Se a aba for de cadastro, carregar setores
-                    if (tabId === 'create') {
-                        loadSectors();
-                    }
+                    // Obter o id da aba (list ou create)
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // CORREÇÃO AQUI: Selecionar o conteúdo da aba diretamente pelo ID
+                    document.getElementById(tabId + '-tab').classList.add('active');
                 });
             });
             
-            // ----------------- LISTAR MATERIALIZAÇÕES -----------------
-            loadButton.addEventListener('click', loadMaterializations);
+            // Verificar se a URL contém um hash para abrir uma aba específica
+            if (window.location.hash === '#create') {
+                document.querySelector('.tab[data-tab="create"]').click();
+            } else {
+                // Carregar dados automaticamente ao abrir a página
+                loadSectors();
+            }
             
-            function loadMaterializations() {
+            // ----------------- LISTAR SETORES -----------------
+            loadButton.addEventListener('click', loadSectors);
+            
+            function loadSectors() {
+                console.log("Carregando setores...");
                 // Limpar resultados anteriores
                 tableBody.innerHTML = '';
                 counter.textContent = '';
@@ -141,20 +126,18 @@
                 error.style.display = 'none';
                 
                 // Fazer requisição ao endpoint
-                fetch('/api/social-materializations')
+                fetch('/api/sectors')
                     .then(response => {
                         if (!response.ok) {
                             // Tentar extrair mensagem de erro se disponível
                             return response.text().then(text => {
                                 let errorMsg = `Status: ${response.status}`;
                                 try {
-                                    // Verificar se é JSON válido
                                     const errorObj = JSON.parse(text);
                                     if (errorObj && errorObj.message) {
                                         errorMsg = errorObj.message;
                                     }
                                 } catch (e) {
-                                    // Se não for JSON, usar o texto como está ou o código de status
                                     if (text && text.trim()) {
                                         errorMsg = text;
                                     }
@@ -165,9 +148,10 @@
                         return response.json();
                     })
                     .then(data => {
+                        console.log("Dados recebidos:", data);
                         // Tratar dados vazios
                         if (!data || data.length === 0) {
-                            counter.textContent = 'Nenhuma materialização social encontrada.';
+                            counter.textContent = 'Nenhum setor encontrado.';
                             loading.style.display = 'none';
                             return;
                         }
@@ -176,7 +160,7 @@
                         loading.style.display = 'none';
                         
                         // Atualizar contador
-                        counter.textContent = `Total: ${data.length} materializações encontradas`;
+                        counter.textContent = `Total: ${data.length} setores encontrados`;
                         
                         // Preencher a tabela com os dados
                         data.forEach(item => {
@@ -193,8 +177,6 @@
                             row.innerHTML = `
                                 <td>${item.id || ''}</td>
                                 <td>${item.name || ''}</td>
-                                <td>${formatType(item.type) || ''}</td>
-                                <td>${item.sector ? item.sector.name : '-'}</td>
                                 <td>${createdAt || '-'}</td>
                             `;
                             
@@ -212,98 +194,34 @@
                     });
             }
             
-            // ----------------- CARREGAR SETORES -----------------
-            async function loadSectors() {
-                formLoadingMessage.style.display = 'block';
-                formErrorMessage.style.display = 'none';
-                sectorSelect.innerHTML = '<option value="">Carregando setores...</option>';
-                sectorSelect.disabled = true;
-                
-                try {
-                    const response = await fetch('/api/sectors');
-                    
-                    if (!response.ok) {
-                        // Melhor tratamento de erro
-                        const errorText = await response.text();
-                        let errorMsg = `Falha ao carregar setores: ${response.status}`;
-                        
-                        try {
-                            const errorObj = JSON.parse(errorText);
-                            if (errorObj && errorObj.message) {
-                                errorMsg = errorObj.message;
-                            }
-                        } catch (e) {
-                            if (errorText && errorText.trim()) {
-                                errorMsg = errorText;
-                            }
-                        }
-                        
-                        throw new Error(errorMsg);
-                    }
-                    
-                    const sectors = await response.json();
-                    
-                    // Verificar se há setores
-                    if (!sectors || sectors.length === 0) {
-                        formErrorMessage.textContent = 'Nenhum setor disponível para seleção.';
-                        formErrorMessage.style.display = 'block';
-                        sectorSelect.innerHTML = '<option value="">Nenhum setor disponível</option>';
-                        formLoadingMessage.style.display = 'none';
-                        return;
-                    }
-                    
-                    // Preencher o select de setores
-                    sectorSelect.innerHTML = '<option value="">Selecione um setor...</option>';
-                    sectors.forEach(sector => {
-                        const option = document.createElement('option');
-                        option.value = sector.id;
-                        option.textContent = sector.name;
-                        sectorSelect.appendChild(option);
-                    });
-                    
-                    sectorSelect.disabled = false;
-                    formLoadingMessage.style.display = 'none';
-                } catch (err) {
-                    console.error("Erro ao carregar setores:", err);
-                    formErrorMessage.textContent = 'Erro ao carregar setores: ' + err.message;
-                    formErrorMessage.style.display = 'block';
-                    formLoadingMessage.style.display = 'none';
-                    sectorSelect.innerHTML = '<option value="">Erro ao carregar</option>';
-                }
-            }
-            
-            // ----------------- CADASTRAR MATERIALIZAÇÃO -----------------
+            // ----------------- CADASTRAR SETOR -----------------
             createForm.addEventListener('submit', function(e) {
                 e.preventDefault();
                 
                 // Obter dados do formulário
                 const formData = {
-                    name: document.getElementById('name').value,
-                    type: document.getElementById('type').value,
-                    sectorId: parseInt(document.getElementById('sector').value)
+                    name: document.getElementById('name').value.trim()
                 };
                 
                 // Validação básica
-                if (!formData.name || !formData.type || !formData.sectorId) {
-                    formErrorMessage.textContent = 'Por favor, preencha todos os campos obrigatórios.';
+                if (!formData.name) {
+                    formErrorMessage.textContent = 'Por favor, informe o nome do setor.';
                     formErrorMessage.style.display = 'block';
                     return;
                 }
                 
                 // Enviar dados ao servidor
-                submitMaterialization(formData);
+                submitSector(formData);
             });
             
-            async function submitMaterialization(formData) {
-                // Desabilitar o botão de envio e mostrar carregamento
+            async function submitSector(formData) {
+                // Desabilitar o botão de envio e mostrar mensagem de carregamento
                 submitButton.disabled = true;
-                formLoadingMessage.textContent = 'Cadastrando materialização...';
-                formLoadingMessage.style.display = 'block';
                 formSuccessMessage.style.display = 'none';
                 formErrorMessage.style.display = 'none';
                 
                 try {
-                    const response = await fetch('/api/social-materializations', {
+                    const response = await fetch('/api/sectors', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'
@@ -311,14 +229,19 @@
                         body: JSON.stringify(formData)
                     });
                     
-                    const responseData = await response.json();
+                    let responseData;
+                    try {
+                        responseData = await response.json();
+                    } catch (e) {
+                        responseData = { message: 'Erro ao processar resposta do servidor' };
+                    }
                     
                     if (!response.ok) {
-                        throw new Error(responseData.message || 'Erro ao cadastrar materialização');
+                        throw new Error(responseData.message || `Erro ${response.status} ao cadastrar setor`);
                     }
                     
                     // Mostrar mensagem de sucesso
-                    formSuccessMessage.textContent = 'Materialização social cadastrada com sucesso!';
+                    formSuccessMessage.textContent = `Setor "${formData.name}" cadastrado com sucesso!`;
                     formSuccessMessage.style.display = 'block';
                     
                     // Limpar o formulário
@@ -327,7 +250,7 @@
                     // Após 3 segundos, redirecionar para a aba de listagem
                     setTimeout(() => {
                         document.querySelector('.tab[data-tab="list"]').click();
-                        loadMaterializations(); // Recarregar a lista
+                        loadSectors(); // Recarregar a lista
                     }, 3000);
                     
                 } catch (err) {
@@ -336,7 +259,6 @@
                     console.error(err);
                 } finally {
                     submitButton.disabled = false;
-                    formLoadingMessage.style.display = 'none';
                 }
             }
             
@@ -347,13 +269,6 @@
                 formSuccessMessage.style.display = 'none';
                 document.querySelector('.tab[data-tab="list"]').click();
             });
-            
-            // ----------------- UTILITÁRIOS -----------------
-            function formatType(type) {
-                if (type === 'SERVICE') return 'SERVIÇO';
-                if (type === 'PRODUCT') return 'PRODUTO';
-                return type;
-            }
         });
     </script>
 </body>

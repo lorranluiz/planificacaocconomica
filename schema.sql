@@ -270,6 +270,17 @@ ALTER SEQUENCE public.business_rule_violation_log_id_seq OWNED BY public.busines
 
 
 --
+-- Name: committee_id; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.committee_id (
+    id integer
+);
+
+
+ALTER TABLE public.committee_id OWNER TO postgres;
+
+--
 -- Name: demand_stock; Type: TABLE; Schema: public; Owner: postgres
 --
 

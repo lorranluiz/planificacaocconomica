@@ -4,202 +4,109 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Sistema de Planejamento Econômico</title>
-    <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #f5f5f5;
-            margin: 0;
-            padding: 20px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        
-        .container {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            width: 100%;
-            max-width: 800px;
-        }
-        
-        h1, h2, h3 {
-            text-align: center;
-            color: #2c3e50;
-            margin-top: 0;
-        }
-        
-        .form-group {
-            margin-bottom: 1.5rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #333;
-        }
-        
-        .form-group input {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
-            box-sizing: border-box;
-        }
-        
-        .alert {
-            padding: 0.75rem;
-            margin-bottom: 1rem;
-            border-radius: 4px;
-            display: none;
-        }
-        
-        .alert-danger {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-        
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-        
-        .btn {
-            display: block;
-            width: 100%;
-            padding: 0.75rem;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        
-        .btn:hover {
-            background-color: #2980b9;
-        }
-        
-        .btn-secondary {
-            background-color: #6c757d;
-            margin-top: 10px;
-        }
-        
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-        
-        .register-link {
-            text-align: center;
-            margin-top: 1rem;
-        }
-        
-        .register-link a {
-            color: #3498db;
-            text-decoration: none;
-        }
-        
-        .register-link a:hover {
-            text-decoration: underline;
-        }
-        
-        .tabs {
-            display: flex;
-            margin-bottom: 1rem;
-        }
-        
-        .tab {
-            flex: 1;
-            padding: 10px;
-            text-align: center;
-            background-color: #f8f9fa;
-            border: 1px solid #dee2e6;
-            cursor: pointer;
-        }
-        
-        .tab.active {
-            background-color: #3498db;
-            color: white;
-            border-color: #3498db;
-        }
-        
-        .tab-content {
-            display: none;
-        }
-        
-        .tab-content.active {
-            display: block;
-        }
-        
-        .user-welcome {
-            text-align: center;
-            margin-bottom: 1rem;
-        }
-        
-        .report-container {
-            margin-top: 20px;
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-        }
-        
-        .report-section {
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #eee;
-        }
-        
-        .report-item {
-            display: flex;
-            margin-bottom: 5px;
-        }
-        
-        .item-label {
-            font-weight: bold;
-            width: 180px;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 20px;
-            font-style: italic;
-            color: #666;
-        }
-    </style>
+    <link rel="stylesheet" href="/css/common-styles.css">
 </head>
 <body>
     <div class="container">
-        <div id="loginSection">
-            <h1>Login</h1>
+        <!-- O cabeçalho será inserido aqui pelo script -->
+        
+        <div class="auth-container">
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-tab="login">Login</div>
+                <div class="auth-tab" data-tab="register">Registrar</div>
+            </div>
             
-            <div id="errorAlert" class="alert alert-danger"></div>
-            <div id="successAlert" class="alert alert-success"></div>
-            
-            <form id="authForm">
-                <div class="form-group">
-                    <label for="username">Nome de usuário:</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
+            <div id="login-content" class="auth-content active">
+                <h2>Login</h2>
+                <div id="loginErrorAlert" class="message error" style="display: none;"></div>
+                <div id="loginSuccessAlert" class="message success" style="display: none;"></div>
                 
-                <div class="form-group">
-                    <label for="password">Senha:</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                
-                <button type="submit" class="btn">Entrar</button>
-            </form>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Nome de usuário:</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Senha:</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    
+                    <div class="remember-me">
+                        <input type="checkbox" id="rememberMe" name="rememberMe">
+                        <label for="rememberMe">Lembrar-me</label>
+                    </div>
+                    
+                    <button type="submit" class="btn">Entrar</button>
+                </form>
+            </div>
             
-            <div class="register-link">
-                Não tem uma conta? <a href="user-registration.html">Cadastre-se</a>
+            <div id="register-content" class="auth-content">
+                <h2>Registrar</h2>
+                <div id="registerErrorAlert" class="message error" style="display: none;"></div>
+                <div id="registerSuccessAlert" class="message success" style="display: none;"></div>
+                
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerUsername">Nome de usuário:</label>
+                        <input type="text" id="registerUsername" name="username" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="registerPassword">Senha:</label>
+                        <input type="password" id="registerPassword" name="password" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="registerName">Nome completo:</label>
+                        <input type="text" id="registerName" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Pronomes:</label>
+                        <div class="pronoun-selector">
+                            <div class="pronoun-option">
+                                <input type="radio" id="he_him" name="pronoun" value="HE_HIM" checked>
+                                <label for="he_him">Ele/Dele</label>
+                            </div>
+                            <div class="pronoun-option">
+                                <input type="radio" id="she_her" name="pronoun" value="SHE_HER">
+                                <label for="she_her">Ela/Dela</label>
+                            </div>
+                            <div class="pronoun-option">
+                                <input type="radio" id="they_them" name="pronoun" value="THEY_THEM">
+                                <label for="they_them">Elu/Delu</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tipo de Usuário:</label>
+                        <div class="pronoun-selector">
+                            <div class="pronoun-option">
+                                <input type="radio" id="councillor" name="type" value="COUNCILLOR" checked>
+                                <label for="councillor">Conselheiro</label>
+                            </div>
+                            <div class="pronoun-option">
+                                <input type="radio" id="non_councillor" name="type" value="NON_COUNCILLOR">
+                                <label for="non_councillor">Não-Conselheiro</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="instanceSelectContainer" class="form-group">
+                        <label for="instanceId">Instância associada:</label>
+                        <select id="instanceId" name="instanceId" required>
+                            <option value="">Carregando instâncias...</option>
+                        </select>
+                    </div>
+                    
+                    <div id="instanceInfoBox" class="info-tip" style="display: none;">
+                        Uma nova instância WORKER será criada automaticamente para este usuário.
+                    </div>
+                    
+                    <button type="submit" class="btn">Registrar</button>
+                </form>
             </div>
         </div>
         
@@ -257,271 +164,89 @@
         </div>
     </div>
 
+    <script src="/common-header.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Verificar se já existe um usuário logado
-            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (currentUser) {
-                showWelcomeSection(currentUser);
-                fetchUserInstanceReport(currentUser.id);
-            }
+            // Inserir o cabeçalho comum
+            insertCommonHeader();
             
-            // Elementos do DOM
-            const authForm = document.getElementById('authForm');
-            const loginSection = document.getElementById('loginSection');
-            const welcomeSection = document.getElementById('welcomeSection');
-            const errorAlert = document.getElementById('errorAlert');
-            const successAlert = document.getElementById('successAlert');
-            const logoutBtn = document.getElementById('logoutBtn');
+            // Gestão de abas de autenticação
+            const authTabs = document.querySelectorAll('.auth-tab');
+            const authContents = document.querySelectorAll('.auth-content');
             
-            // Event Listeners
-            authForm.addEventListener('submit', handleLogin);
-            logoutBtn.addEventListener('click', handleLogout);
-            
-            // Controle de tabs
-            document.querySelectorAll('.tab').forEach(tab => {
+            authTabs.forEach(tab => {
                 tab.addEventListener('click', function() {
-                    const tabName = this.getAttribute('data-tab');
-                    activateTab(tabName);
+                    const tabId = this.getAttribute('data-tab');
+                    
+                    // Remover classe ativa de todas as abas e conteúdos
+                    authTabs.forEach(t => t.classList.remove('active'));
+                    authContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Adicionar classe ativa à aba e conteúdo selecionados
+                    this.classList.add('active');
+                    document.getElementById(`${tabId}-content`).classList.add('active');
                 });
             });
             
-            function activateTab(tabName) {
-                // Remover classe active de todas as tabs e conteúdos
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                
-                // Adicionar classe active à tab e conteúdo selecionados
-                document.querySelector(`.tab[data-tab="${tabName}"]`).classList.add('active');
-                document.getElementById(`${tabName}Tab`).classList.add('active');
-            }
+            // Configurar exibição condicional de campos baseado no tipo de usuário
+            document.querySelectorAll('input[name="type"]').forEach(radio => {
+                radio.addEventListener('change', updateUserTypeFields);
+            });
             
-            function handleLogin(e) {
-                e.preventDefault();
-                console.log("Login submetido");
-                
-                // Limpar alertas anteriores
-                errorAlert.style.display = 'none';
-                successAlert.style.display = 'none';
-                
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
-                
-                console.log("Enviando requisição para /api/auth/login");
-                
-                // Mostrar feedback para o usuário que o login está sendo processado
-                errorAlert.textContent = "Processando...";
-                errorAlert.style.display = 'block';
-                errorAlert.style.backgroundColor = '#e2e3e5';
-                errorAlert.style.color = '#383d41';
-                errorAlert.style.borderColor = '#d6d8db';
-                
-                fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username, password })
-                })
-                .then(response => {
-                    console.log("Resposta recebida:", response.status);
+            // Carregar instâncias para o formulário de registro
+            loadInstancesForRegistration();
+            
+            // Inicializar campos para tipo de usuário
+            updateUserTypeFields();
+            
+            // Código existente para login e registro aqui
+            // ...
+        });
+        
+        function updateUserTypeFields() {
+            const userType = document.querySelector('input[name="type"]:checked').value;
+            const instanceSelectContainer = document.getElementById('instanceSelectContainer');
+            const instanceInfoBox = document.getElementById('instanceInfoBox');
+            
+            if (userType === 'COUNCILLOR') {
+                instanceSelectContainer.style.display = 'block';
+                instanceInfoBox.style.display = 'none';
+            } else {
+                instanceSelectContainer.style.display = 'none';
+                instanceInfoBox.style.display = 'block';
+            }
+        }
+        
+        function loadInstancesForRegistration() {
+            const instanceSelect = document.getElementById('instanceId');
+            
+            fetch('/api/instances')
+                .then(response => response.ok ? response.json() : [])
+                .then(instances => {
+                    // Filtrar apenas COUNCIL e COMMITTEE
+                    const filteredInstances = instances.filter(instance => 
+                        instance.type === 'COUNCIL' || instance.type === 'COMMITTEE'
+                    );
                     
-                    if (!response.ok) {
-                        return response.text().then(text => {
-                            throw new Error(text || 'Nome de usuário ou senha incorretos');
-                        });
-                    }
-                    return response.json();
-                })
-                .then(user => {
-                    console.log("Login bem-sucedido:", user);
+                    // Limpar opções e adicionar padrão
+                    instanceSelect.innerHTML = '<option value="">Selecione uma instância</option>';
                     
-                    // Salvar no localStorage
-                    localStorage.setItem('currentUser', JSON.stringify(user));
-                    
-                    // Mostrar seção de boas-vindas
-                    showWelcomeSection(user);
-                    
-                    // Buscar relatório detalhado
-                    fetchUserInstanceReport(user.id);
-                    
-                    // Feedback de sucesso
-                    successAlert.textContent = "Login realizado com sucesso!";
-                    successAlert.style.display = 'block';
-                    errorAlert.style.display = 'none';
+                    // Adicionar instâncias filtradas
+                    filteredInstances.forEach(instance => {
+                        const option = document.createElement('option');
+                        option.value = instance.id;
+                        option.textContent = `${instance.committeeName || instance.id} (${instance.type})`;
+                        instanceSelect.appendChild(option);
+                    });
                 })
                 .catch(error => {
-                    console.error("Erro de login:", error);
-                    errorAlert.textContent = error.message;
-                    errorAlert.style.display = 'block';
-                    errorAlert.style.backgroundColor = '#f8d7da';
-                    errorAlert.style.color = '#721c24';
-                    errorAlert.style.borderColor = '#f5c6cb';
+                    console.error('Erro ao carregar instâncias:', error);
+                    instanceSelect.innerHTML = '<option value="">Erro ao carregar instâncias</option>';
                 });
-            }
-            
-            function showWelcomeSection(user) {
-                // Preencher dados básicos do usuário
-                document.getElementById('userNameDisplay').textContent = user.name;
-                document.getElementById('userTypeDisplay').textContent = user.type;
-                document.getElementById('userId').textContent = user.id;
-                document.getElementById('userName').textContent = user.name;
-                document.getElementById('userUsername').textContent = user.username;
-                document.getElementById('userType').textContent = user.type;
-                document.getElementById('userPronoun').textContent = user.pronoun || 'Não especificado';
-                
-                // Mostrar seção de boas-vindas e esconder login
-                loginSection.style.display = 'none';
-                welcomeSection.style.display = 'block';
-            }
-            
-            function fetchUserInstanceReport(userId) {
-                document.getElementById('instanceLoading').style.display = 'block';
-                document.getElementById('relatedLoading').style.display = 'block';
-                document.getElementById('instanceContainer').style.display = 'none';
-                document.getElementById('relatedContainer').style.display = 'none';
-                
-                // Corrigido para usar a nova URL
-                fetch(`/api/user-report/${userId}`)
-                    .then(response => {
-                        console.log("Resposta do relatório:", response.status);
-                        if (!response.ok) {
-                            return response.text().then(text => {
-                                throw new Error(text || 'Falha ao carregar relatório da instância');
-                            });
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        console.log("Dados do relatório recebidos:", data);
-                        renderInstanceReport(data);
-                        renderRelatedEntities(data);
-                    })
-                    .catch(error => {
-                        console.error('Erro ao buscar detalhes:', error);
-                        document.getElementById('instanceContainer').innerHTML = 
-                            `<div class="alert alert-danger" style="display:block">Erro ao carregar relatório: ${error.message}</div>`;
-                        document.getElementById('instanceContainer').style.display = 'block';
-                        document.getElementById('instanceLoading').style.display = 'none';
-                        
-                        document.getElementById('relatedContainer').innerHTML = 
-                            `<div class="alert alert-danger" style="display:block">Erro ao carregar entidades relacionadas.</div>`;
-                        document.getElementById('relatedContainer').style.display = 'block';
-                        document.getElementById('relatedLoading').style.display = 'none';
-                    });
-            }
-            
-            function renderInstanceReport(data) {
-                const container = document.getElementById('instanceContainer');
-                
-                if (!data.instance) {
-                    container.innerHTML = '<p>Este usuário não possui instância associada.</p>';
-                } else {
-                    let html = '<div class="report-section">';
-                    html += `<h4>Informações Básicas</h4>`;
-                    html += createReportItem('ID', data.instance.id);
-                    html += createReportItem('Tipo', data.instance.type);
-                    html += createReportItem('Nome', data.instance.committeeName || 'N/A');
-                    
-                    if (data.instance.sector) {
-                        html += `<h4>Setor</h4>`;
-                        html += createReportItem('Nome do Setor', data.instance.sector.name);
-                        html += createReportItem('ID do Setor', data.instance.sector.id);
-                    }
-                    
-                    // Detalhes específicos por tipo de instância
-                    if (data.instance.type === 'WORKER') {
-                        html += `<h4>Detalhes do Trabalhador</h4>`;
-                        html += createReportItem('Participação Estimada', data.instance.estimatedParticipation);
-                        html += createReportItem('Horas no Ponto Eletrônico', data.instance.hoursAtElectronicPoint);
-                        
-                        if (data.instance.associatedCommittee) {
-                            html += `<h4>Comitê Associado</h4>`;
-                            html += createReportItem('Nome do Comitê', data.instance.associatedCommittee.name);
-                            html += createReportItem('ID do Comitê', data.instance.associatedCommittee.id);
-                        }
-                    } else if (data.instance.type === 'COMMITTEE') {
-                        html += `<h4>Detalhes do Comitê</h4>`;
-                        html += createReportItem('Limite de Trabalhadores', data.instance.workerEffectiveLimit);
-                        html += createReportItem('Trabalho Social Total', data.instance.totalSocialWork);
-                        html += createReportItem('Quantidade Produzida', data.instance.producedQuantity);
-                        html += createReportItem('Quantidade Alvo', data.instance.targetQuantity);
-                    } else if (data.instance.type === 'COUNCIL') {
-                        html += `<h4>Detalhes do Conselho</h4>`;
-                        html += createReportItem('Trabalho Social Total', data.instance.totalSocialWork);
-                    }
-                    
-                    html += '</div>';
-                    container.innerHTML = html;
-                }
-                
-                document.getElementById('instanceLoading').style.display = 'none';
-                container.style.display = 'block';
-            }
-            
-            function renderRelatedEntities(data) {
-                const container = document.getElementById('relatedContainer');
-                
-                if (!data.relatedEntities || Object.keys(data.relatedEntities).length === 0) {
-                    container.innerHTML = '<p>Não foram encontradas entidades relacionadas.</p>';
-                } else {
-                    let html = '';
-                    
-                    if (data.relatedEntities.workersProposals) {
-                        html += '<div class="report-section">';
-                        html += '<h4>Propostas de Trabalhadores</h4>';
-                        
-                        data.relatedEntities.workersProposals.forEach((proposal, index) => {
-                            html += `<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px dotted #ccc">`;
-                            html += `<strong>Proposta #${index + 1}</strong><br>`;
-                            html += createReportItem('Limite de Trabalhadores', proposal.workerLimit);
-                            html += createReportItem('Horas de Trabalho', proposal.workerHours);
-                            html += createReportItem('Tempo de Produção', proposal.productionTime);
-                            html += createReportItem('Escala Semanal', proposal.weeklyScale);
-                            html += createReportItem('Turno Noturno', proposal.nightShift ? 'Sim' : 'Não');
-                            html += '</div>';
-                        });
-                        
-                        html += '</div>';
-                    }
-                    
-                    if (data.relatedEntities.demandStocks) {
-                        html += '<div class="report-section">';
-                        html += '<h4>Estoques de Demanda</h4>';
-                        
-                        data.relatedEntities.demandStocks.forEach((stock, index) => {
-                            html += `<div style="margin-bottom:10px;padding-bottom:10px;border-bottom:1px dotted #ccc">`;
-                            html += `<strong>Estoque #${index + 1}</strong><br>`;
-                            html += createReportItem('Demanda', stock.demand);
-                            html += createReportItem('Estoque', stock.stock);
-                            html += createReportItem('Materialização Social', stock.socialMaterialization);
-                            html += '</div>';
-                        });
-                        
-                        html += '</div>';
-                    }
-                    
-                    container.innerHTML = html || '<p>Não foram encontradas entidades relacionadas específicas.</p>';
-                }
-                
-                document.getElementById('relatedLoading').style.display = 'none';
-                container.style.display = 'block';
-            }
-            
-            function createReportItem(label, value) {
-                return `<div class="report-item">
-                    <div class="item-label">${label}:</div>
-                    <div>${value !== undefined && value !== null ? value : 'N/A'}</div>
-                </div>`;
-            }
-            
-            function handleLogout() {
-                localStorage.removeItem('currentUser');
-                loginSection.style.display = 'block';
-                welcomeSection.style.display = 'none';
-                authForm.reset();
-            }
-        });
+        }
+        
+        // Adicionar ou integrar o código existente de login, logout e registro
+        // ...
     </script>
 </body>
 </html>

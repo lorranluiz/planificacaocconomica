@@ -1,5 +1,6 @@
 xyz/planecon/dto/LoginRequest.class
 xyz/planecon/dto/UserResponse.class
+xyz/planecon/controller/InstanceController$1.class
 xyz/planecon/model/entity/TechnologicalTensorId.class
 xyz/planecon/controller/TechnologicalTensorController.class
 xyz/planecon/controller/UserInstanceController$1.class
