@@ -1,12 +1,52 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script>
+    // Aplicar tema imediatamente no carregamento da página
+    (function() {
+        try {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            console.log('Tema aplicado em login.html:', savedTheme);
+        } catch(e) {
+            console.error('Erro ao aplicar tema inicial:', e);
+        }
+    })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" id="theme-color" content="#2c3e50">
+    <link rel="stylesheet" href="/css/theme-variables.css">
+    <link rel="stylesheet" href="/css/theme-elements.css">
     <title>Login - Sistema de Planejamento Econômico</title>
     <link rel="stylesheet" href="/css/common-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Garantir que o cabeçalho comum seja inserido
+        if (typeof window.insertCommonHeader === 'function') {
+            window.insertCommonHeader();
+        } else {
+            console.error("Função insertCommonHeader não encontrada");
+        }
+        
+        // Garantir que o tema seja aplicado assim que a página carregar
+        if (typeof window.applyThemeToEntirePage === 'function') {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            window.applyThemeToEntirePage(savedTheme);
+        }
+        
+        // Adicionar ouvinte para evento de mudança de tema
+        document.addEventListener('themeChanged', function(event) {
+            console.log("Evento 'themeChanged' detectado:", event.detail.theme);
+            if (typeof window.applyThemeToEntirePage === 'function') {
+                window.applyThemeToEntirePage(event.detail.theme);
+            }
+        });
+    });
+    </script>
     <div class="container">
         <!-- O cabeçalho será inserido aqui pelo script -->
         
@@ -166,87 +206,563 @@
 
     <script src="/common-header.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Inserir o cabeçalho comum
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inserir o cabeçalho comum
+        if (typeof insertCommonHeader === 'function') {
             insertCommonHeader();
-            
-            // Gestão de abas de autenticação
-            const authTabs = document.querySelectorAll('.auth-tab');
-            const authContents = document.querySelectorAll('.auth-content');
-            
-            authTabs.forEach(tab => {
-                tab.addEventListener('click', function() {
-                    const tabId = this.getAttribute('data-tab');
-                    
-                    // Remover classe ativa de todas as abas e conteúdos
-                    authTabs.forEach(t => t.classList.remove('active'));
-                    authContents.forEach(c => c.classList.remove('active'));
-                    
-                    // Adicionar classe ativa à aba e conteúdo selecionados
-                    this.classList.add('active');
-                    document.getElementById(`${tabId}-content`).classList.add('active');
-                });
+        }
+        
+        // Gestão de abas de autenticação
+        const authTabs = document.querySelectorAll('.auth-tab');
+        const authContents = document.querySelectorAll('.auth-content');
+        
+        authTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Remover classe ativa de todas as abas e conteúdos
+                authTabs.forEach(t => t.classList.remove('active'));
+                authContents.forEach(c => c.classList.remove('active'));
+                
+                // Adicionar classe ativa à aba e conteúdo selecionados
+                this.classList.add('active');
+                document.getElementById(`${tabId}-content`).classList.add('active');
             });
-            
-            // Configurar exibição condicional de campos baseado no tipo de usuário
-            document.querySelectorAll('input[name="type"]').forEach(radio => {
-                radio.addEventListener('change', updateUserTypeFields);
-            });
-            
-            // Carregar instâncias para o formulário de registro
-            loadInstancesForRegistration();
-            
-            // Inicializar campos para tipo de usuário
-            updateUserTypeFields();
-            
-            // Código existente para login e registro aqui
-            // ...
         });
         
-        function updateUserTypeFields() {
-            const userType = document.querySelector('input[name="type"]:checked').value;
-            const instanceSelectContainer = document.getElementById('instanceSelectContainer');
-            const instanceInfoBox = document.getElementById('instanceInfoBox');
+        // Configurar exibição condicional de campos baseado no tipo de usuário
+        document.querySelectorAll('input[name="type"]').forEach(radio => {
+            radio.addEventListener('change', updateUserTypeFields);
+        });
+        
+        // Carregar instâncias para o formulário de registro
+        loadInstancesForRegistration();
+        
+        // Inicializar campos para tipo de usuário
+        updateUserTypeFields();
+        
+        // Event listeners para formulários de login e registro
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        
+        if (loginForm) {
+            loginForm.addEventListener('submit', handleLoginSubmit);
+        }
+        
+        if (registerForm) {
+            registerForm.addEventListener('submit', handleRegisterSubmit);
+        }
+        
+        // Verificar se há um usuário já logado
+        checkLoggedInUser();
+    });
+    
+    function updateUserTypeFields() {
+        const userType = document.querySelector('input[name="type"]:checked').value;
+        const instanceSelectContainer = document.getElementById('instanceSelectContainer');
+        const instanceInfoBox = document.getElementById('instanceInfoBox');
+        
+        if (userType === 'COUNCILLOR') {
+            instanceSelectContainer.style.display = 'block';
+            instanceInfoBox.style.display = 'none';
+        } else {
+            instanceSelectContainer.style.display = 'none';
+            instanceInfoBox.style.display = 'block';
+        }
+    }
+    
+    function loadInstancesForRegistration() {
+        const instanceSelect = document.getElementById('instanceId');
+        
+        fetch('/api/instances')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch instances');
+                }
+                return response.json();
+            })
+            .then(instances => {
+                // Filtrar apenas COUNCIL e COMMITTEE
+                const filteredInstances = instances.filter(instance => 
+                    instance.type === 'COUNCIL' || instance.type === 'COMMITTEE'
+                );
+                
+                // Limpar opções e adicionar padrão
+                instanceSelect.innerHTML = '<option value="">Selecione uma instância</option>';
+                
+                // Adicionar instâncias filtradas
+                filteredInstances.forEach(instance => {
+                    const option = document.createElement('option');
+                    option.value = instance.id;
+                    option.textContent = `${instance.committeeName || instance.id} (${instance.type})`;
+                    instanceSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Erro ao carregar instâncias:', error);
+                instanceSelect.innerHTML = '<option value="">Erro ao carregar instâncias</option>';
+            });
+    }
+    
+    // Função para lidar com o envio do formulário de login
+    function showDebugAlert(message) {
+        const debugAlert = document.createElement('div');
+        debugAlert.style.position = 'fixed';
+        debugAlert.style.bottom = '10px';
+        debugAlert.style.right = '10px';
+        debugAlert.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        debugAlert.style.color = 'white';
+        debugAlert.style.padding = '10px';
+        debugAlert.style.borderRadius = '4px';
+        debugAlert.style.zIndex = '9999';
+        debugAlert.textContent = message;
+        document.body.appendChild(debugAlert);
+        
+        setTimeout(() => {
+            document.body.removeChild(debugAlert);
+        }, 5000);
+        
+        console.log("DEBUG:", message);
+    }
+
+    // Substituir a função handleLoginSubmit existente por esta versão
+    function handleLoginSubmit(e) {
+        e.preventDefault();
+        showDebugAlert("Login iniciado");
+        
+        const errorAlert = document.getElementById('loginErrorAlert');
+        const successAlert = document.getElementById('loginSuccessAlert');
+        
+        errorAlert.style.display = 'none';
+        successAlert.style.display = 'none';
+        
+        // Obter elementos do DOM
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
+        
+        // Verificar se os elementos existem
+        if (!usernameInput || !passwordInput) {
+            showDebugAlert("Erro: Campos não encontrados");
+            errorAlert.textContent = 'Erro técnico: campos não encontrados';
+            errorAlert.style.display = 'block';
+            return;
+        }
+        
+        // Obter valores e fazer trim
+        const username = usernameInput.value.trim();
+        const password = passwordInput.value.trim();
+        const rememberMe = document.getElementById('rememberMe')?.checked || false;
+        
+        // Log para debug
+        showDebugAlert(`Login: ${username} / *****`);
+        
+        // Validação
+        if (!username || username.length === 0) {
+            errorAlert.textContent = 'Por favor, informe seu nome de usuário';
+            errorAlert.style.display = 'block';
+            usernameInput.focus();
+            return;
+        }
+        
+        if (!password || password.length === 0) {
+            errorAlert.textContent = 'Por favor, informe sua senha';
+            errorAlert.style.display = 'block';
+            passwordInput.focus();
+            return;
+        }
+        
+        // Desabilitar botão e mostrar estado de carregamento
+        const submitButton = document.querySelector('#loginForm button[type="submit"]');
+        if (submitButton) {
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Entrando...';
+        }
+        
+        showDebugAlert("Enviando requisição ao servidor");
+        
+        // Dados para a requisição
+        const loginData = {
+            username: username,
+            password: password,
+            rememberMe: rememberMe
+        };
+        
+        console.log("Dados de login:", JSON.stringify(loginData));
+        
+        // Enviar requisição para o backend usando XMLHttpRequest para maior compatibilidade
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', '/api/auth/login', true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        
+        xhr.onload = function() {
+            // Restaurar botão
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Entrar';
+            }
             
-            if (userType === 'COUNCILLOR') {
-                instanceSelectContainer.style.display = 'block';
-                instanceInfoBox.style.display = 'none';
+            if (xhr.status >= 200 && xhr.status < 300) {
+                showDebugAlert("Login bem-sucedido!");
+                // Login bem-sucedido
+                const data = JSON.parse(xhr.responseText);
+                
+                // Exibir mensagem de sucesso
+                successAlert.textContent = 'Login realizado com sucesso!';
+                successAlert.style.display = 'block';
+                
+                // Armazenar dados do usuário e token
+                localStorage.setItem('user', JSON.stringify(data.user));
+                localStorage.setItem('token', data.token);
+                
+                // Redirecionar após um breve atraso
+                setTimeout(() => {
+                    window.location.href = '/index.html';
+                }, 1000);
             } else {
-                instanceSelectContainer.style.display = 'none';
-                instanceInfoBox.style.display = 'block';
+                showDebugAlert(`Erro: ${xhr.status} - ${xhr.statusText}`);
+                // Tratar erro
+                let errorMessage = 'Erro ao fazer login.';
+                try {
+                    const response = JSON.parse(xhr.responseText);
+                    if (response.message) {
+                        errorMessage = response.message;
+                    }
+                } catch (e) {
+                    // Se não conseguir parsear JSON, usa mensagem padrão
+                }
+                
+                if (xhr.status === 401) {
+                    errorMessage = 'Nome de usuário ou senha incorretos.';
+                } else if (xhr.status === 403) {
+                    errorMessage = 'Acesso negado.';
+                }
+                
+                errorAlert.textContent = errorMessage;
+                errorAlert.style.display = 'block';
+                console.error('Erro no login:', xhr.responseText);
+            }
+        };
+        
+        xhr.onerror = function() {
+            // Restaurar botão
+            if (submitButton) {
+                submitButton.disabled = false;
+                submitButton.innerHTML = 'Entrar';
+            }
+            
+            showDebugAlert("Erro de rede na comunicação com o servidor");
+            errorAlert.textContent = 'Erro de rede. Verifique sua conexão.';
+            errorAlert.style.display = 'block';
+            console.error('Erro de rede ao fazer login');
+        };
+        
+        // Enviar os dados
+        xhr.send(JSON.stringify(loginData));
+    }
+    
+    // Função para lidar com o envio do formulário de registro
+    function handleRegisterSubmit(e) {
+        e.preventDefault();
+        
+        const errorAlert = document.getElementById('registerErrorAlert');
+        const successAlert = document.getElementById('registerSuccessAlert');
+        
+        errorAlert.style.display = 'none';
+        successAlert.style.display = 'none';
+        
+        // Obter valores do formulário
+        const username = document.getElementById('registerUsername').value;
+        const password = document.getElementById('registerPassword').value;
+        const name = document.getElementById('registerName').value;
+        const pronoun = document.querySelector('input[name="pronoun"]:checked').value;
+        const type = document.querySelector('input[name="type"]:checked').value;
+        
+        // Validar campos obrigatórios
+        if (!username || !password || !name) {
+            errorAlert.textContent = 'Por favor, preencha todos os campos obrigatórios.';
+            errorAlert.style.display = 'block';
+            return;
+        }
+        
+        // Montar o objeto de requisição
+        const requestData = {
+            username: username,
+            password: password,
+            name: name,
+            pronoun: pronoun,
+            type: type
+        };
+        
+        // Se o tipo for COUNCILLOR, adicionar o ID da instância
+        if (type === 'COUNCILLOR') {
+            const instanceId = document.getElementById('instanceId').value;
+            if (!instanceId) {
+                errorAlert.textContent = 'Por favor, selecione uma instância.';
+                errorAlert.style.display = 'block';
+                return;
+            }
+            requestData.instanceId = parseInt(instanceId);
+        }
+        
+        console.log('Enviando dados de registro:', requestData);
+        
+        // Enviar requisição para o backend
+        fetch('/api/users/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || 'Erro ao registrar usuário');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Registro bem-sucedido
+            successAlert.textContent = 'Registro realizado com sucesso!';
+            successAlert.style.display = 'block';
+            
+            // Limpar formulário
+            document.getElementById('registerForm').reset();
+            
+            // Mudar para a aba de login após um breve atraso
+            setTimeout(() => {
+                document.querySelector('.auth-tab[data-tab="login"]').click();
+            }, 2000);
+        })
+        .catch(error => {
+            errorAlert.textContent = error.message || 'Erro ao registrar usuário.';
+            errorAlert.style.display = 'block';
+            console.error('Erro de registro:', error);
+        });
+    }
+    
+    // Função para verificar se um usuário já está logado
+    function checkLoggedInUser() {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        
+        if (token && user.id) {
+            // Mostrar a seção de boas-vindas
+            document.querySelector('.auth-container').style.display = 'none';
+            document.getElementById('welcomeSection').style.display = 'block';
+            
+            // Preencher informações do usuário
+            document.getElementById('userNameDisplay').textContent = user.name || user.username;
+            document.getElementById('userTypeDisplay').textContent = formatUserType(user.type);
+            document.getElementById('userId').textContent = user.id;
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userUsername').textContent = user.username;
+            document.getElementById('userType').textContent = formatUserType(user.type);
+            document.getElementById('userPronoun').textContent = formatPronoun(user.pronoun);
+            
+            // Carregar dados da instância
+            loadUserInstanceDetails(user.id);
+            
+            // Configurar botão de logout
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            
+            // Configurar tabs
+            setupWelcomeTabs();
+        }
+    }
+    
+    // Formatadores
+    function formatUserType(type) {
+        const types = {
+            'COUNCILLOR': 'Conselheiro',
+            'NON_COUNCILLOR': 'Não-Conselheiro'
+        };
+        return types[type] || type;
+    }
+    
+    function formatPronoun(pronoun) {
+        const pronouns = {
+            'HE_HIM': 'Ele/Dele',
+            'SHE_HER': 'Ela/Dela',
+            'THEY_THEM': 'Elu/Delu'
+        };
+        return pronouns[pronoun] || pronoun;
+    }
+    
+    // Carregar detalhes da instância do usuário
+    function loadUserInstanceDetails(userId) {
+        const instanceLoading = document.getElementById('instanceLoading');
+        const instanceContainer = document.getElementById('instanceContainer');
+        const relatedLoading = document.getElementById('relatedLoading');
+        const relatedContainer = document.getElementById('relatedContainer');
+        
+        // Carregar detalhes da instância
+        fetch(`/api/users/${userId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Falha ao obter dados do usuário');
+                }
+                return response.json();
+            })
+            .then(userData => {
+                instanceLoading.style.display = 'none';
+                instanceContainer.style.display = 'block';
+                
+                if (userData.instance) {
+                    instanceContainer.innerHTML = `
+                        <div class="report-item">
+                            <div class="item-label">ID da Instância:</div>
+                            <div>${userData.instance.id}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="item-label">Tipo:</div>
+                            <div>${userData.instance.type}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="item-label">Nome do Comitê:</div>
+                            <div>${userData.instance.committeeName || 'N/A'}</div>
+                        </div>
+                    `;
+                } else {
+                    instanceContainer.innerHTML = '<p>Nenhuma instância associada a este usuário.</p>';
+                }
+                
+                // Carregar entidades relacionadas
+                return fetch(`/api/users/${userId}/related-entities`);
+            })
+            .then(response => {
+                if (!response.ok) {
+                    relatedLoading.style.display = 'none';
+                    relatedContainer.style.display = 'block';
+                    relatedContainer.innerHTML = '<p>Não foi possível carregar entidades relacionadas.</p>';
+                    return null;
+                }
+                return response.json();
+            })
+            .then(relatedData => {
+                if (relatedData) {
+                    relatedLoading.style.display = 'none';
+                    relatedContainer.style.display = 'block';
+                    
+                    if (relatedData.length === 0) {
+                        relatedContainer.innerHTML = '<p>Nenhuma entidade relacionada encontrada.</p>';
+                    } else {
+                        let html = '';
+                        relatedData.forEach(entity => {
+                            html += `
+                                <div class="report-item">
+                                    <div class="item-label">${entity.type}:</div>
+                                    <div>${entity.name || entity.id}</div>
+                                </div>
+                            `;
+                        });
+                        relatedContainer.innerHTML = html;
+                    }
+                }
+            })
+            .catch(error => {
+                instanceLoading.style.display = 'none';
+                relatedLoading.style.display = 'none';
+                instanceContainer.style.display = 'block';
+                instanceContainer.innerHTML = `<p>Erro ao carregar dados: ${error.message}</p>`;
+                console.error('Erro ao carregar dados do usuário:', error);
+            });
+    }
+    
+    // Configurar tabs na seção de boas-vindas
+    function setupWelcomeTabs() {
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Remover classe ativa de todas as abas e conteúdos
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Adicionar classe ativa à aba e conteúdo selecionados
+                this.classList.add('active');
+                document.getElementById(`${tabId}Tab`).classList.add('active');
+            });
+        });
+    }
+    
+    // Função de logout
+    function handleLogout() {
+        // Remover dados do usuário do localStorage
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        
+        // Redirecionar para a página de login
+        window.location.reload();
+    }
+</script>
+    <script>
+    // Verificar integridade do sistema quando a página terminar de carregar
+    window.addEventListener('load', function() {
+        console.log("Página login.html completamente carregada");
+        
+        // Verificar tema
+        if (typeof window.verifyTheme === 'function') {
+            window.verifyTheme();
+        } else {
+            // Aplicar tema manualmente como fallback
+            try {
+                const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } catch(e) {
+                console.error("Erro ao aplicar tema fallback:", e);
             }
         }
-        
-        function loadInstancesForRegistration() {
-            const instanceSelect = document.getElementById('instanceId');
+    });
+    </script>
+    <script>
+    // Script de verificação e forçamento de tema
+    (function() {
+        // Função para aplicar tema diretamente
+        function applyThemeDirectly(theme) {
+            console.log(`Aplicando tema ${theme} diretamente em login.html`);
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('preferredTheme', theme);
             
-            fetch('/api/instances')
-                .then(response => response.ok ? response.json() : [])
-                .then(instances => {
-                    // Filtrar apenas COUNCIL e COMMITTEE
-                    const filteredInstances = instances.filter(instance => 
-                        instance.type === 'COUNCIL' || instance.type === 'COMMITTEE'
-                    );
-                    
-                    // Limpar opções e adicionar padrão
-                    instanceSelect.innerHTML = '<option value="">Selecione uma instância</option>';
-                    
-                    // Adicionar instâncias filtradas
-                    filteredInstances.forEach(instance => {
-                        const option = document.createElement('option');
-                        option.value = instance.id;
-                        option.textContent = `${instance.committeeName || instance.id} (${instance.type})`;
-                        instanceSelect.appendChild(option);
-                    });
-                })
-                .catch(error => {
-                    console.error('Erro ao carregar instâncias:', error);
-                    instanceSelect.innerHTML = '<option value="">Erro ao carregar instâncias</option>';
-                });
+            // Forçar repintagem para aplicar o tema
+            document.documentElement.style.display = 'none';
+            void document.documentElement.offsetHeight;
+            document.documentElement.style.display = '';
         }
-        
-        // Adicionar ou integrar o código existente de login, logout e registro
-        // ...
+
+        // Verificar quando a página terminar de carregar
+        window.addEventListener('load', function() {
+            console.log("Página login.html completamente carregada");
+            
+            // Verificar tema
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            
+            if (currentTheme !== savedTheme) {
+                console.warn(`Tema inconsistente! Atual: ${currentTheme}, Salvo: ${savedTheme}`);
+                applyThemeDirectly(savedTheme);
+            }
+            
+            // Adicionar evento global para detectar mudanças de tema
+            document.addEventListener('themeChanged', function(event) {
+                applyThemeDirectly(event.detail.theme);
+            });
+            
+            // Configurar eventos para as opções de tema na página
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    if (theme) {
+                        applyThemeDirectly(theme);
+                    }
+                });
+            });
+        });
+    })();
     </script>
 </body>
 </html>

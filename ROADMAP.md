@@ -270,6 +270,9 @@ Colocar um .java no servidor, intermediário, que, depois que o .java correto pe
 
       - [ok] Ver campos nulos (no db designer), ver campo a campo, e suas relações, e pedir pra gerar script python que carrega esses campos com valores existentes nas tabelas com que esses campos se relacionam, de modo que não fique mais nenhum campo nulo no banco de dados, e todos sejam preenchidos seguindo as condições de relacionamento. -> Substituído por script para carregamento de dados para teste de velocidade. 6 mil usuários e 6 mil instâncias foram criadas, carregamento de login quase que instantâneo, ou seja, aprovado de longe em relação ao método usando arquivo .json.
       
+      - corrigir tema não aplicando em todas as páginas e Materialização Social* não carregando na aba de Cadastro da página Instâncias.
+
+
       - Separar arquivos da página html (css, javascript, separar scripts, pra melhorar contexto e processamento).
 
       - Todas as constraints implementadas, se basear na tela de cadastro de usuários para criar tela de cadastro de conselho/comitê (quando o usuário a se cadastrar clicar em "novo" na tela de cadastro).

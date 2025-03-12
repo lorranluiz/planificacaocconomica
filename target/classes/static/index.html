@@ -1,79 +1,27 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="ocean">
 <head>
+    <script>
+    // Aplicar tema imediatamente no carregamento da página
+    (function() {
+        try {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            console.log('Tema aplicado em index.html:', savedTheme);
+        } catch(e) {
+            console.error('Erro ao aplicar tema inicial:', e);
+        }
+    })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" id="theme-color" content="#2c3e50">
     <title>Sistema de Planejamento Econômico</title>
+    <link rel="stylesheet" href="/css/theme-variables.css">
+    <link rel="stylesheet" href="/css/theme-elements.css">
     <link rel="stylesheet" href="/css/common-styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-        /* Variáveis de temas */
-        :root {
-            /* Tema Ocean (padrão) */
-            --primary-color: #2c3e50;
-            --primary-color-light: #3498db;
-            --primary-color-dark: #1f2d3d;
-            --secondary-color: #2ecc71;
-            --secondary-color-dark: #27ae60;
-            --text-color: #333;
-            --bg-color: #f5f5f5;
-            --card-bg: #ffffff;
-            --card-border: rgba(0, 0, 0, 0.1);
-            --header-text: #ffffff;
-            --accent-color: #3498db;
-            --error-color: #e74c3c;
-        }
-        
-        /* Tema Night */
-        [data-theme="night"] {
-            --primary-color: #90caf9;           /* Azul claro para título principal */
-            --primary-color-light: #64b5f6;     /* Azul médio para elementos destacados */
-            --primary-color-dark: #42a5f5;      /* Azul escuro para hover/ativos */
-            --secondary-color: #81c784;         /* Verde claro para botões secundários */
-            --secondary-color-dark: #66bb6a;    /* Verde escuro para hover */
-            --text-color: #e0e0e0;              /* Cinza muito claro para texto geral */
-            --bg-color: #121212;                /* Fundo quase preto */
-            --card-bg: #1e1e1e;                 /* Fundo dos cards um pouco mais claro */
-            --card-border: rgba(255, 255, 255, 0.15); /* Borda mais visível */
-            --header-text: #ffffff;             /* Texto do cabeçalho branco */
-            --accent-color: #64b5f6;            /* Azul médio para acentos */
-            --error-color: #ff6b6b;             /* Vermelho para erros */
-            --card-text: #ffffff;               /* Branco para texto em cards */
-            --divider-color: rgba(255, 255, 255, 0.12); /* Divisor mais visível */
-        }
-        
-        /* Tema Sunlight */
-        [data-theme="sunlight"] {
-            --primary-color: #ff7e00;
-            --primary-color-light: #ffb74d;
-            --primary-color-dark: #e65100;
-            --secondary-color: #ffa726;
-            --secondary-color-dark: #fb8c00;
-            --text-color: #4e342e;
-            --bg-color: #fffde7;
-            --card-bg: #fff8e1;
-            --card-border: rgba(255, 126, 0, 0.2);
-            --header-text: #ffffff;
-            --accent-color: #ffb74d;
-            --error-color: #d32f2f;
-        }
-        
-        /* Tema Bolchevick */
-        [data-theme="bolchevick"] {
-            --primary-color: #c62828;
-            --primary-color-light: #e53935;
-            --primary-color-dark: #b71c1c;
-            --secondary-color: #ef5350;
-            --secondary-color-dark: #d32f2f;
-            --text-color: #3e2723;
-            --bg-color: #ffebee;
-            --card-bg: #ffffff;
-            --card-border: rgba(198, 40, 40, 0.2);
-            --header-text: #ffffff;
-            --accent-color: #ef5350;
-            --error-color: #880e4f;
-        }
-        
         /* Estilos para seletor de temas */
         .theme-selector {
             position: absolute;
@@ -387,31 +335,6 @@
     </style>
 </head>
 <body>
-    <!-- Seletor de tema -->
-    <div class="theme-selector">
-        <button id="themeToggleBtn" class="theme-toggle-btn">
-            <i class="fas fa-palette"></i> Tema
-        </button>
-        <div id="themeMenu" class="theme-menu">
-            <div class="theme-option" data-theme="ocean">
-                <span class="theme-preview ocean-preview"></span>
-                <span class="theme-name">Ocean</span>
-            </div>
-            <div class="theme-option" data-theme="night">
-                <span class="theme-preview night-preview"></span>
-                <span class="theme-name">Night</span>
-            </div>
-            <div class="theme-option" data-theme="sunlight">
-                <span class="theme-preview sunlight-preview"></span>
-                <span class="theme-name">Sunlight</span>
-            </div>
-            <div class="theme-option" data-theme="bolchevick">
-                <span class="theme-preview bolchevick-preview"></span>
-                <span class="theme-name">Bolchevick</span>
-            </div>
-        </div>
-    </div>
-
     <div class="container">
         <!-- O cabeçalho será inserido aqui pelo script -->
         
@@ -511,41 +434,6 @@
             if (typeof insertCommonHeader === 'function') {
                 insertCommonHeader();
             }
-            
-            // Configuração do seletor de tema
-            const themeToggleBtn = document.getElementById('themeToggleBtn');
-            const themeMenu = document.getElementById('themeMenu');
-            const themeOptions = document.querySelectorAll('.theme-option');
-            
-            // Aplicar tema salvo (se existir)
-            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            
-            // Abrir/fechar menu de temas
-            themeToggleBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                themeMenu.style.display = themeMenu.style.display === 'block' ? 'none' : 'block';
-            });
-            
-            // Fechar menu ao clicar fora
-            document.addEventListener('click', function() {
-                themeMenu.style.display = 'none';
-            });
-            
-            // Prevenir fechamento ao clicar dentro do menu
-            themeMenu.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-            
-            // Selecionar tema
-            themeOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    const theme = this.getAttribute('data-theme');
-                    document.documentElement.setAttribute('data-theme', theme);
-                    localStorage.setItem('preferredTheme', theme);
-                    themeMenu.style.display = 'none';
-                });
-            });
             
             // Carregar estatísticas do sistema
             loadStatistics();
@@ -804,6 +692,25 @@
                         '<div class="error">Erro ao carregar o gráfico de tendências</div>';
                 });
         }
+    </script>
+    <script>
+    // Verificar integridade do sistema quando a página terminar de carregar
+    window.addEventListener('load', function() {
+        console.log("Página index.html completamente carregada");
+        
+        // Verificar tema
+        if (typeof window.verifyTheme === 'function') {
+            window.verifyTheme();
+        } else {
+            // Aplicar tema manualmente como fallback
+            try {
+                const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } catch(e) {
+                console.error("Erro ao aplicar tema fallback:", e);
+            }
+        }
+    });
     </script>
 </body>
 </html>

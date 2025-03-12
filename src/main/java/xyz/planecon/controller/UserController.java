@@ -16,6 +16,7 @@ import xyz.planecon.service.InstanceService;
 import xyz.planecon.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -205,5 +206,39 @@ public class UserController {
     @GetMapping("/instances")
     public List<Instance> getAllInstances() {
         return instanceService.getAllInstances();
+    }
+
+    @GetMapping("/{id}/related-entities")
+    public ResponseEntity<?> getUserRelatedEntities(@PathVariable Integer id) {
+        try {
+            User user = userRepository.findById(id).orElse(null);
+            
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("message", "Usuário não encontrado"));
+            }
+            
+            // Esta é uma implementação simplificada - em um cenário real,
+            // você buscaria no banco de dados as entidades relacionadas a este usuário
+            List<Map<String, Object>> relatedEntities = new ArrayList<>();
+            
+            // Adicionar instância do usuário, se existir
+            if (user.getInstance() != null) {
+                Map<String, Object> instanceInfo = new HashMap<>();
+                instanceInfo.put("type", "Instance");
+                instanceInfo.put("id", user.getInstance().getId());
+                instanceInfo.put("name", user.getInstance().getCommitteeName());
+                instanceInfo.put("instanceType", user.getInstance().getType().name());
+                relatedEntities.add(instanceInfo);
+            }
+            
+            // Aqui você adicionaria outras entidades relacionadas conforme necessário
+            
+            return ResponseEntity.ok(relatedEntities);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Erro ao buscar entidades relacionadas: " + e.getMessage()));
+        }
     }
 }

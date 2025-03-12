@@ -1,10 +1,26 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script>
+    // Aplicar tema imediatamente no carregamento da página
+    (function() {
+        try {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            console.log('Tema aplicado em instances.html:', savedTheme);
+        } catch(e) {
+            console.error('Erro ao aplicar tema inicial:', e);
+        }
+    })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" id="theme-color" content="#2c3e50">
+    <link rel="stylesheet" href="/css/theme-variables.css">
+    <link rel="stylesheet" href="/css/theme-elements.css">
     <title>Instâncias - Sistema de Planejamento Econômico</title>
     <link rel="stylesheet" href="/css/common-styles.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
         /* Estilos específicos para a página de instâncias */
         .badge {
@@ -56,6 +72,151 @@
     <link rel="stylesheet" href="/css/common-styles.css">
 </head>
 <body>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Garantir que o cabeçalho comum seja inserido
+        if (typeof window.insertCommonHeader === 'function') {
+            window.insertCommonHeader();
+        } else {
+            console.error("Função insertCommonHeader não encontrada");
+        }
+        
+        // Garantir que o tema seja aplicado assim que a página carregar
+        if (typeof window.applyThemeToEntirePage === 'function') {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            window.applyThemeToEntirePage(savedTheme);
+        }
+        
+        // Adicionar ouvinte para evento de mudança de tema
+        document.addEventListener('themeChanged', function(event) {
+            console.log("Evento 'themeChanged' detectado:", event.detail.theme);
+            if (typeof window.applyThemeToEntirePage === 'function') {
+                window.applyThemeToEntirePage(event.detail.theme);
+            }
+        });
+    });
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Página instances.html carregada!");
+        
+        // Verificar se estamos na aba de criação diretamente
+        if (window.location.hash === '#create') {
+            setTimeout(function() {
+                console.log("Ativando aba de cadastro via hash URL");
+                document.querySelector('.tab[data-tab="create"]')?.click();
+            }, 100);
+        }
+        
+        // Adicionar listeners para as abas
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                console.log(`Aba ${tabId} foi clicada`);
+                
+                if (tabId === 'create') {
+                    console.log("Aba de cadastro selecionada, carregando materializações...");
+                    // Primeiro carregamento após 100ms
+                    setTimeout(carregarMaterializacoes, 100);
+                    // Segundo carregamento após 500ms para garantir
+                    setTimeout(carregarMaterializacoes, 500);
+                }
+            });
+        });
+        
+        // Função simplificada para carregar materializações
+        window.carregarMaterializacoes = function() {
+            console.log("INÍCIO: Carregamento de materializações sociais");
+            const selectElement = document.getElementById('socialMaterializationId');
+            
+            if (!selectElement) {
+                console.error("Select de materialização não encontrado!");
+                return;
+            }
+            
+            // Limpar e mostrar carregando
+            selectElement.innerHTML = '<option value="">Carregando...</option>';
+            selectElement.disabled = true;
+            
+            // Fazer requisição com retry
+            fetchComRetry('/api/social-materializations', 3)
+                .then(data => {
+                    console.log("Materializações recebidas:", data.length);
+                    
+                    // Limpar opções anteriores
+                    selectElement.innerHTML = '';
+                    
+                    // Opção padrão
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Selecione uma materialização';
+                    selectElement.appendChild(defaultOption);
+                    
+                    // Adicionar opções
+                    if (data && data.length > 0) {
+                        data.forEach(mat => {
+                            const option = document.createElement('option');
+                            option.value = mat.id;
+                            option.textContent = mat.name || `ID: ${mat.id}`;
+                            selectElement.appendChild(option);
+                        });
+                        console.log("Opções de materialização adicionadas com sucesso!");
+                    } else {
+                        const emptyOption = document.createElement('option');
+                        emptyOption.disabled = true;
+                        emptyOption.textContent = "Nenhuma materialização disponível";
+                        selectElement.appendChild(emptyOption);
+                    }
+                    
+                    // Habilitar select
+                    selectElement.disabled = false;
+                })
+                .catch(err => {
+                    console.error("ERRO ao carregar materializações:", err);
+                    selectElement.innerHTML = '<option value="">Erro ao carregar dados</option>';
+                    selectElement.disabled = false;
+                });
+        };
+        
+        // Função para fazer fetch com retry automático
+        function fetchComRetry(url, maxRetries) {
+            return new Promise((resolve, reject) => {
+                let retries = 0;
+                
+                function tryFetch() {
+                    console.log(`Tentativa ${retries + 1} para ${url}`);
+                    
+                    fetch(url)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log(`Fetch bem sucedido após ${retries + 1} tentativa(s)`);
+                            resolve(data);
+                        })
+                        .catch(error => {
+                            retries++;
+                            console.warn(`Tentativa ${retries} falhou:`, error);
+                            
+                            if (retries < maxRetries) {
+                                // Tentar novamente com delay progressivo
+                                console.log(`Tentando novamente em ${retries * 500}ms...`);
+                                setTimeout(tryFetch, retries * 500);
+                            } else {
+                                reject(error);
+                            }
+                        });
+                }
+                
+                // Iniciar primeira tentativa
+                tryFetch();
+            });
+        }
+    });
+    </script>
     <div class="container">
         <!-- O cabeçalho será inserido aqui pelo script -->
 
@@ -186,6 +347,12 @@
                     // Se a aba for de cadastro, carregar dados necessários para o formulário
                     if (tabId === 'create') {
                         loadFormDependencies();
+                    }
+                    
+                    // Carregar materializações sociais quando a aba "create" for selecionada
+                    if (tabId === 'create') {
+                        // Adicionar um pequeno delay para garantir que o DOM está atualizado
+                        setTimeout(() => loadSocialMaterializations(), 100);
                     }
                 });
             });
@@ -366,7 +533,24 @@
             }
             
             // ----------------- GERENCIAR CAMPOS DINÂMICOS DO FORMULÁRIO -----------------
-            typeSelect.addEventListener('change', updateDynamicFields);
+            typeSelect.addEventListener('change', function() {
+                console.log("[DEBUG] Tipo alterado para:", this.value);
+                updateDynamicFields();
+                
+                // Se for COMMITTEE, garantir que as materializações sejam carregadas
+                if (this.value === 'COMMITTEE') {
+                    // Dar tempo para os campos serem criados
+                    setTimeout(() => {
+                        const matSelect = document.getElementById('socialMaterializationId');
+                        if (matSelect) {
+                            console.log("[DEBUG] Carregando materializações após seleção de tipo COMMITTEE");
+                            loadSocialMaterializations();
+                        } else {
+                            console.error("[ERRO] Select de materializações não encontrado após seleção de COMMITTEE");
+                        }
+                    }, 200);
+                }
+            });
             
             function updateDynamicFields() {
                 const selectedType = typeSelect.value;
@@ -520,6 +704,10 @@
     matSelect.name = 'socialMaterializationId';
     matSelect.required = true;
     
+    // Inicialmente desabilitado durante o carregamento
+    matSelect.disabled = true;
+    matSelect.innerHTML = '<option value="">Carregando materializações...</option>';
+    
     // Criar div para conter o select e o botão (flexbox)
     const matSelectContainer = document.createElement('div');
     matSelectContainer.style.display = 'flex';
@@ -544,6 +732,10 @@
     // Adicionar o container ao div principal
     matDiv.appendChild(matSelectContainer);
     dynamicFields.appendChild(matDiv);
+    
+    // MODIFICAÇÃO AQUI: Carregar materializações DEPOIS que o select é criado
+    console.log("[DEBUG] Select de materializações criado, carregando dados...");
+    setTimeout(() => loadSocialMaterializations(), 100);
     
     // 5. Campo de quantidade produzida (obrigatório)
     const prodDiv = createFormGroup('producedQuantity', 'Quantidade Produzida', true);
@@ -874,7 +1066,156 @@
                 if (type === 'PRODUCT') return 'PRODUTO';
                 return type;
             }
+            
+            // Se a URL contém #create, carregar materializações imediatamente
+            if (window.location.hash === '#create') {
+                const createTab = document.querySelector('.tab[data-tab="create"]');
+                if (createTab) {
+                    createTab.click(); // Isso acionará o evento que carrega as materializações
+                } else {
+                    // Se por algum motivo a aba não está disponível ainda, carregar diretamente
+                    setTimeout(() => loadSocialMaterializations(), 500);
+                }
+            }
         });
+        
+        // Substitua o código existente de carregamento de materializações sociais com este código corrigido:
+function loadSocialMaterializations() {
+    console.log("[DEBUG] Início da função loadSocialMaterializations");
+    const matSelect = document.getElementById('socialMaterializationId');
+    
+    if (!matSelect) {
+        console.error("[ERRO] O elemento select 'socialMaterializationId' não existe no DOM");
+        return;
+    }
+    
+    // Mostrar estado de carregamento
+    matSelect.innerHTML = '<option value="">Carregando materializações...</option>';
+    matSelect.disabled = true;
+    
+    // Requisição com log detalhado
+    console.log("[DEBUG] Enviando requisição para /api/social-materializations");
+    fetch('/api/social-materializations')
+        .then(response => {
+            console.log("[DEBUG] Resposta recebida:", response.status);
+            if (!response.ok) {
+                throw new Error(`Erro HTTP ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("[DEBUG] Dados recebidos:", data);
+            
+            // Limpar opções
+            matSelect.innerHTML = '';
+            
+            // Adicionar opção padrão
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Selecione uma materialização';
+            matSelect.appendChild(defaultOption);
+            
+            // Adicionar materializações
+            if (data && data.length > 0) {
+                data.forEach(mat => {
+                    const option = document.createElement('option');
+                    option.value = mat.id;
+                    option.textContent = mat.name;
+                    matSelect.appendChild(option);
+                });
+                console.log("[DEBUG] Adicionadas", data.length, "materializações ao select");
+            } else {
+                const emptyOption = document.createElement('option');
+                emptyOption.disabled = true;
+                emptyOption.textContent = "Nenhuma materialização disponível";
+                matSelect.appendChild(emptyOption);
+                console.log("[DEBUG] Nenhuma materialização encontrada");
+            }
+            
+            matSelect.disabled = false;
+        })
+        .catch(error => {
+            console.error("[ERRO] Falha ao carregar materializações:", error);
+            matSelect.innerHTML = '<option value="">Erro ao carregar dados</option>';
+            matSelect.disabled = false;
+        });
+}
+
     </script>
+    <script>
+// Verificar integridade do sistema quando a página terminar de carregar
+window.addEventListener('load', function() {
+    console.log("Página instances.html completamente carregada");
+    
+    // Verificar carregamento de scripts
+    const commonHeaderLoaded = typeof window.insertCommonHeader === 'function';
+    console.log("Script common-header.js " + (commonHeaderLoaded ? "está carregado" : "NÃO está carregado!"));
+    
+    if (commonHeaderLoaded) {
+        // Verificar integridade do tema
+        window.verifyTheme();
+        
+        // Verificar se o select de materializações foi carregado
+        const matSelect = document.getElementById('socialMaterializationId');
+        if (matSelect && matSelect.options.length <= 1 && window.carregarMaterializacoes) {
+            console.log("Tentando carregamento final de materializações");
+            window.carregarMaterializacoes();
+        }
+    } else {
+        // Aplicar tema manualmente como fallback
+        try {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        } catch(e) {
+            console.error("Erro ao aplicar tema fallback:", e);
+        }
+    }
+});
+</script>
+<script>
+// Script de verificação e forçamento de tema
+(function() {
+    // Função para aplicar tema diretamente
+    function applyThemeDirectly(theme) {
+        console.log(`Aplicando tema ${theme} diretamente em instances.html`);
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('preferredTheme', theme);
+        
+        // Forçar repintagem para aplicar o tema
+        document.documentElement.style.display = 'none';
+        void document.documentElement.offsetHeight;
+        document.documentElement.style.display = '';
+    }
+
+    // Verificar quando a página terminar de carregar
+    window.addEventListener('load', function() {
+        console.log("Página instances.html completamente carregada");
+        
+        // Verificar tema
+        const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        
+        if (currentTheme !== savedTheme) {
+            console.warn(`Tema inconsistente! Atual: ${currentTheme}, Salvo: ${savedTheme}`);
+            applyThemeDirectly(savedTheme);
+        }
+        
+        // Adicionar evento global para detectar mudanças de tema
+        document.addEventListener('themeChanged', function(event) {
+            applyThemeDirectly(event.detail.theme);
+        });
+        
+        // Configurar eventos para as opções de tema na página
+        document.querySelectorAll('.theme-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const theme = this.getAttribute('data-theme');
+                if (theme) {
+                    applyThemeDirectly(theme);
+                }
+            });
+        });
+    });
+})();
+</script>
 </body>
 </html>

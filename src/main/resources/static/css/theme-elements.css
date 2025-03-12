@@ -1,0 +1,222 @@
+/* Regras globais de página inteira */
+html[data-theme], body {
+    background-color: var(--bg-color) !important;
+    color: var(--text-color) !important;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+/* Container principal - CRÍTICO para a aparência consistente */
+.container {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1) !important;
+    transition: background-color 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+
+/* Temas específicos para cada tipo de container */
+[data-theme="night"] .container {
+    box-shadow: 0 2px 15px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Tipografia - aplicada de forma forçada para todos os elementos */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--primary-color) !important;
+    transition: color 0.3s;
+}
+
+p, span, label, div, table, th, td {
+    color: var(--text-color) !important;
+    transition: color 0.3s;
+}
+
+a:not(.btn):not(.btn-small) {
+    color: var(--primary-color-light) !important;
+    transition: color 0.3s;
+}
+
+a:hover:not(.btn):not(.btn-small) {
+    color: var(--primary-color-dark) !important;
+}
+
+/* Elementos de interface - CRÍTICO para botões e controles */
+.btn, button:not(.theme-toggle-btn), input[type="submit"] {
+    background-color: var(--primary-color-light) !important;
+    color: white !important;
+    border: none !important;
+    transition: background-color 0.3s;
+}
+
+.btn:hover, button:not(.theme-toggle-btn):hover, input[type="submit"]:hover {
+    background-color: var(--primary-color-dark) !important;
+}
+
+.btn-small {
+    background-color: var(--primary-color-light) !important;
+    color: white !important;
+    transition: background-color 0.3s;
+}
+
+.btn-small:hover {
+    background-color: var(--primary-color-dark) !important;
+}
+
+.btn.secondary, button.secondary {
+    background-color: var(--secondary-color) !important;
+}
+
+.btn.secondary:hover, button.secondary:hover {
+    background-color: var(--secondary-color-dark) !important;
+}
+
+.btn.danger, button.danger {
+    background-color: var(--error-color) !important;
+}
+
+.btn.danger:hover, button.danger:hover {
+    background-color: darkred !important;
+}
+
+/* Tabelas */
+table {
+    border-color: var(--card-border) !important;
+    background-color: var(--card-bg) !important;
+}
+
+table th {
+    background-color: var(--primary-color-light) !important;
+    color: white !important;
+}
+
+table td {
+    border-bottom: 1px solid var(--card-border) !important;
+}
+
+table tr:nth-child(even) {
+    background-color: rgba(0,0,0,0.03) !important;
+}
+
+[data-theme="night"] table tr:nth-child(even) {
+    background-color: rgba(255,255,255,0.05) !important;
+}
+
+/* Formulários - Campos de entrada forçados a ter aparência consistente */
+input, select, textarea {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--card-border) !important;
+    transition: border-color 0.3s, background-color 0.3s;
+}
+
+input:focus, select:focus, textarea:focus {
+    border-color: var(--primary-color-light) !important;
+    outline: none !important;
+}
+
+label {
+    color: var(--text-color) !important;
+}
+
+/* Abas */
+.tab, .auth-tab {
+    background-color: transparent !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--card-border) !important;
+    transition: background-color 0.3s, color 0.3s, border-color 0.3s;
+}
+
+.tab:hover, .auth-tab:hover {
+    background-color: rgba(0,0,0,0.05) !important;
+}
+
+.tab.active, .auth-tab.active {
+    background-color: var(--primary-color-light) !important;
+    color: white !important;
+    border-color: var(--primary-color-light) !important;
+}
+
+[data-theme="night"] .tab:hover,
+[data-theme="night"] .auth-tab:hover {
+    background-color: rgba(255,255,255,0.05) !important;
+}
+
+/* Cards e painéis */
+.tab-content, .auth-content {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+}
+
+.form-container {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+}
+
+/* Especificações para mensagens */
+.message {
+    border-color: var(--card-border) !important;
+}
+
+.message.error {
+    background-color: rgba(231, 76, 60, 0.1) !important;
+    border-color: var(--error-color) !important;
+    color: var(--error-color) !important;
+}
+
+.message.success {
+    background-color: rgba(46, 204, 113, 0.1) !important;
+    border-color: var(--secondary-color) !important;
+    color: var(--secondary-color-dark) !important;
+}
+
+/* Extras adicionais para formulários específicos de login e registro */
+.auth-container {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+}
+
+/* Outros elementos específicos */
+.loading, .info-tip {
+    color: var(--text-color) !important;
+    opacity: 0.7;
+}
+
+.nav-container {
+    border-bottom-color: var(--card-border) !important;
+}
+
+/* Seletores específicos para a página inicial */
+.welcome-section {
+    background-color: rgba(0, 0, 0, 0.03) !important;
+}
+
+[data-theme="night"] .welcome-section {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+.dashboard-card {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+[data-theme="night"] .dashboard-card {
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5) !important;
+}
+
+.dashboard-card h3 {
+    border-bottom-color: var(--card-border) !important;
+}
+
+/* Seletor de tema mais consistente */
+.theme-selector {
+    z-index: 1000 !important;
+}
+
+.theme-toggle-btn {
+    background-color: rgba(0, 0, 0, 0.1) !important;
+    color: var(--text-color) !important;
+}
+
+[data-theme="night"] .theme-toggle-btn {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    color: var(--text-color) !important;
+}

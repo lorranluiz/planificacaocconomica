@@ -22,6 +22,7 @@
 /mnt/g/Downloads/GitHubClones/planificacaoEconomica/src/main/java/xyz/planecon/repository/DemandVectorRepository.java
 /mnt/g/Downloads/GitHubClones/planificacaoEconomica/src/main/java/xyz/planecon/dto/LoginRequest.java
 /mnt/g/Downloads/GitHubClones/planificacaoEconomica/src/main/java/xyz/planecon/model/entity/TechnologicalTensorId.java
+/mnt/g/Downloads/GitHubClones/planificacaoEconomica/src/main/java/xyz/planecon/config/WebMvcConfig.java
 /mnt/g/Downloads/GitHubClones/planificacaoEconomica/src/main/java/xyz/planecon/model/enums/InstanceType.java
 /mnt/g/Downloads/GitHubClones/planificacaoEconomica/src/main/java/xyz/planecon/Application.java
 /mnt/g/Downloads/GitHubClones/planificacaoEconomica/src/main/java/xyz/planecon/repository/SectorRepository.java

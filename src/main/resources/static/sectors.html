@@ -1,12 +1,52 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script>
+    // Aplicar tema imediatamente no carregamento da página
+    (function() {
+        try {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            console.log('Tema aplicado em sectors.html:', savedTheme);
+        } catch(e) {
+            console.error('Erro ao aplicar tema inicial:', e);
+        }
+    })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" id="theme-color" content="#2c3e50">
+    <link rel="stylesheet" href="/css/theme-variables.css">
+    <link rel="stylesheet" href="/css/theme-elements.css">
     <title>Setores - Sistema de Planejamento Econômico</title>
     <link rel="stylesheet" href="/css/common-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Garantir que o cabeçalho comum seja inserido
+        if (typeof window.insertCommonHeader === 'function') {
+            window.insertCommonHeader();
+        } else {
+            console.error("Função insertCommonHeader não encontrada");
+        }
+        
+        // Garantir que o tema seja aplicado assim que a página carregar
+        if (typeof window.applyThemeToEntirePage === 'function') {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            window.applyThemeToEntirePage(savedTheme);
+        }
+        
+        // Adicionar ouvinte para evento de mudança de tema
+        document.addEventListener('themeChanged', function(event) {
+            console.log("Evento 'themeChanged' detectado:", event.detail.theme);
+            if (typeof window.applyThemeToEntirePage === 'function') {
+                window.applyThemeToEntirePage(event.detail.theme);
+            }
+        });
+    });
+    </script>
     <div class="container">
         <h1>Setores</h1>
         
@@ -270,6 +310,70 @@
                 document.querySelector('.tab[data-tab="list"]').click();
             });
         });
+    </script>
+    <script>
+    // Verificar integridade do sistema quando a página terminar de carregar
+    window.addEventListener('load', function() {
+        console.log("Página sectors.html completamente carregada");
+        
+        // Verificar tema
+        if (typeof window.verifyTheme === 'function') {
+            window.verifyTheme();
+        } else {
+            // Aplicar tema manualmente como fallback
+            try {
+                const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } catch(e) {
+                console.error("Erro ao aplicar tema fallback:", e);
+            }
+        }
+    });
+    </script>
+    <script>
+    // Script de verificação e forçamento de tema
+    (function() {
+        // Função para aplicar tema diretamente
+        function applyThemeDirectly(theme) {
+            console.log(`Aplicando tema ${theme} diretamente em sectors.html`);
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('preferredTheme', theme);
+            
+            // Forçar repintagem para aplicar o tema
+            document.documentElement.style.display = 'none';
+            void document.documentElement.offsetHeight;
+            document.documentElement.style.display = '';
+        }
+
+        // Verificar quando a página terminar de carregar
+        window.addEventListener('load', function() {
+            console.log("Página sectors.html completamente carregada");
+            
+            // Verificar tema
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            
+            if (currentTheme !== savedTheme) {
+                console.warn(`Tema inconsistente! Atual: ${currentTheme}, Salvo: ${savedTheme}`);
+                applyThemeDirectly(savedTheme);
+            }
+            
+            // Adicionar evento global para detectar mudanças de tema
+            document.addEventListener('themeChanged', function(event) {
+                applyThemeDirectly(event.detail.theme);
+            });
+            
+            // Configurar eventos para as opções de tema na página
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    if (theme) {
+                        applyThemeDirectly(theme);
+                    }
+                });
+            });
+        });
+    })();
     </script>
 </body>
 </html>
