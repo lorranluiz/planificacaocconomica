@@ -120,6 +120,7 @@ function insertCommonHeader() {
             <a href="/social-materializations.html" class="${window.location.pathname === '/social-materializations.html' ? 'active' : ''}">Materializações Sociais</a>
             <a href="/instances.html" class="${window.location.pathname === '/instances.html' ? 'active' : ''}">Instâncias</a>
             <a href="/sectors.html" class="${window.location.pathname === '/sectors.html' ? 'active' : ''}">Setores</a>
+            <a href="/users.html" class="${window.location.pathname === '/users.html' ? 'active' : ''}">Usuários</a>
         </div>
         <div class="user-menu">
             <div id="userInfo" style="display: none;">
@@ -172,6 +173,9 @@ function insertCommonHeader() {
     
     // Garantir estilos do cabeçalho
     ensureHeaderStyles();
+    
+    // Após inserir o cabeçalho, atualizar o botão de login/logout
+    updateLoginLogoutButton();
 }
 
 // -------------------- SELETOR DE TEMA --------------------
@@ -847,3 +851,38 @@ window.applyThemeToEntirePage = applyThemeToEntirePage;
     const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
     applyThemeToEntirePage(savedTheme);
 })();
+
+// Função para atualizar estado de login/logout no cabeçalho
+function updateLoginLogoutButton() {
+    const loginLogoutBtn = document.getElementById('loginLogoutBtn');
+    if (!loginLogoutBtn) return;
+    
+    const token = localStorage.getItem('token');
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    
+    if (token && user.id) {
+        // Usuário está logado
+        loginLogoutBtn.textContent = 'Minha Conta';
+        loginLogoutBtn.classList.add('logged-in');
+        
+        // Alterar comportamento do botão (via modificação do onclick)
+        loginLogoutBtn.onclick = function(e) {
+            e.preventDefault();
+            window.location.href = '/login.html';
+        };
+    } else {
+        // Usuário não está logado
+        loginLogoutBtn.textContent = 'Login';
+        loginLogoutBtn.classList.remove('logged-in');
+        
+        // Restaurar comportamento padrão do link
+        loginLogoutBtn.onclick = null;
+    }
+}
+
+// Chamada inicial quando o script é carregado
+document.addEventListener('DOMContentLoaded', function() {
+    if (typeof insertCommonHeader === 'function') {
+        insertCommonHeader();
+    }
+});
