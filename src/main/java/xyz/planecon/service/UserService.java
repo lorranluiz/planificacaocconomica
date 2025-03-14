@@ -1,6 +1,8 @@
 package xyz.planecon.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import xyz.planecon.model.entity.User;
 import xyz.planecon.repository.UserRepository;
@@ -13,8 +15,12 @@ import java.util.stream.StreamSupport;
 @Service
 public class UserService {
 
+    private final UserRepository userRepository;
+
     @Autowired
-    private UserRepository userRepository;
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public List<User> getAllUsers() {
         return StreamSupport.stream(userRepository.findAll().spliterator(), false)
@@ -46,5 +52,9 @@ public class UserService {
 
     public void deleteUser(Integer id) {
         userRepository.deleteById(id);
+    }
+
+    public Page<User> findAllPaginated(Pageable pageable) {
+        return userRepository.findAll(pageable);
     }
 }

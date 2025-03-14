@@ -55,6 +55,73 @@
         .radio-option input {
             margin-right: 5px;
         }
+
+        /* Estilos para paginação */
+        .pagination-container {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .pagination-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pagination-controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .pagination-links, .pagination-centuries {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .page-link {
+            padding: 5px 10px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+            min-width: 15px;
+            text-align: center;
+            user-select: none;
+        }
+
+        .page-link:hover {
+            background-color: var(--accent-color);
+            color: var(--accent-text);
+        }
+
+        .page-link.active {
+            background-color: var(--primary-color);
+            color: var(--primary-text);
+            border-color: var(--primary-color);
+        }
+
+        .page-link.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .century-link {
+            padding: 3px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            cursor: pointer;
+            background-color: var(--card-bg);
+            color: var(--text-color);
+        }
+
+        .century-link:hover, .century-link.active {
+            background-color: var(--accent-color-light);
+        }
     </style>
 </head>
 <body>
@@ -116,6 +183,20 @@
                     </thead>
                     <tbody></tbody>
                 </table>
+                <div id="pagination" class="pagination-container" style="display: none;">
+                    <div class="pagination-info">
+                        <span id="pageInfo">Página 1 de 1</span>
+                        <select id="pageSizeSelect">
+                            <option value="10" selected>10 por página</option>
+                            <option value="20">20 por página</option>
+                            <option value="50">50 por página</option>
+                        </select>
+                    </div>
+                    <div class="pagination-controls">
+                        <div id="paginationCenturies" class="pagination-centuries"></div>
+                        <div id="paginationLinks" class="pagination-links"></div>
+                    </div>
+                </div>
             </div>
         </div>
         
@@ -218,8 +299,24 @@
                 insertCommonHeader();
             }
             
+            // Variáveis para controle de paginação
+            let currentPage = 0;
+            let pageSize = 10;
+            let totalPages = 0;
+            let totalItems = 0;
+            
             // Carregar dados automaticamente ao abrir a página
-            loadUsers();
+            loadUsers(currentPage, pageSize);
+            
+            // Elemento para selecionar tamanho da página
+            const pageSizeSelect = document.getElementById('pageSizeSelect');
+            if (pageSizeSelect) {
+                pageSizeSelect.addEventListener('change', function() {
+                    pageSize = parseInt(this.value);
+                    currentPage = 0; // Voltar para a primeira página
+                    loadUsers(currentPage, pageSize);
+                });
+            }
             
             // ----------------- GERENCIAMENTO DE ABAS -----------------
             tabs.forEach(tab => {
@@ -240,10 +337,12 @@
                 });
             });
             
-            // ----------------- LISTAR USUÁRIOS -----------------
-            loadButton.addEventListener('click', loadUsers);
+            // ----------------- LISTAR USUÁRIOS COM PAGINAÇÃO -----------------
+            loadButton.addEventListener('click', function() {
+                loadUsers(currentPage, pageSize);
+            });
             
-            function loadUsers() {
+            function loadUsers(page, size) {
                 // Limpar resultados anteriores
                 tableBody.innerHTML = '';
                 counter.textContent = '';
@@ -254,8 +353,11 @@
                 // Esconder mensagem de erro
                 error.style.display = 'none';
                 
+                // Construir URL com parâmetros de paginação
+                const url = `/api/users?page=${page}&size=${size}`;
+                
                 // Fazer requisição ao endpoint
-                fetch('/api/users')
+                fetch(url)
                     .then(response => {
                         if (!response.ok) {
                             // Tentar extrair mensagem de erro se disponível
@@ -278,64 +380,199 @@
                         }
                         return response.json();
                     })
+                    // Adicione este código logo após receber a resposta da API, antes do processamento dos dados
                     .then(data => {
-                        // Tratar dados vazios
-                        if (!data || data.length === 0) {
-                            counter.textContent = 'Nenhum usuário encontrado.';
-                            loading.style.display = 'none';
-                            return;
-                        }
-
                         // Esconder indicador de carregamento
                         loading.style.display = 'none';
                         
+                        // DEBUG: Análise detalhada dos dados recebidos
+                        console.log("Estrutura da resposta completa:", data);
+                        
+                        // Identificar o formato da resposta
+                        if (data.content) {
+                            console.log("Resposta em formato de Page do Spring");
+                            if (data.content.length > 0) {
+                                console.log("Estrutura de um item:", data.content[0]);
+                                // Listar todas as propriedades do primeiro item para diagnóstico
+                                console.log("Propriedades disponíveis:", Object.keys(data.content[0]));
+                            }
+                        } else if (Array.isArray(data)) {
+                            console.log("Resposta em formato de array");
+                            if (data.length > 0) {
+                                console.log("Estrutura de um item:", data[0]);
+                                // Listar todas as propriedades do primeiro item para diagnóstico
+                                console.log("Propriedades disponíveis:", Object.keys(data[0]));
+                            }
+                        } else {
+                            console.log("Formato de resposta não reconhecido");
+                        }
+                        
+                        // Resto do código de processamento...
+                        // Esconder indicador de carregamento
+                        loading.style.display = 'none';
+                        
+                        // DEBUG: Inspecionar estrutura dos dados recebidos
+                        console.log("Estrutura da resposta completa:", data);
+                        
+                        // Se for um objeto Page do Spring
+                        if (data.content) {
+                            console.log("Amostra do primeiro item:", data.content[0]);
+                        } else if (Array.isArray(data) && data.length > 0) {
+                            console.log("Amostra do primeiro item:", data[0]);
+                        }
+                        
+                        // Extrair informações de paginação da resposta
+                        // Verificar vários formatos possíveis de resposta paginada
+                        if (data.pageable) {
+                            // Formato Spring Data JPA Page
+                            currentPage = data.number; // número da página atual (zero-based)
+                            pageSize = data.size;  // tamanho da página 
+                            totalPages = data.totalPages;  // total de páginas
+                            totalItems = data.totalElements;  // total de itens
+                            
+                            // Usar o conteúdo como a lista de itens
+                            data = data.content;
+                        } else if (data.page) {
+                            // Formato alternativo
+                            currentPage = data.page.number;
+                            pageSize = data.page.size;
+                            totalPages = data.page.totalPages;
+                            totalItems = data.page.totalElements;
+                            
+                            // Usar o conteúdo apropriado
+                            data = data.content || data.users || data.items || [];
+                        } else if (Array.isArray(data)) {
+                            // É uma lista simples, manter a paginação do lado do cliente
+                            totalItems = data.length;
+                            totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+                        } else {
+                            // Formato desconhecido, tentar o melhor possível
+                            console.warn("Formato de resposta desconhecido:", data);
+                            data = data.content || data.users || data.items || [];
+                            totalItems = data.length;
+                            totalPages = Math.max(1, Math.ceil(totalItems / pageSize));
+                        }
+                        
+                        // Tratar dados vazios
+                        if (!data || data.length === 0) {
+                            counter.textContent = 'Nenhum usuário encontrado.';
+                            document.getElementById('pagination').style.display = 'none';
+                            return;
+                        }
+                        
                         // Atualizar contador
-                        counter.textContent = `Total: ${data.length} usuários encontrados`;
+                        counter.textContent = `Exibindo ${data.length} de ${totalItems} usuários`;
                         
                         // Preencher a tabela com os dados
                         data.forEach(item => {
+                            // Log detalhado para depuração
+                            console.log("Processando item:", item);
+                            
                             const row = document.createElement('tr');
                             
+                            // ID do usuário - tentar diferentes propriedades possíveis
+                            const userId = item.id || item.userId || item.user_id || '-';
+                            
+                            // Nome do usuário - tentar diferentes propriedades possíveis
+                            const userName = item.name || item.fullName || item.userName || '-';
+                            
+                            // Username - tentar diferentes propriedades possíveis
+                            const username = item.username || item.login || '-';
+                            
                             // Formatar a data de criação
-                            let createdAt = item.createdAt || '';
-                            if (createdAt && createdAt.includes('T')) {
-                                const date = new Date(createdAt);
-                                createdAt = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                            let createdAt = '-';
+                            if (item.createdAt) {
+                                try {
+                                    const date = new Date(item.createdAt);
+                                    if (!isNaN(date)) {
+                                        createdAt = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                                    }
+                                } catch (e) {
+                                    console.error("Erro ao formatar data:", e);
+                                    createdAt = item.createdAt; // Usar o valor bruto se não conseguir formatar
+                                }
                             }
                             
-                            // Formatar pronome
-                            let pronoun = '';
-                            if (item.pronoun === 'HE_HIM') pronoun = 'Ele/Dele';
-                            else if (item.pronoun === 'SHE_HER') pronoun = 'Ela/Dela';
-                            else if (item.pronoun === 'THEY_THEM') pronoun = 'Elu/Delu';
+                            // Formatar pronome com verificação extra
+                            let pronoun = '-';
+                            if (item.pronoun) {
+                                if (item.pronoun === 'HE_HIM') pronoun = 'Ele/Dele';
+                                else if (item.pronoun === 'SHE_HER') pronoun = 'Ela/Dela';
+                                else if (item.pronoun === 'THEY_THEM') pronoun = 'Elu/Delu';
+                                else pronoun = item.pronoun; // Caso seja um valor não mapeado
+                            }
                             
-                            // Formatar tipo de usuário e instância
-                            const userType = item.type === 'COUNCILLOR' ? 
-                                '<span class="badge badge-COUNCILLOR">Conselheiro</span>' : 
-                                '<span class="badge badge-NON_COUNCILLOR">Não-Conselheiro</span>';
-                                
-                            // Instância (se houver)
+                            // Formatar tipo de usuário com verificação extra
+                            let userType = '-';
+                            if (item.type) {
+                                userType = item.type === 'COUNCILLOR' ? 
+                                    '<span class="badge badge-COUNCILLOR">Conselheiro</span>' : 
+                                    '<span class="badge badge-NON_COUNCILLOR">Não-Conselheiro</span>';
+                            }
+                            
+                            // Instância (se houver) com verificação robusta
                             let instanceName = '-';
                             if (item.instance) {
-                                instanceName = item.instance.committeeName || 
-                                              (item.instance.type === 'COUNCIL' ? 'Conselho #' + item.instance.id : 
-                                              (item.instance.type === 'COMMITTEE' ? 'Comitê #' + item.instance.id : 
-                                              'Trabalhador #' + item.instance.id));
+                                try {
+                                    // Tentar extrair o nome da instância de várias maneiras possíveis
+                                    if (item.instance.committeeName) {
+                                        instanceName = item.instance.committeeName;
+                                    } else if (item.instance.name) {
+                                        instanceName = item.instance.name;
+                                    } else if (item.instance.type) {
+                                        const instanceId = item.instance.id || '?';
+                                        if (item.instance.type === 'COUNCIL') {
+                                            instanceName = 'Conselho #' + instanceId;
+                                        } else if (item.instance.type === 'COMMITTEE') {
+                                            instanceName = 'Comitê #' + instanceId;
+                                        } else if (item.instance.type === 'WORKER') {
+                                            instanceName = 'Trabalhador #' + instanceId;
+                                        } else {
+                                            instanceName = item.instance.type + ' #' + instanceId;
+                                        }
+                                    } else {
+                                        instanceName = 'Instância #' + (item.instance.id || '?');
+                                    }
+                                } catch (e) {
+                                    console.error("Erro ao processar instância:", e);
+                                    instanceName = 'Erro ao processar';
+                                }
                             }
                             
-                            // Adicionar células
+                            // Adicionar células com verificações de segurança para cada campo
                             row.innerHTML = `
-                                <td>${item.id || ''}</td>
-                                <td>${item.name || ''}</td>
-                                <td>${item.username || ''}</td>
-                                <td>${userType || ''}</td>
-                                <td>${pronoun || ''}</td>
-                                <td>${instanceName || ''}</td>
-                                <td>${createdAt || '-'}</td>
+                                <td>${userId}</td>
+                                <td>${userName}</td>
+                                <td>${username}</td>
+                                <td>${userType}</td>
+                                <td>${pronoun}</td>
+                                <td>${instanceName}</td>
+                                <td>${createdAt}</td>
                             `;
                             
                             tableBody.appendChild(row);
                         });
+                        
+                        // Antes de chamar updatePagination(), adicione esta verificação
+                        // Se a paginação não foi calculada corretamente, use valores padrão
+                        if (totalPages === undefined || totalPages === null || isNaN(totalPages)) {
+                            console.warn("Total de páginas inválido, usando valor padrão");
+                            totalPages = Math.max(1, Math.ceil(data.length / pageSize));
+                        }
+
+                        if (totalItems === undefined || totalItems === null || isNaN(totalItems)) {
+                            console.warn("Total de itens inválido, usando valor padrão");
+                            totalItems = data.length;
+                        }
+
+                        // Garantir que a página atual seja válida
+                        if (currentPage === undefined || currentPage === null || isNaN(currentPage) || currentPage >= totalPages) {
+                            console.warn("Página atual inválida, reiniciando para 0");
+                            currentPage = 0;
+                        }
+
+                        // Agora podemos atualizar a paginação com segurança
+                        updatePagination();
                     })
                     .catch(err => {
                         // Esconder indicador de carregamento
@@ -345,7 +582,106 @@
                         console.error("Erro completo:", err);
                         error.textContent = 'Erro ao carregar dados: ' + err.message;
                         error.style.display = 'block';
+                        document.getElementById('pagination').style.display = 'none';
                     });
+            }
+            
+            // Função para atualizar a interface de paginação
+            function updatePagination() {
+                const paginationContainer = document.getElementById('pagination');
+                const paginationLinks = document.getElementById('paginationLinks');
+                const paginationCenturies = document.getElementById('paginationCenturies');
+                const pageInfo = document.getElementById('pageInfo');
+                
+                // Se não houver dados, esconder paginação
+                if (totalItems === 0 || totalPages === 0) {
+                    paginationContainer.style.display = 'none';
+                    return;
+                }
+                
+                // Mostrar container de paginação
+                paginationContainer.style.display = 'block';
+                
+                // Limpar links existentes
+                paginationLinks.innerHTML = '';
+                paginationCenturies.innerHTML = '';
+                
+                // Atualizar informação de página
+                pageInfo.textContent = `Página ${currentPage + 1} de ${totalPages}`;
+                
+                // Determinar o intervalo de páginas a exibir
+                // Mostrar até 10 links de página por vez, centrados na página atual
+                let startPage = Math.max(0, currentPage - 4);
+                let endPage = Math.min(totalPages - 1, startPage + 9);
+                
+                // Ajustar o startPage se estamos próximos do final
+                if (endPage - startPage < 9) {
+                    startPage = Math.max(0, endPage - 9);
+                }
+                
+                // Link para página anterior
+                const prevPageLink = document.createElement('span');
+                prevPageLink.className = `page-link ${currentPage === 0 ? 'disabled' : ''}`;
+                prevPageLink.textContent = '«';
+                prevPageLink.title = 'Página anterior';
+                if (currentPage > 0) {
+                    prevPageLink.addEventListener('click', () => loadUsers(currentPage - 1, pageSize));
+                }
+                paginationLinks.appendChild(prevPageLink);
+                
+                // Gerar links para as páginas no intervalo
+                for (let i = startPage; i <= endPage; i++) {
+                    const pageLink = document.createElement('span');
+                    pageLink.className = `page-link ${i === currentPage ? 'active' : ''}`;
+                    pageLink.textContent = i + 1; // Página 1-based para exibição
+                    pageLink.addEventListener('click', () => {
+                        if (i !== currentPage) {
+                            loadUsers(i, pageSize);
+                        }
+                    });
+                    paginationLinks.appendChild(pageLink);
+                }
+                
+                // Link para próxima página
+                const nextPageLink = document.createElement('span');
+                nextPageLink.className = `page-link ${currentPage === totalPages - 1 ? 'disabled' : ''}`;
+                nextPageLink.textContent = '»';
+                nextPageLink.title = 'Próxima página';
+                if (currentPage < totalPages - 1) {
+                    nextPageLink.addEventListener('click', () => loadUsers(currentPage + 1, pageSize));
+                }
+                paginationLinks.appendChild(nextPageLink);
+                
+                // Criar links para centenas se houver mais de 100 páginas
+                if (totalPages > 100) {
+                    paginationCenturies.style.display = 'flex';
+                    
+                    // Determinar quantas "centenas" existem
+                    const centuries = Math.ceil(totalPages / 100);
+                    
+                    // Para cada centena, criar um link
+                    for (let c = 0; c < centuries; c++) {
+                        const centuryStart = c * 100;
+                        const centuryEnd = Math.min(centuryStart + 99, totalPages - 1);
+                        const centuryLink = document.createElement('span');
+                        
+                        // Verificar se a página atual está nesta centena
+                        const isActiveCentury = currentPage >= centuryStart && currentPage <= centuryEnd;
+                        
+                        centuryLink.className = `century-link ${isActiveCentury ? 'active' : ''}`;
+                        centuryLink.textContent = `${centuryStart + 1}-${centuryEnd + 1}`;
+                        centuryLink.title = `Ir para páginas ${centuryStart + 1}-${centuryEnd + 1}`;
+                        centuryLink.addEventListener('click', () => {
+                            // Ir para a primeira página desta centena
+                            loadUsers(centuryStart, pageSize);
+                        });
+                        
+                        paginationCenturies.appendChild(centuryLink);
+                    }
+                } else {
+                    // Esconder a seção de centenas se houver poucas páginas
+                    paginationCenturies.style.display = 'none';
+                }
             }
             
             // ----------------- CARREGAR INSTÂNCIAS -----------------
