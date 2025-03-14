@@ -85,8 +85,15 @@ public class UserController {
 
     // Método auxiliar para converter User para UserResponse
     private UserResponse convertToUserResponse(User user) {
-        // Usando o método estático fromEntity disponível na classe UserResponse
-        return UserResponse.fromEntity(user);
+        UserResponse response = UserResponse.fromEntity(user);
+        
+        // Garantir que createdAt nunca seja nulo
+        if (response.getCreatedAt() == null) {
+            // Usar a data atual como fallback se o registro não tiver data
+            response.setCreatedAt(LocalDateTime.now());
+        }
+        
+        return response;
     }
     
     @GetMapping("/{id}")

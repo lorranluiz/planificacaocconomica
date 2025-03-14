@@ -481,16 +481,54 @@
                             
                             // Formatar a data de criação
                             let createdAt = '-';
-                            if (item.createdAt) {
+                            
+                            // Verificar a estrutura completa do objeto para debug
+                            console.log("Estrutura completa do item:", JSON.stringify(item, null, 2));
+                            
+                            // Buscar campo de data por nome exato que corresponde ao campo na entidade Java
+                            const dateField = item.createdAt;
+                            console.log("Campo de data encontrado:", dateField, "Tipo:", typeof dateField);
+                            
+                            if (dateField) {
                                 try {
-                                    const date = new Date(item.createdAt);
+                                    // Tentar criar um objeto Date a partir do valor
+                                    // Para formatos ISO 8601 (2023-01-01T12:00:00)
+                                    const date = new Date(dateField);
                                     if (!isNaN(date)) {
-                                        createdAt = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                                        // Formatar data no padrão brasileiro
+                                        const dia = date.getDate().toString().padStart(2, '0');
+                                        const mes = (date.getMonth() + 1).toString().padStart(2, '0');
+                                        const ano = date.getFullYear();
+                                        const hora = date.getHours().toString().padStart(2, '0');
+                                        const minuto = date.getMinutes().toString().padStart(2, '0');
+                                        createdAt = `${dia}/${mes}/${ano} ${hora}:${minuto}`;
+                                    } else if (typeof dateField === 'string' && dateField.includes('-')) {
+                                        // Tentar processar como string de data (2023-01-01T12:00:00)
+                                        const parts = dateField.split('T');
+                                        const dateParts = parts[0].split('-');
+                                        if (dateParts.length === 3) {
+                                            const year = dateParts[0];
+                                            const month = dateParts[1];
+                                            const day = dateParts[2];
+                                            
+                                            let timeStr = '';
+                                            if (parts.length > 1 && parts[1]) {
+                                                const timeParts = parts[1].split(':');
+                                                if (timeParts.length >= 2) {
+                                                    timeStr = ` ${timeParts[0]}:${timeParts[1]}`;
+                                                }
+                                            }
+                                            
+                                            createdAt = `${day}/${month}/${year}${timeStr}`;
+                                        }
                                     }
                                 } catch (e) {
-                                    console.error("Erro ao formatar data:", e);
-                                    createdAt = item.createdAt; // Usar o valor bruto se não conseguir formatar
+                                    console.error("Erro ao formatar data:", e, "Valor original:", dateField);
+                                    createdAt = String(dateField);
                                 }
+                                
+                                // Log para debug
+                                console.log("Campo de data original:", dateField, "Formatado:", createdAt);
                             }
                             
                             // Formatar pronome com verificação extra
