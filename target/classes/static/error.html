@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <script>
+    // Aplicar tema imediatamente no carregamento da página
+    (function() {
+        try {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            console.log('Tema aplicado em error.html:', savedTheme);
+        } catch(e) {
+            console.error('Erro ao aplicar tema inicial:', e);
+        }
+    })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" id="theme-color" content="#2c3e50">
+    <title>Erro - Sistema de Planejamento Econômico</title>
+    <link rel="stylesheet" href="/css/common-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="/css/theme-variables.css">
+    <link rel="stylesheet" href="/css/theme-elements.css">
+    <style>
+        .error-container {
+            text-align: center;
+            padding: 40px 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .error-icon {
+            font-size: 60px;
+            color: var(--error-color);
+            margin-bottom: 20px;
+        }
+        
+        .error-title {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        
+        .error-message {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: rgba(0,0,0,0.05);
+            border-radius: 8px;
+        }
+        
+        .error-actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .error-actions a {
+            padding: 10px 20px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color-light);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-color-dark);
+        }
+        
+        .btn-secondary {
+            background-color: var(--bg-color);
+            border: 1px solid var(--card-border);
+            color: var(--text-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--card-border);
+        }
+        
+        .error-details {
+            margin-top: 40px;
+            text-align: left;
+            padding: 20px;
+            background-color: rgba(0,0,0,0.05);
+            border-radius: 8px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        
+        .error-details h3 {
+            margin-top: 0;
+            font-family: sans-serif;
+            border-bottom: 1px solid var(--card-border);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="error-container">
+            <div class="error-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            
+            <h1 class="error-title">Ocorreu um erro no sistema</h1>
+            
+            <div class="error-message">
+                <p>Desculpe pelo inconveniente. O sistema encontrou um erro inesperado.</p>
+                <p>Nossa equipe técnica foi notificada e está trabalhando para resolver o problema.</p>
+            </div>
+            
+            <div id="errorDetails" class="error-details" style="display: none;">
+                <h3>Detalhes técnicos</h3>
+                <div id="errorCode"></div>
+                <div id="errorMessage"></div>
+                <div id="errorTimestamp"></div>
+                <div id="errorPath"></div>
+            </div>
+            
+            <div class="error-actions">
+                <a href="/" class="btn-primary">Voltar para a página inicial</a>
+                <a href="#" id="showDetailsBtn" class="btn-secondary">Mostrar detalhes técnicos</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="/common-header.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inserir o cabeçalho comum
+            if (typeof window.insertCommonHeader === 'function') {
+                window.insertCommonHeader();
+            }
+            
+            // Extrair parâmetros da URL para exibir informações de erro
+            const urlParams = new URLSearchParams(window.location.search);
+            const status = urlParams.get('status') || '500';
+            const message = urlParams.get('message') || 'Erro interno do servidor';
+            const timestamp = urlParams.get('timestamp') || new Date().toLocaleString();
+            const path = urlParams.get('path') || window.location.pathname;
+            
+            // Preencher detalhes do erro
+            document.getElementById('errorCode').textContent = `Código: ${status}`;
+            document.getElementById('errorMessage').textContent = `Mensagem: ${message}`;
+            document.getElementById('errorTimestamp').textContent = `Timestamp: ${timestamp}`;
+            document.getElementById('errorPath').textContent = `Caminho: ${path}`;
+            
+            // Botão para exibir/ocultar detalhes
+            const showDetailsBtn = document.getElementById('showDetailsBtn');
+            const errorDetails = document.getElementById('errorDetails');
+            
+            showDetailsBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                if (errorDetails.style.display === 'none') {
+                    errorDetails.style.display = 'block';
+                    showDetailsBtn.textContent = 'Ocultar detalhes técnicos';
+                } else {
+                    errorDetails.style.display = 'none';
+                    showDetailsBtn.textContent = 'Mostrar detalhes técnicos';
+                }
+            });
+        });
+        
+        // Verificar tema quando a página terminar de carregar
+        window.addEventListener('load', function() {
+            if (typeof window.verifyTheme === 'function') {
+                window.verifyTheme();
+            }
+        });
+    </script>
+</body>
+</html>

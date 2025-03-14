@@ -1,0 +1,839 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <script>
+    // Aplicar tema imediatamente no carregamento da página
+    (function() {
+        try {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            console.log('Tema aplicado em login.html:', savedTheme);
+        } catch(e) {
+            console.error('Erro ao aplicar tema inicial:', e);
+        }
+    })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" id="theme-color" content="#2c3e50">
+    <link rel="stylesheet" href="/css/theme-variables.css">
+    <link rel="stylesheet" href="/css/theme-elements.css">
+    <title>Login - Sistema de Planejamento Econômico</title>
+    <link rel="stylesheet" href="/css/common-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Garantir que o cabeçalho comum seja inserido
+        if (typeof window.insertCommonHeader === 'function') {
+            window.insertCommonHeader();
+        } else {
+            console.error("Função insertCommonHeader não encontrada");
+        }
+        
+        // Aplicar tema diretamente para evitar recursão
+        try {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            console.log('Tema aplicado diretamente:', savedTheme);
+        } catch(e) {
+            console.error('Erro ao aplicar tema:', e);
+        }
+        
+        // Adicionar ouvinte para evento de mudança de tema
+        document.addEventListener('themeChanged', function(event) {
+            console.log("Evento 'themeChanged' detectado:", event.detail.theme);
+            // NÃO chamar applyThemeToEntirePage aqui para evitar recursão
+            try {
+                document.documentElement.setAttribute('data-theme', event.detail.theme);
+                localStorage.setItem('preferredTheme', event.detail.theme);
+            } catch(e) {
+                console.error('Erro ao aplicar tema:', e);
+            }
+        });
+
+        // Verificar se há um usuário já logado
+        checkLoggedInUser();
+        
+        // Adicionar o evento de logout diretamente aqui também para garantir
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            console.log("Adicionando evento de logout ao botão");
+            logoutBtn.addEventListener('click', handleLogout);
+            
+            // Garantir visibilidade do botão
+            logoutBtn.style.display = 'block';
+        }
+    });
+    </script>
+    <div class="container">
+        <!-- O cabeçalho será inserido aqui pelo script -->
+        
+        <div class="auth-container">
+            <div class="auth-tabs">
+                <div class="auth-tab active" data-tab="login">Login</div>
+                <div class="auth-tab" data-tab="register">Registrar</div>
+            </div>
+            
+            <div id="login-content" class="auth-content active">
+                <h2>Login</h2>
+                <div id="loginErrorAlert" class="message error" style="display: none;"></div>
+                <div id="loginSuccessAlert" class="message success" style="display: none;"></div>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Nome de usuário</label>
+                        <input type="text" id="username" name="username" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="password">Senha</label>
+                        <input type="password" id="password" name="password" class="form-control" required>
+                    </div>
+                    
+                    <div class="remember-me">
+                        <input type="checkbox" id="rememberMe" name="rememberMe">
+                        <label for="rememberMe">Lembrar-me</label>
+                    </div>
+                    
+                    <button type="submit" class="btn">Entrar</button>
+                </form>
+            </div>
+            
+            <div id="register-content" class="auth-content">
+                <h2>Registrar</h2>
+                <div id="registerErrorAlert" class="message error" style="display: none;"></div>
+                <div id="registerSuccessAlert" class="message success" style="display: none;"></div>
+                
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label for="registerUsername">Nome de usuário</label>
+                        <input type="text" id="registerUsername" name="username" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="registerPassword">Senha</label>
+                        <input type="password" id="registerPassword" name="password" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="registerName">Nome completo</label>
+                        <input type="text" id="registerName" name="name" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Pronome</label>
+                        <div class="radio-group">
+                            <input type="radio" id="pronounHe" name="pronoun" value="HE_HIM" checked>
+                            <label for="pronounHe">Ele/Dele</label>
+                            
+                            <input type="radio" id="pronounShe" name="pronoun" value="SHE_HER">
+                            <label for="pronounShe">Ela/Dela</label>
+                            
+                            <input type="radio" id="pronounThey" name="pronoun" value="THEY_THEM">
+                            <label for="pronounThey">Elu/Delu</label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Tipo de usuário</label>
+                        <div class="radio-group">
+                            <input type="radio" id="typeCouncillor" name="type" value="COUNCILLOR">
+                            <label for="typeCouncillor">Conselheiro</label>
+                            
+                            <input type="radio" id="typeNonCouncillor" name="type" value="NON_COUNCILLOR" checked>
+                            <label for="typeNonCouncillor">Não-Conselheiro</label>
+                        </div>
+                    </div>
+                    
+                    <div id="instanceSelectContainer" class="form-group">
+                        <label for="instanceId">Instância associada</label>
+                        <select id="instanceId" name="instanceId" class="form-control">
+                            <option value="">Selecione uma instância</option>
+                            <!-- Opções serão carregadas via JavaScript -->
+                        </select>
+                        <small class="form-text text-muted">Obrigatório para Conselheiros. Selecione o conselho ou comitê ao qual você pertence.</small>
+                    </div>
+    
+                    <div id="instanceInfoBox" class="form-group info-box">
+                        <p>Como Não-Conselheiro, você não precisa selecionar uma instância.</p>
+                    </div>
+    
+                    <div class="form-group">
+                        <button type="submit" class="btn">Registrar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <div id="welcomeSection" style="display:none;">
+            <div class="user-welcome">
+                <h2>Bem-vindo, <span id="userNameDisplay"></span>!</h2>
+                <p>Você está logado como <strong id="userTypeDisplay"></strong></p>
+            </div>
+            
+            <div class="tabs">
+                <div class="tab active" data-tab="profile">Perfil</div>
+                <div class="tab" data-tab="instance">Detalhes da Instância</div>
+                <div class="tab" data-tab="related">Entidades Relacionadas</div>
+            </div>
+            
+            <div id="profileTab" class="tab-content active">
+                <h3>Informações do Usuário</h3>
+                <div class="report-container">
+                    <div class="report-item">
+                        <div class="item-label">ID:</div>
+                        <div id="userId"></div>
+                    </div>
+                    <div class="report-item">
+                        <div class="item-label">Nome:</div>
+                        <div id="userName"></div>
+                    </div>
+                    <div class="report-item">
+                        <div class="item-label">Nome de Usuário:</div>
+                        <div id="userUsername"></div>
+                    </div>
+                    <div class="report-item">
+                        <div class="item-label">Tipo:</div>
+                        <div id="userType"></div>
+                    </div>
+                    <div class="report-item">
+                        <div class="item-label">Pronome:</div>
+                        <div id="userPronoun"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="instanceTab" class="tab-content">
+                <h3>Detalhes da Instância</h3>
+                <div id="instanceLoading" class="loading">Carregando detalhes da instância...</div>
+                <div id="instanceContainer" class="report-container" style="display:none;"></div>
+            </div>
+            
+            <div id="relatedTab" class="tab-content">
+                <h3>Entidades Relacionadas</h3>
+                <div id="relatedLoading" class="loading">Carregando entidades relacionadas...</div>
+                <div id="relatedContainer" class="report-container" style="display:none;"></div>
+            </div>
+            
+            <button id="logoutBtn" class="btn btn-secondary" onclick="forceLogoutNow(); return false;">Sair</button>
+        </div>
+    </div>
+
+    <script src="/common-header.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inserir o cabeçalho comum
+        if (typeof insertCommonHeader === 'function') {
+            insertCommonHeader();
+        }
+        
+        // Gestão de abas de autenticação
+        const authTabs = document.querySelectorAll('.auth-tab');
+        const authContents = document.querySelectorAll('.auth-content');
+        
+        authTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Remover classe ativa de todas as abas e conteúdos
+                authTabs.forEach(t => t.classList.remove('active'));
+                authContents.forEach(c => c.classList.remove('active'));
+                
+                // Adicionar classe ativa à aba e conteúdo selecionados
+                this.classList.add('active');
+                document.getElementById(`${tabId}-content`).classList.add('active');
+            });
+        });
+        
+        // Configurar exibição condicional de campos baseado no tipo de usuário
+        document.querySelectorAll('input[name="type"]').forEach(radio => {
+            radio.addEventListener('change', updateUserTypeFields);
+        });
+        
+        // Carregar instâncias para o formulário de registro
+        loadInstancesForRegistration();
+        
+        // Inicializar campos para tipo de usuário
+        updateUserTypeFields();
+        
+        // Event listeners para formulários de login e registro
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        
+        if (loginForm) {
+            loginForm.addEventListener('submit', handleLoginSubmit);
+        }
+        
+        if (registerForm) {
+            registerForm.addEventListener('submit', handleRegisterSubmit);
+        }
+        
+        // Verificar se há um usuário já logado
+        checkLoggedInUser();
+    });
+    
+    function updateUserTypeFields() {
+        const userType = document.querySelector('input[name="type"]:checked').value;
+        const instanceSelectContainer = document.getElementById('instanceSelectContainer');
+        const instanceInfoBox = document.getElementById('instanceInfoBox');
+        
+        if (userType === 'COUNCILLOR') {
+            instanceSelectContainer.style.display = 'block';
+            instanceInfoBox.style.display = 'none';
+        } else {
+            instanceSelectContainer.style.display = 'none';
+            instanceInfoBox.style.display = 'block';
+        }
+    }
+    
+    function loadInstancesForRegistration() {
+        const instanceSelect = document.getElementById('instanceId');
+        
+        fetch('/api/instances')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch instances');
+                }
+                return response.json();
+            })
+            .then(instances => {
+                // Filtrar apenas COUNCIL e COMMITTEE
+                const filteredInstances = instances.filter(instance => 
+                    instance.type === 'COUNCIL' || instance.type === 'COMMITTEE'
+                );
+                
+                // Limpar opções e adicionar padrão
+                instanceSelect.innerHTML = '<option value="">Selecione uma instância</option>';
+                
+                // Adicionar instâncias filtradas
+                filteredInstances.forEach(instance => {
+                    const option = document.createElement('option');
+                    option.value = instance.id;
+                    option.textContent = `${instance.committeeName || instance.id} (${instance.type})`;
+                    instanceSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Erro ao carregar instâncias:', error);
+                instanceSelect.innerHTML = '<option value="">Erro ao carregar instâncias</option>';
+            });
+    }
+    
+    // Função para lidar com o envio do formulário de login
+    function showDebugAlert(message) {
+        const debugAlert = document.createElement('div');
+        debugAlert.style.position = 'fixed';
+        debugAlert.style.bottom = '10px';
+        debugAlert.style.right = '10px';
+        debugAlert.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+        debugAlert.style.color = 'white';
+        debugAlert.style.padding = '10px';
+        debugAlert.style.borderRadius = '4px';
+        debugAlert.style.zIndex = '9999';
+        debugAlert.textContent = message;
+        document.body.appendChild(debugAlert);
+        
+        setTimeout(() => {
+            document.body.removeChild(debugAlert);
+        }, 5000);
+        
+        console.log("DEBUG:", message);
+    }
+
+    // Substituir a função handleLoginSubmit existente por esta versão
+    function handleLoginSubmit(e) {
+        e.preventDefault();
+        showDebugAlert("Login iniciado");
+        
+        console.log("Função handleLoginSubmit executada");
+        
+        const errorAlert = document.getElementById('loginErrorAlert');
+        const successAlert = document.getElementById('loginSuccessAlert');
+        
+        errorAlert.style.display = 'none';
+        successAlert.style.display = 'none';
+        
+        // Capturar valores diretamente dos campos com debug detalhado
+        const usernameInput = document.getElementById('username');
+        console.log("Element username:", usernameInput);
+        
+        const passwordInput = document.getElementById('password');
+        console.log("Element password:", passwordInput);
+        
+        // Verificação básica
+        if (!usernameInput || !passwordInput) {
+            console.error("Campos do formulário não encontrados!");
+            showDebugAlert("Erro: campos do formulário não encontrados");
+            errorAlert.textContent = 'Erro técnico: formulário incompleto';
+            errorAlert.style.display = 'block';
+            return;
+        }
+        
+        // Capturar valores diretamente
+        const username = usernameInput.value;
+        const password = passwordInput.value;
+        
+        console.log("Username capturado:", username ? "preenchido" : "vazio");
+        console.log("Password capturado:", password ? "preenchido" : "vazio");
+        
+        // Validação simplificada
+        if (!username || username === "") {
+            errorAlert.textContent = 'Por favor, informe seu nome de usuário';
+            errorAlert.style.display = 'block';
+            return;
+        }
+        
+        if (!password || password === "") {
+            errorAlert.textContent = 'Por favor, informe sua senha';
+            errorAlert.style.display = 'block';
+            return;
+        }
+        
+        // Resto da função permanece igual
+        // ...
+    }
+    
+    // Função para lidar com o envio do formulário de registro
+    function handleRegisterSubmit(e) {
+        e.preventDefault();
+        
+        const errorAlert = document.getElementById('registerErrorAlert');
+        const successAlert = document.getElementById('registerSuccessAlert');
+        
+        errorAlert.style.display = 'none';
+        successAlert.style.display = 'none';
+        
+        // Obter valores do formulário
+        const username = document.getElementById('registerUsername').value;
+        const password = document.getElementById('registerPassword').value;
+        const name = document.getElementById('registerName').value;
+        const pronoun = document.querySelector('input[name="pronoun"]:checked').value;
+        const type = document.querySelector('input[name="type"]:checked').value;
+        
+        // Validar campos obrigatórios
+        if (!username || !password || !name) {
+            errorAlert.textContent = 'Por favor, preencha todos os campos obrigatórios.';
+            errorAlert.style.display = 'block';
+            return;
+        }
+        
+        // Montar o objeto de requisição
+        const requestData = {
+            username: username,
+            password: password,
+            name: name,
+            pronoun: pronoun,
+            type: type
+        };
+        
+        // Se o tipo for COUNCILLOR, adicionar o ID da instância
+        if (type === 'COUNCILLOR') {
+            const instanceId = document.getElementById('instanceId').value;
+            if (!instanceId) {
+                errorAlert.textContent = 'Por favor, selecione uma instância.';
+                errorAlert.style.display = 'block';
+                return;
+            }
+            requestData.instanceId = parseInt(instanceId);
+        }
+        
+        console.log('Enviando dados de registro:', requestData);
+        
+        // Enviar requisição para o backend
+        fetch('/api/users/register', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(requestData),
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(data => {
+                    throw new Error(data.message || 'Erro ao registrar usuário');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Registro bem-sucedido
+            successAlert.textContent = 'Registro realizado com sucesso!';
+            successAlert.style.display = 'block';
+            
+            // Limpar formulário
+            document.getElementById('registerForm').reset();
+            
+            // Mudar para a aba de login após um breve atraso
+            setTimeout(() => {
+                document.querySelector('.auth-tab[data-tab="login"]').click();
+            }, 2000);
+        })
+        .catch(error => {
+            errorAlert.textContent = error.message || 'Erro ao registrar usuário.';
+            errorAlert.style.display = 'block';
+            console.error('Erro de registro:', error);
+        });
+    }
+    
+    // Função para verificar se um usuário já está logado
+    function checkLoggedInUser() {
+        const token = localStorage.getItem('token');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        
+        if (token && user.id) {
+            // Mostrar a seção de boas-vindas
+            document.querySelector('.auth-container').style.display = 'none';
+            document.getElementById('welcomeSection').style.display = 'block';
+            
+            // Preencher informações do usuário
+            document.getElementById('userNameDisplay').textContent = user.name || user.username;
+            document.getElementById('userTypeDisplay').textContent = formatUserType(user.type);
+            document.getElementById('userId').textContent = user.id;
+            document.getElementById('userName').textContent = user.name;
+            document.getElementById('userUsername').textContent = user.username;
+            document.getElementById('userType').textContent = formatUserType(user.type);
+            document.getElementById('userPronoun').textContent = formatPronoun(user.pronoun);
+            
+            // Carregar dados da instância
+            loadUserInstanceDetails(user.id);
+            
+            // Configurar botão de logout
+            document.getElementById('logoutBtn').addEventListener('click', handleLogout);
+            
+            // Configurar tabs
+            setupWelcomeTabs();
+        }
+    }
+    
+    // Formatadores
+    function formatUserType(type) {
+        const types = {
+            'COUNCILLOR': 'Conselheiro',
+            'NON_COUNCILLOR': 'Não-Conselheiro'
+        };
+        return types[type] || type;
+    }
+    
+    function formatPronoun(pronoun) {
+        const pronouns = {
+            'HE_HIM': 'Ele/Dele',
+            'SHE_HER': 'Ela/Dela',
+            'THEY_THEM': 'Elu/Delu'
+        };
+        return pronouns[pronoun] || pronoun;
+    }
+    
+    // Carregar detalhes da instância do usuário
+    function loadUserInstanceDetails(userId) {
+        const instanceLoading = document.getElementById('instanceLoading');
+        const instanceContainer = document.getElementById('instanceContainer');
+        const relatedLoading = document.getElementById('relatedLoading');
+        const relatedContainer = document.getElementById('relatedContainer');
+        
+        // Carregar detalhes da instância
+        fetch(`/api/users/${userId}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Falha ao obter dados do usuário');
+                }
+                return response.json();
+            })
+            .then(userData => {
+                instanceLoading.style.display = 'none';
+                instanceContainer.style.display = 'block';
+                
+                if (userData.instance) {
+                    instanceContainer.innerHTML = `
+                        <div class="report-item">
+                            <div class="item-label">ID da Instância:</div>
+                            <div>${userData.instance.id}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="item-label">Tipo:</div>
+                            <div>${userData.instance.type}</div>
+                        </div>
+                        <div class="report-item">
+                            <div class="item-label">Nome do Comitê:</div>
+                            <div>${userData.instance.committeeName || 'N/A'}</div>
+                        </div>
+                    `;
+                } else {
+                    instanceContainer.innerHTML = '<p>Nenhuma instância associada a este usuário.</p>';
+                }
+                
+                // Carregar entidades relacionadas
+                return fetch(`/api/users/${userId}/related-entities`);
+            })
+            .then(response => {
+                if (!response.ok) {
+                    relatedLoading.style.display = 'none';
+                    relatedContainer.style.display = 'block';
+                    relatedContainer.innerHTML = '<p>Não foi possível carregar entidades relacionadas.</p>';
+                    return null;
+                }
+                return response.json();
+            })
+            .then(relatedData => {
+                if (relatedData) {
+                    relatedLoading.style.display = 'none';
+                    relatedContainer.style.display = 'block';
+                    
+                    if (relatedData.length === 0) {
+                        relatedContainer.innerHTML = '<p>Nenhuma entidade relacionada encontrada.</p>';
+                    } else {
+                        let html = '';
+                        relatedData.forEach(entity => {
+                            html += `
+                                <div class="report-item">
+                                    <div class="item-label">${entity.type}:</div>
+                                    <div>${entity.name || entity.id}</div>
+                                </div>
+                            `;
+                        });
+                        relatedContainer.innerHTML = html;
+                    }
+                }
+            })
+            .catch(error => {
+                instanceLoading.style.display = 'none';
+                relatedLoading.style.display = 'none';
+                instanceContainer.style.display = 'block';
+                instanceContainer.innerHTML = `<p>Erro ao carregar dados: ${error.message}</p>`;
+                console.error('Erro ao carregar dados do usuário:', error);
+            });
+    }
+    
+    // Configurar tabs na seção de boas-vindas
+    function setupWelcomeTabs() {
+        const tabs = document.querySelectorAll('.tab');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                
+                // Remover classe ativa de todas as abas e conteúdos
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Adicionar classe ativa à aba e conteúdo selecionados
+                this.classList.add('active');
+                document.getElementById(`${tabId}Tab`).classList.add('active');
+            });
+        });
+    }
+    
+    // Substituir a função handleLogout existente por esta versão completamente nova
+    function handleLogout() {
+        console.log("=== EXECUTANDO LOGOUT FORÇADO ===");
+        
+        // 1. Limpar todos os dados de usuário do armazenamento local e de sessão
+        localStorage.removeItem('user');
+        localStorage.removeItem('token');
+        sessionStorage.removeItem('user');
+        sessionStorage.removeItem('token');
+        
+        // 2. Mostrar mensagem de logout
+        alert('Logout realizado com sucesso!');
+        
+        // 3. Forçar redirecionamento para a página de login com parâmetro para evitar cache
+        window.location.href = '/login.html?logout=' + new Date().getTime();
+    }
+
+    // Substituir o event listener do DOMContentLoaded no final do documento
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM carregado - configurando botão de logout");
+        
+        // Configurar o botão de logout de forma direta e forçada
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            console.log("Botão de logout encontrado, configurando evento...");
+            
+            // Remover todos os eventos anteriores (abordagem brutal mas eficaz)
+            logoutBtn.outerHTML = logoutBtn.outerHTML;
+            
+            // Recuperar o botão após recriá-lo e adicionar o evento novamente
+            const newLogoutBtn = document.getElementById('logoutBtn');
+            newLogoutBtn.onclick = function(e) {
+                e.preventDefault();
+                console.log("Botão de logout clicado!");
+                handleLogout();
+                return false;
+            };
+        } else {
+            console.error("Botão de logout NÃO encontrado!");
+        }
+    });
+
+    // Adicionar um gatilho de logout global para depuração
+    window.forceLogout = handleLogout;
+</script>
+    <script>
+    // Verificar integridade do sistema quando a página terminar de carregar
+    window.addEventListener('load', function() {
+        console.log("Página login.html completamente carregada");
+        
+        // Verificar tema
+        if (typeof window.verifyTheme === 'function') {
+            window.verifyTheme();
+        } else {
+            // Aplicar tema manualmente como fallback
+            try {
+                const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } catch(e) {
+                console.error("Erro ao aplicar tema fallback:", e);
+            }
+        }
+    });
+    </script>
+    <script>
+    // Script de verificação e forçamento de tema
+    (function() {
+        // Função para aplicar tema diretamente - torna global para ser acessível pelo common-header.js
+        window.applyThemeDirectly = function(theme) {
+            console.log(`Aplicando tema ${theme} diretamente em login.html`);
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('preferredTheme', theme);
+            
+            // Forçar repintagem para aplicar o tema
+            document.documentElement.style.display = 'none';
+            void document.documentElement.offsetHeight;
+            document.documentElement.style.display = '';
+        }
+
+        // Verificar quando a página terminar de carregar
+        window.addEventListener('load', function() {
+            console.log("Página login.html completamente carregada");
+            
+            // Verificar tema
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            
+            if (currentTheme !== savedTheme) {
+                console.warn(`Tema inconsistente! Atual: ${currentTheme}, Salvo: ${savedTheme}`);
+                window.applyThemeDirectly(savedTheme);
+            }
+            
+            // Adicionar evento global para detectar mudanças de tema
+            document.addEventListener('themeChanged', function(event) {
+                window.applyThemeDirectly(event.detail.theme);
+            });
+            
+            // Configurar eventos para as opções de tema na página
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    if (theme) {
+                        window.applyThemeDirectly(theme);
+                    }
+                });
+            });
+        });
+    })();
+     // Função de logout de emergência que não depende de nenhuma outra função
+     function forceLogoutNow() {
+        console.log("LOGOUT DE EMERGÊNCIA EXECUTADO");
+        
+        try {
+            // Salvar o tema antes de limpar tudo
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            
+            // Limpar dados específicos de usuário 
+            localStorage.removeItem('user');
+            localStorage.removeItem('token');
+            sessionStorage.removeItem('user');
+            sessionStorage.removeItem('token');
+            
+            // Restaurar o tema
+            localStorage.setItem('preferredTheme', savedTheme);
+            
+            // Mostrar feedback visual para o usuário
+            alert("Logout realizado com sucesso!");
+            
+            // Redirecionar com timestamp para evitar cache
+            window.location.href = "/login.html?forcelogout=" + new Date().getTime();
+        } catch (e) {
+            console.error("Erro durante logout de emergência:", e);
+            alert("Erro durante logout. Tente recarregar a página.");
+        }
+    }
+    
+    // Verificar parâmetros URL para forçar logout quando a página carrega
+    if (window.location.href.includes("logout=") || window.location.href.includes("forcelogout=")) {
+        console.log("Parâmetro de logout detectado na URL");
+        localStorage.clear();
+        sessionStorage.clear();
+    }
+    
+    // Garantir que o botão tenha a função correta
+    document.addEventListener("DOMContentLoaded", function() {
+        var logoutButton = document.getElementById("logoutBtn");
+        if (logoutButton) {
+            console.log("Configurando botão de logout com método infalível");
+            // Substituir completamente o botão para remover todos os event listeners
+            logoutButton.outerHTML = '<button id="logoutBtn" class="btn btn-secondary" onclick="forceLogoutNow(); return false;">Sair</button>';
+        }
+    });
+
+    // Garantir que os manipuladores dos formulários sejam atribuídos no final da página
+    window.addEventListener('load', function() {
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            console.log('Vinculando evento de submit ao formulário de login');
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                console.log('Formulário de login enviado');
+                handleLoginSubmit(e);
+            });
+        } else {
+            console.error('Formulário de login não encontrado!');
+        }
+        
+        // Garantir que o botão de logout funcione
+        const logoutBtn = document.getElementById('logoutBtn');
+        if (logoutBtn) {
+            logoutBtn.onclick = function(e) {
+                e.preventDefault();
+                console.log("Botão de logout clicado com manipulador final!");
+                forceLogoutNow();
+                return false;
+            };
+        }
+    });
+
+    // Reforçar binding do formulário de login para garantir seu funcionamento
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("DOM carregado - configurando formulário de login");
+        
+        const loginForm = document.getElementById('loginForm');
+        if (loginForm) {
+            console.log("Formulário de login encontrado, configurando evento...");
+            
+            // Limpar qualquer event listener anterior e adicionar novo
+            loginForm.innerHTML = loginForm.innerHTML;
+            
+            // Garantir que o formulário seja devidamente configurado
+            const newLoginForm = document.getElementById('loginForm');
+            newLoginForm.onsubmit = function(e) {
+                e.preventDefault();
+                console.log("Formulário de login submetido via event listener direto");
+                
+                // Debug para verificar os campos
+                const usernameInput = document.getElementById('username');
+                const passwordInput = document.getElementById('password');
+                
+                console.log("Campo username:", usernameInput ? "encontrado" : "não encontrado");
+                console.log("Valor username:", usernameInput ? usernameInput.value : "N/A");
+                
+                // Chamar a função de login diretamente
+                handleLoginSubmit(e);
+                return false;
+            };
+        }
+    });
+    </script>
+</body>
+</html>

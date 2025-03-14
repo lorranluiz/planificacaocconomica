@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de API - Sistema de Planejamento Econômico</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .test-button {
+            background-color: #4CAF50;
+            border: none;
+            color: white;
+            padding: 10px 15px;
+            text-align: center;
+            text-decoration: none;
+            display: inline-block;
+            font-size: 16px;
+            margin: 4px 2px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .result {
+            background-color: #f8f8f8;
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            word-break: break-word;
+            max-height: 300px;
+            overflow: auto;
+        }
+        .success {
+            color: green;
+        }
+        .error {
+            color: red;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            margin: 5px 0 15px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+    </style>
+</head>
+<body>
+    <h1>Teste de API - Sistema de Planejamento Econômico</h1>
+    <p>Use esta página para testar a comunicação com o backend e diagnóstico de problemas.</p>
+    
+    <div class="test-section">
+        <h2>1. Teste de Ping</h2>
+        <p>Verifica se o servidor está acessível.</p>
+        <button id="pingTest" class="test-button">Testar Ping</button>
+        <div id="pingResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>2. Teste de API de Autenticação</h2>
+        <p>Verifica se o endpoint de teste de autenticação está funcionando.</p>
+        <button id="authTest" class="test-button">Testar API Auth</button>
+        <div id="authResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>3. Teste de Login Manual</h2>
+        <p>Testa o endpoint de login diretamente.</p>
+        <div>
+            <label for="username">Nome de usuário:</label>
+            <input type="text" id="username" placeholder="Digite seu nome de usuário">
+        </div>
+        <div>
+            <label for="password">Senha:</label>
+            <input type="password" id="password" placeholder="Digite sua senha">
+        </div>
+        <button id="loginTest" class="test-button">Testar Login</button>
+        <div id="loginResult" class="result"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>4. Teste de Usuário por ID</h2>
+        <p>Busca um usuário pelo ID.</p>
+        <div>
+            <label for="userId">ID do Usuário:</label>
+            <input type="number" id="userId" placeholder="Digite o ID do usuário">
+        </div>
+        <button id="userTest" class="test-button">Buscar Usuário</button>
+        <div id="userResult" class="result"></div>
+    </div>
+    
+    <script>
+        document.getElementById('pingTest').addEventListener('click', function() {
+            const resultDiv = document.getElementById('pingResult');
+            resultDiv.innerHTML = "Testando conexão...";
+            
+            fetch('/actuator/health', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json().then(data => {
+                        resultDiv.innerHTML = `<span class="success">✅ Servidor acessível!</span>\nStatus: ${data.status}\nDetalhes: ${JSON.stringify(data, null, 2)}`;
+                    });
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Erro: ${response.status} ${response.statusText}</span>`;
+                    return response.text().then(text => {
+                        resultDiv.innerHTML += `\n\nResposta: ${text}`;
+                    });
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `<span class="error">❌ Erro de conexão: ${error.message}</span>`;
+            });
+        });
+        
+        document.getElementById('authTest').addEventListener('click', function() {
+            const resultDiv = document.getElementById('authResult');
+            resultDiv.innerHTML = "Testando API de autenticação...";
+            
+            fetch('/api/auth/test', {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.text().then(text => {
+                        resultDiv.innerHTML = `<span class="success">✅ Endpoint de autenticação funcionando!</span>\nResposta: ${text}`;
+                    });
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Erro: ${response.status} ${response.statusText}</span>`;
+                    return response.text().then(text => {
+                        resultDiv.innerHTML += `\n\nResposta: ${text}`;
+                    });
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `<span class="error">❌ Erro de conexão: ${error.message}</span>`;
+            });
+        });
+        
+        document.getElementById('loginTest').addEventListener('click', function() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value.trim();
+            const resultDiv = document.getElementById('loginResult');
+            
+            if (!username || !password) {
+                resultDiv.innerHTML = `<span class="error">❌ Por favor, preencha todos os campos!</span>`;
+                return;
+            }
+            
+            resultDiv.innerHTML = "Testando login...";
+            
+            fetch('/api/auth/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password
+                })
+            })
+            .then(response => {
+                const statusInfo = `Status HTTP: ${response.status} ${response.statusText}`;
+                
+                return response.text().then(text => {
+                    let jsonResponse;
+                    try {
+                        jsonResponse = JSON.parse(text);
+                        return { 
+                            ok: response.ok, 
+                            status: response.status,
+                            data: jsonResponse,
+                            rawText: text
+                        };
+                    } catch (e) {
+                        return { 
+                            ok: response.ok, 
+                            status: response.status,
+                            data: null,
+                            rawText: text
+                        };
+                    }
+                });
+            })
+            .then(result => {
+                if (result.ok) {
+                    resultDiv.innerHTML = `<span class="success">✅ Login bem-sucedido!</span>\nStatus: ${result.status}\n\nResposta: ${JSON.stringify(result.data, null, 2)}`;
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Erro no login!</span>\nStatus: ${result.status}\n\nResposta: ${result.data ? JSON.stringify(result.data, null, 2) : result.rawText}`;
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `<span class="error">❌ Erro de conexão: ${error.message}</span>`;
+            });
+        });
+        
+        document.getElementById('userTest').addEventListener('click', function() {
+            const userId = document.getElementById('userId').value.trim();
+            const resultDiv = document.getElementById('userResult');
+            
+            if (!userId) {
+                resultDiv.innerHTML = `<span class="error">❌ Por favor, informe um ID de usuário!</span>`;
+                return;
+            }
+            
+            resultDiv.innerHTML = `Buscando usuário com ID ${userId}...`;
+            
+            fetch(`/api/users/${userId}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => {
+                if (response.ok) {
+                    return response.json().then(data => {
+                        resultDiv.innerHTML = `<span class="success">✅ Usuário encontrado!</span>\n\nDados: ${JSON.stringify(data, null, 2)}`;
+                    });
+                } else {
+                    resultDiv.innerHTML = `<span class="error">❌ Erro: ${response.status} ${response.statusText}</span>`;
+                    return response.text().then(text => {
+                        try {
+                            const jsonData = JSON.parse(text);
+                            resultDiv.innerHTML += `\n\nResposta: ${JSON.stringify(jsonData, null, 2)}`;
+                        } catch (e) {
+                            resultDiv.innerHTML += `\n\nResposta: ${text}`;
+                        }
+                    });
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `<span class="error">❌ Erro de conexão: ${error.message}</span>`;
+            });
+        });
+    </script>
+</body>
+</html>
