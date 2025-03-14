@@ -18,6 +18,7 @@ import xyz.planecon.repository.UserRepository;
 import xyz.planecon.service.InstanceService;
 import xyz.planecon.service.UserService;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -133,10 +134,12 @@ public class UserController {
         }
     }
 
+    // Modificar o método registerUser para criar instância WORKER quando necessário
+
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserRegistrationRequest request) {
         try {
-// Verificar e imprimir dados recebidos (para debugging)
+            // Verificar e imprimir dados recebidos (para debugging)
             System.out.println("Dados recebidos: " + request.toString());
             
             // Validar dados obrigatórios
@@ -187,7 +190,7 @@ public class UserController {
                         .body(Map.of("message", "Pronome inválido: " + request.getPronoun()));
             }
             
-            // Se for COUNCILLOR, associar a uma instância
+            // Se for COUNCILLOR, associar a uma instância existente
             if (user.getType() == UserType.COUNCILLOR) {
                 Integer instanceId = request.getInstanceId();
                 if (instanceId == null) {
@@ -207,6 +210,21 @@ public class UserController {
                 }
                 
                 user.setInstance(instance);
+            } else {
+                // Para NON_COUNCILLOR, criar automaticamente uma instância WORKER
+                Instance workerInstance = new Instance();
+                workerInstance.setType(InstanceType.WORKER);
+                workerInstance.setCreatedAt(LocalDateTime.now());
+                workerInstance.setEstimatedIndividualParticipationInSocialWork(new BigDecimal("0.0"));
+                workerInstance.setHoursAtElectronicPoint(new BigDecimal("0.0"));
+                
+                // Salvar a instância WORKER
+                Instance savedInstance = instanceRepository.save(workerInstance);
+                
+                // Associar o usuário à nova instância WORKER
+                user.setInstance(savedInstance);
+                
+                System.out.println("Instância WORKER criada automaticamente para não-conselheiro: " + savedInstance.getId());
             }
             
             // Salvar usuário

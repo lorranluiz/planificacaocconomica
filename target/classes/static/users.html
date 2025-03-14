@@ -200,76 +200,77 @@
             </div>
         </div>
         
-        <!-- Conteúdo da aba de cadastro -->
+        <!-- Substituir o conteúdo da div id="create-tab" por este código completo -->
         <div id="create-tab" class="tab-content">
-            <div id="formLoadingMessage" class="loading">Carregando instâncias...</div>
-            <div id="formErrorMessage" class="message error"></div>
-            <div id="formSuccessMessage" class="message success"></div>
+            <div id="formLoadingMessage" class="loading" style="display: none;">Processando...</div>
+            <div id="formErrorMessage" class="message error" style="display: none;"></div>
+            <div id="formSuccessMessage" class="message success" style="display: none;"></div>
             
             <form id="createForm" class="form-container">
                 <h2>Novo Usuário</h2>
                 
                 <div class="form-group">
-                    <label for="username">Nome de Usuário<span class="required">*</span></label>
-                    <input type="text" id="username" name="username" required maxlength="100">
+                    <label for="username_input">Nome de usuário: <span class="required">*</span></label>
+                    <input type="text" id="username_input" name="username_input" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="password">Senha<span class="required">*</span></label>
+                    <label for="password">Senha: <span class="required">*</span></label>
                     <input type="password" id="password" name="password" required>
                 </div>
                 
                 <div class="form-group">
-                    <label for="name">Nome Completo<span class="required">*</span></label>
-                    <input type="text" id="name" name="name" required maxlength="200">
+                    <label for="name">Nome completo: <span class="required">*</span></label>
+                    <input type="text" id="name" name="name" required>
                 </div>
                 
                 <div class="form-group">
-                    <label>Pronome<span class="required">*</span></label>
+                    <label>Pronome: <span class="required">*</span></label>
                     <div class="radio-group">
                         <div class="radio-option">
-                            <input type="radio" id="pronounHE" name="pronoun" value="HE_HIM" checked>
-                            <label for="pronounHE">Ele/Dele</label>
+                            <input type="radio" id="pronoun_he" name="pronoun" value="HE_HIM" checked>
+                            <label for="pronoun_he">Ele/Dele</label>
                         </div>
                         <div class="radio-option">
-                            <input type="radio" id="pronounSHE" name="pronoun" value="SHE_HER">
-                            <label for="pronounSHE">Ela/Dela</label>
+                            <input type="radio" id="pronoun_she" name="pronoun" value="SHE_HER">
+                            <label for="pronoun_she">Ela/Dela</label>
                         </div>
                         <div class="radio-option">
-                            <input type="radio" id="pronounTHEY" name="pronoun" value="THEY_THEM">
-                            <label for="pronounTHEY">Elu/Delu</label>
+                            <input type="radio" id="pronoun_they" name="pronoun" value="THEY_THEM">
+                            <label for="pronoun_they">Elu/Delu</label>
                         </div>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label>Tipo de Usuário<span class="required">*</span></label>
+                    <label>Tipo de usuário: <span class="required">*</span></label>
                     <div class="radio-group">
                         <div class="radio-option">
-                            <input type="radio" id="typeNON_COUNCILLOR" name="type" value="NON_COUNCILLOR" checked>
-                            <label for="typeNON_COUNCILLOR">Não-Conselheiro</label>
+                            <input type="radio" id="type_councillor" name="type" value="COUNCILLOR" checked>
+                            <label for="type_councillor">Conselheiro</label>
                         </div>
                         <div class="radio-option">
-                            <input type="radio" id="typeCOUNCILLOR" name="type" value="COUNCILLOR">
-                            <label for="typeCOUNCILLOR">Conselheiro</label>
+                            <input type="radio" id="type_non_councillor" name="type" value="NON_COUNCILLOR">
+                            <label for="type_non_councillor">Não-Conselheiro</label>
                         </div>
                     </div>
                 </div>
                 
-                <div class="form-group" id="instanceGroup">
-                    <label for="instanceId">Instância<span id="instanceRequired" style="display:none" class="required">*</span></label>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <select id="instanceId" name="instanceId" style="flex: 1">
-                            <option value="">Selecione uma instância...</option>
-                        </select>
-                        <button type="button" class="secondary" style="min-width: 80px" onclick="window.open('/instances.html#create', '_blank')">Nova</button>
-                    </div>
-                    <small class="form-text text-muted">Obrigatório para Conselheiros. Para Não-Conselheiros é opcional.</small>
+                <div class="form-group" id="instanceContainer">
+                    <label for="instanceId">Instância: <span class="required" id="instanceRequired">*</span></label>
+                    <select id="instanceId" name="instanceId" required>
+                        <option value="">Selecione uma instância</option>
+                        <!-- As instâncias serão carregadas via JavaScript -->
+                    </select>
+                </div>
+                
+                <div id="instanceInfoBox" class="info-box" style="display: none;">
+                    <p><i class="fas fa-info-circle"></i> Uma instância WORKER será criada automaticamente para este usuário não-conselheiro.</p>
                 </div>
                 
                 <div class="form-buttons">
-                    <button type="button" id="cancelButton" class="danger">Cancelar</button>
-                    <button type="submit" id="submitButton">Cadastrar</button>
+                    <button type="submit" id="submitButton" class="btn-primary">Cadastrar</button>
+                    <button type="button" id="cancelButton" class="btn-secondary">Cancelar</button>
                 </div>
             </form>
         </div>
@@ -724,122 +725,196 @@
             
             // ----------------- CARREGAR INSTÂNCIAS -----------------
             async function loadInstances() {
-                formLoadingMessage.style.display = 'block';
-                formErrorMessage.style.display = 'none';
-                instanceSelect.innerHTML = '<option value="">Carregando instâncias...</option>';
-                instanceSelect.disabled = true;
-                
                 try {
-                    const response = await fetch('/api/instances');
+                    formLoadingMessage.textContent = 'Carregando instâncias...';
+                    formLoadingMessage.style.display = 'block';
                     
+                    const response = await fetch('/api/instances');
                     if (!response.ok) {
-                        const errorText = await response.text();
-                        let errorMsg = `Falha ao carregar instâncias: ${response.status}`;
-                        
-                        try {
-                            const errorObj = JSON.parse(errorText);
-                            if (errorObj && errorObj.message) {
-                                errorMsg = errorObj.message;
-                            }
-                        } catch (e) {
-                            if (errorText && errorText.trim()) {
-                                errorMsg = errorText;
-                            }
-                        }
-                        
-                        throw new Error(errorMsg);
+                        throw new Error(`Erro ao carregar instâncias: ${response.status}`);
                     }
                     
                     const instances = await response.json();
                     
-                    // Verificar se há instâncias
-                    if (!instances || instances.length === 0) {
-                        formErrorMessage.textContent = 'Nenhuma instância disponível para seleção.';
-                        formErrorMessage.style.display = 'block';
-                        instanceSelect.innerHTML = '<option value="">Nenhuma instância disponível</option>';
-                        formLoadingMessage.style.display = 'none';
-                        return;
-                    }
+                    // Filtrar instâncias do tipo COUNCIL ou COMMITTEE
+                    const filteredInstances = instances.filter(instance => 
+                        instance.type === 'COUNCIL' || instance.type === 'COMMITTEE'
+                    );
                     
                     // Preencher o select de instâncias
-                    instanceSelect.innerHTML = '<option value="">Selecione uma instância...</option>';
-                    instances.forEach(instance => {
+                    instanceSelect.innerHTML = '<option value="">Selecione uma instância</option>';
+                    
+                    filteredInstances.forEach(instance => {
                         const option = document.createElement('option');
                         option.value = instance.id;
                         
-                        // Nome da instância
-                        let instanceName = instance.committeeName || 
-                                          (instance.type === 'COUNCIL' ? 'Conselho #' + instance.id : 
-                                          (instance.type === 'COMMITTEE' ? 'Comitê #' + instance.id : 
-                                          'Trabalhador #' + instance.id));
+                        // Formatação do texto da opção baseada no tipo de instância
+                        let optionText = `${instance.id} - `;
+                        if (instance.type === 'COMMITTEE' && instance.committeeName) {
+                            optionText += `${instance.committeeName} (${instance.type})`;
+                        } else if (instance.type === 'COUNCIL') {
+                            optionText += `Council ${instance.id} (${instance.type})`;
+                        } else {
+                            optionText += `Instance ${instance.id} (${instance.type})`;
+                        }
                         
-                        option.textContent = `${instanceName} (${instance.type})`;
+                        option.textContent = optionText;
                         instanceSelect.appendChild(option);
                     });
                     
-                    instanceSelect.disabled = false;
                     formLoadingMessage.style.display = 'none';
-                } catch (err) {
-                    console.error("Erro ao carregar instâncias:", err);
-                    formErrorMessage.textContent = 'Erro ao carregar instâncias: ' + err.message;
+                    updateUserTypeVisibility();
+                } catch (error) {
+                    console.error('Erro ao carregar instâncias:', error);
+                    formErrorMessage.textContent = 'Erro ao carregar instâncias. Por favor, tente novamente.';
                     formErrorMessage.style.display = 'block';
                     formLoadingMessage.style.display = 'none';
-                    instanceSelect.innerHTML = '<option value="">Erro ao carregar</option>';
                 }
             }
-            
-            // Tornar campo de instância obrigatório para conselheiros
+
+            // Carregar instâncias quando a página carregar
+            loadInstances();
+
+            // Tornar campo de instância visível/invisível com base no tipo de usuário
+            function updateUserTypeVisibility() {
+                const isCouncillor = document.querySelector('input[name="type"]:checked').value === 'COUNCILLOR';
+                const instanceContainer = document.getElementById('instanceContainer');
+                const instanceInfoBox = document.getElementById('instanceInfoBox');
+                const instanceIdSelect = document.getElementById('instanceId');
+                
+                // Mostrar/esconder o campo de instância com base no tipo
+                instanceContainer.style.display = isCouncillor ? 'block' : 'none';
+                instanceInfoBox.style.display = isCouncillor ? 'none' : 'block';
+                
+                // Tornar o campo obrigatório apenas se for conselheiro
+                instanceIdSelect.required = isCouncillor;
+                document.getElementById('instanceRequired').style.display = isCouncillor ? 'inline' : 'none';
+            }
+
+            // Adicionar listeners para alteração do tipo de usuário
             document.querySelectorAll('input[name="type"]').forEach(radio => {
-                radio.addEventListener('change', function() {
-                    const isCouncillor = this.value === 'COUNCILLOR';
-                    document.getElementById('instanceRequired').style.display = isCouncillor ? 'inline' : 'none';
-                    document.getElementById('instanceId').required = isCouncillor;
-                });
+                radio.addEventListener('change', updateUserTypeVisibility);
             });
-            
+
             // ----------------- CADASTRAR USUÁRIO -----------------
             createForm.addEventListener('submit', function(e) {
                 e.preventDefault();
+                console.log("Formulário submetido");
                 
-                // Obter dados do formulário
-                const formData = {
-                    username: document.getElementById('username').value.trim(),
-                    password: document.getElementById('password').value,
-                    name: document.getElementById('name').value.trim(),
-                    pronoun: document.querySelector('input[name="pronoun"]:checked').value,
-                    type: document.querySelector('input[name="type"]:checked').value
-                };
-                
-                // Adicionar instância se selecionada
-                const instanceId = document.getElementById('instanceId').value;
-                if (instanceId) {
-                    formData.instanceId = parseInt(instanceId);
-                } else if (formData.type === 'COUNCILLOR') {
-                    formErrorMessage.textContent = 'Por favor, selecione uma instância para o conselheiro.';
-                    formErrorMessage.style.display = 'block';
-                    return;
-                }
-                
-                // Validação básica
-                if (!formData.username || !formData.password || !formData.name) {
-                    formErrorMessage.textContent = 'Por favor, preencha todos os campos obrigatórios.';
-                    formErrorMessage.style.display = 'block';
-                    return;
-                }
-                
-                // Enviar dados ao servidor
-                submitUser(formData);
-            });
-            
-            async function submitUser(formData) {
-                // Desabilitar o botão de envio e mostrar carregamento
-                submitButton.disabled = true;
-                formLoadingMessage.textContent = 'Cadastrando usuário...';
+                // Mostrar feedback visual imediato
+                formLoadingMessage.textContent = 'Processando...';
                 formLoadingMessage.style.display = 'block';
-                formSuccessMessage.style.display = 'none';
                 formErrorMessage.style.display = 'none';
+                formSuccessMessage.style.display = 'none';
                 
                 try {
+                    // Verificar elementos de forma segura
+                    const usernameElement = document.getElementById('username_input');
+                    const passwordElement = document.getElementById('password');
+                    const nameElement = document.getElementById('name');
+                    
+                    // Verificar se os elementos existem
+                    if (!usernameElement) {
+                        throw new Error("Campo 'Nome de usuário' não encontrado");
+                    }
+                    
+                    if (!passwordElement) {
+                        throw new Error("Campo 'Senha' não encontrado");
+                    }
+                    
+                    if (!nameElement) {
+                        throw new Error("Campo 'Nome completo' não encontrado");
+                    }
+                    
+                    // Agora é seguro acessar as propriedades
+                    const password = passwordElement.value;
+                    const name = nameElement.value.trim();
+                    const username = usernameElement.value.trim();
+                    
+                    // Verificar pronome e tipo
+                    const pronounElement = document.querySelector('input[name="pronoun"]:checked');
+                    if (!pronounElement) {
+                        throw new Error("Nenhum pronome selecionado");
+                    }
+                    const pronoun = pronounElement.value;
+                    
+                    const typeElement = document.querySelector('input[name="type"]:checked');
+                    if (!typeElement) {
+                        throw new Error("Nenhum tipo de usuário selecionado");
+                    }
+                    const type = typeElement.value;
+                    
+                    // Validar campos obrigatórios
+                    if (!username) {
+                        formErrorMessage.textContent = 'Nome de usuário é obrigatório';
+                        formErrorMessage.style.display = 'block';
+                        formLoadingMessage.style.display = 'none';
+                        usernameElement.focus();
+                        return;
+                    }
+                    
+                    // Resto das validações...
+                    if (!password) {
+                        formErrorMessage.textContent = 'Senha é obrigatória';
+                        formErrorMessage.style.display = 'block';
+                        formLoadingMessage.style.display = 'none';
+                        passwordElement.focus();
+                        return;
+                    }
+                    
+                    if (!name) {
+                        formErrorMessage.textContent = 'Nome é obrigatório';
+                        formErrorMessage.style.display = 'block';
+                        formLoadingMessage.style.display = 'none';
+                        nameElement.focus();
+                        return;
+                    }
+                    
+                    // Construir objeto de dados
+                    const formData = {
+                        username,
+                        password,
+                        name,
+                        pronoun,
+                        type
+                    };
+                    
+                    // Adicionar instância apenas para conselheiros
+                    if (type === 'COUNCILLOR') {
+                        const instanceId = document.getElementById('instanceId').value;
+                        if (!instanceId) {
+                            formErrorMessage.textContent = 'Instância é obrigatória para conselheiros';
+                            formErrorMessage.style.display = 'block';
+                            formLoadingMessage.style.display = 'none';
+                            document.getElementById('instanceId').focus();
+                            return;
+                        }
+                        formData.instanceId = parseInt(instanceId);
+                    }
+                    
+                    // Log para debug
+                    console.log("Dados do formulário:", formData);
+                    
+                    // Enviar dados ao servidor
+                    submitUser(formData);
+                    
+                } catch (error) {
+                    console.error("Erro ao processar formulário:", error);
+                    formErrorMessage.textContent = `Erro interno: ${error.message}`;
+                    formErrorMessage.style.display = 'block';
+                    formLoadingMessage.style.display = 'none';
+                }
+            });
+
+            async function submitUser(formData) {
+                try {
+                    // Desabilitar botão de envio para evitar submissões duplicadas
+                    const submitButton = document.getElementById('submitButton');
+                    submitButton.disabled = true;
+                    submitButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
+                    
+                    console.log("Enviando dados:", formData);
+                    
                     const response = await fetch('/api/users/register', {
                         method: 'POST',
                         headers: {
@@ -848,15 +923,21 @@
                         body: JSON.stringify(formData)
                     });
                     
-                    let responseData;
+                    // Obter resposta como texto primeiro para debugging
+                    const responseText = await response.text();
+                    console.log("Resposta do servidor:", responseText);
+                    
+                    // Tentar parsear como JSON
+                    let data;
                     try {
-                        responseData = await response.json();
+                        data = JSON.parse(responseText);
                     } catch (e) {
-                        responseData = { message: 'Erro ao processar resposta do servidor' };
+                        console.error("Erro ao parsear resposta como JSON:", e);
+                        throw new Error("Formato de resposta inválido: " + responseText);
                     }
                     
                     if (!response.ok) {
-                        throw new Error(responseData.message || `Erro ${response.status} ao cadastrar usuário`);
+                        throw new Error(data.message || `Erro ${response.status} ao cadastrar usuário`);
                     }
                     
                     // Mostrar mensagem de sucesso
@@ -866,27 +947,28 @@
                     // Limpar o formulário
                     createForm.reset();
                     
-                    // Após 3 segundos, redirecionar para a aba de listagem
+                    // Atualizar lista de usuários após 2 segundos
                     setTimeout(() => {
                         document.querySelector('.tab[data-tab="list"]').click();
-                        loadUsers(); // Recarregar a lista
-                    }, 3000);
+                        loadUsers(0, pageSize); // Recarregar a primeira página
+                    }, 2000);
                     
-                } catch (err) {
-                    formErrorMessage.textContent = 'Erro ao cadastrar: ' + err.message;
+                } catch (error) {
+                    console.error("Erro ao cadastrar usuário:", error);
+                    formErrorMessage.textContent = error.message || 'Erro ao cadastrar usuário. Por favor, tente novamente.';
                     formErrorMessage.style.display = 'block';
-                    console.error(err);
                 } finally {
+                    // Re-habilitar o botão de envio
+                    const submitButton = document.getElementById('submitButton');
                     submitButton.disabled = false;
+                    submitButton.innerHTML = 'Cadastrar';
                     formLoadingMessage.style.display = 'none';
                 }
             }
-            
-            // Botão cancelar limpa o formulário
-            cancelButton.addEventListener('click', function() {
+
+            // Botão cancelar limpa o formulário e volta para listagem
+            document.getElementById('cancelButton').addEventListener('click', function() {
                 createForm.reset();
-                formErrorMessage.style.display = 'none';
-                formSuccessMessage.style.display = 'none';
                 document.querySelector('.tab[data-tab="list"]').click();
             });
             
