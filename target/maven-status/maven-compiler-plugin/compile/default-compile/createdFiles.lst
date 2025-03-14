@@ -11,8 +11,7 @@ xyz/planecon/model/enums/InstanceType.class
 xyz/planecon/model/entity/WorkersProposal.class
 xyz/planecon/config/ServerConfig.class
 xyz/planecon/dto/UserResponse.class
-xyz/planecon/model/entity/Sector.class
-xyz/planecon/controller/UserController.class
+xyz/planecon/controller/InstanceController$1.class
 xyz/planecon/model/entity/TechnologicalTensorId.class
 xyz/planecon/config/WebConfig.class
 xyz/planecon/repository/DemandStockRepository.class

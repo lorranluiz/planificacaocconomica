@@ -1,87 +1,38 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-theme="ocean">
 <head>
+    <script>
+    // Aplicar tema imediatamente no carregamento da página
+    (function() {
+        try {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            console.log('Tema aplicado em index.html:', savedTheme);
+        } catch(e) {
+            console.error('Erro ao aplicar tema inicial:', e);
+        }
+    })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" id="theme-color" content="#2c3e50">
     <title>Sistema de Planejamento Econômico</title>
+    <link rel="stylesheet" href="/css/theme-variables.css">
+    <link rel="stylesheet" href="/css/theme-elements.css">
+    <link rel="stylesheet" href="/css/common-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <style>
-        /* Variáveis de temas */
-        :root {
-            /* Tema Ocean (padrão) */
-            --primary-color: #2c3e50;
-            --primary-color-light: #3498db;
-            --primary-color-dark: #1f2d3d;
-            --secondary-color: #2ecc71;
-            --secondary-color-dark: #27ae60;
-            --text-color: #333;
-            --bg-color: #f5f5f5;
-            --card-bg: #ffffff;
-            --card-border: rgba(0, 0, 0, 0.1);
-            --header-text: #ffffff;
-            --accent-color: #3498db;
-            --error-color: #e74c3c;
-        }
-        
-        /* Tema Night */
-        [data-theme="night"] {
-            --primary-color: #1a1a1a;
-            --primary-color-light: #2c2c2c;
-            --primary-color-dark: #121212;
-            --secondary-color: #444444;
-            --secondary-color-dark: #333333;
-            --text-color: #e0e0e0;
-            --bg-color: #202020;
-            --card-bg: #2c2c2c;
-            --card-border: rgba(255, 255, 255, 0.1);
-            --header-text: #ffffff;
-            --accent-color: #565656;
-            --error-color: #ff6b6b;
-        }
-        
-        /* Tema Sunlight */
-        [data-theme="sunlight"] {
-            --primary-color: #ff7e00;
-            --primary-color-light: #ffb74d;
-            --primary-color-dark: #e65100;
-            --secondary-color: #ffa726;
-            --secondary-color-dark: #fb8c00;
-            --text-color: #4e342e;
-            --bg-color: #fffde7;
-            --card-bg: #fff8e1;
-            --card-border: rgba(255, 126, 0, 0.2);
-            --header-text: #ffffff;
-            --accent-color: #ffb74d;
-            --error-color: #d32f2f;
-        }
-        
-        /* Tema Bolchevick */
-        [data-theme="bolchevick"] {
-            --primary-color: #c62828;
-            --primary-color-light: #e53935;
-            --primary-color-dark: #b71c1c;
-            --secondary-color: #ef5350;
-            --secondary-color-dark: #d32f2f;
-            --text-color: #3e2723;
-            --bg-color: #ffebee;
-            --card-bg: #ffffff;
-            --card-border: rgba(198, 40, 40, 0.2);
-            --header-text: #ffffff;
-            --accent-color: #ef5350;
-            --error-color: #880e4f;
-        }
-        
         /* Estilos para seletor de temas */
         .theme-selector {
             position: absolute;
             right: 20px;
-            top: 50%;
-            transform: translateY(-50%);
+            top: 20px;
         }
         
         .theme-toggle-btn {
-            background-color: rgba(255, 255, 255, 0.2);
+            background-color: rgba(0, 0, 0, 0.1);
             border: none;
-            color: white;
+            color: var(--text-color);
             padding: 8px 12px;
             border-radius: 4px;
             cursor: pointer;
@@ -91,7 +42,7 @@
         }
         
         .theme-toggle-btn:hover {
-            background-color: rgba(255, 255, 255, 0.3);
+            background-color: rgba(0, 0, 0, 0.2);
         }
         
         .theme-menu {
@@ -148,1280 +99,625 @@
             font-weight: 500;
         }
 
-        /* Atualização dos estilos existentes para usar variáveis */
+        /* Estilos temáticos para sobrepor o CSS comum */
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: var(--bg-color);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
             color: var(--text-color);
         }
         
-        header {
-            background-color: var(--primary-color);
-            color: var(--header-text);
-            padding: 1rem 0;
-            text-align: center;
-            position: relative;
-        }
-        
-        .welcome-box, .logged-in-section, .modal-content {
+        .container {
             background-color: var(--card-bg);
-            box-shadow: 0 2px 10px var(--card-border);
         }
         
-        .welcome-box h2, .logged-in-section h3 {
+        h1, h2, h3 {
             color: var(--primary-color);
         }
         
-        .btn-primary {
+        .dashboard-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .dashboard-card h3 {
+            color: var(--primary-color-light);
+        }
+        
+        .dashboard-card .btn {
             background-color: var(--primary-color-light);
         }
         
-        .btn-primary:hover {
+        .dashboard-card .btn:hover {
             background-color: var(--primary-color-dark);
         }
         
-        .btn-secondary {
-            background-color: var(--secondary-color);
+        .welcome-section {
+            background-color: rgba(var(--primary-color-rgb, 44, 62, 80), 0.05);
         }
         
-        .btn-secondary:hover {
-            background-color: var(--secondary-color-dark);
+        .stats-section {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
         }
         
-        footer {
-            background-color: var(--primary-color);
-            color: var(--header-text);
+        .stat-value {
+            color: var(--primary-color-light);
         }
         
-        .badge-councillor {
-            background-color: var(--primary-color-light);
+        .stat-label {
+            color: var(--text-color);
+            opacity: 0.7;
         }
-        
-        .badge-non-councillor {
-            background-color: var(--secondary-color);
-        }
-        
-        .matrix-cell.has-value {
-            background-color: rgba(var(--primary-color-light-rgb, 52, 152, 219), 0.2);
-            color: var(--primary-color);
-        }
-        
-        .matrix-cell.has-value:hover {
-            background-color: rgba(var(--primary-color-light-rgb, 52, 152, 219), 0.3);
-        }
-        
-        /* Continue atualizando outros elementos aqui... */
-        
-        /* Restante dos estilos... */
-        
-        .main-content {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            padding: 2rem;
-        }
-        
-        .welcome-box {
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            width: 100%;
-            max-width: 600px;
-            margin-bottom: 2rem;
-            text-align: center;
-        }
-        
-        .welcome-box h2 {
-            color: #2c3e50;
-            margin-top: 0;
-        }
-        
-        .welcome-box p {
-            color: #555;
-            line-height: 1.6;
-        }
-        
-        .button-container {
-            display: flex;
-            justify-content: center;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-        
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.2s ease;
-            cursor: pointer;
-            min-width: 150px;
-        }
-        
-        .btn-primary {
-            background-color: #3498db;
-            color: white;
-            border: none;
-        }
-        
-        .btn-primary:hover {
-            background-color: #2980b9;
-        }
-        
-        .btn-secondary {
-            background-color: #2ecc71;
-            color: white;
-            border: none;
-        }
-        
-        .btn-secondary:hover {
-            background-color: #27ae60;
-        }
-        
-        .btn i {
-            margin-right: 0.5rem;
-            font-size: 1.1rem;
-        }
-        
-        footer {
-            background-color: #2c3e50;
-            color: white;
-            text-align: center;
-            padding: 1rem;
-            margin-top: auto;
-        }
-        
-        /* Estilos para modal de login e cadastro */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-        
-        .modal-content {
-            background-color: white;
-            border-radius: 8px;
-            width: 100%;
-            max-width: 400px;
-            padding: 2rem;
-            position: relative;
-            max-height: 90vh;
-            overflow-y: auto;
-        }
-        
-        .close {
-            position: absolute;
-            top: 1rem;
-            right: 1rem;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-        
-        .form-group {
-            margin-bottom: 1rem;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-        }
-        
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        
-        .error-message {
-            color: #e74c3c;
-            margin-top: 1rem;
-            text-align: center;
-        }
-        
-        /* Estilo para a seção de usuário logado */
-        .logged-in-section {
-            display: none;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            padding: 2rem;
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
-        }
-        
-        .user-info {
-            margin-bottom: 2rem;
-        }
-        
-        .user-info h3 {
-            margin-top: 0;
-            color: #2c3e50;
-        }
-        
-        .user-info p {
-            color: #555;
-            margin: 0.5rem 0;
-        }
-        
-        .badge {
-            display: inline-block;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.875rem;
-            font-weight: 600;
-        }
-        
-        .badge-councillor {
-            background-color: #3498db;
-            color: white;
-        }
-        
-        .badge-non-councillor {
-            background-color: #27ae60;
-            color: white;
-        }
-        
-        /* Estilos específicos para o modal de registro */
-        .register-modal-content {
-            max-width: 600px;
-        }
-        
-        .register-modal-content h2 {
-            margin-top: 0;
-            margin-bottom: 1.5rem;
-            color: #2c3e50;
-            text-align: center;
-        }
-        
-        .registration-form {
+
+        /* Estilos específicos da página */
+        .dashboard {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 1rem;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
         }
-        
-        .registration-form .form-group.full-width {
-            grid-column: span 2;
+
+        .dashboard-card {
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         }
-        
+
+        .dashboard-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+        }
+
+        .dashboard-card h3 {
+            margin-top: 0;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+        }
+
+        .dashboard-card p {
+            margin-bottom: 20px;
+            min-height: 60px;
+        }
+
+        .dashboard-card .btn {
+            display: inline-block;
+            padding: 8px 15px;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+            text-align: center;
+        }
+
+        .welcome-section {
+            margin-bottom: 30px;
+            text-align: center;
+            padding: 20px;
+            border-radius: 8px;
+        }
+
+        .stats-section {
+            padding: 20px;
+            margin-top: 30px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stats-container {
+            display: flex;
+            justify-content: space-around;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            min-width: 120px;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        .stat-label {
+            font-size: 14px;
+        }
+
+        /* Layout responsivo */
         @media (max-width: 768px) {
-            .registration-form {
+            .dashboard {
                 grid-template-columns: 1fr;
             }
             
-            .registration-form .form-group.full-width {
-                grid-column: span 1;
-            }
-        }
-        
-        /* Estilo adicional para o formulário de cadastro */
-        .loading-text {
-            font-style: italic;
-            color: #666;
-            font-size: 0.9em;
-            margin-top: 5px;
-        }
-        
-        .info-message {
-            background-color: #e7f3fe;
-            border-left: 4px solid #2196F3;
-            padding: 10px;
-            margin-top: 10px;
-            font-size: 0.9em;
-        }
-        
-        /* Corrigir a largura do dropdown de instâncias */
-        #reg-instance {
-            width: 100%;
-        }
-        
-        /* Certifique-se de que inputs e selects tenham a mesma aparência */
-        select {
-            height: 38px; /* Mesma altura dos inputs */
-            background-color: white;
-        }
-
-        /* Estilo para os detalhes da instância */
-        .instance-details {
-            margin-top: 1rem;
-            padding: 1rem;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-            border-left: 4px solid #3498db;
-        }
-        
-        .instance-details p {
-            margin: 0.5rem 0;
-        }
-        
-        .instance-details strong {
-            color: #2c3e50;
-        }
-
-        /* Estilos para a seção de tensores */
-        .tensors-section {
-            margin-top: 2rem;
-        }
-        
-        .tensors-section h4 {
-            color: #2c3e50;
-            margin-bottom: 1rem;
-        }
-        
-        .tensors-container {
-            max-height: 400px;
-            overflow-y: auto;
-            padding-right: 10px;
-        }
-        
-        .tensor-card {
-            background-color: #fff;
-            border-radius: 6px;
-            padding: 1rem;
-            margin-bottom: 1rem;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        }
-        
-        .tensor-card h5 {
-            margin-top: 0;
-            margin-bottom: 0.5rem;
-            color: #3498db;
-        }
-        
-        .tensor-coefficient {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #e74c3c;
-            margin-bottom: 0.5rem;
-        }
-        
-        .tensor-label {
-            font-weight: bold;
-            color: #555;
-            margin-right: 5px;
-        }
-        
-        .tensor-value {
-            color: #333;
-        }
-        
-        .tensor-badge {
-            display: inline-block;
-            padding: 0.25rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            margin-left: 0.5rem;
-        }
-        
-        .badge-input {
-            background-color: #3498db;
-            color: white;
-        }
-        
-        .badge-output {
-            background-color: #2ecc71;
-            color: white;
-        }
-        
-        .loading-spinner {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 1rem;
-        }
-        
-        .spinner {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #3498db;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 0.5rem;
-        }
-        
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        /* Estilo para quando não há tensores */
-        .no-tensors {
-            text-align: center;
-            padding: 1rem;
-            color: #666;
-            font-style: italic;
-        }
-
-        /* Estilos para a tabela de matriz de tensores */
-        .matrix-container {
-            margin-top: 1rem;
-            margin-bottom: 2rem;
-        }
-        
-        .matrix-container h5 {
-            color: #2c3e50;
-            margin-bottom: 1rem;
-            text-align: center;
-        }
-        
-        .table-responsive {
-            overflow-x: auto;
-            margin-bottom: 1rem;
-        }
-        
-        .tensor-matrix-table {
-            border-collapse: collapse;
-            width: 100%;
-            font-size: 0.85rem;
-            border: 2px solid #aaa; /* Borda externa mais grossa */
-        }
-        
-        .tensor-matrix-table th, .tensor-matrix-table td {
-            border: 1px solid #aaa; /* Bordas internas visíveis */
-            padding: 8px;
-            text-align: center;
-        }
-        
-        .tensor-matrix-table thead {
-            background-color: #f5f5f5;
-            border-bottom: 2px solid #aaa; /* Borda inferior do cabeçalho mais grossa */
-        }
-        
-        .corner-header {
-            background-color: #e9ecef;
-            font-style: italic;
-            font-size: 0.8rem;
-            border-right: 2px solid #aaa; /* Borda direita mais grossa */
-            border-bottom: 2px solid #aaa; /* Borda inferior mais grossa */
-        }
-        
-        .input-header, .output-header {
-            background-color: #f0f0f0;
-            font-weight: 600;
-        }
-        
-        .input-header {
-            text-align: left;
-            border-right: 2px solid #aaa; /* Borda direita mais grossa */
-        }
-        
-        .output-header {
-            border-bottom: 2px solid #aaa; /* Borda inferior mais grossa */
-        }
-        
-        .matrix-cell.has-value {
-            background-color: #e8f4fc;
-            font-weight: bold;
-            color: #2980b9;
-            cursor: help;
-            transition: background-color 0.2s;
-        }
-        
-        .matrix-cell.has-value:hover {
-            background-color: #d1e7f7;
-        }
-        
-        .matrix-cell.zero {
-            color: #999;
-            background-color: #f8f8f8;
-            cursor: help;
-            transition: background-color 0.2s;
-        }
-        
-        .matrix-cell.zero:hover {
-            background-color: #eeeeee;
-        }
-        
-        .tensor-legend {
-            margin-top: 0.5rem;
-            padding: 0.5rem;
-            background-color: #f8f9fa;
-            border-radius: 4px;
-            font-size: 0.85rem;
-            border: 1px solid #ddd;
-        }
-        
-        .tensor-legend p {
-            margin: 0.2rem 0;
-            color: #666;
-        }
-        
-        /* Media query para tabelas muito grandes em telas pequenas */
-        @media (max-width: 768px) {
-            .tensor-matrix-table {
-                font-size: 0.75rem;
+            .stats-container {
+                flex-direction: column;
+                align-items: center;
             }
             
-            .tensor-matrix-table th, .tensor-matrix-table td {
-                padding: 5px;
+            .theme-selector {
+                position: relative;
+                top: 0;
+                right: 0;
+                margin: 10px auto;
+                text-align: center;
             }
+        }
+
+        /* Ajustes específicos para o tema Night */
+        [data-theme="night"] .dashboard-card {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+        }
+
+        [data-theme="night"] .dashboard-card h3 {
+            color: var(--card-text);
+            border-bottom-color: var(--divider-color);
+        }
+
+        [data-theme="night"] .dashboard-card p {
+            color: var(--text-color);
+        }
+
+        [data-theme="night"] .stat-value {
+            color: var(--primary-color-light);
+        }
+
+        [data-theme="night"] .stat-label {
+            color: var(--text-color);
+        }
+
+        [data-theme="night"] .welcome-section {
+            background-color: rgba(255, 255, 255, 0.05);
+        }
+
+        [data-theme="night"] h1, 
+        [data-theme="night"] h2, 
+        [data-theme="night"] h3 {
+            color: var(--primary-color);
+        }
+
+        [data-theme="night"] .theme-name {
+            color: var(--text-color);
+        }
+
+        [data-theme="night"] .theme-option:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Adicione este CSS dentro do bloco <style> existente para estilizar as abas de estatísticas */
+        .stats-tabs {
+            display: flex;
+            justify-content: center;
+            margin: 20px 0;
+            border-bottom: 1px solid var(--card-border);
+        }
+
+        .stats-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            margin: 0 5px;
+            border-radius: 5px 5px 0 0;
+            transition: background-color 0.3s;
+        }
+
+        .stats-tab:hover {
+            background-color: rgba(0, 0, 0, 0.05);
+        }
+
+        .stats-tab.active {
+            border-bottom: 2px solid var(--primary-color-light);
+            color: var(--primary-color-light);
+            font-weight: bold;
+        }
+
+        .chart-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            display: none;
+        }
+
+        .stats-content {
+            display: none;
+        }
+
+        .stats-content.active {
+            display: block;
+        }
+
+        /* Ajuste para tema escuro */
+        [data-theme="night"] .stats-tab:hover {
+            background-color: rgba(255, 255, 255, 0.1);
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Sistema de Planejamento Econômico</h1>
-        <div class="theme-selector">
-            <button id="themeToggleBtn" class="theme-toggle-btn">
-                <i class="fas fa-palette"></i> Tema
-            </button>
-            <div id="themeMenu" class="theme-menu">
-                <div class="theme-option" data-theme="ocean">
-                    <span class="theme-preview ocean-preview"></span>
-                    <span class="theme-name">Ocean</span>
-                </div>
-                <div class="theme-option" data-theme="night">
-                    <span class="theme-preview night-preview"></span>
-                    <span class="theme-name">Night</span>
-                </div>
-                <div class="theme-option" data-theme="sunlight">
-                    <span class="theme-preview sunlight-preview"></span>
-                    <span class="theme-name">Sunlight</span>
-                </div>
-                <div class="theme-option" data-theme="bolchevick">
-                    <span class="theme-preview bolchevick-preview"></span>
-                    <span class="theme-name">Bolchevick</span>
-                </div>
-            </div>
-        </div>
-    </header>
-    
-    <div class="main-content">
-        <div id="welcomeBox" class="welcome-box">
-            <h2>Bem-vindo ao Sistema de Planejamento</h2>
-            <p>
-                Este sistema permite o gerenciamento e planejamento econômico baseado em conselhos, comitês e trabalhadores.
-                Faça login para acessar suas informações ou cadastre-se caso ainda não tenha uma conta.
-            </p>
-            <div class="button-container">
-                <button id="loginBtn" class="btn btn-primary">
-                    <i class="fas fa-sign-in-alt"></i> Entrar
-                </button>
-                <button id="registerBtn" class="btn btn-secondary">
-                    <i class="fas fa-user-plus"></i> Cadastrar
-                </button>
-            </div>
+    <div class="container">
+        <!-- O cabeçalho será inserido aqui pelo script -->
+        
+        <div class="welcome-section">
+            <h1>Sistema de Planejamento Econômico</h1>
+            <p>Bem-vindo à plataforma de gerenciamento e planejamento econômico. Utilize os recursos abaixo para acessar as diferentes funcionalidades do sistema.</p>
         </div>
         
-        <div id="loggedInSection" class="logged-in-section">
-            <div class="user-info">
-                <h3>Bem-vindo, <span id="userName">Usuário</span>!</h3>
-                <p>Nome de usuário: <strong id="userUsername"></strong></p>
-                <p>Tipo: <span id="userTypeBadge" class="badge"></span></p>
-                <p>Instância: <span id="userInstance"></span></p>
-                <div id="instanceDetails" class="instance-details" style="display: none;"></div>
-                
-                <!-- Nova seção para tensores tecnológicos -->
-                <div class="tensors-section">
-                    <h4>Tensores Tecnológicos</h4>
-                    <div id="tensorsLoading" class="loading-spinner">
-                        <div class="spinner"></div>
-                        <p>Carregando tensores...</p>
+        <div class="dashboard">
+            <div class="dashboard-card">
+                <h3>Materializações Sociais</h3>
+                <p>Gerencie produtos e serviços oferecidos pelos comitês de trabalhadores.</p>
+                <a href="/social-materializations.html" class="btn">Acessar</a>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>Instâncias</h3>
+                <p>Administre conselhos populares, comitês de trabalhadores e associações de moradores.</p>
+                <a href="/instances.html" class="btn">Acessar</a>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>Setores</h3>
+                <p>Gerencie os setores econômicos para classificação de materializações sociais.</p>
+                <a href="/sectors.html" class="btn">Acessar</a>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3>Minha Conta</h3>
+                <p>Acesse suas informações pessoais e dados relacionados à sua instância.</p>
+                <a href="/login.html" class="btn">Acessar</a>
+            </div>
+        </div>
+
+        <div class="dashboard-card">
+            <h3>Usuários</h3>
+            <p>Gerencie os usuários do sistema, incluindo conselheiros e não-conselheiros.</p>
+            <a href="/users.html" class="btn">Acessar</a>
+        </div>
+        
+        <div class="stats-section">
+            <h2>Estatísticas do Sistema</h2>
+            <div id="loading" class="loading" style="display: block;">Carregando estatísticas...</div>
+            
+            <div class="stats-tabs">
+                <div class="stats-tab active" data-tab="counters">Contadores</div>
+                <div class="stats-tab" data-tab="distribution">Distribuição</div>
+                <div class="stats-tab" data-tab="production">Produção</div>
+                <div class="stats-tab" data-tab="trends">Tendências</div>
+            </div>
+            
+            <div id="countersContent" class="stats-content active">
+                <div id="statsContainer" class="stats-container" style="display: none;">
+                    <div class="stat-item">
+                        <div id="instancesCount" class="stat-value">0</div>
+                        <div class="stat-label">Instâncias</div>
                     </div>
-                    <div id="tensorsContainer" class="tensors-container" style="display: none;"></div>
-                    <div id="tensorsError" class="error-message" style="display: none;"></div>
+                    <div class="stat-item">
+                        <div id="materializationsCount" class="stat-value">0</div>
+                        <div class="stat-label">Materializações</div>
+                    </div>
+                    <div class="stat-item">
+                        <div id="sectorsCount" class="stat-value">0</div>
+                        <div class="stat-label">Setores</div>
+                    </div>
+                    <div class="stat-item">
+                        <div id="councilsCount" class="stat-value">0</div>
+                        <div class="stat-label">Conselhos</div>
+                    </div>
+                    <div class="stat-item">
+                        <div id="committeesCount" class="stat-value">0</div>
+                        <div class="stat-label">Comitês</div>
+                    </div>
                 </div>
             </div>
-            <div class="button-container">
-                <button id="logoutBtn" class="btn btn-primary">
-                    <i class="fas fa-sign-out-alt"></i> Sair
-                </button>
+            
+            <div id="distributionContent" class="stats-content">
+                <div class="chart-container" style="display: block; height: 400px;">
+                    <canvas id="distributionChart"></canvas>
+                </div>
+            </div>
+            
+            <div id="productionContent" class="stats-content">
+                <div class="chart-container" style="display: block; height: 400px;">
+                    <canvas id="productionChart"></canvas>
+                </div>
+            </div>
+            
+            <div id="trendsContent" class="stats-content">
+                <div class="chart-container" style="display: block; height: 400px;">
+                    <canvas id="trendsChart"></canvas>
+                </div>
             </div>
         </div>
+        <a href="/login.html" id="loginLogoutBtn" class="btn">Login</a>
     </div>
-    
-    <!-- Modal de Login -->
-    <div id="loginModal" class="modal">
-        <div class="modal-content">
-            <span class="close" id="closeLoginModal">&times;</span>
-            <h2>Login</h2>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="username">Nome de usuário:</label>
-                    <input type="text" id="username" name="username" required>
-                </div>
-                <div class="form-group">
-                    <label for="password">Senha:</label>
-                    <input type="password" id="password" name="password" required>
-                </div>
-                <div id="loginError" class="error-message"></div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">Entrar</button>
-            </form>
-        </div>
-    </div>
-    
-    <!-- Modal de Cadastro -->
-    <div id="registerModal" class="modal">
-        <div class="modal-content register-modal-content">
-            <span class="close" id="closeRegisterModal">&times;</span>
-            <h2>Cadastro de Novo Usuário</h2>
-            <form id="registrationForm">
-                <div class="registration-form">
-                    <div class="form-group">
-                        <label for="reg-name">Nome:</label>
-                        <input type="text" id="reg-name" name="name" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="reg-username">Nome de usuário:</label>
-                        <input type="text" id="reg-username" name="username" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="reg-password">Senha:</label>
-                        <input type="password" id="reg-password" name="password" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="reg-confirm-password">Confirmar senha:</label>
-                        <input type="password" id="reg-confirm-password" name="confirmPassword" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="reg-user-type">Tipo de usuário:</label>
-                        <select id="reg-user-type" name="type" required>
-                            <option value="">Selecione...</option>
-                            <option value="COUNCILLOR">Conselheiro</option>
-                            <option value="NON_COUNCILLOR">Não Conselheiro</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="reg-pronoun">Pronome:</label>
-                        <select id="reg-pronoun" name="pronoun" required>
-                            <option value="">Selecione...</option>
-                            <option value="HE_HIM">Ele/Dele</option>
-                            <option value="SHE_HER">Ela/Dela</option>
-                            <option value="THEY_THEM">Elu/Delu</option>
-                        </select>
-                    </div>
-                    <!-- Nova seção para instância (inicialmente oculta) -->
-                    <div id="instanceContainer" class="form-group full-width" style="display: none;">
-                        <label for="reg-instance">Instância:</label>
-                        <select id="reg-instance" name="instanceId">
-                            <option value="">Carregando instâncias...</option>
-                        </select>
-                        <div id="instanceLoading" class="loading-text">Carregando lista de instâncias...</div>
-                    </div>
-                    <!-- Caixa de informação para usuários não conselheiros -->
-                    <div id="instanceInfoBox" class="form-group full-width info-message" style="display: none;">
-                        <p>Uma nova instância WORKER será criada automaticamente para este usuário.</p>
-                    </div>
-                </div>
-                <div id="registerError" class="error-message"></div>
-                <button type="submit" class="btn btn-secondary" style="width: 100%; margin-top: 1rem;">Cadastrar</button>
-            </form>
-        </div>
-    </div>
-    
-    <footer>
-        <p>&copy; 2025 Sistema de Planejamento Econômico</p>
-    </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/js/all.min.js"></script>
+    <script src="/common-header.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Elementos DOM
-            const loginBtn = document.getElementById('loginBtn');
-            const registerBtn = document.getElementById('registerBtn');
-            const loginModal = document.getElementById('loginModal');
-            const registerModal = document.getElementById('registerModal');
-            const closeLoginModal = document.getElementById('closeLoginModal');
-            const closeRegisterModal = document.getElementById('closeRegisterModal');
-            const loginForm = document.getElementById('loginForm');
-            const registrationForm = document.getElementById('registrationForm');
-            const loginError = document.getElementById('loginError');
-            const registerError = document.getElementById('registerError');
-            const logoutBtn = document.getElementById('logoutBtn');
-            const welcomeBox = document.getElementById('welcomeBox');
-            const loggedInSection = document.getElementById('loggedInSection');
+            // Inserir o cabeçalho comum
+            if (typeof insertCommonHeader === 'function') {
+                insertCommonHeader();
+            }
             
-            // Verificar se há um usuário logado no localStorage
-            checkLoggedInUser();
+            // Carregar estatísticas do sistema
+            loadStatistics();
+        });
+        
+        function loadStatistics() {
+            const loading = document.getElementById('loading');
+            const statsContainer = document.getElementById('statsContainer');
             
-            // Event Listeners
-            loginBtn.addEventListener('click', openLoginModal);
-            registerBtn.addEventListener('click', openRegisterModal);
-            closeLoginModal.addEventListener('click', () => closeModal(loginModal));
-            closeRegisterModal.addEventListener('click', () => closeModal(registerModal));
-            window.addEventListener('click', function(e) {
-                if (e.target === loginModal) closeModal(loginModal);
-                if (e.target === registerModal) closeModal(registerModal);
+            // Fazer requisições em paralelo para obter contagens
+            Promise.all([
+                fetch('/api/instances').then(res => res.ok ? res.json() : []),
+                fetch('/api/social-materializations').then(res => res.ok ? res.json() : []),
+                fetch('/api/sectors').then(res => res.ok ? res.json() : []),
+                fetch('/api/instances/councils').then(res => res.ok ? res.json() : []),
+                fetch('/api/instances/committees').then(res => res.ok ? res.json() : [])
+            ])
+            .then(([instances, materializations, sectors, councils, committees]) => {
+                document.getElementById('instancesCount').textContent = instances.length || 0;
+                document.getElementById('materializationsCount').textContent = materializations.length || 0;
+                document.getElementById('sectorsCount').textContent = sectors.length || 0;
+                document.getElementById('councilsCount').textContent = councils.length || 0;
+                document.getElementById('committeesCount').textContent = committees.length || 0;
+                
+                loading.style.display = 'none';
+                statsContainer.style.display = 'flex';
+
+                // Criar gráfico de distribuição
+                createDistributionChart();
+            })
+            .catch(error => {
+                console.error('Erro ao carregar estatísticas:', error);
+                loading.textContent = 'Erro ao carregar estatísticas.';
             });
-            loginForm.addEventListener('submit', handleLogin);
-            registrationForm.addEventListener('submit', handleRegistration);
-            logoutBtn.addEventListener('click', handleLogout);
-            
-            // Funções
-            function openLoginModal() {
-                loginModal.style.display = 'flex';
-                loginError.textContent = ''; // Limpar mensagens de erro anteriores
-                loginForm.reset(); // Resetar formulário
-            }
-            
-            function openRegisterModal() {
-                registerModal.style.display = 'flex';
-                registerError.textContent = ''; // Limpar mensagens de erro anteriores
-                registrationForm.reset(); // Resetar formulário
-            }
-            
-            function closeModal(modal) {
-                modal.style.display = 'none';
-            }
-            
-            function handleLogin(e) {
-                e.preventDefault();
-                
-                const username = document.getElementById('username').value;
-                const password = document.getElementById('password').value;
-                
-                if (!username || !password) {
-                    loginError.textContent = 'Preencha todos os campos';
-                    return;
-                }
-                
-                // Fazer requisição para a API de login
-                fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ username, password })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Nome de usuário ou senha incorretos');
+        }
+
+        // Exemplo de implementação com Chart.js
+        function createDistributionChart() {
+            const ctx = document.getElementById('instanceDistributionChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'pie',
+                data: {
+                    labels: ['Conselhos', 'Comitês', 'Associações'],
+                    datasets: [{
+                        data: [councilsCount, committeesCount, residentsAssociationsCount],
+                        backgroundColor: ['#3498db', '#2ecc71', '#f39c12']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    title: {
+                        display: true,
+                        text: 'Distribuição de Instâncias por Tipo'
                     }
-                    return response.json();
-                })
-                .then(data => {
-                    // Salvar dados do usuário no localStorage
-                    localStorage.setItem('currentUser', JSON.stringify(data));
-                    
-                    // Fechar modal
-                    closeModal(loginModal);
-                    
-                    // Atualizar interface para usuário logado
-                    displayLoggedInUser(data);
-                })
-                .catch(error => {
-                    loginError.textContent = error.message;
-                });
-            }
-            
-            function handleRegistration(e) {
-                e.preventDefault();
-                
-                const name = document.getElementById('reg-name').value;
-                const username = document.getElementById('reg-username').value;
-                const password = document.getElementById('reg-password').value;
-                const confirmPassword = document.getElementById('reg-confirm-password').value;
-                const type = document.getElementById('reg-user-type').value;
-                const pronoun = document.getElementById('reg-pronoun').value;
-                
-                // Validações básicas
-                if (!name || !username || !password || !confirmPassword || !type || !pronoun) {
-                    registerError.textContent = 'Preencha todos os campos';
-                    return;
                 }
-                
-                if (password !== confirmPassword) {
-                    registerError.textContent = 'As senhas não coincidem';
-                    return;
-                }
-                
-                // Construir objeto de dados
-                const userData = {
-                    name,
-                    username,
-                    password,
-                    type,
-                    pronoun
-                };
-                
-                // Se for COUNCILLOR, incluir o instanceId
-                if (type === 'COUNCILLOR') {
-                    const instanceId = document.getElementById('reg-instance').value;
-                    if (!instanceId) {
-                        registerError.textContent = 'Selecione uma instância para o conselheiro';
-                        return;
-                    }
-                    userData.instanceId = parseInt(instanceId);
-                }
-                
-                console.log('Enviando dados:', userData);
-                
-                // Fazer requisição para a API de registro
-                fetch('/api/users/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(userData)
-                })
-                .then(response => {
-                    console.log('Status da resposta:', response.status);
-                    
-                    if (!response.ok) {
-                        // Tentar obter informações detalhadas sobre o erro
-                        return response.json().then(errorData => {
-                            console.error('Detalhes do erro:', errorData);
-                            throw new Error(errorData.message || 'Erro ao cadastrar usuário');
-                        }).catch(err => {
-                            // Se não conseguir obter um JSON válido, use o texto ou status
-                            if (err instanceof SyntaxError) {
-                                return response.text().then(text => {
-                                    throw new Error(text || `Erro ${response.status}: Falha no cadastro`);
-                                });
-                            }
-                            throw err;
-                        });
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('Cadastro bem-sucedido:', data);
-                    
-                    // Fechar modal
-                    closeModal(registerModal);
-                    
-                    // Mostrar mensagem de sucesso
-                    alert('Cadastro realizado com sucesso! Faça login para continuar.');
-                    
-                    // Abrir modal de login
-                    openLoginModal();
-                })
-                .catch(error => {
-                    console.error('Erro completo:', error);
-                    registerError.textContent = error.message || 'Erro desconhecido ao cadastrar';
-                });
-            }
-            
-            function handleLogout() {
-                // Remover usuário do localStorage
-                localStorage.removeItem('currentUser');
-                
-                // Mostrar seção de boas-vindas
-                welcomeBox.style.display = 'block';
-                loggedInSection.style.display = 'none';
-            }
-            
-            function checkLoggedInUser() {
-                const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-                
-                if (currentUser) {
-                    displayLoggedInUser(currentUser);
-                }
-            }
-            
-            function displayLoggedInUser(user) {
-                // Atualizar informações do usuário
-                document.getElementById('userName').textContent = user.name;
-                document.getElementById('userUsername').textContent = user.username;
-                
-                const userTypeBadge = document.getElementById('userTypeBadge');
-                userTypeBadge.textContent = user.type;
-                
-                if (user.type === 'COUNCILLOR') {
-                    userTypeBadge.className = 'badge badge-councillor';
-                } else {
-                    userTypeBadge.className = 'badge badge-non-councillor';
-                }
-                
-                // Mostrar informação da instância
-                let instanceText = '';
-                if (user.instanceId) {
-                    instanceText = `ID: ${user.instanceId} - Tipo: ${user.instanceType}`;
-                    
-                    if (user.committeeName) {
-                        instanceText += ` (${user.committeeName})`;
-                    }
-                    
-                    // Adicionar dados do setor se disponível
-                    if (user.sector) {
-                        instanceText += `<br>Setor: ${user.sector.name}`;
-                    }
-                    
-                    // Adicionar dados específicos do tipo de instância
-                    const instanceDetails = document.getElementById('instanceDetails');
-                    if (instanceDetails) {
-                        let detailsHTML = '';
-                        
-                        if (user.instanceType === 'WORKER') {
-                            detailsHTML += `<p><strong>Participação estimada:</strong> ${user.estimatedParticipation || 'N/A'}</p>`;
-                            detailsHTML += `<p><strong>Horas registradas:</strong> ${user.hoursAtElectronicPoint || 'N/A'}</p>`;
-                        } else if (user.instanceType === 'COMMITTEE') {
-                            detailsHTML += `<p><strong>Limite de trabalhadores:</strong> ${user.workerEffectiveLimit || 'N/A'}</p>`;
-                            detailsHTML += `<p><strong>Quantidade produzida:</strong> ${user.producedQuantity || 'N/A'}</p>`;
-                            detailsHTML += `<p><strong>Meta de produção:</strong> ${user.targetQuantity || 'N/A'}</p>`;
-                            
-                            if (user.socialMaterialization) {
-                                detailsHTML += `<p><strong>Produto:</strong> ${user.socialMaterialization.name}</p>`;
-                            }
-                        } else if (user.instanceType === 'COUNCIL') {
-                            detailsHTML += `<p><strong>Conselho Popular</strong></p>`;
-                        }
-                        
-                        instanceDetails.innerHTML = detailsHTML;
-                        instanceDetails.style.display = detailsHTML ? 'block' : 'none';
-                    }
-                    
-                    // Carregar tensores tecnológicos para esta instância
-                    loadTensors(user.instanceId);
-                    document.querySelector('.tensors-section').style.display = 'block';
-                    
-                } else {
-                    instanceText = 'Nenhuma instância associada';
-                    document.querySelector('.tensors-section').style.display = 'none';
-                }
-                document.getElementById('userInstance').innerHTML = instanceText;
-                
-                // Esconder seção de boas-vindas e mostrar seção de usuário logado
-                welcomeBox.style.display = 'none';
-                loggedInSection.style.display = 'block';
-            }
-            
-            // Obter os elementos do DOM relacionados ao tipo de usuário
-            const userTypeSelect = document.getElementById('reg-user-type');
-            const instanceContainer = document.getElementById('instanceContainer');
-            const instanceInfoBox = document.getElementById('instanceInfoBox');
-            const instanceSelect = document.getElementById('reg-instance');
-            const instanceLoading = document.getElementById('instanceLoading');
-            
-            // Armazenar todas as instâncias
-            let allInstances = [];
-            
-            // Adicionar event listener para mudança no tipo de usuário
-            userTypeSelect.addEventListener('change', function() {
-                updateUserTypeView();
             });
-            
-            // Função para atualizar a visualização com base no tipo de usuário
-            function updateUserTypeView() {
-                const userType = userTypeSelect.value;
+        }
+
+        // Configurar navegação entre abas de estatísticas
+        document.querySelectorAll('.stats-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remover classe ativa de todas as abas e conteúdos
+                document.querySelectorAll('.stats-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.stats-content').forEach(c => c.classList.remove('active'));
                 
-                if (userType === 'COUNCILLOR') {
-                    // Para Conselheiros, mostrar seleção de instância
-                    instanceContainer.style.display = 'block';
-                    instanceInfoBox.style.display = 'none';
-                    
-                    // Carregar instâncias se ainda não tiverem sido carregadas
-                    if (allInstances.length === 0) {
-                        fetchInstances();
-                    } else {
-                        updateInstanceOptions();
-                    }
-                } else if (userType === 'NON_COUNCILLOR') {
-                    // Para Não Conselheiros, ocultar seleção e mostrar mensagem informativa
-                    instanceContainer.style.display = 'none';
-                    instanceInfoBox.style.display = 'block';
-                } else {
-                    // Se nenhum tipo for selecionado, ocultar ambos
-                    instanceContainer.style.display = 'none';
-                    instanceInfoBox.style.display = 'none';
+                // Adicionar classe ativa à aba clicada
+                this.classList.add('active');
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId + 'Content').classList.add('active');
+                
+                // Carregar gráficos específicos se necessário
+                if (tabId === 'distribution' && !window.distributionChartCreated) {
+                    loadDistributionChart();
+                } else if (tabId === 'production' && !window.productionChartCreated) {
+                    loadProductionChart();
+                } else if (tabId === 'trends' && !window.trendsChartCreated) {
+                    loadTrendsChart();
                 }
-            }
-            
-            // Função para buscar instâncias do servidor
-            function fetchInstances() {
-                instanceLoading.style.display = 'block';
-                instanceSelect.innerHTML = '<option value="">Carregando...</option>';
-                
-                // Alterando a URL para a nova rota
-                fetch('/api/instances-basic')
-                    .then(response => {
-                        if (!response.ok) {
-                            throw new Error('Falha ao carregar instâncias');
-                        }
-                        return response.json();
-                    })
-                    .then(data => {
-                        // Armazenar todas as instâncias
-                        allInstances = data;
-                        
-                        // Atualizar opções no select
-                        updateInstanceOptions();
-                        
-                        // Esconder mensagem de carregamento
-                        instanceLoading.style.display = 'none';
-                    })
-                    .catch(error => {
-                        instanceSelect.innerHTML = '<option value="">Erro ao carregar instâncias</option>';
-                        registerError.textContent = 'Erro ao carregar instâncias: ' + error.message;
-                        instanceLoading.style.display = 'none';
-                        console.error('Erro:', error);
-                    });
-            }
-            
-            // Função para atualizar opções de instância
-            function updateInstanceOptions() {
-                // Limpar opções anteriores
-                instanceSelect.innerHTML = '';
-                
-                // Adicionar opção padrão
-                const defaultOption = document.createElement('option');
-                defaultOption.value = '';
-                defaultOption.textContent = 'Selecione uma instância';
-                instanceSelect.appendChild(defaultOption);
-                
-                // Filtrar instâncias do tipo COUNCIL ou COMMITTEE
-                const filteredInstances = allInstances.filter(instance => 
-                    instance.type === 'COUNCIL' || instance.type === 'COMMITTEE'
-                );
-                
-                // Adicionar instâncias filtradas
-                filteredInstances.forEach(instance => {
-                    const option = document.createElement('option');
-                    option.value = instance.id;
-                    
-                    // Formatação do texto da opção baseada no tipo de instância
-                    let optionText = `${instance.id} - `;
-                    if (instance.type === 'COMMITTEE' && instance.committeeName) {
-                        optionText += `${instance.committeeName} (${instance.type})`;
-                    } else if (instance.type === 'COUNCIL') {
-                        optionText += `Council ${instance.id} (${instance.type})`;
-                    } else {
-                        optionText += `Instance ${instance.id} (${instance.type})`;
-                    }
-                    
-                    option.textContent = optionText;
-                    instanceSelect.appendChild(option);
-                });
-            }
+            });
         });
 
-        // Função para carregar tensores tecnológicos
-        function loadTensors(instanceId) {
-            // Mostrar carregamento
-            document.getElementById('tensorsLoading').style.display = 'flex';
-            document.getElementById('tensorsContainer').style.display = 'none';
-            document.getElementById('tensorsError').style.display = 'none';
-            
-            fetch(`/api/tensors/by-instance/${instanceId}`)
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Falha ao carregar tensores tecnológicos');
-                    }
-                    return response.json();
-                })
-                .then(tensors => {
-                    const container = document.getElementById('tensorsContainer');
-                    
-                    // Verificar se há tensores para exibir
-                    if (tensors.length === 0) {
-                        container.innerHTML = '<div class="no-tensors">Nenhum tensor tecnológico encontrado para esta instância.</div>';
-                    } else {
-                        // Organizar os dados para a representação matricial
-                        const matrixData = organizeMatrixData(tensors);
-                        
-                        // Gerar a tabela HTML
-                        const tableHtml = generateMatrixTable(matrixData);
-                        
-                        container.innerHTML = tableHtml;
-                    }
-                    
-                    // Esconder carregamento e mostrar conteúdo
-                    document.getElementById('tensorsLoading').style.display = 'none';
-                    container.style.display = 'block';
+        // Carregar gráfico de distribuição
+        function loadDistributionChart() {
+            fetch('/api/statistics/instance-distribution')
+                .then(response => response.ok ? response.json() : Promise.reject('Erro ao carregar dados'))
+                .then(data => {
+                    const ctx = document.getElementById('distributionChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'pie',
+                        data: {
+                            labels: data.labels,
+                            datasets: [{
+                                data: data.data,
+                                backgroundColor: ['#3498db', '#2ecc71', '#f39c12'],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Distribuição de Instâncias por Tipo'
+                                },
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                    window.distributionChartCreated = true;
                 })
                 .catch(error => {
-                    console.error('Erro ao carregar tensores:', error);
-                    document.getElementById('tensorsLoading').style.display = 'none';
-                    document.getElementById('tensorsError').textContent = error.message;
-                    document.getElementById('tensorsError').style.display = 'block';
+                    console.error('Erro ao criar gráfico de distribuição:', error);
+                    document.querySelector('#distributionContent .chart-container').innerHTML = 
+                        '<div class="error">Erro ao carregar o gráfico de distribuição</div>';
                 });
         }
-        
-        // Função para organizar os dados dos tensores em formato de matriz
-        function organizeMatrixData(tensors) {
-            // Extrair todos os inputs e outputs únicos
-            const uniqueInputs = [];
-            const uniqueOutputs = [];
-            const matrix = {};
-            
-            // Primeiro passo: identificar todos os inputs e outputs únicos
-            tensors.forEach(tensor => {
-                const inputId = tensor.input.id;
-                const outputId = tensor.output.id;
-                
-                if (!uniqueInputs.find(i => i.id === inputId)) {
-                    uniqueInputs.push({
-                        id: inputId,
-                        name: tensor.input.name,
-                        type: tensor.input.type
-                    });
-                }
-                
-                if (!uniqueOutputs.find(o => o.id === outputId)) {
-                    uniqueOutputs.push({
-                        id: outputId,
-                        name: tensor.output.name,
-                        type: tensor.output.type
-                    });
-                }
-                
-                // Inicializar a matriz
-                if (!matrix[inputId]) {
-                    matrix[inputId] = {};
-                }
-                
-                // Armazenar o coeficiente e metadados na posição correta da matriz
-                matrix[inputId][outputId] = {
-                    coefficient: tensor.coefficient,
-                    createdAt: tensor.createdAt
-                };
-            });
-            
-            // Ordenar inputs e outputs por nome
-            uniqueInputs.sort((a, b) => a.name.localeCompare(b.name));
-            uniqueOutputs.sort((a, b) => a.name.localeCompare(b.name));
-            
-            return {
-                inputs: uniqueInputs,
-                outputs: uniqueOutputs,
-                matrix: matrix
-            };
-        }
-        
-        // Função para gerar a tabela HTML da matriz
-        function generateMatrixTable(matrixData) {
-            const { inputs, outputs, matrix } = matrixData;
-            
-            let html = '<div class="matrix-container">';
-            html += '<h5>Matriz de Coeficientes Tecnológicos</h5>';
-            html += '<div class="table-responsive">';
-            html += '<table class="tensor-matrix-table">';
-            
-            // Cabeçalho da tabela
-            html += '<thead><tr><th class="corner-header">Input ↓ / Output →</th>';
-            
-            outputs.forEach(output => {
-                html += `<th class="output-header" title="${output.type}">${output.name}</th>`;
-            });
-            
-            html += '</tr></thead><tbody>';
-            
-            // Linhas da tabela (inputs)
-            inputs.forEach(input => {
-                html += `<tr><th class="input-header" title="${input.type}">${input.name}</th>`;
-                
-                // Colunas (outputs)
-                outputs.forEach(output => {
-                    const cell = matrix[input.id] && matrix[input.id][output.id];
+
+        // Carregar gráfico de produção
+        function loadProductionChart() {
+            fetch('/api/statistics/production-summary')
+                .then(response => response.ok ? response.json() : Promise.reject('Erro ao carregar dados'))
+                .then(data => {
+                    // Extrair dados para o gráfico
+                    const labels = data.map(item => item.name);
+                    const produced = data.map(item => item.producedQuantity);
+                    const targets = data.map(item => item.targetQuantity);
                     
-                    if (cell) {
-                        // Célula com valor
-                        html += `<td class="matrix-cell has-value" title="Input: ${input.name} (${input.type})
-Output: ${output.name} (${output.type})
-Criado em: ${formatDate(cell.createdAt)}">${cell.coefficient}</td>`;
-                    } else {
-                        // Célula sem valor (mostrar 0 em vez de -)
-                        html += `<td class="matrix-cell zero" title="Input: ${input.name} (${input.type})
-Output: ${output.name} (${output.type})
-Sem coeficiente registrado">0</td>`;
-                    }
+                    const ctx = document.getElementById('productionChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: 'Quantidade Produzida',
+                                    data: produced,
+                                    backgroundColor: 'rgba(52, 152, 219, 0.7)',
+                                    borderColor: 'rgba(52, 152, 219, 1)',
+                                    borderWidth: 1
+                                },
+                                {
+                                    label: 'Meta',
+                                    data: targets,
+                                    backgroundColor: 'rgba(231, 76, 60, 0.7)',
+                                    borderColor: 'rgba(231, 76, 60, 1)',
+                                    borderWidth: 1
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Quantidade'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Comitê'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Produção vs Meta por Comitê'
+                                },
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                    window.productionChartCreated = true;
+                })
+                .catch(error => {
+                    console.error('Erro ao criar gráfico de produção:', error);
+                    document.querySelector('#productionContent .chart-container').innerHTML = 
+                        '<div class="error">Erro ao carregar o gráfico de produção</div>';
                 });
-                
-                html += '</tr>';
-            });
-            
-            html += '</tbody></table></div>';
-            
-            // Legenda
-            html += '<div class="tensor-legend">';
-            html += '<p><strong>Legenda:</strong> Os valores representam os coeficientes tecnológicos entre inputs (linhas) e outputs (colunas). Zeros indicam ausência de relação.</p>';
-            html += '<p><small>Passe o mouse sobre as células para ver mais informações.</small></p>';
-            html += '</div>';
-            
-            html += '</div>';
-            
-            return html;
         }
-        
-        // Função para formatar data
-        function formatDate(dateString) {
-            if (!dateString) return 'Data não disponível';
-            
-            const date = new Date(dateString);
-            
-            // Verificar se a data é válida
-            if (isNaN(date.getTime())) {
-                return 'Data inválida';
-            }
-            
-            const options = { 
-                day: '2-digit',
-                month: '2-digit',
-                year: 'numeric',
-                hour: '2-digit',
-                minute: '2-digit'
-            };
-            
-            return date.toLocaleDateString('pt-BR', options);
+
+        // Carregar gráfico de tendências
+        function loadTrendsChart() {
+            fetch('/api/statistics/growth-trends')
+                .then(response => response.ok ? response.json() : Promise.reject('Erro ao carregar dados'))
+                .then(data => {
+                    const ctx = document.getElementById('trendsChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: data.labels,
+                            datasets: [
+                                {
+                                    label: 'Instâncias',
+                                    data: data.instancesCounts,
+                                    borderColor: 'rgba(52, 152, 219, 1)',
+                                    backgroundColor: 'rgba(52, 152, 219, 0.1)',
+                                    borderWidth: 2,
+                                    fill: true,
+                                    tension: 0.4
+                                },
+                                {
+                                    label: 'Materializações',
+                                    data: data.materializationsCounts,
+                                    borderColor: 'rgba(46, 204, 113, 1)',
+                                    backgroundColor: 'rgba(46, 204, 113, 0.1)',
+                                    borderWidth: 2,
+                                    fill: true,
+                                    tension: 0.4
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: 'Número de Registros'
+                                    }
+                                },
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Mês/Ano'
+                                    }
+                                }
+                            },
+                            plugins: {
+                                title: {
+                                    display: true,
+                                    text: 'Tendência de Crescimento'
+                                },
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                    window.trendsChartCreated = true;
+                })
+                .catch(error => {
+                    console.error('Erro ao criar gráfico de tendências:', error);
+                    document.querySelector('#trendsContent .chart-container').innerHTML = 
+                        '<div class="error">Erro ao carregar o gráfico de tendências</div>';
+                });
         }
     </script>
-
-    <!-- Adicione este código antes do último </script> do documento -->
-
     <script>
-        // Configuração do seletor de tema
-        document.addEventListener('DOMContentLoaded', function() {
-            // Elementos do seletor de tema
-            const themeToggleBtn = document.getElementById('themeToggleBtn');
-            const themeMenu = document.getElementById('themeMenu');
-            const themeOptions = document.querySelectorAll('.theme-option');
-            
-            // Aplicar tema salvo (se existir)
-            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            
-            // Abrir/fechar menu de temas
-            themeToggleBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                if (themeMenu.style.display === 'block') {
-                    themeMenu.style.display = 'none';
-                } else {
-                    themeMenu.style.display = 'block';
-                }
-            });
-            
-            // Fechar menu ao clicar fora
-            document.addEventListener('click', function() {
-                themeMenu.style.display = 'none';
-            });
-            
-            // Prevenir fechamento ao clicar dentro do menu
-            themeMenu.addEventListener('click', function(e) {
-                e.stopPropagation();
-            });
-            
-            // Selecionar tema
-            themeOptions.forEach(option => {
-                option.addEventListener('click', function() {
-                    const theme = this.getAttribute('data-theme');
-                    document.documentElement.setAttribute('data-theme', theme);
-                    localStorage.setItem('preferredTheme', theme);
-                    themeMenu.style.display = 'none';
-                });
-            });
-        });
+    // Verificar integridade do sistema quando a página terminar de carregar
+    window.addEventListener('load', function() {
+        console.log("Página index.html completamente carregada");
+        
+        // Verificar tema
+        if (typeof window.verifyTheme === 'function') {
+            window.verifyTheme();
+        } else {
+            // Aplicar tema manualmente como fallback
+            try {
+                const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } catch(e) {
+                console.error("Erro ao aplicar tema fallback:", e);
+            }
+        }
+    });
     </script>
 </body>
 </html>

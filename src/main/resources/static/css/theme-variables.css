@@ -1,0 +1,92 @@
+/* Variáveis de temas */
+:root {
+    /* Tema Ocean (padrão) */
+    --primary-color: #2c3e50;
+    --primary-color-light: #3498db;
+    --primary-color-dark: #1f2d3d;
+    --secondary-color: #2ecc71;
+    --secondary-color-dark: #27ae60;
+    --text-color: #333;
+    --bg-color: #f5f5f5;
+    --card-bg: #ffffff;
+    --card-border: rgba(0, 0, 0, 0.1);
+    --header-text: #ffffff;
+    --accent-color: #3498db;
+    --error-color: #e74c3c;
+}
+
+/* Tema Night */
+[data-theme="night"] {
+    --primary-color: #90caf9;           /* Azul claro para título principal */
+    --primary-color-light: #64b5f6;     /* Azul médio para elementos destacados */
+    --primary-color-dark: #42a5f5;      /* Azul escuro para hover/ativos */
+    --secondary-color: #81c784;         /* Verde claro para botões secundários */
+    --secondary-color-dark: #66bb6a;    /* Verde escuro para hover */
+    --text-color: #e0e0e0;              /* Cinza muito claro para texto geral */
+    --bg-color: #121212;                /* Fundo quase preto */
+    --card-bg: #1e1e1e;                 /* Fundo dos cards um pouco mais claro */
+    --card-border: rgba(255, 255, 255, 0.15); /* Borda mais visível */
+    --header-text: #ffffff;             /* Texto do cabeçalho branco */
+    --accent-color: #64b5f6;            /* Azul médio para acentos */
+    --error-color: #ff6b6b;             /* Vermelho para erros */
+    --card-text: #ffffff;               /* Branco para texto em cards */
+    --divider-color: rgba(255, 255, 255, 0.12); /* Divisor mais visível */
+}
+
+/* Tema Sunlight */
+[data-theme="sunlight"] {
+    --primary-color: #ff7e00;
+    --primary-color-light: #ffb74d;
+    --primary-color-dark: #e65100;
+    --secondary-color: #ffa726;
+    --secondary-color-dark: #fb8c00;
+    --text-color: #4e342e;
+    --bg-color: #fffde7;
+    --card-bg: #fff8e1;
+    --card-border: rgba(255, 126, 0, 0.2);
+    --header-text: #ffffff;
+    --accent-color: #ffb74d;
+    --error-color: #d32f2f;
+}
+
+/* Tema Bolchevick */
+[data-theme="bolchevick"] {
+    --primary-color: #c62828;
+    --primary-color-light: #e53935;
+    --primary-color-dark: #b71c1c;
+    --secondary-color: #ef5350;
+    --secondary-color-dark: #d32f2f;
+    --text-color: #3e2723;
+    --bg-color: #ffebee;
+    --card-bg: #ffffff;
+    --card-border: rgba(198, 40, 40, 0.2);
+    --header-text: #ffffff;
+    --accent-color: #ef5350;
+    --error-color: #880e4f;
+}
+
+/* Aplicação básica de cores para elementos comuns */
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.container {
+    background-color: var(--card-bg);
+    transition: background-color 0.3s ease;
+}
+
+h1, h2, h3 {
+    color: var(--primary-color);
+    transition: color 0.3s ease;
+}
+
+a {
+    color: var(--primary-color-light);
+    transition: color 0.3s ease;
+}
+
+button {
+    transition: background-color 0.3s ease, color 0.3s ease;
+}

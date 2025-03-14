@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro em Massa - Sistema de Planejamento Econômico</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            padding: 2rem;
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-top: 0;
+        }
+        
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            min-width: 150px;
+            font-size: 1rem;
+            margin: 1rem 0;
+        }
+        
+        .btn-primary {
+            background-color: #3498db;
+            color: white;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background-color: #2980b9;
+        }
+        
+        .btn-primary:disabled {
+            background-color: #95a5a6;
+            cursor: not-allowed;
+        }
+        
+        .progress-container {
+            margin: 2rem 0;
+            display: none;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #ecf0f1;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 1rem;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #2ecc71;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .progress-text {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        #results {
+            max-height: 300px;
+            overflow-y: auto;
+            text-align: left;
+            margin-top: 1rem;
+            border: 1px solid #ddd;
+            padding: 1rem;
+            border-radius: 4px;
+            background-color: #f9f9f9;
+            display: none;
+        }
+        
+        .log-item {
+            margin: 5px 0;
+            padding: 5px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .log-success {
+            color: #27ae60;
+        }
+        
+        .log-error {
+            color: #e74c3c;
+        }
+        
+        .log-info {
+            color: #3498db;
+        }
+        
+        .summary {
+            margin-top: 1rem;
+            font-weight: bold;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cadastro em Massa de Usuários</h1>
+        <p>Esta ferramenta permite cadastrar 6 mil usuários do tipo "Não Conselheiro" de uma vez.</p>
+        <p>Todos os usuários terão o seguinte padrão:</p>
+        <ul style="text-align: left;">
+            <li>Nome: usuarioX (onde X é o número do usuário)</li>
+            <li>Nome de usuário: usuarioX</li>
+            <li>Senha: 123</li>
+            <li>Tipo: Não Conselheiro</li>
+            <li>Pronome: Ele/Dele</li>
+        </ul>
+        
+        <button id="startButton" class="btn btn-primary">Iniciar Cadastro em Massa</button>
+        
+        <div id="progressContainer" class="progress-container">
+            <div class="progress-bar">
+                <div id="progress" class="progress"></div>
+            </div>
+            <div id="progressText" class="progress-text">0 / 6000 usuários cadastrados (0%)</div>
+        </div>
+        
+        <div id="results"></div>
+        
+        <div id="summary" class="summary"></div>
+        
+        <a href="index.html" class="btn btn-primary" style="margin-top: 2rem;">Voltar para Página Principal</a>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const startButton = document.getElementById('startButton');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progress');
+            const progressText = document.getElementById('progressText');
+            const resultsDiv = document.getElementById('results');
+            const summaryDiv = document.getElementById('summary');
+            
+            const TOTAL_USERS = 6000;
+            const BATCH_SIZE = 10; // Batch pequeno para não sobrecarregar o servidor
+            
+            startButton.addEventListener('click', startMassRegistration);
+            
+            async function startMassRegistration() {
+                // Desabilitar o botão para evitar múltiplos cliques
+                startButton.disabled = true;
+                
+                // Mostrar a barra de progresso e área de resultados
+                progressContainer.style.display = 'block';
+                resultsDiv.style.display = 'block';
+                resultsDiv.innerHTML = '<div class="log-item log-info">Iniciando o processo de cadastro...</div>';
+                
+                let successCount = 0;
+                let errorCount = 0;
+                
+                // Processar em lotes
+                for (let startIdx = 1; startIdx <= TOTAL_USERS; startIdx += BATCH_SIZE) {
+                    const endIdx = Math.min(startIdx + BATCH_SIZE - 1, TOTAL_USERS);
+                    
+                    // Processar um lote
+                    const batchResults = await processBatch(startIdx, endIdx);
+                    
+                    // Atualizar contadores
+                    successCount += batchResults.success;
+                    errorCount += batchResults.error;
+                    
+                    // Atualizar progresso
+                    const progress = (endIdx / TOTAL_USERS) * 100;
+                    progressBar.style.width = `${progress}%`;
+                    progressText.textContent = `${endIdx} / ${TOTAL_USERS} usuários processados (${Math.round(progress)}%)`;
+                }
+                
+                // Exibir resumo final
+                summaryDiv.innerHTML = `
+                    <p>Cadastro finalizado!</p>
+                    <p>Total processado: ${TOTAL_USERS}</p>
+                    <p>Sucesso: ${successCount}</p>
+                    <p>Falhas: ${errorCount}</p>
+                `;
+                summaryDiv.style.display = 'block';
+                
+                // Reativar o botão
+                startButton.disabled = false;
+            }
+            
+            async function processBatch(startIdx, endIdx) {
+                let batchSuccess = 0;
+                let batchError = 0;
+                
+                // Processamento sequencial para evitar sobrecarga
+                for (let i = startIdx; i <= endIdx; i++) {
+                    try {
+                        // Usar o endpoint existente /api/user-test para criar usuários
+                        const result = await registerUser(i);
+                        if (result.success) {
+                            batchSuccess++;
+                        } else {
+                            batchError++;
+                        }
+                        
+                        // Pequeno delay para não sobrecarregar
+                        await new Promise(resolve => setTimeout(resolve, 100));
+                    } catch (error) {
+                        logMessage(`❌ Erro ao processar usuario${i}: ${error.message}`, 'error');
+                        batchError++;
+                    }
+                }
+                
+                return { success: batchSuccess, error: batchError };
+            }
+            
+            async function registerUser(index) {
+                try {
+                    // Usando o endpoint /api/user-test que já possui a lógica para criar a instância WORKER
+                    // conforme visto no código do UserTestController
+                    const userData = {
+                        name: `usuario${index}`,
+                        username: `usuario${index}`,
+                        password: "123",
+                        type: "NON_COUNCILLOR",
+                        pronoun: "HE_HIM"
+                        // Não precisa de instanceId para NON_COUNCILLOR, será criada automaticamente
+                    };
+                    
+                    const response = await fetch('/api/user-test', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(userData)
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        logMessage(`✅ Usuário ${userData.username} cadastrado com sucesso! ID: ${data.id}, Instância: ${data.instanceId}`, 'success');
+                        console.log(`Usuário ${userData.username} cadastrado com sucesso!`);
+                        return { success: true, data };
+                    } else {
+                        const errorText = await response.text();
+                        let errorMessage;
+                        try {
+                            // Tenta converter para JSON se possível
+                            const errorData = JSON.parse(errorText);
+                            errorMessage = errorData.message || errorData || errorText;
+                        } catch (e) {
+                            // Se não for JSON, usa o texto como está
+                            errorMessage = errorText;
+                        }
+                        
+                        logMessage(`❌ Falha ao cadastrar usuario${index}: ${errorMessage}`, 'error');
+                        return { success: false, error: { message: errorMessage } };
+                    }
+                } catch (error) {
+                    logMessage(`❌ Erro ao cadastrar usuario${index}: ${error.message}`, 'error');
+                    return { success: false, error };
+                }
+            }
+            
+            function logMessage(message, type) {
+                const logItem = document.createElement('div');
+                logItem.className = `log-item log-${type}`;
+                logItem.textContent = message;
+                
+                resultsDiv.appendChild(logItem);
+                resultsDiv.scrollTop = resultsDiv.scrollHeight;
+            }
+        });
+    </script>
+</body>
+</html>

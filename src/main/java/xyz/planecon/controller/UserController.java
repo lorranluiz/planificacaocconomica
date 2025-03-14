@@ -2,6 +2,9 @@ package xyz.planecon.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +19,7 @@ import xyz.planecon.service.InstanceService;
 import xyz.planecon.service.UserService;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -43,8 +47,46 @@ public class UserController {
     private InstanceRepository instanceRepository;
     
     @GetMapping
-    public List<User> getAllUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<Page<UserResponse>> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        
+        // Validação dos parâmetros
+        if (page < 0) {
+            page = 0; // Garantir que página não seja negativa
+        }
+        
+        // Limitar tamanho máximo para evitar sobrecarga
+        if (size <= 0) {
+            size = 10;
+        } else if (size > 100) {
+            size = 100; // Limitar tamanho máximo
+        }
+        
+        // Cria um objeto Pageable para definir a página e o tamanho
+        Pageable pageable = PageRequest.of(page, size);
+        
+        try {
+            // Busca os usuários de forma paginada
+            Page<User> userPage = userService.findAllPaginated(pageable);
+            
+            // Converte para DTO e retorna
+            Page<UserResponse> responsePage = userPage.map(this::convertToUserResponse);
+            
+            return ResponseEntity.ok(responsePage);
+        } catch (Exception e) {
+            // Log e tratamento de erro
+            e.printStackTrace();
+            return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(null);
+        }
+    }
+
+    // Método auxiliar para converter User para UserResponse
+    private UserResponse convertToUserResponse(User user) {
+        // Usando o método estático fromEntity disponível na classe UserResponse
+        return UserResponse.fromEntity(user);
     }
     
     @GetMapping("/{id}")
@@ -205,5 +247,39 @@ public class UserController {
     @GetMapping("/instances")
     public List<Instance> getAllInstances() {
         return instanceService.getAllInstances();
+    }
+
+    @GetMapping("/{id}/related-entities")
+    public ResponseEntity<?> getUserRelatedEntities(@PathVariable Integer id) {
+        try {
+            User user = userRepository.findById(id).orElse(null);
+            
+            if (user == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("message", "Usuário não encontrado"));
+            }
+            
+            // Esta é uma implementação simplificada - em um cenário real,
+            // você buscaria no banco de dados as entidades relacionadas a este usuário
+            List<Map<String, Object>> relatedEntities = new ArrayList<>();
+            
+            // Adicionar instância do usuário, se existir
+            if (user.getInstance() != null) {
+                Map<String, Object> instanceInfo = new HashMap<>();
+                instanceInfo.put("type", "Instance");
+                instanceInfo.put("id", user.getInstance().getId());
+                instanceInfo.put("name", user.getInstance().getCommitteeName());
+                instanceInfo.put("instanceType", user.getInstance().getType().name());
+                relatedEntities.add(instanceInfo);
+            }
+            
+            // Aqui você adicionaria outras entidades relacionadas conforme necessário
+            
+            return ResponseEntity.ok(relatedEntities);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("message", "Erro ao buscar entidades relacionadas: " + e.getMessage()));
+        }
     }
 }

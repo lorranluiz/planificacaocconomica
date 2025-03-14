@@ -1,6 +1,7 @@
 package xyz.planecon.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import xyz.planecon.dto.LoginRequest;
@@ -11,6 +12,7 @@ import xyz.planecon.repository.InstanceRepository;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -22,94 +24,71 @@ public class AuthController {
     @Autowired
     private InstanceRepository instanceRepository;
 
+    // Endpoint de teste para verificar se o controlador está funcionando
+    @GetMapping("/test")
+    public ResponseEntity<Map<String, String>> testEndpoint() {
+        Map<String, String> response = new HashMap<>();
+        response.put("status", "success");
+        response.put("message", "API de Autenticação está funcionando!");
+        return ResponseEntity.ok(response);
+    }
+
+    // Atualizar a função login para retornar informações completas de pronome e tipo
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<?> login(@RequestBody Map<String, Object> loginRequest) {
         try {
-            System.out.println("Tentativa de login com usuário: " + loginRequest.getUsername());
+            String username = (String) loginRequest.get("username");
+            String password = (String) loginRequest.get("password");
             
-            // Buscar o usuário pelo nome de usuário
-            User user = userRepository.findByUsername(loginRequest.getUsername());
+            if (username == null || password == null) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Nome de usuário e senha são obrigatórios");
+                return ResponseEntity.badRequest().body(response);
+            }
             
-            // Verificar se o usuário existe e a senha está correta
+            User user = userRepository.findByUsername(username);
+            
             if (user == null) {
-                System.out.println("Usuário não encontrado: " + loginRequest.getUsername());
-                return ResponseEntity.status(401).body(Map.of("message", "Nome de usuário ou senha incorretos"));
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Usuário não encontrado");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
             
-            // Verificar a senha (em produção, deve-se usar criptografia)
-            if (!user.getPassword().equals(loginRequest.getPassword())) {
-                System.out.println("Senha incorreta para o usuário: " + loginRequest.getUsername());
-                return ResponseEntity.status(401).body(Map.of("message", "Nome de usuário ou senha incorretos"));
+            if (!password.equals(user.getPassword())) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Senha incorreta");
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
             }
             
-            // Montar resposta com dados do usuário
             Map<String, Object> response = new HashMap<>();
-            response.put("id", user.getId());
-            response.put("name", user.getName());
-            response.put("username", user.getUsername());
-            response.put("type", user.getType().toString());
-            response.put("pronoun", user.getPronoun().toString());
+            Map<String, Object> userData = new HashMap<>();
             
-            // Garantir que os dados da instância sejam carregados
-            // Se um usuário estiver associado a uma instância
+            userData.put("id", user.getId());
+            userData.put("username", user.getUsername());
+            userData.put("name", user.getName());
+            userData.put("type", user.getType().name());  // Retornar como string
+            userData.put("pronoun", user.getPronoun().name());  // Retornar como string
+            
+            // Adicionar informações da instância se existir
             if (user.getInstance() != null) {
-                // Forçar o carregamento completo da instância
-                Instance instance = instanceRepository.findById(user.getInstance().getId()).orElse(null);
-                
-                if (instance != null) {
-                    response.put("instanceId", instance.getId());
-                    response.put("instanceType", instance.getType().toString());
-                    
-                    // Adicionar URL para acessar os tensores tecnológicos desta instância
-                    response.put("tensorsUrl", "/api/tensors/by-instance/" + instance.getId());
-                    
-                    if (instance.getCommitteeName() != null) {
-                        response.put("committeeName", instance.getCommitteeName());
-                    }
-                    
-                    if (instance.getWorkerEffectiveLimit() != null) {
-                        response.put("workerEffectiveLimit", instance.getWorkerEffectiveLimit());
-                    }
-                    
-                    // Incluir informações específicas do tipo de instância
-                    if (instance.getEstimatedIndividualParticipationInSocialWork() != null) {
-                        response.put("estimatedParticipation", 
-                            instance.getEstimatedIndividualParticipationInSocialWork().toString());
-                    }
-                    
-                    if (instance.getHoursAtElectronicPoint() != null) {
-                        response.put("hoursAtElectronicPoint", 
-                            instance.getHoursAtElectronicPoint().toString());
-                    }
-                    
-                    if (instance.getProducedQuantity() != null) {
-                        response.put("producedQuantity", 
-                            instance.getProducedQuantity().toString());
-                    }
-                    
-                    if (instance.getTargetQuantity() != null) {
-                        response.put("targetQuantity", 
-                            instance.getTargetQuantity().toString());
-                    }
-                    
-                    // Informações sobre materialização social
-                    if (instance.getSocialMaterialization() != null) {
-                        Map<String, Object> materialData = new HashMap<>();
-                        materialData.put("id", instance.getSocialMaterialization().getId());
-                        materialData.put("name", instance.getSocialMaterialization().getName());
-                        materialData.put("type", instance.getSocialMaterialization().getType().toString());
-                        response.put("socialMaterialization", materialData);
-                    }
+                Map<String, Object> instanceData = new HashMap<>();
+                instanceData.put("id", user.getInstance().getId());
+                instanceData.put("type", user.getInstance().getType().name());
+                if (user.getInstance().getCommitteeName() != null) {
+                    instanceData.put("committeeName", user.getInstance().getCommitteeName());
                 }
+                userData.put("instance", instanceData);
             }
             
-            System.out.println("Login bem-sucedido para o usuário: " + loginRequest.getUsername() + 
-                               ", detalhes da resposta: " + response);
-            return ResponseEntity.ok(response);
+            response.put("user", userData);
+            response.put("token", UUID.randomUUID().toString());
             
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
-            return ResponseEntity.status(500).body(Map.of("message", "Erro durante a autenticação: " + e.getMessage()));
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Erro ao processar login: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
     

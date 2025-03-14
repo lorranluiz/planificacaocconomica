@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <script>
+    // Aplicar tema imediatamente no carregamento da página
+    (function() {
+        try {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            console.log('Tema aplicado em instances.html:', savedTheme);
+        } catch(e) {
+            console.error('Erro ao aplicar tema inicial:', e);
+        }
+    })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" id="theme-color" content="#2c3e50">
+    <link rel="stylesheet" href="/css/theme-variables.css">
+    <link rel="stylesheet" href="/css/theme-elements.css">
+    <title>Instâncias - Sistema de Planejamento Econômico</title>
+    <link rel="stylesheet" href="/css/common-styles.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        /* Estilos específicos para a página de instâncias */
+        .badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+        }
+        
+        .badge-WORKER {
+            background-color: #2196F3;
+        }
+        
+        .badge-COMMITTEE {
+            background-color: #4CAF50;
+        }
+        
+        .badge-COUNCIL {
+            background-color: #9C27B0;
+        }
+        
+        .badge-RESIDENTS_ASSOCIATION {
+            background-color: #FF9800;
+        }
+        
+        .dynamic-fields {
+            border-top: 1px dashed #ddd;
+            padding-top: 15px;
+            margin-top: 15px;
+        }
+        
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin: 10px 0;
+        }
+        
+        .radio-option {
+            display: flex;
+            align-items: center;
+        }
+        
+        .radio-option input {
+            margin-right: 5px;
+        }
+    </style>
+    <link rel="stylesheet" href="/css/common-styles.css">
+</head>
+<body>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Garantir que o cabeçalho comum seja inserido
+        if (typeof window.insertCommonHeader === 'function') {
+            window.insertCommonHeader();
+        } else {
+            console.error("Função insertCommonHeader não encontrada");
+        }
+        
+        // Garantir que o tema seja aplicado assim que a página carregar
+        if (typeof window.applyThemeToEntirePage === 'function') {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            window.applyThemeToEntirePage(savedTheme);
+        }
+        
+        // Adicionar ouvinte para evento de mudança de tema
+        document.addEventListener('themeChanged', function(event) {
+            console.log("Evento 'themeChanged' detectado:", event.detail.theme);
+            if (typeof window.applyThemeToEntirePage === 'function') {
+                window.applyThemeToEntirePage(event.detail.theme);
+            }
+        });
+    });
+    </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        console.log("Página instances.html carregada!");
+        
+        // Verificar se estamos na aba de criação diretamente
+        if (window.location.hash === '#create') {
+            setTimeout(function() {
+                console.log("Ativando aba de cadastro via hash URL");
+                document.querySelector('.tab[data-tab="create"]')?.click();
+            }, 100);
+        }
+        
+        // Adicionar listeners para as abas
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                console.log(`Aba ${tabId} foi clicada`);
+                
+                if (tabId === 'create') {
+                    console.log("Aba de cadastro selecionada, carregando materializações...");
+                    // Primeiro carregamento após 100ms
+                    setTimeout(carregarMaterializacoes, 100);
+                    // Segundo carregamento após 500ms para garantir
+                    setTimeout(carregarMaterializacoes, 500);
+                }
+            });
+        });
+        
+        // Função simplificada para carregar materializações
+        window.carregarMaterializacoes = function() {
+            console.log("INÍCIO: Carregamento de materializações sociais");
+            const selectElement = document.getElementById('socialMaterializationId');
+            
+            if (!selectElement) {
+                console.error("Select de materialização não encontrado!");
+                return;
+            }
+            
+            // Limpar e mostrar carregando
+            selectElement.innerHTML = '<option value="">Carregando...</option>';
+            selectElement.disabled = true;
+            
+            // Fazer requisição com retry
+            fetchComRetry('/api/social-materializations', 3)
+                .then(data => {
+                    console.log("Materializações recebidas:", data.length);
+                    
+                    // Limpar opções anteriores
+                    selectElement.innerHTML = '';
+                    
+                    // Opção padrão
+                    const defaultOption = document.createElement('option');
+                    defaultOption.value = '';
+                    defaultOption.textContent = 'Selecione uma materialização';
+                    selectElement.appendChild(defaultOption);
+                    
+                    // Adicionar opções
+                    if (data && data.length > 0) {
+                        data.forEach(mat => {
+                            const option = document.createElement('option');
+                            option.value = mat.id;
+                            option.textContent = mat.name || `ID: ${mat.id}`;
+                            selectElement.appendChild(option);
+                        });
+                        console.log("Opções de materialização adicionadas com sucesso!");
+                    } else {
+                        const emptyOption = document.createElement('option');
+                        emptyOption.disabled = true;
+                        emptyOption.textContent = "Nenhuma materialização disponível";
+                        selectElement.appendChild(emptyOption);
+                    }
+                    
+                    // Habilitar select
+                    selectElement.disabled = false;
+                })
+                .catch(err => {
+                    console.error("ERRO ao carregar materializações:", err);
+                    selectElement.innerHTML = '<option value="">Erro ao carregar dados</option>';
+                    selectElement.disabled = false;
+                });
+        };
+        
+        // Função para fazer fetch com retry automático
+        function fetchComRetry(url, maxRetries) {
+            return new Promise((resolve, reject) => {
+                let retries = 0;
+                
+                function tryFetch() {
+                    console.log(`Tentativa ${retries + 1} para ${url}`);
+                    
+                    fetch(url)
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error(`HTTP error: ${response.status}`);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log(`Fetch bem sucedido após ${retries + 1} tentativa(s)`);
+                            resolve(data);
+                        })
+                        .catch(error => {
+                            retries++;
+                            console.warn(`Tentativa ${retries} falhou:`, error);
+                            
+                            if (retries < maxRetries) {
+                                // Tentar novamente com delay progressivo
+                                console.log(`Tentando novamente em ${retries * 500}ms...`);
+                                setTimeout(tryFetch, retries * 500);
+                            } else {
+                                reject(error);
+                            }
+                        });
+                }
+                
+                // Iniciar primeira tentativa
+                tryFetch();
+            });
+        }
+    });
+    </script>
+    <div class="container">
+        <!-- O cabeçalho será inserido aqui pelo script -->
+
+        <h1>Instâncias</h1>
+        
+        <!-- Abas para navegar entre listar e cadastrar -->
+        <div class="tabs">
+            <div class="tab active" data-tab="list">Listar</div>
+            <div class="tab" data-tab="create">Cadastrar</div>
+        </div>
+        
+        <!-- Conteúdo da aba de listagem -->
+        <div id="list-tab" class="tab-content active">
+            <div class="filter-section">
+                <label for="typeFilter">Filtrar por tipo:</label>
+                <select id="typeFilter">
+                    <option value="">Todos os tipos</option>
+                    <!-- WORKER (Trabalhador) removido pois representa usuários e é gerenciado automaticamente -->
+                    <option value="COMMITTEE">Comitê</option>
+                    <option value="COUNCIL">Conselho</option>
+                    <option value="RESIDENTS_ASSOCIATION">Associação de Moradores</option>
+                </select>
+                <button id="loadButton">Carregar Instâncias</button>
+            </div>
+            
+            <div id="loading" class="loading">Carregando dados...</div>
+            <div id="error" class="message error"></div>
+            <div id="counter" class="counter"></div>
+            
+            <div id="results">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tipo</th>
+                            <th>Nome</th>
+                            <th>Materialização Social</th>
+                            <th>Associações</th>
+                            <th>Criado em</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Conteúdo da aba de cadastro -->
+        <div id="create-tab" class="tab-content">
+            <div id="formLoadingMessage" class="loading">Carregando dados...</div>
+            <div id="formErrorMessage" class="message error"></div>
+            <div id="formSuccessMessage" class="message success"></div>
+            
+            <form id="createForm" class="form-container">
+                <h2>Nova Instância</h2>
+                
+                <div class="form-group">
+                    <label for="type">Tipo de Instância<span class="required">*</span></label>
+                    <select id="type" name="type" required>
+                        <option value="">Selecione o tipo...</option>
+                        <!-- WORKER (Trabalhador) removido pois representa usuários e é gerenciado automaticamente -->
+                        <option value="COMMITTEE">Comitê</option>
+                        <option value="COUNCIL">Conselho</option>
+                        <option value="RESIDENTS_ASSOCIATION">Associação de Moradores</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="committeeName">Nome<span class="required">*</span></label>
+                    <input type="text" id="committeeName" name="committeeName" required>
+                </div>
+                
+                <div id="dynamicFields" class="dynamic-fields" style="display: none;">
+                    <!-- Campos específicos para cada tipo serão inseridos aqui -->
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="button" id="cancelButton" class="danger">Cancelar</button>
+                    <button type="submit" id="submitButton">Cadastrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script src="/common-header.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inserir o cabeçalho comum
+            insertCommonHeader();
+            
+            // Resto do código existente...
+            const loadButton = document.getElementById('loadButton');
+            const typeFilter = document.getElementById('typeFilter');
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const tableBody = document.querySelector('#dataTable tbody');
+            const counter = document.getElementById('counter');
+            const createForm = document.getElementById('createForm');
+            const formLoadingMessage = document.getElementById('formLoadingMessage');
+            const formErrorMessage = document.getElementById('formErrorMessage');
+            const formSuccessMessage = document.getElementById('formSuccessMessage');
+            const typeSelect = document.getElementById('type');
+            const dynamicFields = document.getElementById('dynamicFields');
+            const submitButton = document.getElementById('submitButton');
+            const cancelButton = document.getElementById('cancelButton');
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            // Dados globais que serão carregados
+            let socialMaterializations = [];
+            let committees = [];
+            let councils = [];
+            let residentsAssociations = [];
+            
+            // Carregar dados automaticamente ao abrir a página
+            loadInstances();
+            
+            // ----------------- GERENCIAMENTO DE ABAS -----------------
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remover classe ativa de todas as abas
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Adicionar classe ativa na aba clicada
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId + '-tab').classList.add('active');
+                    
+                    // Se a aba for de cadastro, carregar dados necessários para o formulário
+                    if (tabId === 'create') {
+                        loadFormDependencies();
+                    }
+                    
+                    // Carregar materializações sociais quando a aba "create" for selecionada
+                    if (tabId === 'create') {
+                        // Adicionar um pequeno delay para garantir que o DOM está atualizado
+                        setTimeout(() => loadSocialMaterializations(), 100);
+                    }
+                });
+            });
+            
+            // ----------------- LISTAR INSTÂNCIAS -----------------
+            loadButton.addEventListener('click', loadInstances);
+            typeFilter.addEventListener('change', loadInstances);
+            
+            function loadInstances() {
+                // Limpar resultados anteriores
+                tableBody.innerHTML = '';
+                counter.textContent = '';
+                
+                // Mostrar indicador de carregamento
+                loading.style.display = 'block';
+                
+                // Esconder mensagem de erro
+                error.style.display = 'none';
+                
+                // Definir URL de acordo com o filtro
+                let url = '/api/instances';
+                const filterType = typeFilter.value;
+                if (filterType) {
+                    url = `/api/instances/by-type/${filterType}`;
+                }
+                
+                // Fazer requisição ao endpoint
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                let errorMsg = `Status: ${response.status}`;
+                                try {
+                                    const errorObj = JSON.parse(text);
+                                    if (errorObj && errorObj.message) {
+                                        errorMsg = errorObj.message;
+                                    }
+                                } catch (e) {
+                                    if (text && text.trim()) {
+                                        errorMsg = text;
+                                    }
+                                }
+                                throw new Error(errorMsg);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Tratar dados vazios
+                        if (!data || data.length === 0) {
+                            counter.textContent = 'Nenhuma instância encontrada.';
+                            loading.style.display = 'none';
+                            return;
+                        }
+
+                        // Esconder indicador de carregamento
+                        loading.style.display = 'none';
+                        
+                        // Atualizar contador
+                        counter.textContent = `Total: ${data.length} instâncias encontradas`;
+                        
+                        // Preencher a tabela com os dados
+                        data.forEach(item => {
+                            const row = document.createElement('tr');
+                            
+                            // Formatar a data de criação
+                            let createdAt = item.createdAt || '';
+                            if (createdAt && createdAt.includes('T')) {
+                                const date = new Date(createdAt);
+                                createdAt = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+                            }
+                            
+                            // Formatar o tipo com badge
+                            const typeBadge = `<span class="badge badge-${item.type}">${item.typeName || item.type}</span>`;
+                            
+                            // Formatar materialização social
+                            const socialMat = item.socialMaterialization 
+                                ? `${item.socialMaterialization.name} (${formatSocialMatType(item.socialMaterialization.type)})`
+                                : '-';
+                                
+                            // Formatar associações
+                            let associations = [];
+                            
+                            if (item.popularCouncilAssociatedWithCommitteeOrWorker) {
+                                associations.push(`Conselho: ${item.popularCouncilAssociatedWithCommitteeOrWorker.committeeName}`);
+                            }
+                            
+                            if (item.associatedWorkerCommittee) {
+                                associations.push(`Comitê: ${item.associatedWorkerCommittee.committeeName}`);
+                            }
+                            
+                            if (item.associatedWorkerResidentsAssociation) {
+                                associations.push(`Associação: ${item.associatedWorkerResidentsAssociation.committeeName}`);
+                            }
+                            
+                            const associationsText = associations.length > 0 
+                                ? associations.join('<br>') 
+                                : '-';
+                            
+                            // Adicionar células
+                            row.innerHTML = `
+                                <td>${item.id || ''}</td>
+                                <td>${typeBadge}</td>
+                                <td>${item.committeeName || '-'}</td>
+                                <td>${socialMat}</td>
+                                <td>${associationsText}</td>
+                                <td>${createdAt || '-'}</td>
+                            `;
+                            
+                            tableBody.appendChild(row);
+                        });
+                    })
+                    .catch(err => {
+                        // Esconder indicador de carregamento
+                        loading.style.display = 'none';
+                        
+                        // Mostrar erro detalhado
+                        console.error("Erro completo:", err);
+                        error.textContent = 'Erro ao carregar dados: ' + err.message;
+                        error.style.display = 'block';
+                    });
+            }
+            
+            // ----------------- CARREGAR DEPENDÊNCIAS DO FORMULÁRIO -----------------
+            async function loadFormDependencies() {
+                formLoadingMessage.textContent = 'Carregando dados...';
+                formLoadingMessage.style.display = 'block';
+                formErrorMessage.style.display = 'none';
+                
+                try {
+                    // Carregar dados em paralelo
+                    const [matResponse, commResponse, councilResponse] = await Promise.all([
+                        fetch('/api/social-materializations'),
+                        fetch('/api/instances/committees'),
+                        fetch('/api/instances/councils')
+                    ]);
+                    
+                    // Processar respostas
+                    if (matResponse.ok) {
+                        socialMaterializations = await matResponse.json();
+                        console.log('Materializações sociais carregadas:', socialMaterializations.length);
+                    } else {
+                        throw new Error('Falha ao carregar materializações sociais');
+                    }
+                    
+                    if (commResponse.ok) {
+                        committees = await commResponse.json();
+                        console.log('Comitês carregados:', committees.length);
+                    } else {
+                        throw new Error('Falha ao carregar comitês');
+                    }
+                    
+                    if (councilResponse.ok) {
+                        councils = await councilResponse.json();
+                        console.log('Conselhos carregados:', councils);
+                        
+                        if (!councils || councils.length === 0) {
+                            console.warn('Nenhum conselho foi encontrado. Você precisa cadastrar conselhos primeiro.');
+                            formErrorMessage.textContent = 'Atenção: Nenhum conselho popular foi encontrado. Para cadastrar comitês ou associações, cadastre um conselho popular primeiro.';
+                            formErrorMessage.style.display = 'block';
+                        }
+                    } else {
+                        throw new Error('Falha ao carregar conselhos');
+                    }
+                    
+                    // Atualizar os campos dinâmicos se o tipo já estiver selecionado
+                    if (typeSelect.value) {
+                        updateDynamicFields();
+                    }
+                    
+                    formLoadingMessage.style.display = 'none';
+                } catch (err) {
+                    console.error("Erro ao carregar dependências:", err);
+                    formErrorMessage.textContent = 'Erro ao carregar dados necessários: ' + err.message;
+                    formErrorMessage.style.display = 'block';
+                    formLoadingMessage.style.display = 'none';
+                }
+            }
+            
+            // ----------------- GERENCIAR CAMPOS DINÂMICOS DO FORMULÁRIO -----------------
+            typeSelect.addEventListener('change', function() {
+                console.log("[DEBUG] Tipo alterado para:", this.value);
+                updateDynamicFields();
+                
+                // Se for COMMITTEE, garantir que as materializações sejam carregadas
+                if (this.value === 'COMMITTEE') {
+                    // Dar tempo para os campos serem criados
+                    setTimeout(() => {
+                        const matSelect = document.getElementById('socialMaterializationId');
+                        if (matSelect) {
+                            console.log("[DEBUG] Carregando materializações após seleção de tipo COMMITTEE");
+                            loadSocialMaterializations();
+                        } else {
+                            console.error("[ERRO] Select de materializações não encontrado após seleção de COMMITTEE");
+                        }
+                    }, 200);
+                }
+            });
+            
+            function updateDynamicFields() {
+                const selectedType = typeSelect.value;
+                
+                // Se nenhum tipo selecionado, esconder os campos dinâmicos
+                if (!selectedType) {
+                    dynamicFields.style.display = 'none';
+                    return;
+                }
+                
+                // Mostrar os campos dinâmicos e prepará-los de acordo com o tipo
+                dynamicFields.style.display = 'block';
+                
+                // Limpar campos dinâmicos anteriores
+                dynamicFields.innerHTML = '';
+                
+                // Adicionar campos específicos para cada tipo
+                switch (selectedType) {
+                    case 'WORKER':
+                        addWorkerFields();
+                        break;
+                    case 'COMMITTEE':
+                        addCommitteeFields();
+                        break;
+                    case 'COUNCIL':
+                        addCouncilFields();
+                        break;
+                    case 'RESIDENTS_ASSOCIATION':
+                        addResidentsAssociationFields();
+                        break;
+                }
+            }
+            
+            function addWorkerFields() {
+                // 1. Campo de materialização social (obrigatório para WORKER)
+                const matGroupDiv = createFormGroup('socialMaterializationId', 'Materialização Social', true);
+                
+                const matSelect = document.createElement('select');
+                matSelect.id = 'socialMaterializationId';
+                matSelect.name = 'socialMaterializationId';
+                matSelect.required = true;
+                
+                matSelect.innerHTML = '<option value="">Selecione uma materialização...</option>';
+                socialMaterializations.forEach(mat => {
+                    const option = document.createElement('option');
+                    option.value = mat.id;
+                    option.textContent = `${mat.name} (${formatSocialMatType(mat.type)})`;
+                    matSelect.appendChild(option);
+                });
+                
+                matGroupDiv.appendChild(matSelect);
+                dynamicFields.appendChild(matGroupDiv);
+                
+                // 2. Campo de comitê associado (obrigatório para WORKER)
+                const committeeGroupDiv = createFormGroup('associatedWorkerCommitteeId', 'Comitê Associado', true);
+                
+                const committeeSelect = document.createElement('select');
+                committeeSelect.id = 'associatedWorkerCommitteeId';
+                committeeSelect.name = 'associatedWorkerCommitteeId';
+                committeeSelect.required = true;
+                
+                committeeSelect.innerHTML = '<option value="">Selecione um comitê...</option>';
+                committees.forEach(committee => {
+                    const option = document.createElement('option');
+                    option.value = committee.id;
+                    option.textContent = committee.committeeName;
+                    committeeSelect.appendChild(option);
+                });
+                
+                committeeGroupDiv.appendChild(committeeSelect);
+                dynamicFields.appendChild(committeeGroupDiv);
+                
+                // 3. Campos de quantidades (opcionais para WORKER)
+                const producedQtyDiv = createFormGroup('producedQuantity', 'Quantidade Produzida', false);
+                const producedInput = document.createElement('input');
+                producedInput.type = 'number';
+                producedInput.id = 'producedQuantity';
+                producedInput.name = 'producedQuantity';
+                producedInput.step = '0.01';
+                producedInput.min = '0';
+                producedQtyDiv.appendChild(producedInput);
+                dynamicFields.appendChild(producedQtyDiv);
+                
+                const targetQtyDiv = createFormGroup('targetQuantity', 'Quantidade Alvo', false);
+                const targetInput = document.createElement('input');
+                targetInput.type = 'number';
+                targetInput.id = 'targetQuantity';
+                targetInput.name = 'targetQuantity';
+                targetInput.step = '0.01';
+                targetInput.min = '0';
+                targetQtyDiv.appendChild(targetInput);
+                dynamicFields.appendChild(targetQtyDiv);
+            }
+            
+            function addCommitteeFields() {
+    // 1. Campo de conselho popular associado (obrigatório para COMMITTEE)
+    const councilGroupDiv = createFormGroup('popularCouncilAssociatedWithCommitteeOrWorkerId', 'Conselho Popular Associado', true);
+    
+    const councilSelect = document.createElement('select');
+    councilSelect.id = 'popularCouncilAssociatedWithCommitteeOrWorkerId';
+    councilSelect.name = 'popularCouncilAssociatedWithCommitteeOrWorkerId';
+    councilSelect.required = true;
+    
+    councilSelect.innerHTML = '<option value="">Selecione um conselho...</option>';
+    
+    // Verificar se existem conselhos antes de tentar adicionar ao select
+    if (councils && councils.length > 0) {
+        councils.forEach(council => {
+            const option = document.createElement('option');
+            option.value = council.id;
+            option.textContent = council.committeeName || 'Conselho #' + council.id;
+            councilSelect.appendChild(option);
+        });
+    } else {
+        const option = document.createElement('option');
+        option.disabled = true;
+        option.textContent = 'Nenhum conselho disponível. Cadastre um conselho primeiro.';
+        councilSelect.appendChild(option);
+        councilSelect.disabled = true;
+    }
+    
+    councilGroupDiv.appendChild(councilSelect);
+    dynamicFields.appendChild(councilGroupDiv);
+    
+    // 2. Campo de limite efetivo de trabalhadores
+    const limitDiv = createFormGroup('workerEffectiveLimit', 'Limite Efetivo de Trabalhadores', false);
+    const limitInput = document.createElement('input');
+    limitInput.type = 'number';
+    limitInput.id = 'workerEffectiveLimit';
+    limitInput.name = 'workerEffectiveLimit';
+    limitInput.min = '0';
+    limitDiv.appendChild(limitInput);
+    dynamicFields.appendChild(limitDiv);
+    
+    // 3. Campo de trabalho social total (obrigatório)
+    const totalSocialWorkDiv = createFormGroup('totalSocialWorkOfThisJurisdiction', 'Trabalho Social Total', true);
+    const totalSocialWorkInput = document.createElement('input');
+    totalSocialWorkInput.type = 'number';
+    totalSocialWorkInput.id = 'totalSocialWorkOfThisJurisdiction';
+    totalSocialWorkInput.name = 'totalSocialWorkOfThisJurisdiction';
+    totalSocialWorkInput.min = '0';
+    totalSocialWorkInput.value = '500'; // Valor padrão
+    totalSocialWorkInput.required = true;
+    totalSocialWorkDiv.appendChild(totalSocialWorkInput);
+    dynamicFields.appendChild(totalSocialWorkDiv);
+    
+    // 4. Campo de materialização social (obrigatório)
+    const matDiv = createFormGroup('socialMaterializationId', 'Materialização Social', true);
+    const matSelect = document.createElement('select');
+    matSelect.id = 'socialMaterializationId';
+    matSelect.name = 'socialMaterializationId';
+    matSelect.required = true;
+    
+    // Inicialmente desabilitado durante o carregamento
+    matSelect.disabled = true;
+    matSelect.innerHTML = '<option value="">Carregando materializações...</option>';
+    
+    // Criar div para conter o select e o botão (flexbox)
+    const matSelectContainer = document.createElement('div');
+    matSelectContainer.style.display = 'flex';
+    matSelectContainer.style.gap = '10px';
+    matSelectContainer.style.alignItems = 'center';
+    
+    // Adicionar o select na div de container
+    matSelect.style.flex = '1';
+    matSelectContainer.appendChild(matSelect);
+    
+    // Adicionar botão "Novo"
+    const newMatButton = document.createElement('button');
+    newMatButton.type = 'button';
+    newMatButton.textContent = 'Novo';
+    newMatButton.className = 'secondary';
+    newMatButton.style.minWidth = '80px';
+    newMatButton.onclick = function() {
+        window.open('/social-materializations.html#create', '_blank');
+    };
+    matSelectContainer.appendChild(newMatButton);
+    
+    // Adicionar o container ao div principal
+    matDiv.appendChild(matSelectContainer);
+    dynamicFields.appendChild(matDiv);
+    
+    // MODIFICAÇÃO AQUI: Carregar materializações DEPOIS que o select é criado
+    console.log("[DEBUG] Select de materializações criado, carregando dados...");
+    setTimeout(() => loadSocialMaterializations(), 100);
+    
+    // 5. Campo de quantidade produzida (obrigatório)
+    const prodDiv = createFormGroup('producedQuantity', 'Quantidade Produzida', true);
+    const prodInput = document.createElement('input');
+    prodInput.type = 'number';
+    prodInput.id = 'producedQuantity';
+    prodInput.name = 'producedQuantity';
+    prodInput.min = '0';
+    prodInput.step = '0.01';
+    prodInput.value = '0';
+    prodInput.required = true;
+    prodDiv.appendChild(prodInput);
+    dynamicFields.appendChild(prodDiv);
+    
+    // 6. Campo de quantidade meta (obrigatório e deve ser maior que a quantidade produzida)
+    const targetDiv = createFormGroup('targetQuantity', 'Quantidade Meta', true);
+    const targetInput = document.createElement('input');
+    targetInput.type = 'number';
+    targetInput.id = 'targetQuantity';
+    targetInput.name = 'targetQuantity';
+    targetInput.min = '0.01';
+    targetInput.step = '0.01';
+    targetInput.value = '100';
+    targetInput.required = true;
+    
+    // Adicionar validação: target deve ser maior que produced
+    targetInput.addEventListener('change', function() {
+        const produced = parseFloat(document.getElementById('producedQuantity').value) || 0;
+        const target = parseFloat(this.value) || 0;
+        
+        if (target <= produced) {
+            this.setCustomValidity('A quantidade meta deve ser maior que a quantidade produzida.');
+        } else {
+            this.setCustomValidity('');
+        }
+    });
+    
+    // Também validar quando a quantidade produzida muda
+    prodInput.addEventListener('change', function() {
+        const produced = parseFloat(this.value) || 0;
+        const target = parseFloat(document.getElementById('targetQuantity').value) || 0;
+        
+        if (target <= produced) {
+            document.getElementById('targetQuantity').setCustomValidity('A quantidade meta deve ser maior que a quantidade produzida.');
+        } else {
+            document.getElementById('targetQuantity').setCustomValidity('');
+        }
+    });
+    
+    targetDiv.appendChild(targetInput);
+    dynamicFields.appendChild(targetDiv);
+    
+    // Adicionar texto de ajuda explicando a validação
+    const helpText = document.createElement('div');
+    helpText.className = 'info-tip';
+    helpText.innerHTML = 'A quantidade meta deve ser maior que a quantidade produzida.<br>Todos os campos com <span class="required">*</span> são obrigatórios para comitês.';
+    dynamicFields.appendChild(helpText);
+}
+            
+            function addCouncilFields() {
+                // 1. Campo opcional de conselho popular associado a outro conselho
+                const councilGroupDiv = createFormGroup('popularCouncilAssociatedWithPopularCouncilId', 'Conselho Popular Associado (opcional)', false);
+                
+                const councilSelect = document.createElement('select');
+                councilSelect.id = 'popularCouncilAssociatedWithPopularCouncilId';
+                councilSelect.name = 'popularCouncilAssociatedWithPopularCouncilId';
+                
+                councilSelect.innerHTML = '<option value="">Selecione um conselho (opcional)...</option>';
+                
+                // Verificar se existem conselhos antes de tentar adicionar ao select
+                if (councils && councils.length > 0) {
+                    councils.forEach(council => {
+                        const option = document.createElement('option');
+                        option.value = council.id;
+                        option.textContent = council.committeeName || 'Conselho #' + council.id;
+                        councilSelect.appendChild(option);
+                    });
+                }
+                
+                councilGroupDiv.appendChild(councilSelect);
+                dynamicFields.appendChild(councilGroupDiv);
+                
+                // 2. Campo de limite efetivo de trabalhadores
+                const limitDiv = createFormGroup('workerEffectiveLimit', 'Limite Efetivo de Trabalhadores', false);
+                const limitInput = document.createElement('input');
+                limitInput.type = 'number';
+                limitInput.id = 'workerEffectiveLimit';
+                limitInput.name = 'workerEffectiveLimit';
+                limitInput.min = '0';
+                limitDiv.appendChild(limitInput);
+                dynamicFields.appendChild(limitDiv);
+            }
+            
+            function addResidentsAssociationFields() {
+                // 1. Campo de conselho popular associado (obrigatório para RESIDENTS_ASSOCIATION)
+                const councilGroupDiv = createFormGroup('popularCouncilAssociatedWithCommitteeOrWorkerId', 'Conselho Popular Associado', true);
+                
+                const councilSelect = document.createElement('select');
+                councilSelect.id = 'popularCouncilAssociatedWithCommitteeOrWorkerId';
+                councilSelect.name = 'popularCouncilAssociatedWithCommitteeOrWorkerId';
+                councilSelect.required = true;
+                
+                councilSelect.innerHTML = '<option value="">Selecione um conselho...</option>';
+                
+                // Verificar se existem conselhos antes de tentar adicionar ao select
+                if (councils && councils.length > 0) {
+                    councils.forEach(council => {
+                        const option = document.createElement('option');
+                        option.value = council.id;
+                        option.textContent = council.committeeName || 'Conselho #' + council.id;
+                        councilSelect.appendChild(option);
+                    });
+                } else {
+                    const option = document.createElement('option');
+                    option.disabled = true;
+                    option.textContent = 'Nenhum conselho disponível. Cadastre um conselho primeiro.';
+                    councilSelect.appendChild(option);
+                    councilSelect.disabled = true;
+                }
+                
+                councilGroupDiv.appendChild(councilSelect);
+                dynamicFields.appendChild(councilGroupDiv);
+            }
+            
+            function createFormGroup(id, labelText, isRequired) {
+                const div = document.createElement('div');
+                div.className = 'form-group';
+                
+                const label = document.createElement('label');
+                label.htmlFor = id;
+                label.textContent = labelText;
+                
+                if (isRequired) {
+                    const span = document.createElement('span');
+                    span.className = 'required';
+                    span.textContent = '*';
+                    label.appendChild(span);
+                }
+                
+                div.appendChild(label);
+                return div;
+            }
+            
+            // ----------------- CADASTRAR INSTÂNCIA -----------------
+            createForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Obter tipo de instância
+                const instanceType = typeSelect.value;
+                
+                if (!instanceType) {
+                    formErrorMessage.textContent = 'Por favor, selecione um tipo de instância.';
+                    formErrorMessage.style.display = 'block';
+                    return;
+                }
+                
+                // Obter nome da instância
+                const committeeName = document.getElementById('committeeName').value;
+                
+                if (!committeeName) {
+                    formErrorMessage.textContent = 'Por favor, informe um nome para a instância.';
+                    formErrorMessage.style.display = 'block';
+                    return;
+                }
+                
+                // Criar o objeto base da instância
+                const formData = {
+                    type: instanceType,
+                    committeeName: committeeName
+                };
+                
+                // Adicionar campos específicos dependendo do tipo
+                switch (instanceType) {
+                    case 'WORKER':
+                        // Validar campos obrigatórios para WORKER
+                        const socialMatId = document.getElementById('socialMaterializationId').value;
+                        const committeeId = document.getElementById('associatedWorkerCommitteeId').value;
+                        
+                        if (!socialMatId || !committeeId) {
+                            formErrorMessage.textContent = 'Para trabalhadores, materialização social e comitê associado são obrigatórios.';
+                            formErrorMessage.style.display = 'block';
+                            return;
+                        }
+                        
+                        // Adicionar campos ao objeto
+                        formData.socialMaterializationId = parseInt(socialMatId);
+                        formData.associatedWorkerCommitteeId = parseInt(committeeId);
+                        
+                        // Campos opcionais
+                        const producedQty = document.getElementById('producedQuantity').value;
+                        const targetQty = document.getElementById('targetQuantity').value;
+                        
+                        if (producedQty) formData.producedQuantity = parseFloat(producedQty);
+                        if (targetQty) formData.targetQuantity = parseFloat(targetQty);
+                        break;
+                        
+                    case 'COMMITTEE':
+                        // Validar campos obrigatórios para COMMITTEE
+                        const councilId = document.getElementById('popularCouncilAssociatedWithCommitteeOrWorkerId').value;
+                        
+                        if (!councilId) {
+                            formErrorMessage.textContent = 'Para comitês, o conselho popular associado é obrigatório.';
+                            formErrorMessage.style.display = 'block';
+                            return;
+                        }
+                        
+                        // Adicionar campos ao objeto
+                        formData.popularCouncilAssociatedWithCommitteeOrWorkerId = parseInt(councilId);
+                        
+                        // Campos opcionais
+                        const workerLimit = document.getElementById('workerEffectiveLimit').value;
+                        if (workerLimit) formData.workerEffectiveLimit = parseInt(workerLimit);
+
+                        // Campos obrigatórios para COMMITTEE
+                        const totalSocialWork = document.getElementById('totalSocialWorkOfThisJurisdiction').value;
+                        formData.totalSocialWorkOfThisJurisdiction = parseInt(totalSocialWork || '0');
+                        
+                        formData.socialMaterializationId = 
+                            parseInt(document.getElementById('socialMaterializationId').value);
+                        
+                        formData.producedQuantity = 
+                            parseFloat(document.getElementById('producedQuantity').value);
+                        
+                        formData.targetQuantity = 
+                            parseFloat(document.getElementById('targetQuantity').value);
+                        
+                        // Validação adicional do lado do cliente
+                        if (formData.targetQuantity <= formData.producedQuantity) {
+                            formErrorMessage.textContent = 'A quantidade meta deve ser maior que a quantidade produzida.';
+                            formErrorMessage.style.display = 'block';
+                            formLoadingMessage.style.display = 'none';
+                            return;
+                        }
+                        break;
+                        
+                    case 'COUNCIL':
+                        // Campos opcionais para COUNCIL
+                        const associatedCouncilId = document.getElementById('popularCouncilAssociatedWithPopularCouncilId').value;
+                        const councilWorkerLimit = document.getElementById('workerEffectiveLimit').value;
+                        
+                        if (associatedCouncilId) formData.popularCouncilAssociatedWithPopularCouncilId = parseInt(associatedCouncilId);
+                        if (councilWorkerLimit) formData.workerEffectiveLimit = parseInt(councilWorkerLimit);
+                        break;
+                        
+                    case 'RESIDENTS_ASSOCIATION':
+                        // Validar campos obrigatórios para RESIDENTS_ASSOCIATION
+                        const assocCouncilId = document.getElementById('popularCouncilAssociatedWithCommitteeOrWorkerId').value;
+                        
+                        if (!assocCouncilId) {
+                            formErrorMessage.textContent = 'Para associações de moradores, o conselho popular associado é obrigatório.';
+                            formErrorMessage.style.display = 'block';
+                            return;
+                        }
+                        
+                        // Adicionar campos ao objeto
+                        formData.popularCouncilAssociatedWithCommitteeOrWorkerId = parseInt(assocCouncilId);
+                        break;
+                }
+                
+                // Enviar dados ao servidor
+                submitInstance(formData);
+            });
+            
+            async function submitInstance(formData) {
+                // Desabilitar o botão de envio e mostrar carregamento
+                submitButton.disabled = true;
+                formLoadingMessage.textContent = 'Cadastrando instância...';
+                formLoadingMessage.style.display = 'block';
+                formSuccessMessage.style.display = 'none';
+                formErrorMessage.style.display = 'none';
+                
+                try {
+                    const response = await fetch('/api/instances', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    let responseData;
+                    try {
+                        responseData = await response.json();
+                    } catch (e) {
+                        responseData = { message: 'Erro ao processar resposta do servidor' };
+                    }
+                    
+                    if (!response.ok) {
+                        throw new Error(responseData.message || `Erro ${response.status} ao cadastrar instância`);
+                    }
+                    
+                    // Mostrar mensagem de sucesso
+                    formSuccessMessage.textContent = `Instância "${formData.committeeName}" cadastrada com sucesso!`;
+                    formSuccessMessage.style.display = 'block';
+                    
+                    // Limpar o formulário
+                    createForm.reset();
+                    dynamicFields.style.display = 'none';
+                    
+                    // Após 3 segundos, redirecionar para a aba de listagem
+                    setTimeout(() => {
+                        document.querySelector('.tab[data-tab="list"]').click();
+                        loadInstances(); // Recarregar a lista
+                    }, 3000);
+                    
+                } catch (err) {
+                    formErrorMessage.textContent = 'Erro ao cadastrar: ' + err.message;
+                    formErrorMessage.style.display = 'block';
+                    console.error(err);
+                } finally {
+                    submitButton.disabled = false;
+                    formLoadingMessage.style.display = 'none';
+                }
+            }
+            
+            // Botão cancelar limpa o formulário
+            cancelButton.addEventListener('click', function() {
+                createForm.reset();
+                formErrorMessage.style.display = 'none';
+                formSuccessMessage.style.display = 'none';
+                dynamicFields.style.display = 'none';
+                document.querySelector('.tab[data-tab="list"]').click();
+            });
+            
+            // ----------------- UTILITÁRIOS -----------------
+            function formatSocialMatType(type) {
+                if (type === 'SERVICE') return 'SERVIÇO';
+                if (type === 'PRODUCT') return 'PRODUTO';
+                return type;
+            }
+            
+            // Se a URL contém #create, carregar materializações imediatamente
+            if (window.location.hash === '#create') {
+                const createTab = document.querySelector('.tab[data-tab="create"]');
+                if (createTab) {
+                    createTab.click(); // Isso acionará o evento que carrega as materializações
+                } else {
+                    // Se por algum motivo a aba não está disponível ainda, carregar diretamente
+                    setTimeout(() => loadSocialMaterializations(), 500);
+                }
+            }
+        });
+        
+        // Substitua o código existente de carregamento de materializações sociais com este código corrigido:
+function loadSocialMaterializations() {
+    console.log("[DEBUG] Início da função loadSocialMaterializations");
+    const matSelect = document.getElementById('socialMaterializationId');
+    
+    if (!matSelect) {
+        console.error("[ERRO] O elemento select 'socialMaterializationId' não existe no DOM");
+        return;
+    }
+    
+    // Mostrar estado de carregamento
+    matSelect.innerHTML = '<option value="">Carregando materializações...</option>';
+    matSelect.disabled = true;
+    
+    // Requisição com log detalhado
+    console.log("[DEBUG] Enviando requisição para /api/social-materializations");
+    fetch('/api/social-materializations')
+        .then(response => {
+            console.log("[DEBUG] Resposta recebida:", response.status);
+            if (!response.ok) {
+                throw new Error(`Erro HTTP ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("[DEBUG] Dados recebidos:", data);
+            
+            // Limpar opções
+            matSelect.innerHTML = '';
+            
+            // Adicionar opção padrão
+            const defaultOption = document.createElement('option');
+            defaultOption.value = '';
+            defaultOption.textContent = 'Selecione uma materialização';
+            matSelect.appendChild(defaultOption);
+            
+            // Adicionar materializações
+            if (data && data.length > 0) {
+                data.forEach(mat => {
+                    const option = document.createElement('option');
+                    option.value = mat.id;
+                    option.textContent = mat.name;
+                    matSelect.appendChild(option);
+                });
+                console.log("[DEBUG] Adicionadas", data.length, "materializações ao select");
+            } else {
+                const emptyOption = document.createElement('option');
+                emptyOption.disabled = true;
+                emptyOption.textContent = "Nenhuma materialização disponível";
+                matSelect.appendChild(emptyOption);
+                console.log("[DEBUG] Nenhuma materialização encontrada");
+            }
+            
+            matSelect.disabled = false;
+        })
+        .catch(error => {
+            console.error("[ERRO] Falha ao carregar materializações:", error);
+            matSelect.innerHTML = '<option value="">Erro ao carregar dados</option>';
+            matSelect.disabled = false;
+        });
+}
+
+    </script>
+    <script>
+// Verificar integridade do sistema quando a página terminar de carregar
+window.addEventListener('load', function() {
+    console.log("Página instances.html completamente carregada");
+    
+    // Verificar carregamento de scripts
+    const commonHeaderLoaded = typeof window.insertCommonHeader === 'function';
+    console.log("Script common-header.js " + (commonHeaderLoaded ? "está carregado" : "NÃO está carregado!"));
+    
+    if (commonHeaderLoaded) {
+        // Verificar integridade do tema
+        window.verifyTheme();
+        
+        // Verificar se o select de materializações foi carregado
+        const matSelect = document.getElementById('socialMaterializationId');
+        if (matSelect && matSelect.options.length <= 1 && window.carregarMaterializacoes) {
+            console.log("Tentando carregamento final de materializações");
+            window.carregarMaterializacoes();
+        }
+    } else {
+        // Aplicar tema manualmente como fallback
+        try {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+        } catch(e) {
+            console.error("Erro ao aplicar tema fallback:", e);
+        }
+    }
+});
+</script>
+<script>
+// Script de verificação e forçamento de tema
+(function() {
+    // Função para aplicar tema diretamente
+    function applyThemeDirectly(theme) {
+        console.log(`Aplicando tema ${theme} diretamente em instances.html`);
+        document.documentElement.setAttribute('data-theme', theme);
+        localStorage.setItem('preferredTheme', theme);
+        
+        // Forçar repintagem para aplicar o tema
+        document.documentElement.style.display = 'none';
+        void document.documentElement.offsetHeight;
+        document.documentElement.style.display = '';
+    }
+
+    // Verificar quando a página terminar de carregar
+    window.addEventListener('load', function() {
+        console.log("Página instances.html completamente carregada");
+        
+        // Verificar tema
+        const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+        const currentTheme = document.documentElement.getAttribute('data-theme');
+        
+        if (currentTheme !== savedTheme) {
+            console.warn(`Tema inconsistente! Atual: ${currentTheme}, Salvo: ${savedTheme}`);
+            applyThemeDirectly(savedTheme);
+        }
+        
+        // Adicionar evento global para detectar mudanças de tema
+        document.addEventListener('themeChanged', function(event) {
+            applyThemeDirectly(event.detail.theme);
+        });
+        
+        // Configurar eventos para as opções de tema na página
+        document.querySelectorAll('.theme-option').forEach(option => {
+            option.addEventListener('click', function() {
+                const theme = this.getAttribute('data-theme');
+                if (theme) {
+                    applyThemeDirectly(theme);
+                }
+            });
+        });
+    });
+})();
+</script>
+</body>
+</html>

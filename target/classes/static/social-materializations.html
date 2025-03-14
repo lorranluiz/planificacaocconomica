@@ -1,116 +1,175 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+    <script>
+    // Aplicar tema imediatamente no carregamento da página
+    (function() {
+        try {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            console.log('Tema aplicado em social-materializations.html:', savedTheme);
+        } catch(e) {
+            console.error('Erro ao aplicar tema inicial:', e);
+        }
+    })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Listar Materializações Sociais</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f5;
-        }
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-        }
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-            display: block;
-            margin: 20px auto;
-        }
-        button:hover {
-            background-color: #45a049;
-        }
-        .loading {
-            text-align: center;
-            margin: 20px 0;
-            display: none;
-        }
-        .error {
-            background-color: #f8d7da;
-            color: #721c24;
-            padding: 10px;
-            border-radius: 4px;
-            margin: 20px 0;
-            display: none;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        th, td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        th {
-            background-color: #f2f2f2;
-            font-weight: bold;
-        }
-        tr:hover {
-            background-color: #f5f5f5;
-        }
-        .counter {
-            text-align: center;
-            margin-top: 20px;
-            font-weight: bold;
-        }
-    </style>
+    <meta name="theme-color" id="theme-color" content="#2c3e50">
+    <link rel="stylesheet" href="/css/theme-variables.css">
+    <link rel="stylesheet" href="/css/theme-elements.css">
+    <title>Materializações Sociais - Sistema de Planejamento Econômico</title>
+    <link rel="stylesheet" href="/css/common-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
 </head>
 <body>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Garantir que o cabeçalho comum seja inserido
+        if (typeof window.insertCommonHeader === 'function') {
+            window.insertCommonHeader();
+        } else {
+            console.error("Função insertCommonHeader não encontrada");
+        }
+        
+        // Garantir que o tema seja aplicado assim que a página carregar
+        if (typeof window.applyThemeToEntirePage === 'function') {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            window.applyThemeToEntirePage(savedTheme);
+        }
+        
+        // Adicionar ouvinte para evento de mudança de tema
+        document.addEventListener('themeChanged', function(event) {
+            console.log("Evento 'themeChanged' detectado:", event.detail.theme);
+            if (typeof window.applyThemeToEntirePage === 'function') {
+                window.applyThemeToEntirePage(event.detail.theme);
+            }
+        });
+    });
+    </script>
     <div class="container">
+        <!-- O cabeçalho será inserido aqui pelo script -->
+
         <h1>Materializações Sociais</h1>
         
-        <button id="loadButton">Carregar Materializações</button>
-        
-        <div id="loading" class="loading">Carregando dados...</div>
-        
-        <div id="error" class="error"></div>
-        
-        <div id="counter" class="counter"></div>
-        
-        <div id="results">
-            <table id="dataTable">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Nome</th>
-                        <th>Tipo</th>
-                        <th>Setor</th>
-                        <th>Criado em</th>
-                    </tr>
-                </thead>
-                <tbody></tbody>
-            </table>
+        <!-- Abas para navegar entre listar e cadastrar -->
+        <div class="tabs">
+            <div class="tab active" data-tab="list">Listar</div>
+            <div class="tab" data-tab="create">Cadastrar</div>
         </div>
-    </div>
-
+        
+        <!-- Conteúdo da aba de listagem -->
+        <div id="list-tab" class="tab-content active">
+            <button id="loadButton">Carregar Materializações</button>
+            
+            <div id="loading" class="loading">Carregando dados...</div>
+            <div id="error" class="message error"></div>
+            <div id="counter" class="counter"></div>
+            
+            <div id="results">
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Tipo</th>
+                            <th>Setor</th>
+                            <th>Criado em</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Conteúdo da aba de cadastro -->
+        <div id="create-tab" class="tab-content">
+            <div id="formLoadingMessage" class="loading">Carregando setores...</div>
+            <div id="formErrorMessage" class="message error"></div>
+            <div id="formSuccessMessage" class="message success"></div>
+            
+            <form id="createForm" class="form-container">
+                <h2>Nova Materialização Social</h2>
+                
+                <div class="form-group">
+                    <label for="name">Nome<span class="required">*</span></label>
+                    <input type="text" id="name" name="name" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="type">Tipo<span class="required">*</span></label>
+                    <select id="type" name="type" required>
+                        <option value="">Selecione...</option>
+                        <option value="SERVICE">SERVIÇO</option>
+                        <option value="PRODUCT">PRODUTO</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="sector">Setor<span class="required">*</span></label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <select id="sector" name="sector" required style="flex: 1">
+                            <option value="">Carregando setores...</option>
+                        </select>
+                        <button type="button" class="secondary" style="min-width: 80px" onclick="window.open('/sectors.html#create', '_blank')">Novo</button>
+                    </div>
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="button" id="cancelButton" class="danger">Cancelar</button>
+                    <button type="submit" id="submitButton">Cadastrar</button>
+                </div>
+            </form>
+        </div>
+    </div> <!-- Fechamento do container -->
+    <script src="/common-header.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
+            // Inserir o cabeçalho comum
+            insertCommonHeader();
+            
+            // Elementos da página
             const loadButton = document.getElementById('loadButton');
             const loading = document.getElementById('loading');
             const error = document.getElementById('error');
             const tableBody = document.querySelector('#dataTable tbody');
             const counter = document.getElementById('counter');
+            const createForm = document.getElementById('createForm');
+            const formLoadingMessage = document.getElementById('formLoadingMessage');
+            const formErrorMessage = document.getElementById('formErrorMessage');
+            const formSuccessMessage = document.getElementById('formSuccessMessage');
+            const sectorSelect = document.getElementById('sector');
+            const submitButton = document.getElementById('submitButton');
+            const cancelButton = document.getElementById('cancelButton');
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
             
-            loadButton.addEventListener('click', function() {
+            // Carregar dados automaticamente ao abrir a página
+            loadMaterializations();
+            
+            // ----------------- GERENCIAMENTO DE ABAS -----------------
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remover classe ativa de todas as abas
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Adicionar classe ativa na aba clicada
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId + '-tab').classList.add('active');
+                    
+                    // Se a aba for de cadastro, carregar setores
+                    if (tabId === 'create') {
+                        loadSectors();
+                    }
+                });
+            });
+            
+            // ----------------- LISTAR MATERIALIZAÇÕES -----------------
+            loadButton.addEventListener('click', loadMaterializations);
+            
+            function loadMaterializations() {
                 // Limpar resultados anteriores
                 tableBody.innerHTML = '';
                 counter.textContent = '';
@@ -125,11 +184,34 @@
                 fetch('/api/social-materializations')
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error('Status: ' + response.status);
+                            // Tentar extrair mensagem de erro se disponível
+                            return response.text().then(text => {
+                                let errorMsg = `Status: ${response.status}`;
+                                try {
+                                    // Verificar se é JSON válido
+                                    const errorObj = JSON.parse(text);
+                                    if (errorObj && errorObj.message) {
+                                        errorMsg = errorObj.message;
+                                    }
+                                } catch (e) {
+                                    // Se não for JSON, usar o texto como está ou o código de status
+                                    if (text && text.trim()) {
+                                        errorMsg = text;
+                                    }
+                                }
+                                throw new Error(errorMsg);
+                            });
                         }
                         return response.json();
                     })
                     .then(data => {
+                        // Tratar dados vazios
+                        if (!data || data.length === 0) {
+                            counter.textContent = 'Nenhuma materialização social encontrada.';
+                            loading.style.display = 'none';
+                            return;
+                        }
+
                         // Esconder indicador de carregamento
                         loading.style.display = 'none';
                         
@@ -151,9 +233,9 @@
                             row.innerHTML = `
                                 <td>${item.id || ''}</td>
                                 <td>${item.name || ''}</td>
-                                <td>${item.type || ''}</td>
-                                <td>${item.sector ? item.sector.name : ''}</td>
-                                <td>${createdAt}</td>
+                                <td>${formatType(item.type) || ''}</td>
+                                <td>${item.sector ? item.sector.name : '-'}</td>
+                                <td>${createdAt || '-'}</td>
                             `;
                             
                             tableBody.appendChild(row);
@@ -163,13 +245,220 @@
                         // Esconder indicador de carregamento
                         loading.style.display = 'none';
                         
-                        // Mostrar erro
+                        // Mostrar erro detalhado
+                        console.error("Erro completo:", err);
                         error.textContent = 'Erro ao carregar dados: ' + err.message;
                         error.style.display = 'block';
-                        console.error(err);
                     });
+            }
+            
+            // ----------------- CARREGAR SETORES -----------------
+            async function loadSectors() {
+                formLoadingMessage.style.display = 'block';
+                formErrorMessage.style.display = 'none';
+                sectorSelect.innerHTML = '<option value="">Carregando setores...</option>';
+                sectorSelect.disabled = true;
+                
+                try {
+                    const response = await fetch('/api/sectors');
+                    
+                    if (!response.ok) {
+                        // Melhor tratamento de erro
+                        const errorText = await response.text();
+                        let errorMsg = `Falha ao carregar setores: ${response.status}`;
+                        
+                        try {
+                            const errorObj = JSON.parse(errorText);
+                            if (errorObj && errorObj.message) {
+                                errorMsg = errorObj.message;
+                            }
+                        } catch (e) {
+                            if (errorText && errorText.trim()) {
+                                errorMsg = errorText;
+                            }
+                        }
+                        
+                        throw new Error(errorMsg);
+                    }
+                    
+                    const sectors = await response.json();
+                    
+                    // Verificar se há setores
+                    if (!sectors || sectors.length === 0) {
+                        formErrorMessage.textContent = 'Nenhum setor disponível para seleção.';
+                        formErrorMessage.style.display = 'block';
+                        sectorSelect.innerHTML = '<option value="">Nenhum setor disponível</option>';
+                        formLoadingMessage.style.display = 'none';
+                        return;
+                    }
+                    
+                    // Preencher o select de setores
+                    sectorSelect.innerHTML = '<option value="">Selecione um setor...</option>';
+                    sectors.forEach(sector => {
+                        const option = document.createElement('option');
+                        option.value = sector.id;
+                        option.textContent = sector.name;
+                        sectorSelect.appendChild(option);
+                    });
+                    
+                    sectorSelect.disabled = false;
+                    formLoadingMessage.style.display = 'none';
+                } catch (err) {
+                    console.error("Erro ao carregar setores:", err);
+                    formErrorMessage.textContent = 'Erro ao carregar setores: ' + err.message;
+                    formErrorMessage.style.display = 'block';
+                    formLoadingMessage.style.display = 'none';
+                    sectorSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+                }
+            }
+            
+            // ----------------- CADASTRAR MATERIALIZAÇÃO -----------------
+            createForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Obter dados do formulário
+                const formData = {
+                    name: document.getElementById('name').value,
+                    type: document.getElementById('type').value,
+                    sectorId: parseInt(document.getElementById('sector').value)
+                };
+                
+                // Validação básica
+                if (!formData.name || !formData.type || !formData.sectorId) {
+                    formErrorMessage.textContent = 'Por favor, preencha todos os campos obrigatórios.';
+                    formErrorMessage.style.display = 'block';
+                    return;
+                }
+                
+                // Enviar dados ao servidor
+                submitMaterialization(formData);
+            });
+            
+            async function submitMaterialization(formData) {
+                // Desabilitar o botão de envio e mostrar carregamento
+                submitButton.disabled = true;
+                formLoadingMessage.textContent = 'Cadastrando materialização...';
+                formLoadingMessage.style.display = 'block';
+                formSuccessMessage.style.display = 'none';
+                formErrorMessage.style.display = 'none';
+                
+                try {
+                    const response = await fetch('/api/social-materializations', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    const responseData = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(responseData.message || 'Erro ao cadastrar materialização');
+                    }
+                    
+                    // Mostrar mensagem de sucesso
+                    formSuccessMessage.textContent = 'Materialização social cadastrada com sucesso!';
+                    formSuccessMessage.style.display = 'block';
+                    
+                    // Limpar o formulário
+                    createForm.reset();
+                    
+                    // Após 3 segundos, redirecionar para a aba de listagem
+                    setTimeout(() => {
+                        document.querySelector('.tab[data-tab="list"]').click();
+                        loadMaterializations(); // Recarregar a lista
+                    }, 3000);
+                    
+                } catch (err) {
+                    formErrorMessage.textContent = 'Erro ao cadastrar: ' + err.message;
+                    formErrorMessage.style.display = 'block';
+                    console.error(err);
+                } finally {
+                    submitButton.disabled = false;
+                    formLoadingMessage.style.display = 'none';
+                }
+            }
+            
+            // Botão cancelar limpa o formulário
+            cancelButton.addEventListener('click', function() {
+                createForm.reset();
+                formErrorMessage.style.display = 'none';
+                formSuccessMessage.style.display = 'none';
+                document.querySelector('.tab[data-tab="list"]').click();
+            });
+            
+            // ----------------- UTILITÁRIOS -----------------
+            function formatType(type) {
+                if (type === 'SERVICE') return 'SERVIÇO';
+                if (type === 'PRODUCT') return 'PRODUTO';
+                return type;
+            }
+        });
+    </script>
+    <script>
+    // Verificar integridade do sistema quando a página terminar de carregar
+    window.addEventListener('load', function() {
+        console.log("Página social-materializations.html completamente carregada");
+        
+        // Verificar tema
+        if (typeof window.verifyTheme === 'function') {
+            window.verifyTheme();
+        } else {
+            // Aplicar tema manualmente como fallback
+            try {
+                const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } catch(e) {
+                console.error("Erro ao aplicar tema fallback:", e);
+            }
+        }
+    });
+    </script>
+    <script>
+    // Script de verificação e forçamento de tema
+    (function() {
+        // Função para aplicar tema diretamente
+        function applyThemeDirectly(theme) {
+            console.log(`Aplicando tema ${theme} diretamente em social-materializations.html`);
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('preferredTheme', theme);
+            
+            // Forçar repintagem para aplicar o tema
+            document.documentElement.style.display = 'none';
+            void document.documentElement.offsetHeight;
+            document.documentElement.style.display = '';
+        }
+
+        // Verificar quando a página terminar de carregar
+        window.addEventListener('load', function() {
+            console.log("Página social-materializations.html completamente carregada");
+            
+            // Verificar tema
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            
+            if (currentTheme !== savedTheme) {
+                console.warn(`Tema inconsistente! Atual: ${currentTheme}, Salvo: ${savedTheme}`);
+                applyThemeDirectly(savedTheme);
+            }
+            
+            // Adicionar evento global para detectar mudanças de tema
+            document.addEventListener('themeChanged', function(event) {
+                applyThemeDirectly(event.detail.theme);
+            });
+            
+            // Configurar eventos para as opções de tema na página
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    if (theme) {
+                        applyThemeDirectly(theme);
+                    }
+                });
             });
         });
+    })();
     </script>
 </body>
 </html>
