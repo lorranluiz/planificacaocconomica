@@ -1,3 +1,6 @@
 # Ignore the backups directory
 data/
 .qodo
+target/
+*.class
+*.jar
