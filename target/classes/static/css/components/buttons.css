@@ -1,0 +1,45 @@
+#languageMenu {
+    position: absolute;
+    background-color: rgba(100, 0, 0, 0.9); /* Fundo escuro alinhado com o estilo da página */
+    color: white; /* Texto branco */
+    border: 1px solid rgba(255, 255, 255, 0.6); /* Borda translúcida */
+    border-radius: 5px;
+    padding: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.6); /* Sombra para destaque */
+    z-index: 1000;
+    display: none; /* Oculto por padrão */
+}
+
+#languageMenu button {
+    display: block;
+    background: none;
+    border: none;
+    color: white;
+    text-align: left;
+    padding: 5px;
+    width: 100%;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+#languageMenu button:hover {
+    background-color: rgba(255, 255, 255, 0.2); /* Destaque ao passar o mouse */
+}
+
+/* Estilo do botão principal */
+#languageButton {
+    background-color: rgba(100, 0, 0, 0.8); /* Alinhado ao padrão da página */
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    color: white;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+    cursor: pointer;
+    transition: filter 0.3s;
+}
+
+#languageButton:hover {
+    filter: brightness(1.5); /* Efeito de brilho */
+}

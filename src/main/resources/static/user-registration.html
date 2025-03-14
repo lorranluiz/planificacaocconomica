@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <script>
+    // Aplicar tema imediatamente no carregamento da página
+    (function() {
+        try {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            console.log('Tema aplicado em user-registration.html:', savedTheme);
+        } catch(e) {
+            console.error('Erro ao aplicar tema inicial:', e);
+        }
+    })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" id="theme-color" content="#2c3e50">
+    <link rel="stylesheet" href="/css/theme-variables.css">
+    <link rel="stylesheet" href="/css/theme-elements.css">
+    <title>Teste de Cadastro de Usuário</title>
+    <link rel="stylesheet" href="/css/common-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            display: block;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .alert {
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
+        .hidden {
+            display: none;
+        }
+        pre {
+            background-color: #f8f8f8;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .loading {
+            text-align: center;
+            font-style: italic;
+            color: #666;
+        }
+        .info-box {
+            background-color: #e7f3fe;
+            border-left: 5px solid #2196F3;
+            padding: 10px;
+            margin-bottom: 15px;
+        }
+    </style>
+    <script src="/common-header.js"></script>
+</head>
+<body>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Garantir que o cabeçalho comum seja inserido
+        if (typeof window.insertCommonHeader === 'function') {
+            window.insertCommonHeader();
+        } else {
+            console.error("Função insertCommonHeader não encontrada");
+        }
+        
+        // Garantir que o tema seja aplicado assim que a página carregar
+        if (typeof window.applyThemeToEntirePage === 'function') {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            window.applyThemeToEntirePage(savedTheme);
+        }
+        
+        // Adicionar ouvinte para evento de mudança de tema
+        document.addEventListener('themeChanged', function(event) {
+            console.log("Evento 'themeChanged' detectado:", event.detail.theme);
+            if (typeof window.applyThemeToEntirePage === 'function') {
+                window.applyThemeToEntirePage(event.detail.theme);
+            }
+        });
+    });
+    </script>
+    <div class="container">
+        <h1>Teste de Cadastro (user_test)</h1>
+        
+        <div id="successAlert" class="alert alert-success hidden">
+            Usuário teste criado com sucesso!
+        </div>
+        
+        <div id="errorAlert" class="alert alert-danger hidden">
+            Erro ao criar usuário teste.
+        </div>
+        
+        <form id="userForm">
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username">
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password">
+            </div>
+            
+            <div class="form-group">
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name">
+            </div>
+            
+            <div class="form-group">
+                <label for="pronoun">Pronoun Type:</label>
+                <select id="pronoun" name="pronoun">
+                    <option value="HE_HIM">HE_HIM</option>
+                    <option value="SHE_HER">SHE_HER</option>
+                    <option value="THEY_THEM">THEY_THEM</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="type">User Type:</label>
+                <select id="type" name="type">
+                    <option value="COUNCILLOR">COUNCILLOR</option>
+                    <option value="NON_COUNCILLOR">NON_COUNCILLOR</option>
+                </select>
+            </div>
+            
+            <div id="instanceContainer" class="form-group">
+                <label for="instanceId">Instance:</label>
+                <select id="instanceId" name="instanceId">
+                    <option value="">Carregando instâncias...</option>
+                </select>
+                <div id="instanceLoading" class="loading">Carregando lista de instâncias...</div>
+            </div>
+            
+            <div id="instanceInfoBox" class="info-box hidden">
+                <p>Uma nova instância WORKER será criada automaticamente para este usuário NON_COUNCILLOR.</p>
+            </div>
+            
+            <button type="submit">Salvar Dados de Teste</button>
+        </form>
+
+        <h3>Resultado:</h3>
+        <pre id="resultJson">Nenhum dado enviado ainda.</pre>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Carregar todas as instâncias ao iniciar a página
+            let allInstances = []; // Armazenar todas as instâncias
+            
+            // Função para buscar instâncias do servidor
+            function fetchInstances() {
+                document.getElementById('instanceLoading').style.display = 'block';
+                const instanceSelect = document.getElementById('instanceId');
+                instanceSelect.innerHTML = '<option value="">Carregando...</option>';
+                
+                fetch('/api/instances-simple')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Falha ao carregar instâncias');
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Armazenar todas as instâncias
+                        allInstances = data;
+                        
+                        // Verificar e atualizar a visualização com base no tipo de usuário selecionado
+                        updateUserTypeView();
+                        
+                        // Esconder mensagem de carregamento
+                        document.getElementById('instanceLoading').style.display = 'none';
+                    })
+                    .catch(error => {
+                        instanceSelect.innerHTML = '<option value="">Erro ao carregar instâncias</option>';
+                        document.getElementById('errorAlert').textContent = 'Erro ao carregar instâncias: ' + error.message;
+                        document.getElementById('errorAlert').classList.remove('hidden');
+                        document.getElementById('instanceLoading').style.display = 'none';
+                        console.error('Error:', error);
+                    });
+            }
+            
+            // Função para atualizar opções de instância com base no tipo de usuário
+            function updateInstanceOptions() {
+                const instanceSelect = document.getElementById('instanceId');
+                
+                // Limpar opções anteriores
+                instanceSelect.innerHTML = '';
+                
+                // Adicionar opção padrão
+                const defaultOption = document.createElement('option');
+                defaultOption.value = '';
+                defaultOption.textContent = 'Selecione uma instância';
+                instanceSelect.appendChild(defaultOption);
+                
+                // Filtrar instâncias do tipo COUNCIL ou COMMITTEE
+                const filteredInstances = allInstances.filter(instance => 
+                    instance.type === 'COUNCIL' || instance.type === 'COMMITTEE'
+                );
+                
+                // Adicionar instâncias filtradas
+                filteredInstances.forEach(instance => {
+                    const option = document.createElement('option');
+                    option.value = instance.id;
+                    
+                    // Formatação do texto da opção baseada no tipo de instância
+                    let optionText = `${instance.id} - `;
+                    if (instance.type === 'COMMITTEE' && instance.committeeName) {
+                        optionText += `${instance.committeeName} (${instance.type})`;
+                    } else if (instance.type === 'COUNCIL') {
+                        optionText += `Council ${instance.id} (${instance.type})`;
+                    } else {
+                        optionText += `Instance ${instance.id} (${instance.type})`;
+                    }
+                    
+                    option.textContent = optionText;
+                    instanceSelect.appendChild(option);
+                });
+            }
+            
+            // Função para atualizar a visibilidade dos elementos com base no tipo de usuário
+            function updateUserTypeView() {
+                const userType = document.getElementById('type').value;
+                const instanceContainer = document.getElementById('instanceContainer');
+                const instanceInfoBox = document.getElementById('instanceInfoBox');
+                
+                if (userType === 'COUNCILLOR') {
+                    // Para COUNCILLOR, mostrar o dropdown de instâncias e esconder a info box
+                    instanceContainer.classList.remove('hidden');
+                    instanceInfoBox.classList.add('hidden');
+                    updateInstanceOptions(); // Carregar opções de instância para COUNCILLOR
+                } else {
+                    // Para NON_COUNCILLOR, esconder o dropdown de instâncias e mostrar a info box
+                    instanceContainer.classList.add('hidden');
+                    instanceInfoBox.classList.remove('hidden');
+                }
+            }
+            
+            // Adicionar listener para mudanças no tipo de usuário
+            document.getElementById('type').addEventListener('change', updateUserTypeView);
+            
+            // Carregar instâncias ao iniciar a página
+            fetchInstances();
+            
+            // Form submission
+            document.getElementById('userForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Hide alerts
+                document.getElementById('successAlert').classList.add('hidden');
+                document.getElementById('errorAlert').classList.add('hidden');
+                
+                const userType = document.getElementById('type').value;
+                
+                // Construir o objeto userData com base no tipo de usuário
+                const userData = {
+                    username: document.getElementById('username').value,
+                    password: document.getElementById('password').value,
+                    name: document.getElementById('name').value,
+                    pronoun: document.getElementById('pronoun').value,
+                    type: userType
+                };
+                
+                // Se for COUNCILLOR, incluir o instanceId
+                if (userType === 'COUNCILLOR') {
+                    const instanceId = document.getElementById('instanceId').value;
+                    if (!instanceId) {
+                        document.getElementById('errorAlert').textContent = 'Selecione uma instância.';
+                        document.getElementById('errorAlert').classList.remove('hidden');
+                        return;
+                    }
+                    userData.instanceId = parseInt(instanceId);
+                }
+                // Para NON_COUNCILLOR, não é necessário incluir instanceId
+                
+                // Validar campos obrigatórios
+                if (!userData.username || !userData.password || !userData.name) {
+                    document.getElementById('errorAlert').textContent = 'Todos os campos obrigatórios devem ser preenchidos.';
+                    document.getElementById('errorAlert').classList.remove('hidden');
+                    return;
+                }
+                
+                // Mostrar os dados que serão enviados
+                document.getElementById('resultJson').textContent = JSON.stringify(userData, null, 2);
+                
+                fetch('/api/user-test', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(userData)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error('Status: ' + response.status + ' - ' + text);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    // Show success message
+                    let successMessage = 'Usuário teste criado com sucesso! ID: ' + data.id;
+                    
+                    // Adicionar informação adicional para NON_COUNCILLOR
+                    if (userData.type === 'NON_COUNCILLOR') {
+                        successMessage += '\nUma nova instância WORKER foi criada automaticamente (ID: ' + data.instanceId + ').';
+                    }
+                    
+                    document.getElementById('successAlert').textContent = successMessage;
+                    document.getElementById('successAlert').classList.remove('hidden');
+                    
+                    // Mostrar resposta completa
+                    document.getElementById('resultJson').textContent = 
+                        'Enviado: ' + JSON.stringify(userData, null, 2) + 
+                        '\n\nResposta: ' + JSON.stringify(data, null, 2);
+                    
+                    // Recarregar instâncias para atualizar a lista se necessário
+                    if (userData.type === 'NON_COUNCILLOR') {
+                        fetchInstances();
+                    }
+                })
+                .catch(error => {
+                    // Show error message
+                    document.getElementById('errorAlert').textContent = 
+                        'Erro ao criar usuário teste: ' + error.message;
+                    document.getElementById('errorAlert').classList.remove('hidden');
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
+    <script>
+    // Script de verificação e forçamento de tema
+    (function() {
+        // Função para aplicar tema diretamente
+        function applyThemeDirectly(theme) {
+            console.log(`Aplicando tema ${theme} diretamente em user-registration.html`);
+            document.documentElement.setAttribute('data-theme', theme);
+            localStorage.setItem('preferredTheme', theme);
+            
+            // Forçar repintagem para aplicar o tema
+            document.documentElement.style.display = 'none';
+            void document.documentElement.offsetHeight;
+            document.documentElement.style.display = '';
+        }
+
+        // Verificar quando a página terminar de carregar
+        window.addEventListener('load', function() {
+            console.log("Página user-registration.html completamente carregada");
+            
+            // Verificar tema
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            const currentTheme = document.documentElement.getAttribute('data-theme');
+            
+            if (currentTheme !== savedTheme) {
+                console.warn(`Tema inconsistente! Atual: ${currentTheme}, Salvo: ${savedTheme}`);
+                applyThemeDirectly(savedTheme);
+            }
+            
+            // Adicionar evento global para detectar mudanças de tema
+            document.addEventListener('themeChanged', function(event) {
+                applyThemeDirectly(event.detail.theme);
+            });
+            
+            // Configurar eventos para as opções de tema na página
+            document.querySelectorAll('.theme-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const theme = this.getAttribute('data-theme');
+                    if (theme) {
+                        applyThemeDirectly(theme);
+                    }
+                });
+            });
+        });
+    })();
+    </script>
+</body>
+</html>

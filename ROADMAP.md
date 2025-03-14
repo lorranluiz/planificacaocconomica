@@ -225,11 +225,10 @@ Colocar um .java no servidor, intermediário, que, depois que o .java correto pe
                                 carregando diretamente de instance
     "estoqueDemanda": [],       //Vai ser montado pelo .java intermediário,
                                 ver se precisa criar mais uma tabela
-    teste
     "producaoMeta": [           //Vai ser montado pelo .java intermediário, carregando diretamente de instance. 
                                 separar campos, mas juntar apenas aqui (ao invés de ser esse vetor desnecessário no db)                                 
       {
-        "produto": "Produto Produzido",
+        "produto": "Produto Produzido", //ja está no id_social_materialization
         "quantidadeProduzida": "0.000",
         "quantidadeMeta": "10000"
       }
@@ -252,25 +251,58 @@ Colocar um .java no servidor, intermediário, que, depois que o .java correto pe
     "effectivelyPlannedProductionTime": 0   //Vai ser montado pelo .java intermediário, carregando diretamente de 
                                             instance
 
+6.2.1) [ok] a) Desenhar, a partir das 3 telas (conselho, comitê e usuário não conselheiro) o banco de dados.
+[ok] b) Com o desenho do banco de dados em mãos ir para as funções fetch que baixam os dados e fazem as buscas, as pesquisas, e ver se o desenho responde a todas elas (e como ele responderia, se fosse uma query ou não, etc).
+[ok] c) A partir disso, ver a partir das querys possíveis ou a partir das bibliotecas possíveis (tipo Hibernate) quais seriam as que menos causariam impacto no código, nas funções fetch, para consulta de dados (de preferência alguma que não precise de query, tipo Hibernate para javascript).
+[ok] d) A partir disso, escolher a tecnologia que usa isso, o método de consulta (se query ou tipo Hibernate), escolher com base na tecnologia que seja mais fácil ou mais automático (se já existe, se possível) de fazer a transição dos dados de .json para essa tecnologia, de maneira automática e consistente (seguindo ou dentro do modelo desenhado (ou modelado) de banco de dados inicialmente).
+[ok] e) A partir disso, desenvolver os códigos ou scripts para essa transição (se já não tiver nada que faça automaticamente ou que facilite isso, mas provavelmente escrever em detalhes permite melhor modelagem), e executá-los, testá-los se estão consistentes etc (tudo isso com os dados reduzidos de data.json, não o completo ainda).
+[~] f) Começar a passar então os trechos de código fetch para a nova forma de chamada e consulta/busca de dados (se com query ou tipo Hibernate).
+
+[~] f.1) Java no servidor que irá consultar e alimentar as chamadas de fetch (para leitura e escrita no banco de dados).
+      [~] - Começar a desenvolver o Java.
+      [~] - Passar dados de data.json para banco de dados
+
+      [ok] - Criar ambiente Servidor Java Web
+        [ok] - Hello World Servidor Java Web
+        [ok] - Conectar com PostgreSQL
+          [ok] - JPA, Criar classes já conectados com tabelas
+            [ok] - Hello World Banco de Dados
+
+      - [ok] Ver campos nulos (no db designer), ver campo a campo, e suas relações, e pedir pra gerar script python que carrega esses campos com valores existentes nas tabelas com que esses campos se relacionam, de modo que não fique mais nenhum campo nulo no banco de dados, e todos sejam preenchidos seguindo as condições de relacionamento. -> Substituído por script para carregamento de dados para teste de velocidade. 6 mil usuários e 6 mil instâncias foram criadas, carregamento de login quase que instantâneo, ou seja, aprovado de longe em relação ao método usando arquivo .json.
+      
+      - corrigir tema não aplicando em todas as páginas e Materialização Social* não carregando na aba de Cadastro da página Instâncias.
 
 
+      - Separar arquivos da página html (css, javascript, separar scripts, pra melhorar contexto e processamento).
 
+      - Todas as constraints implementadas, se basear na tela de cadastro de usuários para criar tela de cadastro de conselho/comitê (quando o usuário a se cadastrar clicar em "novo" na tela de cadastro).
 
+      - Depois fazer telas com objetos para carregar e para editar e salvar esses campos nessas tabelas, respeitando os tipos e condições (carregando listas de opções, quando relações com outras tabelas). Fazer isso com todas, pois essas páginas e objetos serão a base para a implementação real no código com a lógica e o sistema de planificação já prontos.
 
+      - Por último, a partir das páginas e objetos anteriores, criar código Java e página que recebe e exibe os objetos como json.
+      Depois criar objetos Java exatamente partir do data.json (pedir script py que faca arquivo .Java com esses objetos, de modo que a resposta do servidor seja um .json exatamente com a estrutura de data.json, inicialmente sem dados, só a estrutura), criar página que carrega e exibe esse data.json gerado na hora (sem armazenar em disco, é "virtual" e temporário, só para a requisição).
+      Depois fazer outro .java juntando os objetos que já carregam os dados com a geração do data.json "virtual" temporário requisitado. Os dados carregados nos objetos devem ser ou colocados diretamente nos respectivos campos dos objetos do data.json ou processados para preencher os objetos do data.json (como a matriz tecnológica e os vetores de demanda, principalmente, e outros que existirem e forem necessários). Colocar consulta por usuário, que carrega a instância dele e todos esses dados e monta o data.json da requisição desse usuário e exibe na tela. Pode ter um campo nessa tela, sem nada carregado inicialmente, para login e senha do usuário, dali, carrega os dados e exibe o data.json gerado na tela.
+      Dali, criar o .Java que recebe os dados da tela de login real e retorna esse data.json da requisição para o fetch que já existe no login do sistema real, que solicita os dados de data.json do servidor, se o usuário e senha estiverem corretos e existirem (ver apenas a requisição para conferir se ele existe, e implementar no java do servidor). Usar a lógica de rotas que já existe no Java e já funciona, de @rota na anotação e a função que deve ser executada e retorna o data.json esperado em baixo (com mero return desde texto de data.json gerado).
 
+      - Depois que tiver tudo funcionando como antes, fazer script preciso que leia data.json e popular o banco, mas garantindo que nenhum campo fique nulo, preenchendo com ids de valores que existem nas tabelas relacionadas, e nos tipos corretos. Fazer e refazer, testar até passar tudo corretamente. Começar com poucos dados, pra testar e ganhar tempo, depois finalizar testando até concluir com os dados do data.json completo, com os dados parciais de todo o mundo (todos os continentes e dentro deles).
+      Depois testar sistema, logar e ver se carrega, se carregar, ver a velocidade de uso (carregando e salvando dados) e comparar com antes.
 
+      - Se carregar e salvar tudo corretamente, e todos os dados do data.json grande já estiverem no novo banco de dados, a missão estará cumprida. Ir para próximas etapas (profissionalização do tema, tradução, documentação, artigos, etc).
 
+      [~] - Pensar script iterar dados, alimentar objetos e persistir na tabela, um por um, com barra de progresso.
 
+      [~] - Carregar e mostrar na tabela alguns dados, com dependências, etc, tudo orientado a objetos.
 
+      - Ver o que fetch solicita carregar, montar json com conteúdo solicitado (a partir de objetos carregados, criar classe java intermediária (temporária talvez) pra cuidar especificamente disso).
 
-6.2.1) a) Desenhar, a partir das 3 telas (conselho, comitê e usuário não conselheiro) o banco de dados.
-b) Com o desenho do banco de dados em mãos ir para as funções fetch que baixam os dados e fazem as buscas, as pesquisas, e ver se o desenho responde a todas elas (e como ele responderia, se fosse uma query ou não, etc).
-c) A partir disso, ver a partir das querys possíveis ou a partir das bibliotecas possíveis (tipo Hibernate) quais seriam as que menos causariam impacto no código, nas funções fetch, para consulta de dados (de preferência alguma que não precise de query, tipo Hibernate para javascript).
-d) A partir disso, escolher a tecnologia que usa isso, o método de consulta (se query ou tipo Hibernate), escolher com base na tecnologia que seja mais fácil ou mais automático (se já existe, se possível) de fazer a transição dos dados de .json para essa tecnologia, de maneira automática e consistente (seguindo ou dentro do modelo desenhado (ou modelado) de banco de dados inicialmente).
-e) A partir disso, desenvolver os códigos ou scripts para essa transição (se já não tiver nada que faça automaticamente ou que facilite isso, mas provavelmente escrever em detalhes permite melhor modelagem), e executá-los, testá-los se estão consistentes etc (tudo isso com os dados reduzidos de data.json, não o completo ainda).
-f) Começar a passar então os trechos de código fetch para a nova forma de chamada e consulta/busca de dados (se com query ou tipo Hibernate).
+      - Criar classe que recebe fetch para gravar, que faz o processo inverso, passa para objetos e persiste. Ver se está persistindo.
+
+      - Ver possibilidade de refletir esses objetos no JavaScript (os que forem necessários), em teste, código a parte. Se sim, criar código que calcula a matriz de otimização usando esses objetos. Mas manter o micro processamento no cliente, ao invés de centralizado (o processamento).
+
+      - Ver se vai otimizar velocidade de processamento de dados usar esses objetos no cliente, no JavaScript, se sim, usar, se não, só otimizar o que já é feito, mas mantendo estrutura de código.
+
 g) Testar e ver inconsistências, encontrá-las, e ver como resolvê-las. Resolvê-las todas, o sistema deve voltar funcionar exatamente como antes, mas mais rápido e fluido. Mais fluido, natural, profissional, aumentar a usabilidade, profissionalizar a usabilidade dos dados.
-h) Preparar para a próxima etapa, ver se script python responde corretamente à mesma consulta, fazer outro que faça a mesma consulta, mudando a forma de leitura de dados nele, mas entregando a mesma saída, mantendo todo o resto na camada javascript e do cliente (que deve continuar usando .json para comunicação, se possível, mesmo que/se integrado com query ou Hibernate em algum momento, em alguns trechos).
+h) Preparar para a próxima etapa, ver se script python responde corretamente à mesma consulta (integração python-Java, python para processamento de dados matemáticos, gráficos, etc), fazer outro que faça a mesma consulta, mudando a forma de leitura de dados nele, mas entregando a mesma saída, mantendo todo o resto na camada javascript e do cliente (que deve continuar usando .json para comunicação, se possível, mesmo que/se integrado com query ou Hibernate em algum momento, em alguns trechos).
 i.1) Tendo funcionado, tendo atendido isso, passar para a próxima etapa, que é a preparação para novos scripts python de consulta e análise de dados, com geração de gráficos otimizados (personalizados, se possível, mais pra frente) etc.
 i.2) [*** NOVA FUNCIONALIDADE, SERÁ NOVO SETOR INDEPENDENTE AQUI DO ARQUIVO DE ROADMAP]
         De repente com uma tabela, mais pra frente, uma tela ou trecho de tela, janela modal ou coisa do tipo, com um formulário, com todos os tipos de consultas possíveis e saídas possívels, com um python que responda a isso e gere a saída desejada, formatada, colorida, com textos, informações etc.
