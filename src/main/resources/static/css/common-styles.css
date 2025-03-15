@@ -372,3 +372,179 @@ textarea {
 .pronoun-option input {
     width: auto;
 }
+
+/* Estilos para o modal de login */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0, 0, 0, 0.6);
+    transition: all 0.3s ease;
+}
+
+.modal-content {
+    background-color: var(--card-bg);
+    margin: 10% auto;
+    padding: 25px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    animation: modalFadeIn 0.3s;
+}
+
+@keyframes modalFadeIn {
+    from {opacity: 0; transform: translateY(-20px);}
+    to {opacity: 1; transform: translateY(0);}
+}
+
+.close-modal {
+    color: var(--text-color);
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-modal:hover {
+    color: var(--accent-color);
+}
+
+/* Estilos para o botão de login/logout */
+.login-button {
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 15px;
+    margin-left: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+    transition: background-color 0.2s;
+}
+
+.login-button:hover {
+    background-color: var(--accent-hover);
+}
+
+.login-button i {
+    font-size: 16px;
+}
+
+/* Área de usuário no header */
+.user-area {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+}
+
+/* Formulário de login dentro do modal */
+#login-form {
+    margin-top: 20px;
+}
+
+#login-form .form-group {
+    margin-bottom: 15px;
+}
+
+#login-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+#login-form input {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    background-color: var(--input-bg);
+    color: var(--text-color);
+}
+
+#login-form input:focus {
+    border-color: var(--accent-color);
+    outline: none;
+}
+
+#login-form .form-buttons {
+    margin-top: 25px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Estilos para o badge de usuário logado */
+.user-logged-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-right: 15px;
+    background-color: var(--card-bg);
+    padding: 5px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border-color);
+}
+
+.user-logged-badge .user-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-color);
+}
+
+.user-logged-badge .badge {
+    font-size: 0.7rem;
+    padding: 2px 6px;
+}
+
+/* Estilos para perfil do usuário */
+.user-profile {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.profile-header h3 {
+    margin: 0;
+    color: var(--heading-color);
+}
+
+.profile-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+}
+
+.profile-item {
+    padding: 10px;
+    background-color: rgba(var(--primary-color-rgb, 44, 62, 80), 0.05);
+    border-radius: 4px;
+}
+
+.profile-item strong {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--accent-color);
+    font-size: 0.9em;
+}
+
+#modal-logout-btn {
+    align-self: flex-end;
+    margin-top: 10px;
+}
