@@ -28,7 +28,15 @@ import java.util.Map;
 import java.util.Optional;
 import xyz.planecon.model.enums.InstanceType;
 import xyz.planecon.repository.InstanceRepository;
+import xyz.planecon.model.entity.Sector;
+import xyz.planecon.model.entity.SocialMaterialization;
+import xyz.planecon.model.enums.SocialMaterializationType;
+import xyz.planecon.repository.SectorRepository;
+import xyz.planecon.repository.SocialMaterializationRepository;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import org.springframework.transaction.annotation.Transactional;
 
 @RestController
 @RequestMapping("/api/users")
@@ -46,6 +54,15 @@ public class UserController {
     
     @Autowired
     private InstanceRepository instanceRepository;
+    
+    @Autowired
+    private SocialMaterializationRepository socialMaterializationRepository;
+    
+    @Autowired
+    private SectorRepository sectorRepository;
+    
+    @PersistenceContext
+    private EntityManager entityManager;
     
     @GetMapping
     public ResponseEntity<Page<UserResponse>> getAllUsers(
@@ -134,8 +151,9 @@ public class UserController {
         }
     }
 
-    // Modificar o método registerUser para criar instância WORKER quando necessário
+    // Modificar o método registerUser para lidar com os dois casos
 
+    @Transactional
     @PostMapping("/register")
     public ResponseEntity<?> registerUser(@RequestBody UserRegistrationRequest request) {
         try {
@@ -190,27 +208,37 @@ public class UserController {
                         .body(Map.of("message", "Pronome inválido: " + request.getPronoun()));
             }
             
-            // Se for COUNCILLOR, associar a uma instância existente
+            // Sempre verifica se há um instanceId
+            Integer instanceId = request.getInstanceId();
+            if (instanceId == null) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Instância é obrigatória para todos os usuários"));
+            }
+            
+            Instance selectedInstance = instanceRepository.findById(instanceId).orElse(null);
+            if (selectedInstance == null) {
+                return ResponseEntity.badRequest().body(Map.of("message", "Instância não encontrada"));
+            }
+            
+            // Se for COUNCILLOR, associar diretamente à instância selecionada
             if (user.getType() == UserType.COUNCILLOR) {
-                Integer instanceId = request.getInstanceId();
-                if (instanceId == null) {
-                    return ResponseEntity.badRequest().body(Map.of("message", "Conselheiros precisam estar associados a uma instância"));
-                }
-                
-                Instance instance = instanceRepository.findById(instanceId).orElse(null);
-                if (instance == null) {
-                    return ResponseEntity.badRequest().body(Map.of("message", "Instância não encontrada"));
-                }
-                
                 // Verificar se a instância é um conselho ou comitê
-                if (instance.getType() != InstanceType.COUNCIL && instance.getType() != InstanceType.COMMITTEE) {
+                if (selectedInstance.getType() != InstanceType.COUNCIL && selectedInstance.getType() != InstanceType.COMMITTEE) {
                     return ResponseEntity.badRequest().body(Map.of(
                         "message", "Conselheiros só podem ser associados a instâncias do tipo COUNCIL ou COMMITTEE"
                     ));
                 }
                 
-                user.setInstance(instance);
-            } else {
+                user.setInstance(selectedInstance);
+            } 
+            // Para NÃO-CONSELHEIRO, criar uma instância WORKER e associar o comitê selecionado
+            else {
+                // Verificar se a instância selecionada é um comitê
+                if (selectedInstance.getType() != InstanceType.COMMITTEE) {
+                    return ResponseEntity.badRequest().body(Map.of(
+                        "message", "Não-conselheiros devem selecionar um comitê para associação"
+                    ));
+                }
+                
                 // Para NON_COUNCILLOR, criar automaticamente uma instância WORKER
                 Instance workerInstance = new Instance();
                 workerInstance.setType(InstanceType.WORKER);
@@ -218,13 +246,19 @@ public class UserController {
                 workerInstance.setEstimatedIndividualParticipationInSocialWork(new BigDecimal("0.0"));
                 workerInstance.setHoursAtElectronicPoint(new BigDecimal("0.0"));
                 
-                // Salvar a instância WORKER
+                // Buscar um conselho popular existente
+                Instance council = findOrCreateDefaultCouncil();
+                workerInstance.setPopularCouncilAssociatedWithCommitteeOrWorker(council);
+                
+                // Definir o comitê selecionado
+                workerInstance.setAssociatedWorkerCommittee(selectedInstance);
+                
+                // Salvar a instância WORKER com id_associated_worker_residents_association NULL por padrão
+                // Não é necessário definir explicitamente como NULL, pois esse é o valor padrão
                 Instance savedInstance = instanceRepository.save(workerInstance);
                 
-                // Associar o usuário à nova instância WORKER
+                // Associar o usuário à instância WORKER criada
                 user.setInstance(savedInstance);
-                
-                System.out.println("Instância WORKER criada automaticamente para não-conselheiro: " + savedInstance.getId());
             }
             
             // Salvar usuário
@@ -253,6 +287,65 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("message", "Erro ao cadastrar usuário: " + e.getMessage()));
         }
+    }
+    
+    // Método auxiliar para encontrar ou criar um conselho padrão
+    private Instance findOrCreateDefaultCouncil() {
+        // Buscar um conselho existente
+        List<Instance> councils = instanceRepository.findByType(InstanceType.COUNCIL);
+        if (!councils.isEmpty()) {
+            return councils.get(0); // Usar o primeiro conselho encontrado
+        }
+        
+        // Se não existir, criar um
+        Instance defaultCouncil = new Instance();
+        defaultCouncil.setType(InstanceType.COUNCIL);
+        defaultCouncil.setCreatedAt(LocalDateTime.now());
+        defaultCouncil.setTotalSocialWorkOfThisJurisdiction(0);
+        defaultCouncil.setPopularCouncilAssociatedWithPopularCouncil(null); // Este é o conselho superior
+        return instanceRepository.save(defaultCouncil);
+    }
+
+    // Método auxiliar para encontrar ou criar um comitê padrão
+    private Instance findOrCreateDefaultCommittee() {
+        // Buscar um comitê existente
+        List<Instance> committees = instanceRepository.findByType(InstanceType.COMMITTEE);
+        if (!committees.isEmpty()) {
+            return committees.get(0); // Usar o primeiro comitê encontrado
+        }
+        
+        // Se não existir, criar um
+        Instance council = findOrCreateDefaultCouncil(); // Garantir que temos um conselho
+        
+        // Buscar uma materialização social para associar ao comitê (produto ou serviço)
+        List<SocialMaterialization> materializations = socialMaterializationRepository.findAll();
+        SocialMaterialization defaultMaterialization;
+        if (materializations.isEmpty()) {
+            // Criar uma materialização padrão se não existir
+            Sector sector = new Sector();
+            sector.setName("Setor Padrão");
+            sector = sectorRepository.save(sector);
+            
+            defaultMaterialization = new SocialMaterialization();
+            defaultMaterialization.setName("Produto Padrão");
+            defaultMaterialization.setType(SocialMaterializationType.PRODUCT);
+            defaultMaterialization.setSector(sector);
+            defaultMaterialization = socialMaterializationRepository.save(defaultMaterialization);
+        } else {
+            defaultMaterialization = materializations.get(0);
+        }
+        
+        Instance defaultCommittee = new Instance();
+        defaultCommittee.setType(InstanceType.COMMITTEE);
+        defaultCommittee.setCommitteeName("Comitê Padrão");
+        defaultCommittee.setCreatedAt(LocalDateTime.now());
+        defaultCommittee.setPopularCouncilAssociatedWithCommitteeOrWorker(council);
+        defaultCommittee.setTotalSocialWorkOfThisJurisdiction(0);
+        defaultCommittee.setSocialMaterialization(defaultMaterialization);
+        defaultCommittee.setProducedQuantity(new BigDecimal("0.0"));
+        defaultCommittee.setTargetQuantity(new BigDecimal("100.0"));
+        
+        return instanceRepository.save(defaultCommittee);
     }
     
     @GetMapping("/types")

@@ -12,6 +12,9 @@ public interface InstanceRepository extends CrudRepository<Instance, Integer> {
     
     List<Instance> findByType(InstanceType type);
     
+    // Adicione este método para buscar instâncias por tipo
+    List<Instance> findByType(String type);
+    
     // Corrigir as consultas para usar os nomes corretos dos atributos
     @Query("SELECT i FROM Instance i WHERE i.popularCouncilAssociatedWithCommitteeOrWorker = :instance")
     List<Instance> findByPopularCouncilAssociatedWithCommitteeOrWorker(@Param("instance") Instance instance);

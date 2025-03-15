@@ -59,7 +59,7 @@ public class Instance {
     
     @ManyToOne
     @JoinColumn(name = "id_associated_worker_residents_association")
-    private Instance associatedWorkerResidentsAssociation;
+    private Instance idAssociatedWorkerResidentsAssociation;
     
     @Column(name = "estimated_individual_participation_in_social_work", precision = 20, scale = 10)
     private BigDecimal estimatedIndividualParticipationInSocialWork;

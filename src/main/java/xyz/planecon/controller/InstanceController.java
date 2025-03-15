@@ -9,6 +9,8 @@ import xyz.planecon.model.enums.InstanceType;
 import xyz.planecon.repository.InstanceRepository;
 import xyz.planecon.repository.SocialMaterializationRepository;
 
+import jakarta.persistence.EntityManager;
+import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -24,6 +26,9 @@ public class InstanceController {
 
 	@Autowired
 	private SocialMaterializationRepository socialMaterializationRepository;
+
+	@Autowired
+	private EntityManager entityManager;
 
 	// Modificação no método getAllInstances para filtrar instâncias WORKER
 	@GetMapping
@@ -221,18 +226,7 @@ public class InstanceController {
 				instance.setAssociatedWorkerCommittee(committeeOpt.get());
 			}
 
-			if (payload.containsKey("associatedWorkerResidentsAssociationId")) {
-				Integer assocId = (Integer) payload.get("associatedWorkerResidentsAssociationId");
-				Optional<Instance> assocOpt = instanceRepository.findById(assocId);
-				
-				if (assocOpt.isEmpty()) {
-					return ResponseEntity.badRequest().body(Map.of(
-						"message", "Associação de residentes não encontrada com ID: " + assocId
-					));
-				}
-				
-				instance.setAssociatedWorkerResidentsAssociation(assocOpt.get());
-			}
+			instance.setIdAssociatedWorkerResidentsAssociation(null);			
 
 			// Adicione este trecho no método createInstance, dentro do bloco do case 'COMMITTEE':
 			switch (type) {
@@ -373,6 +367,24 @@ public class InstanceController {
 		}
 	}
 
+	// Método auxiliar para obter diretamente o ID da associação de residentes
+	@Transactional(readOnly = true)
+	private Integer getResidentsAssociationIdDirectly(Integer instanceId) {
+		try {
+			Object result = entityManager.createNativeQuery(
+				"SELECT id_associated_worker_residents_association FROM instance WHERE id = :id")
+				.setParameter("id", instanceId)
+				.getSingleResult();
+			
+			return (result != null) ? ((Number) result).intValue() : null;
+		} catch (Exception e) {
+			// Log error using appropriate logger
+			System.err.println("Erro ao obter id_associated_worker_residents_association para instance " + 
+				instanceId + ": " + e.getMessage());
+			return null;
+		}
+	}
+
 	// Converter a entidade para um DTO seguro sem referências circulares
 	private Map<String, Object> convertToDto(Instance instance) {
 		Map<String, Object> dto = new HashMap<>();
@@ -435,13 +447,7 @@ public class InstanceController {
 			dto.put("associatedWorkerCommittee", committee);
 		}
 		
-		if (instance.getAssociatedWorkerResidentsAssociation() != null) {
-			Map<String, Object> association = new HashMap<>();
-			association.put("id", instance.getAssociatedWorkerResidentsAssociation().getId());
-			association.put("type", instance.getAssociatedWorkerResidentsAssociation().getType().toString());
-				association.put("committeeName", instance.getAssociatedWorkerResidentsAssociation().getCommitteeName());
-			dto.put("associatedWorkerResidentsAssociation", association);
-		}
+		dto.put("associatedWorkerResidentsAssociation", null);
 		
 		return dto;
 	}

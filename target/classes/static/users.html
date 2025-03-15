@@ -101,7 +101,7 @@
 
         .page-link.active {
             background-color: var(--primary-color);
-            color: var(--primary-text);
+            color: var (--primary-text);
             border-color: var(--primary-color);
         }
 
@@ -256,18 +256,19 @@
                     </div>
                 </div>
                 
+                <!-- Modificar o campo de instância para incluir caixa informativa -->
                 <div class="form-group" id="instanceContainer">
-                    <label for="instanceId">Instância: <span class="required" id="instanceRequired">*</span></label>
+                    <label for="instanceId">Conselho/Comitê: <span class="required" id="instanceRequired">*</span></label>
                     <select id="instanceId" name="instanceId" required>
                         <option value="">Selecione uma instância</option>
                         <!-- As instâncias serão carregadas via JavaScript -->
                     </select>
+                    <div id="instanceInfoBox" class="info-box">
+                        <p><i class="fas fa-info-circle"></i> Selecione o conselho ou comitê ao qual este usuário pertence.</p>
+                    </div>
                 </div>
-                
-                <div id="instanceInfoBox" class="info-box" style="display: none;">
-                    <p><i class="fas fa-info-circle"></i> Uma instância WORKER será criada automaticamente para este usuário não-conselheiro.</p>
-                </div>
-                
+
+                <!-- Corrigido: Elemento separado para botões, sempre visível -->
                 <div class="form-buttons">
                     <button type="submit" id="submitButton" class="btn-primary">Cadastrar</button>
                     <button type="button" id="cancelButton" class="btn-secondary">Cancelar</button>
@@ -734,36 +735,14 @@
                         throw new Error(`Erro ao carregar instâncias: ${response.status}`);
                     }
                     
-                    const instances = await response.json();
+                    // Armazenar todas as instâncias para filtrar posteriormente
+                    const allInstances = await response.json();
+                    window.allInstances = allInstances; // Armazenar globalmente para acesso posterior
                     
-                    // Filtrar instâncias do tipo COUNCIL ou COMMITTEE
-                    const filteredInstances = instances.filter(instance => 
-                        instance.type === 'COUNCIL' || instance.type === 'COMMITTEE'
-                    );
-                    
-                    // Preencher o select de instâncias
-                    instanceSelect.innerHTML = '<option value="">Selecione uma instância</option>';
-                    
-                    filteredInstances.forEach(instance => {
-                        const option = document.createElement('option');
-                        option.value = instance.id;
-                        
-                        // Formatação do texto da opção baseada no tipo de instância
-                        let optionText = `${instance.id} - `;
-                        if (instance.type === 'COMMITTEE' && instance.committeeName) {
-                            optionText += `${instance.committeeName} (${instance.type})`;
-                        } else if (instance.type === 'COUNCIL') {
-                            optionText += `Council ${instance.id} (${instance.type})`;
-                        } else {
-                            optionText += `Instance ${instance.id} (${instance.type})`;
-                        }
-                        
-                        option.textContent = optionText;
-                        instanceSelect.appendChild(option);
-                    });
+                    // Realizar filtragem inicial baseada no tipo de usuário selecionado
+                    updateInstanceOptions();
                     
                     formLoadingMessage.style.display = 'none';
-                    updateUserTypeVisibility();
                 } catch (error) {
                     console.error('Erro ao carregar instâncias:', error);
                     formErrorMessage.textContent = 'Erro ao carregar instâncias. Por favor, tente novamente.';
@@ -772,24 +751,83 @@
                 }
             }
 
+            // Função para atualizar o campo de instância com base no tipo de usuário
+            function updateUserTypeVisibility() {
+                const userType = document.querySelector('input[name="type"]:checked').value;
+                const instanceContainer = document.getElementById('instanceContainer');
+                const instanceLabel = document.querySelector('label[for="instanceId"]');
+                const instanceInfoBox = document.getElementById('instanceInfoBox');
+                const instanceRequired = document.getElementById('instanceRequired');
+                
+                // Campo de instância sempre visível, mas seu conteúdo e labels mudam
+                instanceContainer.style.display = 'block'; // Sempre visível!
+                
+                if (userType === 'COUNCILLOR') {
+                    // Para Conselheiros: mostrar conselhos e comitês
+                    instanceLabel.innerHTML = 'Conselho/Comitê: <span class="required">*</span>';
+                    instanceInfoBox.innerHTML = '<i class="fas fa-info-circle"></i> Selecione o conselho ou comitê ao qual este conselheiro pertence.';
+                } else {
+                    // Para Não-Conselheiros: mostrar apenas comitês
+                    instanceLabel.innerHTML = 'Comitê Associado: <span class="required">*</span>';
+                    instanceInfoBox.innerHTML = '<i class="fas fa-info-circle"></i> Selecione o comitê ao qual este trabalhador está associado.';
+                }
+                
+                instanceInfoBox.style.display = 'block';
+                instanceRequired.style.display = 'inline'; // Campo sempre obrigatório
+                
+                // Atualizar as opções disponíveis no select
+                updateInstanceOptions();
+            }
+
+            // Função para filtrar instâncias com base no tipo de usuário
+            function updateInstanceOptions() {
+                const userType = document.querySelector('input[name="type"]:checked').value;
+                const instanceSelect = document.getElementById('instanceId');
+                
+                // Se não temos instâncias carregadas ainda, retornar
+                if (!window.allInstances) return;
+                
+                // Filtrar instâncias conforme o tipo de usuário
+                let filteredInstances;
+                
+                if (userType === 'COUNCILLOR') {
+                    // Conselheiros podem selecionar COUNCIL ou COMMITTEE
+                    filteredInstances = window.allInstances.filter(instance => 
+                        instance.type === 'COUNCIL' || instance.type === 'COMMITTEE'
+                    );
+                } else {
+                    // Não-Conselheiros devem selecionar apenas COMMITTEE para associar
+                    filteredInstances = window.allInstances.filter(instance => 
+                        instance.type === 'COMMITTEE'
+                    );
+                }
+                
+                // Limpar e popular o select
+                instanceSelect.innerHTML = '<option value="">Selecione uma instância</option>';
+                
+                filteredInstances.forEach(instance => {
+                    const option = document.createElement('option');
+                    option.value = instance.id;
+                    
+                    let optionText = `${instance.id} - `;
+                    if (instance.type === 'COMMITTEE' && instance.committeeName) {
+                        optionText += `${instance.committeeName} (${instance.type})`;
+                    } else if (instance.type === 'COUNCIL') {
+                        optionText += `Council ${instance.id} (${instance.type})`;
+                    } else {
+                        optionText += `Instance ${instance.id} (${instance.type})`;
+                    }
+                    
+                    option.textContent = optionText;
+                    instanceSelect.appendChild(option);
+                });
+                
+                // Tornar o campo obrigatório em ambos os casos
+                instanceSelect.required = true;
+            }
+
             // Carregar instâncias quando a página carregar
             loadInstances();
-
-            // Tornar campo de instância visível/invisível com base no tipo de usuário
-            function updateUserTypeVisibility() {
-                const isCouncillor = document.querySelector('input[name="type"]:checked').value === 'COUNCILLOR';
-                const instanceContainer = document.getElementById('instanceContainer');
-                const instanceInfoBox = document.getElementById('instanceInfoBox');
-                const instanceIdSelect = document.getElementById('instanceId');
-                
-                // Mostrar/esconder o campo de instância com base no tipo
-                instanceContainer.style.display = isCouncillor ? 'block' : 'none';
-                instanceInfoBox.style.display = isCouncillor ? 'none' : 'block';
-                
-                // Tornar o campo obrigatório apenas se for conselheiro
-                instanceIdSelect.required = isCouncillor;
-                document.getElementById('instanceRequired').style.display = isCouncillor ? 'inline' : 'none';
-            }
 
             // Adicionar listeners para alteração do tipo de usuário
             document.querySelectorAll('input[name="type"]').forEach(radio => {
@@ -879,21 +917,19 @@
                         type
                     };
                     
-                    // Adicionar instância apenas para conselheiros
-                    if (type === 'COUNCILLOR') {
-                        const instanceId = document.getElementById('instanceId').value;
-                        if (!instanceId) {
-                            formErrorMessage.textContent = 'Instância é obrigatória para conselheiros';
-                            formErrorMessage.style.display = 'block';
-                            formLoadingMessage.style.display = 'none';
-                            document.getElementById('instanceId').focus();
-                            return;
-                        }
-                        formData.instanceId = parseInt(instanceId);
+                    // Adicionar instância independentemente do tipo de usuário
+                    const instanceId = document.getElementById('instanceId').value;
+                    if (!instanceId) {
+                        formErrorMessage.textContent = 'Por favor, selecione uma instância.';
+                        formErrorMessage.style.display = 'block';
+                        formLoadingMessage.style.display = 'none';
+                        document.getElementById('instanceId').focus();
+                        return;
                     }
+                    formData.instanceId = parseInt(instanceId);
                     
                     // Log para debug
-                    console.log("Dados do formulário:", formData);
+                    console.log("Dados do formulário a enviar:", formData);
                     
                     // Enviar dados ao servidor
                     submitUser(formData);
