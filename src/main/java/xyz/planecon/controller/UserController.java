@@ -400,4 +400,36 @@ public class UserController {
                     .body(Map.of("message", "Erro ao buscar entidades relacionadas: " + e.getMessage()));
         }
     }
+
+    @PostMapping("/search")
+    public ResponseEntity<?> searchUser(@RequestBody Map<String, String> credentials) {
+        try {
+            // Validar dados recebidos
+            String username = credentials.get("username");
+            String password = credentials.get("password");
+            
+            if (username == null || username.isEmpty() || password == null || password.isEmpty()) {
+                return ResponseEntity.badRequest()
+                       .body(Map.of("message", "Nome de usuário e senha são obrigatórios"));
+            }
+            
+            // Buscar usuário pelo nome de usuário
+            User user = userRepository.findByUsername(username);
+            
+            // Verificar se o usuário existe e se a senha está correta
+            if (user == null || !password.equals(user.getPassword())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                       .body(Map.of("message", "Usuário ou senha incorretos"));
+            }
+            
+            // Converter usuário para DTO e retornar
+            UserResponse userResponse = convertToUserResponse(user);
+            return ResponseEntity.ok(userResponse);
+            
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                   .body(Map.of("message", "Erro ao buscar usuário: " + e.getMessage()));
+        }
+    }
 }

@@ -122,6 +122,44 @@
         .century-link:hover, .century-link.active {
             background-color: var(--accent-color-light);
         }
+
+        /* Estilos para a busca de usuário */
+        .search-result {
+            margin-top: 20px;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .user-detail {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+
+        .user-detail-item {
+            margin-bottom: 10px;
+        }
+
+        .user-detail-item strong {
+            display: block;
+            margin-bottom: 5px;
+            color: var(--accent-color);
+        }
+
+        .user-detail-header {
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .user-not-found {
+            color: var(--error-color);
+            text-align: center;
+            padding: 20px;
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
@@ -158,6 +196,7 @@
         <div class="tabs">
             <div class="tab active" data-tab="list">Listar</div>
             <div class="tab" data-tab="create">Cadastrar</div>
+            <div class="tab" data-tab="search">Buscar</div>
         </div>
         
         <!-- Conteúdo da aba de listagem -->
@@ -274,6 +313,36 @@
                     <button type="button" id="cancelButton" class="btn-secondary">Cancelar</button>
                 </div>
             </form>
+        </div>
+
+        <!-- Nova aba de busca -->
+        <div id="search-tab" class="tab-content">
+            <div id="searchLoadingMessage" class="loading" style="display: none;">Processando...</div>
+            <div id="searchErrorMessage" class="message error" style="display: none;"></div>
+            
+            <form id="searchForm" class="form-container">
+                <h2>Buscar Usuário</h2>
+                
+                <div class="form-group">
+                    <label for="search_username">Nome de usuário: <span class="required">*</span></label>
+                    <input type="text" id="search_username" name="search_username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="search_password">Senha: <span class="required">*</span></label>
+                    <input type="password" id="search_password" name="search_password" required>
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="submit" id="searchButton" class="btn-primary">
+                        <i class="fas fa-search"></i> Buscar
+                    </button>
+                </div>
+            </form>
+            
+            <div id="searchResult" class="search-result" style="display: none;">
+                <!-- O resultado da busca será exibido aqui -->
+            </div>
         </div>
     </div>
 
@@ -1078,6 +1147,152 @@
         });
     })();
     </script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elementos existentes...
+        
+        // Elementos para busca de usuário
+        const searchForm = document.getElementById('searchForm');
+        const searchUsernameInput = document.getElementById('search_username');
+        const searchPasswordInput = document.getElementById('search_password');
+        const searchLoadingMessage = document.getElementById('searchLoadingMessage');
+        const searchErrorMessage = document.getElementById('searchErrorMessage');
+        const searchResult = document.getElementById('searchResult');
+        
+        // Função para buscar usuário com autenticação
+        searchForm.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            // Limpar resultados anteriores
+            searchResult.style.display = 'none';
+            searchErrorMessage.style.display = 'none';
+            
+            // Obter valores do formulário
+            const username = searchUsernameInput.value.trim();
+            const password = searchPasswordInput.value;
+            
+            // Validar campos
+            if (!username || !password) {
+                searchErrorMessage.textContent = 'Por favor, preencha todos os campos';
+                searchErrorMessage.style.display = 'block';
+                return;
+            }
+            
+            // Mostrar carregamento
+            searchLoadingMessage.style.display = 'block';
+            
+            try {
+                // Enviar requisição para o endpoint de busca
+                const response = await fetch('/api/users/search', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ username, password })
+                });
+                
+                // Obter resposta como texto primeiro para debugging
+                const responseText = await response.text();
+                console.log("Resposta da busca:", responseText);
+                
+                // Tentar parsear como JSON
+                let data;
+                try {
+                    data = JSON.parse(responseText);
+                } catch (e) {
+                    console.error("Erro ao parsear resposta como JSON:", e);
+                    throw new Error("Formato de resposta inválido");
+                }
+                
+                if (!response.ok) {
+                    throw new Error(data.message || `Erro ${response.status}`);
+                }
+                
+                // Formatar e exibir o resultado
+                let instanceInfo = '';
+                if (data.instance) {
+                    const instanceName = data.instance.committeeName || `#${data.instance.id}`;
+                    instanceInfo = `
+                        <div class="user-detail-item">
+                            <strong>Tipo de Instância:</strong>
+                            <span>${data.instance.type}</span>
+                        </div>
+                        <div class="user-detail-item">
+                            <strong>Nome da Instância:</strong>
+                            <span>${instanceName}</span>
+                        </div>
+                    `;
+                }
+                
+                // Formatar pronome
+                let pronoun = data.pronoun;
+                if (pronoun === 'HE_HIM') pronoun = 'Ele/Dele';
+                else if (pronoun === 'SHE_HER') pronoun = 'Ela/Dela';
+                else if (pronoun === 'THEY_THEM') pronoun = 'Elu/Delu';
+                
+                // Formatar tipo de usuário
+                const userType = data.type === 'COUNCILLOR' ?
+                    '<span class="badge badge-COUNCILLOR">Conselheiro</span>' :
+                    '<span class="badge badge-NON_COUNCILLOR">Não-Conselheiro</span>';
+                
+                // Montar HTML do resultado
+                searchResult.innerHTML = `
+                    <div class="user-detail-header">
+                        <h3>${data.name}</h3>
+                        <p>${userType}</p>
+                    </div>
+                    <div class="user-detail">
+                        <div class="user-detail-item">
+                            <strong>ID:</strong>
+                            <span>${data.id}</span>
+                        </div>
+                        <div class="user-detail-item">
+                            <strong>Nome de Usuário:</strong>
+                            <span>${data.username}</span>
+                        </div>
+                        <div class="user-detail-item">
+                            <strong>Pronome:</strong>
+                            <span>${pronoun}</span>
+                        </div>
+                        <div class="user-detail-item">
+                            <strong>Data de Criação:</strong>
+                            <span>${formatDate(data.createdAt)}</span>
+                        </div>
+                        ${instanceInfo}
+                    </div>
+                `;
+                
+                searchResult.style.display = 'block';
+            } catch (error) {
+                console.error("Erro na busca:", error);
+                searchErrorMessage.textContent = error.message || 'Usuário ou senha incorretos';
+                searchErrorMessage.style.display = 'block';
+            } finally {
+                searchLoadingMessage.style.display = 'none';
+            }
+        });
+        
+        // Função auxiliar para formatar data
+        function formatDate(dateString) {
+            if (!dateString) return '-';
+            
+            try {
+                const date = new Date(dateString);
+                if (isNaN(date.getTime())) return dateString;
+                
+                const day = date.getDate().toString().padStart(2, '0');
+                const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                const year = date.getFullYear();
+                const hours = date.getHours().toString().padStart(2, '0');
+                const minutes = date.getMinutes().toString().padStart(2, '0');
+                
+                return `${day}/${month}/${year} ${hours}:${minutes}`;
+            } catch (e) {
+                return dateString;
+            }
+        }
+    });
+</script>
 </body>
 </html>
 
