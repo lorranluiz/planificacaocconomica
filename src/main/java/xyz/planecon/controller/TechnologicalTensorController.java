@@ -117,10 +117,13 @@ public class TechnologicalTensorController {
     public ResponseEntity<?> updateTensor(
             @PathVariable("inputId") Integer inputId,
             @PathVariable("outputId") Integer outputId,
-            @RequestParam("coefficient") BigDecimal coefficient,
+            @RequestParam("coefficient") String coefficientStr,
             @RequestParam("instanceId") Integer instanceId) {
         
         try {
+            // Converter string para BigDecimal mantendo precisão exata
+            BigDecimal coefficient = new BigDecimal(coefficientStr);
+            
             TechnologicalTensorId id = new TechnologicalTensorId(inputId, outputId);
             Optional<TechnologicalTensor> existingTensorOpt = tensorService.findById(id);
             

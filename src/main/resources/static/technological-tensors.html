@@ -91,8 +91,8 @@
                     
                     <div class="form-group">
                         <label for="coefficient">Coeficiente Técnico*</label>
-                        <input type="number" id="coefficient" name="coefficient" step="0.0001" min="0.0001" required>
-                        <div class="form-hint">Quantidade do insumo necessária para produzir uma unidade do produto</div>
+                        <input type="text" id="coefficient" name="coefficient" required pattern="[0-9]+\.?[0-9]*">
+                        <div class="form-hint">Quantidade do insumo necessária para produzir uma unidade do produto (use ponto como separador decimal)</div>
                     </div>
                     
                     <div class="form-group">
@@ -129,7 +129,8 @@
                     
                     <div class="form-group">
                         <label for="edit-coefficient">Coeficiente Técnico*</label>
-                        <input type="number" id="edit-coefficient" name="coefficient" step="0.0001" min="0.0001" required>
+                        <input type="text" id="edit-coefficient" name="coefficient" required pattern="[0-9]+\.?[0-9]*">
+                        <div class="form-hint">Use ponto como separador decimal</div>
                     </div>
                     
                     <div class="form-group">
@@ -477,9 +478,8 @@
                         document.getElementById('edit-input-name').value = tensor.inputSocialMaterializationName;
                         document.getElementById('edit-output-name').value = tensor.outputSocialMaterializationName;
                         
-                        // Garantir que o valor é um número formatado corretamente para o input type="number"
-                        const coefficient = parseFloat(tensor.technicalCoefficientElementValue);
-                        document.getElementById('edit-coefficient').value = coefficient;
+                        // Usar o valor bruto sem conversão para não perder precisão
+                        document.getElementById('edit-coefficient').value = tensor.technicalCoefficientElementValue;
                         
                         document.getElementById('edit-instance').value = tensor.instance.id;
                         
@@ -500,7 +500,9 @@
                 const coefficient = document.getElementById('edit-coefficient').value;
                 const instanceId = document.getElementById('edit-instance').value;
                 
-                // Construir a URL com os parâmetros diretamente na query string
+                console.log("Valor do coeficiente antes de enviar:", coefficient);
+                
+                // Certificar-se de que o valor é enviado como string sem processamento
                 const url = `/technological-tensors/api/${inputId}/${outputId}?coefficient=${encodeURIComponent(coefficient)}&instanceId=${encodeURIComponent(instanceId)}`;
                 
                 console.log("URL da requisição:", url);
@@ -516,7 +518,9 @@
                         return response.text().then(text => {
                             console.error("Erro na resposta:", text);
                             try {
-                                return JSON.parse(text);
+                                const jsonError = JSON.parse(text);
+                                console.error("JSON de erro:", jsonError);
+                                return jsonError;
                             } catch {
                                 throw new Error(`Erro ${response.status}: ${text}`);
                             }
@@ -525,6 +529,7 @@
                     return response.json();
                 })
                 .then(data => {
+                    console.log("Resposta da atualização:", data);
                     if (data.error) {
                         throw new Error(data.error);
                     }
@@ -591,7 +596,72 @@
                     hideDeleteModal();
                 }
             };
+            
+            // Validar entrada de números decimais nos campos de texto
+            document.getElementById('coefficient').addEventListener('input', validateDecimalInput);
+            document.getElementById('edit-coefficient').addEventListener('input', validateDecimalInput);
+            
+            function validateDecimalInput(e) {
+                const value = e.target.value;
+                // Permitir apenas dígitos, ponto decimal e backspace
+                if (!/^[0-9]*\.?[0-9]*$/.test(value) && value !== '') {
+                    e.target.value = e.target.value.replace(/[^0-9.]/g, '').replace(/(\..*)\./g, '$1');
+                }
+            }
         });
     </script>
+    <script>
+    function updateTensor(e) {
+        e.preventDefault();
+        
+        const inputId = document.getElementById('edit-input-id').value;
+        const outputId = document.getElementById('edit-output-id').value;
+        const coefficient = document.getElementById('edit-coefficient').value;
+        const instanceId = document.getElementById('edit-instance').value;
+        
+        console.log("Valor do coeficiente antes de enviar:", coefficient);
+        
+        // Certificar-se de que o valor é enviado como string sem processamento
+        const url = `/technological-tensors/api/${inputId}/${outputId}?coefficient=${encodeURIComponent(coefficient)}&instanceId=${encodeURIComponent(instanceId)}`;
+        
+        console.log("URL da requisição:", url);
+        
+        fetch(url, {
+            method: 'PUT',
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    console.error("Erro na resposta:", text);
+                    try {
+                        const jsonError = JSON.parse(text);
+                        console.error("JSON de erro:", jsonError);
+                        return jsonError;
+                    } catch {
+                        throw new Error(`Erro ${response.status}: ${text}`);
+                    }
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Resposta da atualização:", data);
+            if (data.error) {
+                throw new Error(data.error);
+            }
+            
+            showMessage('Tensor tecnológico atualizado com sucesso!', 'success');
+            showListTab();
+            loadTensors();
+        })
+        .catch(error => {
+            console.error("Erro na atualização:", error);
+            showMessage('Erro ao atualizar tensor: ' + error.message, 'error');
+        });
+    }
+</script>
 </body>
 </html>
