@@ -668,10 +668,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                 instance.setAssociatedWorkerCommittee(associatedWorkerCommittee);
             }
             
-            // Definir id_associated_worker_residents_association como 0, não null
-            // Precisamos obter ou criar uma Instance com ID 0
-            Instance zeroInstance = instanceRepository.findById(0).orElse(null);
-            instance.setAssociatedWorkerResidentsAssociation(zeroInstance);
+            instance.setIdAssociatedWorkerResidentsAssociation(null);
             
             instance.setEstimatedIndividualParticipationInSocialWork(estimatedParticipation);
             instance.setHoursAtElectronicPoint(hoursAtElectronicPoint);

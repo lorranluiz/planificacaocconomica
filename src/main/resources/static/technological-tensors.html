@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tensores Tecnológicos - Sistema de Planejamento Econômico</title>
+    <link rel="stylesheet" href="/css/theme-variables.css">
+    <link rel="stylesheet" href="/css/theme-elements.css">
+    <link rel="stylesheet" href="/css/common-styles.css">
+    <script src="/common-header.js"></script>
+    <style>
+        .actions-col {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .message {
+            margin: 15px 0;
+            padding: 10px 15px;
+            border-radius: 4px;
+        }
+        
+        .success {
+            color: #155724;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error {
+            color: #721c24;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- O cabeçalho será inserido aqui pelo script -->
+        
+        <div class="content-section">
+            <h1>Tensores Tecnológicos</h1>
+            
+            <div id="message-container" style="display: none;">
+                <div id="message" class="message"></div>
+            </div>
+            
+            <div class="tabs">
+                <button class="tab active" id="list-tab">Listar Tensores</button>
+                <button class="tab" id="create-tab">Cadastrar Tensor</button>
+            </div>
+            
+            <div id="list-content" class="tab-content active">
+                <div class="loading-indicator" id="loading-tensors">Carregando tensores...</div>
+                <table class="data-table" id="tensors-table" style="display: none;">
+                    <thead>
+                        <tr>
+                            <th>Insumo (Input)</th>
+                            <th>Produto (Output)</th>
+                            <th>Coeficiente Técnico</th>
+                            <th>Instância</th>
+                            <th>Data de Criação</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tensors-table-body">
+                        <!-- Dados serão inseridos via JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div id="create-content" class="tab-content">
+                <h2>Cadastrar Novo Tensor</h2>
+                <form id="create-tensor-form" class="standard-form">
+                    <div class="form-group">
+                        <label for="input-socmat">Insumo (Input)*</label>
+                        <select id="input-socmat" name="inputSocMatId" required>
+                            <option value="">Selecione um insumo</option>
+                            <!-- Options serão carregadas via JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="output-socmat">Produto (Output)*</label>
+                        <select id="output-socmat" name="outputSocMatId" required>
+                            <option value="">Selecione um produto</option>
+                            <!-- Options serão carregadas via JavaScript -->
+                        </select>
+                        <div class="form-hint" id="output-warning" style="color: red; display: none;">O insumo e o produto não podem ser os mesmos!</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="coefficient">Coeficiente Técnico*</label>
+                        <input type="number" id="coefficient" name="coefficient" step="0.0001" min="0.0001" required>
+                        <div class="form-hint">Quantidade do insumo necessária para produzir uma unidade do produto</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="instance">Instância*</label>
+                        <select id="instance" name="instanceId" required>
+                            <option value="">Selecione uma instância</option>
+                            <!-- Options serão carregadas via JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Salvar</button>
+                        <button type="button" class="btn btn-secondary" id="cancel-create">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+            
+            <div id="edit-content" class="tab-content">
+                <h2>Editar Tensor</h2>
+                <form id="edit-tensor-form" class="standard-form">
+                    <div class="form-group">
+                        <label>Insumo (Input)</label>
+                        <input type="text" id="edit-input-name" readonly>
+                        <input type="hidden" id="edit-input-id" name="inputSocMatId">
+                        <div class="form-hint">O insumo não pode ser alterado (faz parte da chave primária)</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>Produto (Output)</label>
+                        <input type="text" id="edit-output-name" readonly>
+                        <input type="hidden" id="edit-output-id" name="outputSocMatId">
+                        <div class="form-hint">O produto não pode ser alterado (faz parte da chave primária)</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-coefficient">Coeficiente Técnico*</label>
+                        <input type="number" id="edit-coefficient" name="coefficient" step="0.0001" min="0.0001" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="edit-instance">Instância*</label>
+                        <select id="edit-instance" name="instanceId" required>
+                            <option value="">Selecione uma instância</option>
+                            <!-- Options serão carregadas via JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">Atualizar</button>
+                        <button type="button" class="btn btn-secondary" id="cancel-edit">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Diálogo de confirmação para exclusão -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Confirmar Exclusão</h2>
+            <p>Tem certeza que deseja excluir este tensor tecnológico?</p>
+            <div class="modal-actions">
+                <button id="confirm-delete" class="btn btn-danger">Excluir</button>
+                <button id="cancel-delete" class="btn btn-secondary">Cancelar</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inserir o cabeçalho comum
+            if (typeof insertCommonHeader === 'function') {
+                insertCommonHeader();
+            }
+            
+            // Elementos DOM
+            const listTab = document.getElementById('list-tab');
+            const createTab = document.getElementById('create-tab');
+            const listContent = document.getElementById('list-content');
+            const createContent = document.getElementById('create-content');
+            const editContent = document.getElementById('edit-content');
+            const cancelCreate = document.getElementById('cancel-create');
+            const cancelEdit = document.getElementById('cancel-edit');
+            const loadingIndicator = document.getElementById('loading-tensors');
+            const tensorsTable = document.getElementById('tensors-table');
+            const tensorsTableBody = document.getElementById('tensors-table-body');
+            const createTensorForm = document.getElementById('create-tensor-form');
+            const editTensorForm = document.getElementById('edit-tensor-form');
+            const deleteModal = document.getElementById('delete-modal');
+            const confirmDelete = document.getElementById('confirm-delete');
+            const cancelDelete = document.getElementById('cancel-delete');
+            const closeModal = document.querySelector('.close-modal');
+            const messageContainer = document.getElementById('message-container');
+            const messageElement = document.getElementById('message');
+            
+            // Estado da aplicação
+            let currentDeleteId = null;
+            let socialMaterializations = [];
+            let instances = [];
+            
+            // Carregar dados iniciais
+            loadTensors();
+            loadSocialMaterializations();
+            loadInstances();
+            
+            // Mostrar/esconder abas
+            listTab.addEventListener('click', showListTab);
+            createTab.addEventListener('click', showCreateTab);
+            cancelCreate.addEventListener('click', showListTab);
+            cancelEdit.addEventListener('click', showListTab);
+            
+            // Eventos de formulário
+            createTensorForm.addEventListener('submit', createTensor);
+            editTensorForm.addEventListener('submit', updateTensor);
+            
+            // Eventos para modal de exclusão
+            confirmDelete.addEventListener('click', confirmDeleteTensor);
+            cancelDelete.addEventListener('click', hideDeleteModal);
+            closeModal.addEventListener('click', hideDeleteModal);
+            
+            // Validação para evitar mesmo insumo e produto
+            document.getElementById('output-socmat').addEventListener('change', validateInputOutput);
+            document.getElementById('input-socmat').addEventListener('change', validateInputOutput);
+            
+            // Verificar parâmetros da URL para mensagens
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.has('success')) {
+                showMessage(urlParams.get('success'), 'success');
+            } else if (urlParams.has('error')) {
+                showMessage(urlParams.get('error'), 'error');
+            }
+            
+            // Funções de navegação
+            function showListTab() {
+                listTab.classList.add('active');
+                createTab.classList.remove('active');
+                listContent.classList.add('active');
+                createContent.classList.remove('active');
+                editContent.classList.remove('active');
+            }
+            
+            function showCreateTab() {
+                listTab.classList.remove('active');
+                createTab.classList.add('active');
+                listContent.classList.remove('active');
+                createContent.classList.add('active');
+                editContent.classList.remove('active');
+                createTensorForm.reset();
+            }
+            
+            function showEditTab() {
+                listTab.classList.remove('active');
+                createTab.classList.remove('active');
+                listContent.classList.remove('active');
+                createContent.classList.remove('active');
+                editContent.classList.add('active');
+            }
+            
+            // Funções de carregamento de dados
+            function loadTensors() {
+                loadingIndicator.style.display = 'block';
+                tensorsTable.style.display = 'none';
+                
+                fetch('/technological-tensors/api')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Erro HTTP: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Resposta de tensores:', data);
+                        // Garantir que temos um array para trabalhar
+                        let tensorsArray = Array.isArray(data) ? data : [];
+                        renderTensorsTable(tensorsArray);
+                        loadingIndicator.style.display = 'none';
+                        tensorsTable.style.display = 'table';
+                    })
+                    .catch(error => {
+                        console.error('Erro ao carregar tensores:', error);
+                        loadingIndicator.textContent = 'Erro ao carregar tensores: ' + error.message;
+                        renderTensorsTable([]);  // Renderizar com array vazio para evitar erro
+                    });
+            }
+            
+            function loadSocialMaterializations() {
+                fetch('/technological-tensors/api/social-materializations')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Erro HTTP: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Resposta de materializações:', data);
+                        // Garantir que temos um array para trabalhar
+                        socialMaterializations = Array.isArray(data) ? data : [];
+                        populateSocialMaterializationDropdowns();
+                    })
+                    .catch(error => {
+                        console.error('Erro ao carregar materializações sociais:', error);
+                        socialMaterializations = [];  // Array vazio para evitar erro no forEach
+                        populateSocialMaterializationDropdowns();
+                    });
+            }
+            
+            function loadInstances() {
+                fetch('/technological-tensors/api/instances')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Erro HTTP: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        console.log('Resposta de instâncias:', data);
+                        // Garantir que temos um array para trabalhar
+                        instances = Array.isArray(data) ? data : [];
+                        populateInstanceDropdowns();
+                    })
+                    .catch(error => {
+                        console.error('Erro ao carregar instâncias:', error);
+                        instances = [];  // Array vazio para evitar erro no forEach
+                        populateInstanceDropdowns();
+                    });
+            }
+            
+            // Funções de renderização de UI
+            function renderTensorsTable(tensors) {
+                tensorsTableBody.innerHTML = '';
+                
+                if (tensors.length === 0) {
+                    const row = document.createElement('tr');
+                    row.innerHTML = '<td colspan="6" class="no-data">Nenhum tensor tecnológico encontrado</td>';
+                    tensorsTableBody.appendChild(row);
+                    return;
+                }
+                
+                tensors.forEach(tensor => {
+                    const row = document.createElement('tr');
+                    
+                    const dateOptions = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+                    const formattedDate = new Date(tensor.createdAt).toLocaleDateString('pt-BR', dateOptions);
+                    
+                    // Nome seguro da instância (usando operador de coalescência nula)
+                    const instanceName = tensor.instance && tensor.instance.name ? tensor.instance.name : 'Sem nome';
+                    
+                    row.innerHTML = `
+                        <td>${tensor.inputSocialMaterializationName}</td>
+                        <td>${tensor.outputSocialMaterializationName}</td>
+                        <td>${tensor.technicalCoefficientElementValue}</td>
+                        <td>${instanceName}</td>
+                        <td>${formattedDate}</td>
+                        <td class="actions-col">
+                            <button class="btn btn-edit" data-input-id="${tensor.inputSocialMaterializationId}" 
+                                    data-output-id="${tensor.outputSocialMaterializationId}">Editar</button>
+                            <button class="btn btn-delete" data-input-id="${tensor.inputSocialMaterializationId}" 
+                                    data-output-id="${tensor.outputSocialMaterializationId}">Excluir</button>
+                        </td>
+                    `;
+                    
+                    tensorsTableBody.appendChild(row);
+                });
+                
+                // Adicionar eventos aos botões de ação
+                document.querySelectorAll('.btn-edit').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const inputId = this.getAttribute('data-input-id');
+                        const outputId = this.getAttribute('data-output-id');
+                        loadTensorForEdit(inputId, outputId);
+                    });
+                });
+                
+                document.querySelectorAll('.btn-delete').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const inputId = this.getAttribute('data-input-id');
+                        const outputId = this.getAttribute('data-output-id');
+                        showDeleteModal(inputId, outputId);
+                    });
+                });
+            }
+            
+            function populateSocialMaterializationDropdowns() {
+                const inputSelect = document.getElementById('input-socmat');
+                const outputSelect = document.getElementById('output-socmat');
+                const editInput = document.getElementById('edit-input-name');
+                const editOutput = document.getElementById('edit-output-name');
+                
+                // Limpar opções existentes (mantém apenas a primeira)
+                while (inputSelect.options.length > 1) inputSelect.options.remove(1);
+                while (outputSelect.options.length > 1) outputSelect.options.remove(1);
+                
+                // Adicionar novas opções
+                socialMaterializations.forEach(sm => {
+                    const optionInput = new Option(`${sm.name} (${sm.type})`, sm.id);
+                    const optionOutput = new Option(`${sm.name} (${sm.type})`, sm.id);
+                    
+                    inputSelect.add(optionInput);
+                    outputSelect.add(optionOutput);
+                });
+            }
+            
+            function populateInstanceDropdowns() {
+                const instanceSelect = document.getElementById('instance');
+                const editInstanceSelect = document.getElementById('edit-instance');
+                
+                // Limpar opções existentes (mantém apenas a primeira)
+                while (instanceSelect.options.length > 1) instanceSelect.options.remove(1);
+                while (editInstanceSelect.options.length > 1) editInstanceSelect.options.remove(1);
+                
+                // Adicionar novas opções
+                instances.forEach(instance => {
+                    const option = new Option(instance.name, instance.id);
+                    const editOption = new Option(instance.name, instance.id);
+                    
+                    instanceSelect.add(option);
+                    editInstanceSelect.add(editOption);
+                });
+            }
+            
+            // Funções de validação
+            function validateInputOutput() {
+                const inputId = document.getElementById('input-socmat').value;
+                const outputId = document.getElementById('output-socmat').value;
+                const warning = document.getElementById('output-warning');
+                
+                if (inputId && outputId && inputId === outputId) {
+                    warning.style.display = 'block';
+                    return false;
+                } else {
+                    warning.style.display = 'none';
+                    return true;
+                }
+            }
+            
+            // Funções CRUD
+            function createTensor(e) {
+                e.preventDefault();
+                
+                if (!validateInputOutput()) {
+                    showMessage('O insumo e o produto não podem ser os mesmos!', 'error');
+                    return;
+                }
+                
+                const formData = new FormData(createTensorForm);
+                
+                fetch('/technological-tensors/api', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
+                    showMessage('Tensor tecnológico criado com sucesso!', 'success');
+                    createTensorForm.reset();
+                    showListTab();
+                    loadTensors();
+                })
+                .catch(error => {
+                    showMessage('Erro ao criar tensor: ' + error.message, 'error');
+                });
+            }
+            
+            function loadTensorForEdit(inputId, outputId) {
+                fetch(`/technological-tensors/api/${inputId}/${outputId}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Tensor não encontrado');
+                        }
+                        return response.json();
+                    })
+                    .then(tensor => {
+                        // Preencher o formulário de edição
+                        document.getElementById('edit-input-id').value = inputId;
+                        document.getElementById('edit-output-id').value = outputId;
+                        document.getElementById('edit-input-name').value = tensor.inputSocialMaterialization.name;
+                        document.getElementById('edit-output-name').value = tensor.outputSocialMaterialization.name;
+                        document.getElementById('edit-coefficient').value = tensor.technicalCoefficientElementValue;
+                        document.getElementById('edit-instance').value = tensor.instance.id;
+                        
+                        // Mostrar a aba de edição
+                        showEditTab();
+                    })
+                    .catch(error => {
+                        showMessage('Erro: ' + error.message, 'error');
+                    });
+            }
+            
+            function updateTensor(e) {
+                e.preventDefault();
+                
+                const inputId = document.getElementById('edit-input-id').value;
+                const outputId = document.getElementById('edit-output-id').value;
+                const coefficient = document.getElementById('edit-coefficient').value;
+                const instanceId = document.getElementById('edit-instance').value;
+                
+                fetch(`/technological-tensors/api/${inputId}/${outputId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `coefficient=${coefficient}&instanceId=${instanceId}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
+                    showMessage('Tensor tecnológico atualizado com sucesso!', 'success');
+                    showListTab();
+                    loadTensors();
+                })
+                .catch(error => {
+                    showMessage('Erro ao atualizar tensor: ' + error.message, 'error');
+                });
+            }
+            
+            function showDeleteModal(inputId, outputId) {
+                currentDeleteId = { inputId, outputId };
+                deleteModal.style.display = 'block';
+            }
+            
+            function hideDeleteModal() {
+                deleteModal.style.display = 'none';
+                currentDeleteId = null;
+            }
+            
+            function confirmDeleteTensor() {
+                if (!currentDeleteId) return;
+                
+                const { inputId, outputId } = currentDeleteId;
+                
+                fetch(`/technological-tensors/api/${inputId}/${outputId}`, {
+                    method: 'DELETE'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.error) {
+                        throw new Error(data.error);
+                    }
+                    
+                    hideDeleteModal();
+                    showMessage('Tensor tecnológico excluído com sucesso!', 'success');
+                    loadTensors();
+                })
+                .catch(error => {
+                    hideDeleteModal();
+                    showMessage('Erro ao excluir tensor: ' + error.message, 'error');
+                });
+            }
+            
+            // Função para exibir mensagens
+            function showMessage(text, type) {
+                messageElement.textContent = text;
+                messageElement.className = 'message ' + type;
+                messageContainer.style.display = 'block';
+                
+                // Ocultar após 5 segundos
+                setTimeout(() => {
+                    messageContainer.style.display = 'none';
+                }, 5000);
+            }
+            
+            // Fechar o modal quando clicar fora dele
+            window.onclick = function(event) {
+                if (event.target === deleteModal) {
+                    hideDeleteModal();
+                }
+            };
+        });
+    </script>
+</body>
+</html>

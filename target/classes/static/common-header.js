@@ -121,6 +121,7 @@ function insertCommonHeader() {
             <a href="/instances.html" class="${window.location.pathname === '/instances.html' ? 'active' : ''}">Instâncias</a>
             <a href="/sectors.html" class="${window.location.pathname === '/sectors.html' ? 'active' : ''}">Setores</a>
             <a href="/users.html" class="${window.location.pathname === '/users.html' ? 'active' : ''}">Usuários</a>
+            <a href="/technological-tensors.html" class="${window.location.pathname === '/technological-tensors.html' ? 'active' : ''}">Tensores Tecnológicos</a>
         </div>
         <div class="user-menu">
             <div id="userInfo" style="display: none;">
