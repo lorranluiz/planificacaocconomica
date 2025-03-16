@@ -2,13 +2,40 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="refresh" content="0;url=/">
-    <title>Redirecionando...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistema de Planejamento Econômico</title>
+    <link rel="stylesheet" href="/css/theme-variables.css">
+    <link rel="stylesheet" href="/css/theme-elements.css">
+    <link rel="stylesheet" href="/css/common-styles.css">
+    <script src="/common-header.js"></script>
 </head>
 <body>
-    <p>Redirecionando para a página inicial...</p>
+    <div class="container">
+        <!-- O cabeçalho será inserido aqui pelo script -->
+        
+        <div class="welcome-section">
+            <h1>Acesso ao Sistema</h1>
+            <p>Por favor, faça login para acessar todas as funcionalidades do sistema.</p>
+        </div>
+    </div>
+    
     <script>
-        window.location.href = '/';
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inserir o cabeçalho comum
+            if (typeof insertCommonHeader === 'function') {
+                insertCommonHeader();
+            }
+            
+            // Abrir modal de login automaticamente
+            setTimeout(function() {
+                if (typeof loginButtonClick === 'function') {
+                    loginButtonClick();
+                } else {
+                    // Redirecionar para página inicial se a função não estiver disponível
+                    window.location.href = '/';
+                }
+            }, 300);
+        });
     </script>
 </body>
 </html>

@@ -128,7 +128,7 @@ function insertCommonHeader() {
                 <button id="logoutBtn" class="btn-small">Sair</button>
             </div>
             <div id="authLinks">
-                <a href="/login.html" class="btn-small">Login</a>
+                <button id="headerLoginBtn" class="login-button" onclick="loginButtonClick(event); return false;">Login</button>
             </div>
         </div>
     `;
@@ -145,16 +145,17 @@ function insertCommonHeader() {
     try {
         const currentUser = JSON.parse(localStorage.getItem('currentUser'));
         if (currentUser) {
-            const userInfoElement = document.getElementById('userInfo');
-            const authLinksElement = document.getElementById('authLinks');
+            // Exibir informações do usuário
+            const userInfo = document.getElementById('userInfo');
+            const authLinks = document.getElementById('authLinks');
             const usernameElement = document.getElementById('username');
             
-            if (userInfoElement && authLinksElement && usernameElement) {
-                userInfoElement.style.display = 'flex';
-                usernameElement.textContent = currentUser.name || currentUser.username || 'Usuário';
-                authLinksElement.style.display = 'none';
+            if (userInfo && authLinks && usernameElement) {
+                userInfo.style.display = 'flex';
+                authLinks.style.display = 'none';
+                usernameElement.textContent = currentUser.name || currentUser.username;
                 
-                // Adicionar funcionalidade ao botão de logout
+                // Adicionar evento de logout
                 const logoutBtn = document.getElementById('logoutBtn');
                 if (logoutBtn) {
                     logoutBtn.addEventListener('click', function() {
@@ -854,6 +855,51 @@ window.applyThemeToEntirePage = applyThemeToEntirePage;
 
 // Função para atualizar estado de login/logout no cabeçalho
 function updateLoginLogoutButton() {
+    // Atualizar botão na página inicial (se existir)
+    const loginLogoutBtn = document.getElementById('loginLogoutBtn');
+    
+    // Atualizar botão no cabeçalho comum
+    const headerLoginBtn = document.getElementById('headerLoginBtn');
+    
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    if (currentUser) {
+        // Usuário está logado
+        if (loginLogoutBtn) {
+            loginLogoutBtn.textContent = 'Minha Conta';
+            loginLogoutBtn.classList.add('logged-in');
+        }
+        
+        // Atualizar informações do usuário no cabeçalho
+        const userInfo = document.getElementById('userInfo');
+        const authLinks = document.getElementById('authLinks');
+        const usernameElement = document.getElementById('username');
+        
+        if (userInfo && authLinks && usernameElement) {
+            userInfo.style.display = 'flex';
+            authLinks.style.display = 'none';
+            usernameElement.textContent = currentUser.name || currentUser.username;
+        }
+    } else {
+        // Usuário não está logado
+        if (loginLogoutBtn) {
+            loginLogoutBtn.textContent = 'Login';
+            loginLogoutBtn.classList.remove('logged-in');
+        }
+        
+        // Resetar cabeçalho para estado de não-logado
+        const userInfo = document.getElementById('userInfo');
+        const authLinks = document.getElementById('authLinks');
+        
+        if (userInfo && authLinks) {
+            userInfo.style.display = 'none';
+            authLinks.style.display = 'block';
+        }
+    }
+}
+
+// Função para atualizar estado de login/logout no cabeçalho
+function updateLoginLogoutButton() {
     const loginLogoutBtn = document.getElementById('loginLogoutBtn');
     if (!loginLogoutBtn) return;
     
@@ -1401,3 +1447,281 @@ window.handleLogout = handleLogout;
 
 // Chamar a função para criar o header quando o DOM estiver carregado
 document.addEventListener('DOMContentLoaded', createHeader);
+
+// Adicionar esta função após a função updateLoginLogoutButton()
+
+// Função para gerenciar o login/logout - compatível com a usada na página inicial
+function loginButtonClick(event) {
+    if (event) event.preventDefault();
+    
+    // Verificar se o usuário já está logado
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    if (currentUser) {
+        // Usuário já está logado - fazer logout
+        if (confirm('Deseja sair da sua conta?')) {
+            localStorage.removeItem('currentUser');
+            alert('Você saiu do sistema com sucesso!');
+            window.location.reload();
+        }
+    } else {
+        // Usuário não está logado - mostrar modal de login
+        let loginModal = document.getElementById('login-modal');
+        if (!loginModal) {
+            // Criar modal se não existir
+            if (typeof createLoginModal === 'function') {
+                const modal = createLoginModal();
+                if (modal) {
+                    modal.style.display = 'block';
+                } else {
+                    alert('Erro ao criar o modal de login. Por favor, recarregue a página.');
+                }
+            } else {
+                alert('Erro ao inicializar o sistema de login. Por favor, recarregue a página.');
+            }
+        } else {
+            // Exibir modal existente
+            loginModal.style.display = 'block';
+        }
+    }
+    
+    return false;
+}
+
+// Expor a função loginButtonClick globalmente
+window.loginButtonClick = loginButtonClick;
+
+// Definir a função loginButtonClick no escopo global ANTES de qualquer outra operação
+// Esta função deve ser idêntica à usada na página inicial
+window.loginButtonClick = function(event) {
+    if (event) event.preventDefault();
+    
+    // Verificar se o usuário já está logado
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    if (currentUser) {
+        // Usuário já está logado - fazer logout
+        if (confirm('Deseja sair da sua conta?')) {
+            localStorage.removeItem('currentUser');
+            alert('Você saiu do sistema com sucesso!');
+            window.location.reload();
+        }
+    } else {
+        // Usuário não está logado - mostrar modal de login
+        // Primeiro, vamos ver se o modal já existe
+        let loginModal = document.getElementById('login-modal');
+        
+        if (!loginModal) {
+            // Criar modal se não existir
+            loginModal = createLoginModal();
+        }
+        
+        // Mostrar o modal
+        if (loginModal) {
+            loginModal.style.display = 'block';
+        } else {
+            console.error('Não foi possível criar ou encontrar o modal de login.');
+            alert('Erro ao abrir o painel de login. Por favor, recarregue a página.');
+        }
+    }
+    
+    return false;
+};
+
+// Função auxiliar para criar o modal de login se não existir
+function createLoginModal() {
+    // Verificar se já existe
+    if (document.getElementById('login-modal')) {
+        return document.getElementById('login-modal');
+    }
+    
+    // Criar o modal
+    const modal = document.createElement('div');
+    modal.id = 'login-modal';
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Acesso ao Sistema</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Usuário:</label>
+                    <input type="text" id="username-field" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha:</label>
+                    <input type="password" id="password-field" name="password" required>
+                </div>
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Lembrar meus dados</label>
+                </div>
+                <div class="form-buttons">
+                    <button type="submit" class="btn-small">Entrar</button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Adicionar comportamento para fechar o modal
+    const closeBtn = modal.querySelector('.close-modal');
+    closeBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+    
+    // Fechar ao clicar fora do conteúdo
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+    
+    // Tratar o envio do formulário
+    const form = modal.querySelector('#login-form');
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const username = document.getElementById('username-field').value;
+        const password = document.getElementById('password-field').value;
+        
+        // Simulação de login (em um sistema real, você faria uma requisição ao backend)
+        if (username && password) {
+            // Dados de usuário simulados
+            const userData = {
+                id: 1,
+                username: username,
+                name: username.charAt(0).toUpperCase() + username.slice(1),
+                email: `${username}@example.com`,
+                role: 'user'
+            };
+            
+            // Salvar no localStorage
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            
+            // Fechar modal e atualizar UI
+            modal.style.display = 'none';
+            alert('Login realizado com sucesso!');
+            window.location.reload();
+        } else {
+            alert('Por favor, preencha todos os campos.');
+        }
+    });
+    
+    return modal;
+}
+
+// Função para criar a modal de login para uso em todas as páginas
+function createLoginModal() {
+    // Verificar se já existe
+    if (document.getElementById('login-modal')) {
+        return document.getElementById('login-modal');
+    }
+    
+    // Criar o modal
+    const modal = document.createElement('div');
+    modal.id = 'login-modal';
+    modal.className = 'modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2>Acesso ao Sistema</h2>
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="username">Usuário:</label>
+                    <input type="text" id="username-field" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Senha:</label>
+                    <input type="password" id="password-field" name="password" required>
+                </div>
+                <div class="remember-me">
+                    <input type="checkbox" id="remember" name="remember">
+                    <label for="remember">Lembrar meus dados</label>
+                </div>
+                <div class="form-buttons">
+                    <button type="submit" class="btn-small">Entrar</button>
+                </div>
+            </form>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    // Adicionar comportamento para fechar o modal
+    const closeBtn = modal.querySelector('.close-modal');
+    closeBtn.addEventListener('click', function() {
+        modal.style.display = 'none';
+    });
+    
+    // Fechar ao clicar fora do conteúdo
+    window.addEventListener('click', function(event) {
+        if (event.target === modal) {
+            modal.style.display = 'none';
+        }
+    });
+    
+    // Tratar o envio do formulário
+    const form = modal.querySelector('#login-form');
+    form.addEventListener('submit', function(event) {
+        event.preventDefault();
+        
+        const username = document.getElementById('username-field').value;
+        const password = document.getElementById('password-field').value;
+        
+        // Simulação de login (em um sistema real, você faria uma requisição ao backend)
+        if (username && password) {
+            // Dados de usuário simulados
+            const userData = {
+                id: 1,
+                username: username,
+                name: username.charAt(0).toUpperCase() + username.slice(1),
+                email: `${username}@example.com`,
+                role: 'user'
+            };
+            
+            // Salvar no localStorage
+            localStorage.setItem('currentUser', JSON.stringify(userData));
+            
+            // Fechar modal e atualizar UI
+            modal.style.display = 'none';
+            alert('Login realizado com sucesso!');
+            window.location.reload();
+        } else {
+            alert('Por favor, preencha todos os campos.');
+        }
+    });
+    
+    return modal;
+}
+
+// Função de login para ser chamada pelos botões
+function loginButtonClick(event) {
+    if (event) event.preventDefault();
+    
+    // Verificar se o usuário já está logado
+    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+    
+    if (currentUser) {
+        // Usuário já está logado - fazer logout
+        if (confirm('Deseja sair da sua conta?')) {
+            localStorage.removeItem('currentUser');
+            alert('Você saiu do sistema com sucesso!');
+            window.location.reload();
+        }
+    } else {
+        // Usuário não está logado - mostrar modal de login
+        let loginModal = document.getElementById('login-modal');
+        if (!loginModal) {
+            loginModal = createLoginModal();
+        }
+        loginModal.style.display = 'block';
+    }
+    
+    return false;
+}
+
+// Expor as funções globalmente
+window.loginButtonClick = loginButtonClick;
+window.createLoginModal = createLoginModal;

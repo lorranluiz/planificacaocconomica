@@ -782,8 +782,48 @@
         }
     });
     </script>
-    <!-- Substitua o script existente no final do corpo da página por este -->
     <script>
+    // Garantir que a função loginButtonClick não seja duplicada
+    // Remove a definição existente se já estiver definida pelo common-header.js
+    if (!window.loginButtonClick) {
+        window.loginButtonClick = function(event) {
+            if (event) event.preventDefault();
+            
+            // Verificar se o usuário já está logado
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            
+            if (currentUser) {
+                // Usuário já está logado - fazer logout
+                if (confirm('Deseja sair da sua conta?')) {
+                    localStorage.removeItem('currentUser');
+                    alert('Você saiu do sistema com sucesso!');
+                    window.location.reload();
+                }
+            } else {
+                // Usuário não está logado - mostrar modal de login
+                const loginModal = document.getElementById('login-modal');
+                if (!loginModal) {
+                    // Criar modal se não existir
+                    if (typeof createLoginModal === 'function') {
+                        const modal = createLoginModal();
+                        if (modal) {
+                            modal.style.display = 'block';
+                        } else {
+                            alert('Erro ao criar o modal de login. Por favor, recarregue a página.');
+                        }
+                    } else {
+                        alert('Erro ao inicializar o sistema de login. Por favor, recarregue a página.');
+                    }
+                } else {
+                    // Exibir modal existente
+                    loginModal.style.display = 'block';
+                }
+            }
+            
+            return false;
+        };
+    }
+
     // Script de inicialização para garantir que o login funcione corretamente
     document.addEventListener('DOMContentLoaded', function() {
         console.log("Verificando componentes de login...");
@@ -806,59 +846,15 @@
                 return false;
             };
         }
+        
+        // Verificar se há um usuário logado e atualizar o botão "Minha Conta"
+        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (currentUser && myAccountButton) {
+            myAccountButton.textContent = 'Minha Conta';
+        } else if (myAccountButton) {
+            myAccountButton.textContent = 'Login';
+        }
     });
     </script>
-    <script>
-// Função segura para chamar o login
-function loginButtonClick(event) {
-    event.preventDefault();
-    
-    // Verificar se o usuário já está logado
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    
-    if (currentUser) {
-        // Usuário já está logado - fazer logout
-        if (confirm('Deseja sair da sua conta?')) {
-            localStorage.removeItem('currentUser');
-            alert('Você saiu do sistema com sucesso!');
-            window.location.reload();
-        }
-    } else {
-        // Usuário não está logado - mostrar modal de login
-        const loginModal = document.getElementById('login-modal');
-        if (!loginModal) {
-            // Criar modal se não existir
-            if (typeof createLoginModal === 'function') {
-                const modal = createLoginModal();
-                if (modal) {
-                    modal.style.display = 'block';
-                } else {
-                    alert('Erro ao criar o modal de login. Por favor, recarregue a página.');
-                }
-            } else {
-                alert('Erro ao inicializar o sistema de login. Por favor, recarregue a página.');
-            }
-        } else {
-            // Exibir modal existente
-            loginModal.style.display = 'block';
-        }
-    }
-    
-    return false;
-}
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Verificar se há um usuário logado e atualizar o botão "Minha Conta"
-    const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-    const myAccountButton = document.getElementById('loginLogoutBtn');
-    
-    if (currentUser && myAccountButton) {
-        myAccountButton.textContent = 'Minha Conta';
-    } else if (myAccountButton) {
-        myAccountButton.textContent = 'Login';
-    }
-});
-</script>
 </body>
 </html>
