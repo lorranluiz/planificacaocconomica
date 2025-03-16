@@ -469,19 +469,26 @@
                         return response.json();
                     })
                     .then(tensor => {
+                        console.log("Tensor para edição:", tensor); // Log para depuração
+                        
                         // Preencher o formulário de edição
-                        document.getElementById('edit-input-id').value = inputId;
-                        document.getElementById('edit-output-id').value = outputId;
-                        document.getElementById('edit-input-name').value = tensor.inputSocialMaterialization.name;
-                        document.getElementById('edit-output-name').value = tensor.outputSocialMaterialization.name;
-                        document.getElementById('edit-coefficient').value = tensor.technicalCoefficientElementValue;
+                        document.getElementById('edit-input-id').value = tensor.inputSocialMaterializationId;
+                        document.getElementById('edit-output-id').value = tensor.outputSocialMaterializationId;
+                        document.getElementById('edit-input-name').value = tensor.inputSocialMaterializationName;
+                        document.getElementById('edit-output-name').value = tensor.outputSocialMaterializationName;
+                        
+                        // Garantir que o valor é um número formatado corretamente para o input type="number"
+                        const coefficient = parseFloat(tensor.technicalCoefficientElementValue);
+                        document.getElementById('edit-coefficient').value = coefficient;
+                        
                         document.getElementById('edit-instance').value = tensor.instance.id;
                         
                         // Mostrar a aba de edição
                         showEditTab();
                     })
                     .catch(error => {
-                        showMessage('Erro: ' + error.message, 'error');
+                        console.error("Erro ao carregar tensor para edição:", error);
+                        showMessage('Erro ao carregar tensor: ' + error.message, 'error');
                     });
             }
             
@@ -493,14 +500,30 @@
                 const coefficient = document.getElementById('edit-coefficient').value;
                 const instanceId = document.getElementById('edit-instance').value;
                 
-                fetch(`/technological-tensors/api/${inputId}/${outputId}`, {
+                // Construir a URL com os parâmetros diretamente na query string
+                const url = `/technological-tensors/api/${inputId}/${outputId}?coefficient=${encodeURIComponent(coefficient)}&instanceId=${encodeURIComponent(instanceId)}`;
+                
+                console.log("URL da requisição:", url);
+                
+                fetch(url, {
                     method: 'PUT',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded',
-                    },
-                    body: `coefficient=${coefficient}&instanceId=${instanceId}`
+                        'Accept': 'application/json'
+                    }
                 })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            console.error("Erro na resposta:", text);
+                            try {
+                                return JSON.parse(text);
+                            } catch {
+                                throw new Error(`Erro ${response.status}: ${text}`);
+                            }
+                        });
+                    }
+                    return response.json();
+                })
                 .then(data => {
                     if (data.error) {
                         throw new Error(data.error);
@@ -511,6 +534,7 @@
                     loadTensors();
                 })
                 .catch(error => {
+                    console.error("Erro na atualização:", error);
                     showMessage('Erro ao atualizar tensor: ' + error.message, 'error');
                 });
             }
