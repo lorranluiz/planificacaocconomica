@@ -39,28 +39,25 @@ public class WorkersProposalController {
             
             for (WorkersProposal proposal : proposals) {
                 Map<String, Object> item = new HashMap<>();
-                
-                // Adicionar ID da instância
-                if (proposal.getId() != null) {
-                    item.put("instanceId", proposal.getId().getInstanceId());
-                }
-                
-                // Adicionar outros campos
+                item.put("instanceId", proposal.getId().getInstanceId());
                 item.put("workerLimit", proposal.getWorkerLimit());
                 item.put("workerHours", proposal.getWorkerHours());
                 item.put("productionTime", proposal.getProductionTime());
                 item.put("nightShift", proposal.getNightShift());
                 item.put("weeklyScale", proposal.getWeeklyScale());
-                item.put("createdAt", proposal.getCreatedAt());
                 
-                // Adicionar informações da instância de forma segura
+                // Formatar a data para ISO-8601 que o JavaScript consegue interpretar corretamente
+                if (proposal.getCreatedAt() != null) {
+                    item.put("createdAt", proposal.getCreatedAt().toString()); // LocalDateTime.toString() gera ISO-8601
+                } else {
+                    item.put("createdAt", null);
+                }
+                
                 if (proposal.getInstance() != null) {
                     Map<String, Object> instanceInfo = new HashMap<>();
                     instanceInfo.put("id", proposal.getInstance().getId());
                     instanceInfo.put("name", proposal.getInstance().getCommitteeName());
                     item.put("instance", instanceInfo);
-                } else {
-                    item.put("instance", null);
                 }
                 
                 result.add(item);

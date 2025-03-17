@@ -23,7 +23,7 @@ public interface InstanceRepository extends JpaRepository<Instance, Integer> {
      * @return lista de comitês
      */
     default List<Instance> findAllCommittees() {
-        return findByType("COMMITTEE");
+        return findByType(InstanceType.COMMITTEE);
     }
     
     List<Instance> findByType(InstanceType type);
