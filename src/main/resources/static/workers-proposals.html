@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <script>
+    // Aplicar tema imediatamente no carregamento da página
+    (function() {
+        try {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            console.log('Tema aplicado em workers-proposals.html:', savedTheme);
+        } catch(e) {
+            console.error('Erro ao aplicar tema inicial:', e);
+        }
+    })();
+    </script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" id="theme-color" content="#2c3e50">
+    <link rel="stylesheet" href="/css/theme-variables.css">
+    <link rel="stylesheet" href="/css/theme-elements.css">
+    <title>Propostas de Trabalhadores - Sistema de Planejamento Econômico</title>
+    <link rel="stylesheet" href="/css/common-styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- O cabeçalho será inserido aqui pelo script -->
+
+        <h1>Propostas de Trabalhadores</h1>
+        
+        <!-- Abas para navegar entre listar e cadastrar -->
+        <div class="tabs">
+            <div class="tab active" data-tab="list">Listar</div>
+            <div class="tab" data-tab="create">Cadastrar</div>
+        </div>
+        
+        <!-- Conteúdo da aba de listagem -->
+        <div id="list-tab" class="tab-content active">
+            <button id="loadButton" class="primary-button">Carregar Propostas</button>
+            
+            <div id="loading" class="loading" style="display: none;">Carregando dados...</div>
+            <div id="error" class="message error" style="display: none;"></div>
+            <div id="counter" class="counter"></div>
+            
+            <div id="results">
+                <table id="dataTable" class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Instância</th>
+                            <th>Limite de Trabalhadores</th>
+                            <th>Horas de Trabalho</th>
+                            <th>Tempo de Produção</th>
+                            <th>Turno Noturno</th>
+                            <th>Escala Semanal</th>
+                            <th>Data de Criação</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- Conteúdo da aba de cadastro -->
+        <div id="create-tab" class="tab-content">
+            <div id="formLoadingMessage" class="loading" style="display: none;">Carregando instâncias...</div>
+            <div id="formErrorMessage" class="message error" style="display: none;"></div>
+            <div id="formSuccessMessage" class="message success" style="display: none;"></div>
+            
+            <form id="createForm" class="form-container">
+                <h2>Nova Proposta de Trabalhadores</h2>
+                
+                <div class="form-group">
+                    <label for="instance">Instância (Comitê)<span class="required">*</span></label>
+                    <select id="instance" name="instanceId" required>
+                        <option value="">Selecione uma instância...</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="workerLimit">Limite de Trabalhadores<span class="required">*</span></label>
+                    <input type="number" id="workerLimit" name="workerLimit" required min="1">
+                </div>
+                
+                <div class="form-group">
+                    <label for="workerHours">Horas de Trabalho<span class="required">*</span></label>
+                    <input type="number" id="workerHours" name="workerHours" required min="0" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="productionTime">Tempo de Produção<span class="required">*</span></label>
+                    <input type="number" id="productionTime" name="productionTime" required min="0" step="0.01">
+                </div>
+                
+                <div class="form-group">
+                    <label for="nightShift">Turno Noturno<span class="required">*</span></label>
+                    <select id="nightShift" name="nightShift" required>
+                        <option value="true">Sim</option>
+                        <option value="false">Não</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="weeklyScale">Escala Semanal<span class="required">*</span></label>
+                    <input type="number" id="weeklyScale" name="weeklyScale" required min="1" max="7">
+                </div>
+                
+                <div class="form-buttons">
+                    <button type="button" id="cancelButton" class="danger">Cancelar</button>
+                    <button type="submit" id="submitButton" class="primary">Cadastrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="/common-header.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inserir o cabeçalho comum
+            if (typeof insertCommonHeader === 'function') {
+                insertCommonHeader();
+            }
+            
+            // Elementos da página
+            const loadButton = document.getElementById('loadButton');
+            const loading = document.getElementById('loading');
+            const error = document.getElementById('error');
+            const tableBody = document.querySelector('#dataTable tbody');
+            const counter = document.getElementById('counter');
+            const createForm = document.getElementById('createForm');
+            const formLoadingMessage = document.getElementById('formLoadingMessage');
+            const formErrorMessage = document.getElementById('formErrorMessage');
+            const formSuccessMessage = document.getElementById('formSuccessMessage');
+            const instanceSelect = document.getElementById('instance');
+            const submitButton = document.getElementById('submitButton');
+            const cancelButton = document.getElementById('cancelButton');
+            const tabs = document.querySelectorAll('.tab');
+            const tabContents = document.querySelectorAll('.tab-content');
+            
+            // Carregar dados automaticamente ao abrir a página
+            loadWorkersProposals();
+            
+            // ----------------- GERENCIAMENTO DE ABAS -----------------
+            tabs.forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Remover classe ativa de todas as abas
+                    tabs.forEach(t => t.classList.remove('active'));
+                    tabContents.forEach(c => c.classList.remove('active'));
+                    
+                    // Adicionar classe ativa na aba clicada
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId + '-tab').classList.add('active');
+                    
+                    // Se a aba for de cadastro, carregar instâncias (comitês)
+                    if (tabId === 'create') {
+                        loadCommitteeInstances();
+                    }
+                });
+            });
+            
+            // ----------------- LISTAR PROPOSTAS -----------------
+            loadButton.addEventListener('click', loadWorkersProposals);
+            
+            function loadWorkersProposals() {
+                // Limpar resultados anteriores
+                tableBody.innerHTML = '';
+                counter.textContent = '';
+                
+                // Mostrar indicador de carregamento
+                loading.style.display = 'block';
+                
+                // Esconder mensagem de erro
+                error.style.display = 'none';
+                
+                // Fazer requisição ao endpoint
+                fetch('/api/workers-proposals')
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`Erro HTTP: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        // Esconder indicador de carregamento
+                        loading.style.display = 'none';
+                        
+                        // Verificar se há dados
+                        if (!data || data.length === 0) {
+                            tableBody.innerHTML = '<tr><td colspan="8" class="no-data">Nenhuma proposta de trabalhadores encontrada.</td></tr>';
+                            counter.textContent = 'Total: 0 propostas';
+                            return;
+                        }
+                        
+                        // Exibir contador
+                        counter.textContent = `Total: ${data.length} proposta(s)`;
+                        
+                        // Popular tabela com dados
+                        data.forEach(proposal => {
+                            const tr = document.createElement('tr');
+                            
+                            tr.innerHTML = `
+                                <td>${proposal.instanceId || ''}</td>
+                                <td>${proposal.instance ? proposal.instance.name : ''}</td>
+                                <td>${proposal.workerLimit || ''}</td>
+                                <td>${proposal.workerHours || ''}</td>
+                                <td>${proposal.productionTime || ''}</td>
+                                <td>${proposal.nightShift ? 'Sim' : 'Não'}</td>
+                                <td>${proposal.weeklyScale || ''}</td>
+                                <td>${formatDate(proposal.createdAt)}</td>
+                            `;
+                            
+                            tableBody.appendChild(tr);
+                        });
+                    })
+                    .catch(err => {
+                        loading.style.display = 'none';
+                        error.textContent = `Erro ao carregar propostas: ${err.message}`;
+                        error.style.display = 'block';
+                        console.error("Erro ao carregar propostas:", err);
+                    });
+            }
+            
+            // ----------------- CARREGAR INSTÂNCIAS (COMITÊS) -----------------
+            async function loadCommitteeInstances() {
+                formLoadingMessage.style.display = 'block';
+                formErrorMessage.style.display = 'none';
+                instanceSelect.innerHTML = '<option value="">Carregando instâncias...</option>';
+                instanceSelect.disabled = true;
+                
+                try {
+                    const response = await fetch('/api/instances/committees');
+                    
+                    if (!response.ok) {
+                        throw new Error(`Erro HTTP: ${response.status}`);
+                    }
+                    
+                    const committees = await response.json();
+                    
+                    // Verificar se há comitês
+                    if (!committees || committees.length === 0) {
+                        formErrorMessage.textContent = 'Nenhum comitê encontrado. Cadastre um comitê primeiro.';
+                        formErrorMessage.style.display = 'block';
+                        instanceSelect.innerHTML = '<option value="">Nenhum comitê disponível</option>';
+                        return;
+                    }
+                    
+                    // Preencher o select de instâncias (comitês)
+                    instanceSelect.innerHTML = '<option value="">Selecione um comitê...</option>';
+                    committees.forEach(committee => {
+                        const option = document.createElement('option');
+                        option.value = committee.id;
+                        option.textContent = committee.name || `Comitê #${committee.id}`;
+                        instanceSelect.appendChild(option);
+                    });
+                    
+                    instanceSelect.disabled = false;
+                    formLoadingMessage.style.display = 'none';
+                } catch (err) {
+                    console.error("Erro ao carregar comitês:", err);
+                    formErrorMessage.textContent = 'Erro ao carregar comitês: ' + err.message;
+                    formErrorMessage.style.display = 'block';
+                    formLoadingMessage.style.display = 'none';
+                    instanceSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+                }
+            }
+            
+            // ----------------- CADASTRAR PROPOSTA -----------------
+            createForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Obter dados do formulário
+                const formData = {
+                    instanceId: parseInt(document.getElementById('instance').value),
+                    workerLimit: parseInt(document.getElementById('workerLimit').value),
+                    workerHours: parseFloat(document.getElementById('workerHours').value),
+                    productionTime: parseFloat(document.getElementById('productionTime').value),
+                    nightShift: document.getElementById('nightShift').value === 'true',
+                    weeklyScale: parseInt(document.getElementById('weeklyScale').value)
+                };
+                
+                // Validação básica
+                if (!formData.instanceId || 
+                    isNaN(formData.workerLimit) || formData.workerLimit <= 0 ||
+                    isNaN(formData.workerHours) || formData.workerHours < 0 ||
+                    isNaN(formData.productionTime) || formData.productionTime < 0 ||
+                    formData.nightShift === undefined || formData.nightShift === null ||
+                    isNaN(formData.weeklyScale) || formData.weeklyScale < 1 || formData.weeklyScale > 7) {
+                    formErrorMessage.textContent = 'Por favor, preencha todos os campos obrigatórios corretamente.';
+                    formErrorMessage.style.display = 'block';
+                    return;
+                }
+                
+                // Enviar dados ao servidor
+                submitWorkersProposal(formData);
+            });
+            
+            async function submitWorkersProposal(formData) {
+                // Desabilitar o botão de envio e mostrar carregamento
+                submitButton.disabled = true;
+                formLoadingMessage.textContent = 'Cadastrando proposta...';
+                formLoadingMessage.style.display = 'block';
+                formSuccessMessage.style.display = 'none';
+                formErrorMessage.style.display = 'none';
+                
+                try {
+                    const response = await fetch('/api/workers-proposals', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+                    
+                    const responseData = await response.json();
+                    
+                    if (!response.ok) {
+                        throw new Error(responseData.message || `Erro ao cadastrar: ${response.status}`);
+                    }
+                    
+                    // Mostrar mensagem de sucesso
+                    formSuccessMessage.textContent = 'Proposta de trabalhadores cadastrada com sucesso!';
+                    formSuccessMessage.style.display = 'block';
+                    
+                    // Limpar o formulário
+                    createForm.reset();
+                    
+                    // Recarregar a lista após um breve intervalo
+                    setTimeout(() => {
+                        document.querySelector('.tab[data-tab="list"]').click();
+                        loadWorkersProposals();
+                    }, 1500);
+                    
+                } catch (err) {
+                    console.error("Erro ao cadastrar proposta:", err);
+                    formErrorMessage.textContent = 'Erro ao cadastrar: ' + err.message;
+                    formErrorMessage.style.display = 'block';
+                } finally {
+                    // Re-habilitar o botão de envio e esconder carregamento
+                    submitButton.disabled = false;
+                    formLoadingMessage.style.display = 'none';
+                }
+            }
+            
+            // Botão cancelar limpa o formulário
+            cancelButton.addEventListener('click', function() {
+                createForm.reset();
+                formErrorMessage.style.display = 'none';
+                formSuccessMessage.style.display = 'none';
+                document.querySelector('.tab[data-tab="list"]').click();
+            });
+            
+            // ----------------- UTILITÁRIOS -----------------
+            function formatDate(dateString) {
+                if (!dateString) return '';
+                
+                try {
+                    const date = new Date(dateString);
+                    return date.toLocaleDateString('pt-BR') + ' ' + date.toLocaleTimeString('pt-BR');
+                } catch (e) {
+                    return dateString;
+                }
+            }
+        });
+    </script>
+    <script>
+    // Verificar integridade do sistema quando a página terminar de carregar
+    window.addEventListener('load', function() {
+        console.log("Página workers-proposals.html completamente carregada");
+        
+        // Verificar tema
+        if (typeof window.verifyTheme === 'function') {
+            window.verifyTheme();
+        } else {
+            // Aplicar tema manualmente como fallback
+            try {
+                const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+                document.documentElement.setAttribute('data-theme', savedTheme);
+            } catch(e) {
+                console.error("Erro ao aplicar tema fallback:", e);
+            }
+        }
+    });
+    </script>
+</body>
+</html>

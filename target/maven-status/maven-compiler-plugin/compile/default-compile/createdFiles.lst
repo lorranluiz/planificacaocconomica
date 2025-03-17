@@ -9,6 +9,7 @@ xyz/planecon/model/entity/WorkersProposal.class
 xyz/planecon/controller/StatisticsController.class
 xyz/planecon/dto/UserResponse.class
 xyz/planecon/model/entity/Sector.class
+xyz/planecon/controller/InstanceController$1.class
 xyz/planecon/controller/UserController.class
 xyz/planecon/config/WebMvcConfig.class
 xyz/planecon/config/WebConfig.class
@@ -24,6 +25,7 @@ xyz/planecon/service/UserService.class
 xyz/planecon/repository/DemandVectorRepository.class
 xyz/planecon/model/entity/TechnologicalTensor.class
 xyz/planecon/model/entity/SocialMaterialization.class
+xyz/planecon/controller/UserInstanceController$1.class
 xyz/planecon/repository/SectorRepository.class
 xyz/planecon/model/enums/UserType.class
 xyz/planecon/model/enums/SocialMaterializationType.class

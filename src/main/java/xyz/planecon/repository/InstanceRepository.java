@@ -1,19 +1,32 @@
 package xyz.planecon.repository;
 
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 import xyz.planecon.model.entity.*;
 import xyz.planecon.model.enums.InstanceType;
 
 import java.util.List;
 
-public interface InstanceRepository extends CrudRepository<Instance, Integer> {
+@Repository
+public interface InstanceRepository extends JpaRepository<Instance, Integer> {
+    /**
+     * Encontra todas as instâncias de um determinado tipo
+     * @param type o tipo da instância (COUNCIL, COMMITTEE, WORKER)
+     * @return lista de instâncias do tipo especificado
+     */
+    List<Instance> findByType(String type);
+    
+    /**
+     * Retorna todas as instâncias do tipo COMMITTEE
+     * @return lista de comitês
+     */
+    default List<Instance> findAllCommittees() {
+        return findByType("COMMITTEE");
+    }
     
     List<Instance> findByType(InstanceType type);
-    
-    // Adicione este método para buscar instâncias por tipo
-    List<Instance> findByType(String type);
     
     // Corrigir as consultas para usar os nomes corretos dos atributos
     @Query("SELECT i FROM Instance i WHERE i.popularCouncilAssociatedWithCommitteeOrWorker = :instance")

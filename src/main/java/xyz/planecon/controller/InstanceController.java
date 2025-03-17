@@ -321,21 +321,26 @@ public class InstanceController {
 	}
 
 	@GetMapping("/committees")
-	public ResponseEntity<?> getAllCommittees() {
+	public ResponseEntity<?> getAllCommitteeInstances() {
 		try {
-			// Correção para possível erro de conversão Iterable para List
-			List<Instance> committees = StreamSupport
-				.stream(instanceRepository.findByType(InstanceType.COMMITTEE).spliterator(), false)
-				.collect(Collectors.toList());
-				
-			List<Map<String, Object>> result = committees.stream()
-					.map(this::convertToDto)
-					.collect(Collectors.toList());
+			List<Instance> committees = instanceRepository.findAllCommittees();
+			
+			// Converter para formato simplificado para evitar problemas de serialização
+			List<Map<String, Object>> result = new ArrayList<>();
+			for (Instance committee : committees) {
+				Map<String, Object> item = new HashMap<>();
+				item.put("id", committee.getId());
+				item.put("name", committee.getCommitteeName());
+				item.put("type", committee.getType());
+				result.add(item);
+			}
 			
 			return ResponseEntity.ok(result);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return ResponseEntity.status(500).body(Map.of("message", "Erro ao buscar comitês: " + e.getMessage()));
+			Map<String, String> errorResponse = new HashMap<>();
+			errorResponse.put("message", "Erro ao buscar instâncias de comitê: " + e.getMessage());
+			return ResponseEntity.status(500).body(errorResponse);
 		}
 	}
 

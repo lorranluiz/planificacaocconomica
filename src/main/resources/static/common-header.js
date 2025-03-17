@@ -122,6 +122,7 @@ function insertCommonHeader() {
             <a href="/sectors.html" class="${window.location.pathname === '/sectors.html' ? 'active' : ''}">Setores</a>
             <a href="/users.html" class="${window.location.pathname === '/users.html' ? 'active' : ''}">Usuários</a>
             <a href="/technological-tensors.html" class="${window.location.pathname === '/technological-tensors.html' ? 'active' : ''}">Tensores Tecnológicos</a>
+            <a href="/workers-proposals.html" class="${window.location.pathname === '/workers-proposals.html' ? 'active' : ''}">Propostas de Trabalhadores</a>
         </div>
         <div class="user-menu">
             <div id="userInfo" style="display: none;">
@@ -965,7 +966,8 @@ function createHeader() {
         { text: 'Página Inicial', url: '/index.html' },
         { text: 'Usuários', url: '/users.html' },
         { text: 'Instâncias', url: '/instances.html' },
-        { text: 'Materializações Sociais', url: '/social-materializations.html' }
+        { text: 'Materializações Sociais', url: '/social-materializations.html' },
+        { text: "Propostas de Trabalhadores", url: "/workers-proposals.html", icon: "fas fa-users-cog" }
     ];
     
     navItems.forEach(item => {

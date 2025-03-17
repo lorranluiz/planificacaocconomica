@@ -46,5 +46,14 @@ public class WorkersProposal {
         
         @Column(name = "id_instance")
         private Integer instanceId;
+        
+        // Construtor padrão sem argumentos - NECESSÁRIO para JPA
+        public WorkersProposalId() {
+        }
+        
+        // Construtor que recebe o ID da instância
+        public WorkersProposalId(Integer instanceId) {
+            this.instanceId = instanceId;
+        }
     }
 }
