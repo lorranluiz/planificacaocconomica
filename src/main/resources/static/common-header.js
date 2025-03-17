@@ -968,7 +968,8 @@ function createHeader() {
         { text: 'Instâncias', url: '/instances.html' },
         { text: 'Materializações Sociais', url: '/social-materializations.html' },
         { text: "Propostas de Trabalhadores", url: "/workers-proposals.html", icon: "fas fa-users-cog" },
-        { text: "Demanda e Estoque", url: "/demand-stocks.html", icon: "fas fa-boxes" }
+        { text: "Demanda e Estoque", url: "/demand-stocks.html", icon: "fas fa-boxes" },
+        { text: "Vetores de Demanda", url: "/demand-vectors.html", icon: "fas fa-project-diagram" }
     ];
     
     navItems.forEach(item => {
