@@ -349,11 +349,12 @@
                 const select = document.getElementById('instances');
                 
                 data.forEach(instance => {
-                    let name = "";
-                    if (instance.councilName) {
-                        name = `${instance.councilName} (Conselho)`;
-                    } else if (instance.committeeName) {
-                        name = `${instance.committeeName} (Comitê)`;
+                    let name;
+                    // Verificar o tipo da instância
+                    if (instance.type === "COMMITTEE" && instance.committeeName) {
+                        name = instance.committeeName;
+                    } else if (instance.type === "COUNCIL") {
+                        name = `Council ${instance.id}`;
                     } else {
                         name = `Instância #${instance.id}`;
                     }

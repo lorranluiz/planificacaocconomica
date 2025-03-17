@@ -37,14 +37,18 @@ public class DemandStockController {
         try {
             List<DemandStock> demandStocks = demandStockRepository.findAll();
             
+            // Converter para formato simplificado para evitar problemas de serialização
             List<Map<String, Object>> result = new ArrayList<>();
             for (DemandStock ds : demandStocks) {
                 Map<String, Object> item = new HashMap<>();
                 
-                // Usar os IDs da chave composta
+                // Para evitar referência nula ao id no front-end
+                item.put("materializationId", ds.getSocialMaterialization() != null ? 
+                    ds.getSocialMaterialization().getId() : null);
+                item.put("instanceId", ds.getInstance() != null ? ds.getInstance().getId() : null);
+                
+                // Adicionar informações da materialização social
                 if (ds.getSocialMaterialization() != null) {
-                    item.put("materializationId", ds.getSocialMaterialization().getId());
-                    
                     Map<String, Object> materialInfo = new HashMap<>();
                     materialInfo.put("id", ds.getSocialMaterialization().getId());
                     materialInfo.put("name", ds.getSocialMaterialization().getName());
@@ -52,25 +56,45 @@ public class DemandStockController {
                     item.put("socialMaterialization", materialInfo);
                 }
                 
+                // Adicionar informações da instância com nome correto
                 if (ds.getInstance() != null) {
-                    item.put("instanceId", ds.getInstance().getId());
-                    
                     Map<String, Object> instanceInfo = new HashMap<>();
                     instanceInfo.put("id", ds.getInstance().getId());
-                    instanceInfo.put("type", ds.getInstance().getType() != null ? 
-                        ds.getInstance().getType().toString() : null);
-                    instanceInfo.put("name", "Instância #" + ds.getInstance().getId());
+                    
+                    // Processar o tipo e definir o nome apropriado
+                    String instanceName;
+                    
+                    if (ds.getInstance().getType() != null) {
+                        String typeStr = ds.getInstance().getType().toString();
+                        instanceInfo.put("type", typeStr);
+                        
+                        // Lógica de nome baseada no tipo
+                        if ("COMMITTEE".equals(typeStr)) {
+                            // Se for comitê, usa o nome do comitê
+                            String committeeName = ds.getInstance().getCommitteeName();
+                            instanceName = committeeName != null && !committeeName.isEmpty() ? 
+                                committeeName : "Committee #" + ds.getInstance().getId();
+                        } else if ("COUNCIL".equals(typeStr)) {
+                            // Se for conselho, usa Council + ID
+                            instanceName = "Council " + ds.getInstance().getId();
+                        } else {
+                            // Para outros tipos
+                            instanceName = "Instância #" + ds.getInstance().getId();
+                        }
+                    } else {
+                        // Se não tiver tipo
+                        instanceInfo.put("type", "UNKNOWN");
+                        instanceName = "Instância #" + ds.getInstance().getId();
+                    }
+                    
+                    // Define explicitamente o nome da instância
+                    instanceInfo.put("name", instanceName);
                     item.put("instance", instanceInfo);
                 }
                 
                 item.put("demand", ds.getDemand());
                 item.put("stock", ds.getStock());
-                
-                if (ds.getCreatedAt() != null) {
-                    item.put("createdAt", ds.getCreatedAt().toString());
-                } else {
-                    item.put("createdAt", null);
-                }
+                item.put("createdAt", ds.getCreatedAt() != null ? ds.getCreatedAt().toString() : null);
                 
                 result.add(item);
             }

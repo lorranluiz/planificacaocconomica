@@ -118,7 +118,14 @@ public class UserInstanceController {
                 
                 for (DemandStock stock : stocks) {
                     Map<String, Object> stockInfo = new HashMap<>();
-                    stockInfo.put("id", stock.getId());
+                    
+                    // Usar os componentes da chave composta em vez de um ID único
+                    stockInfo.put("materializationId", stock.getSocialMaterialization().getId());
+                    stockInfo.put("instanceId", stock.getInstance().getId());
+                    
+                    // Opcional: criar uma representação textual para identificação
+                    stockInfo.put("compositeId", stock.getSocialMaterialization().getId() + "-" + stock.getInstance().getId());
+                    
                     stockInfo.put("demand", safeToString(stock.getDemand()));
                     stockInfo.put("stock", safeToString(stock.getStock()));
                     
