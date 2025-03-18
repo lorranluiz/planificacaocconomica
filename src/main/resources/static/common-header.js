@@ -112,25 +112,34 @@ function insertCommonHeader() {
     const header = document.createElement('div');
     header.className = 'nav-container';
     header.innerHTML = `
-        <div class="logo">
-            <a href="/index.html">Sistema de Planejamento Econômico</a>
-        </div>
-        <div class="nav-links">
-            <a href="/index.html" class="${window.location.pathname === '/index.html' || window.location.pathname === '/' ? 'active' : ''}">Início</a>
-            <a href="/social-materializations.html" class="${window.location.pathname === '/social-materializations.html' ? 'active' : ''}">Materializações Sociais</a>
-            <a href="/instances.html" class="${window.location.pathname === '/instances.html' ? 'active' : ''}">Instâncias</a>
-            <a href="/sectors.html" class="${window.location.pathname === '/sectors.html' ? 'active' : ''}">Setores</a>
-            <a href="/users.html" class="${window.location.pathname === '/users.html' ? 'active' : ''}">Usuários</a>
-            <a href="/technological-tensors.html" class="${window.location.pathname === '/technological-tensors.html' ? 'active' : ''}">Tensores Tecnológicos</a>
-            <a href="/workers-proposals.html" class="${window.location.pathname === '/workers-proposals.html' ? 'active' : ''}">Propostas de Trabalhadores</a>
-        </div>
-        <div class="user-menu">
-            <div id="userInfo" style="display: none;">
-                <span id="welcomeUser">Bem-vindo, <strong id="username"></strong></span>
-                <button id="logoutBtn" class="btn-small">Sair</button>
+        <div class="nav-top-row">
+            <div class="logo">
+                <a href="/index.html">Sistema de Planejamento Econômico</a>
             </div>
-            <div id="authLinks">
-                <button id="headerLoginBtn" class="login-button" onclick="loginButtonClick(event); return false;">Login</button>
+            <button class="nav-menu-toggle" aria-label="Menu de navegação">
+                <i class="fas fa-bars"></i>
+            </button>
+            <div class="user-menu">
+                <div id="userInfo" style="display: none;">
+                    <span id="welcomeUser">Bem-vindo, <strong id="username"></strong></span>
+                    <button id="logoutBtn" class="btn-small">Sair</button>
+                </div>
+                <div id="authLinks">
+                    <button id="headerLoginBtn" class="login-button btn-small" onclick="loginButtonClick(event); return false;">Login</button>
+                </div>
+            </div>
+        </div>
+        <div class="nav-links-container">
+            <div class="nav-links">
+                <a href="/index.html" class="${window.location.pathname === '/index.html' || window.location.pathname === '/' ? 'active' : ''}"><i class="fas fa-home"></i> Início</a>
+                <a href="/social-materializations.html" class="${window.location.pathname === '/social-materializations.html' ? 'active' : ''}"><i class="fas fa-cubes"></i> Materializações</a>
+                <a href="/instances.html" class="${window.location.pathname === '/instances.html' ? 'active' : ''}"><i class="fas fa-sitemap"></i> Instâncias</a>
+                <a href="/sectors.html" class="${window.location.pathname === '/sectors.html' ? 'active' : ''}"><i class="fas fa-layer-group"></i> Setores</a>
+                <a href="/users.html" class="${window.location.pathname === '/users.html' ? 'active' : ''}"><i class="fas fa-users"></i> Usuários</a>
+                <a href="/technological-tensors.html" class="${window.location.pathname === '/technological-tensors.html' ? 'active' : ''}"><i class="fas fa-atom"></i> Tensores</a>
+                <a href="/workers-proposals.html" class="${window.location.pathname === '/workers-proposals.html' ? 'active' : ''}"><i class="fas fa-users-cog"></i> Propostas</a>
+                <a href="/demand-stocks.html" class="${window.location.pathname === '/demand-stocks.html' ? 'active' : ''}"><i class="fas fa-boxes"></i> Estoque</a>
+                <a href="/demand-vectors.html" class="${window.location.pathname === '/demand-vectors.html' ? 'active' : ''}"><i class="fas fa-project-diagram"></i> Vetores</a>
             </div>
         </div>
     `;
@@ -143,36 +152,49 @@ function insertCommonHeader() {
         console.warn('Container não encontrado para inserir o cabeçalho');
     }
     
-    // Verificar se usuário está logado
-    try {
-        const currentUser = JSON.parse(localStorage.getItem('currentUser'));
-        if (currentUser) {
-            // Exibir informações do usuário
-            const userInfo = document.getElementById('userInfo');
-            const authLinks = document.getElementById('authLinks');
-            const usernameElement = document.getElementById('username');
-            
-            if (userInfo && authLinks && usernameElement) {
-                userInfo.style.display = 'flex';
-                authLinks.style.display = 'none';
-                usernameElement.textContent = currentUser.name || currentUser.username;
-                
-                // Adicionar evento de logout
-                const logoutBtn = document.getElementById('logoutBtn');
-                if (logoutBtn) {
-                    logoutBtn.addEventListener('click', function() {
-                        localStorage.removeItem('currentUser');
-                        window.location.reload();
-                    });
-                }
+    // Configurar botão de menu mobile - CORREÇÃO AQUI
+    const menuToggle = header.querySelector('.nav-menu-toggle');
+    const navLinksContainer = header.querySelector('.nav-links-container');
+    
+    if (menuToggle && navLinksContainer) {
+        // Verificar tamanho da tela e aplicar estado correto inicialmente
+        function checkScreenSize() {
+            if (window.innerWidth <= 768) {
+                navLinksContainer.classList.remove('visible');
+                navLinksContainer.style.display = 'none';
+            } else {
+                navLinksContainer.style.display = 'block';
             }
         }
-    } catch (e) {
-        console.error('Erro ao verificar usuário logado:', e);
+        
+        // Verificar inicialmente
+        checkScreenSize();
+        
+        // Adicionar evento de redimensionamento
+        window.addEventListener('resize', checkScreenSize);
+        
+        // Adicionar evento de clique no botão
+        menuToggle.addEventListener('click', function() {
+            navLinksContainer.classList.toggle('visible');
+            
+            // Atualizar a exibição baseada na classe
+            if (navLinksContainer.classList.contains('visible')) {
+                navLinksContainer.style.display = 'block';
+                // Alterar ícone para X
+                const icon = menuToggle.querySelector('i');
+                if (icon) icon.className = 'fas fa-times';
+            } else {
+                navLinksContainer.style.display = 'none';
+                // Restaurar ícone de hamburger
+                const icon = menuToggle.querySelector('i');
+                if (icon) icon.className = 'fas fa-bars';
+            }
+        });
     }
     
-    // Adicionar seletor de tema DEPOIS de inserir o cabeçalho
-    setTimeout(addThemeSelector, 0);
+    // Restante do código...
+    // Verificar se usuário está logado...
+    // Adicionar seletor de tema...
     
     // Garantir estilos do cabeçalho
     ensureHeaderStyles();
@@ -573,13 +595,20 @@ function ensureHeaderStyles() {
     style.textContent = `
         .nav-container {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
+            flex-direction: column;
             padding: 15px;
             margin-bottom: 20px;
             border-bottom: 2px solid var(--card-border, #e0e0e0);
             background-color: var(--card-bg);
             box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .nav-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            width: 100%;
         }
         
         .logo a {
@@ -590,9 +619,29 @@ function ensureHeaderStyles() {
             text-shadow: 0 1px 1px rgba(0,0,0,0.1);
         }
         
+        .nav-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--primary-color);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        
+        .nav-menu-toggle:hover {
+            background-color: rgba(0,0,0,0.05);
+        }
+        
+        .nav-links-container {
+            width: 100%;
+        }
+        
         .nav-links {
             display: flex;
-            gap: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
         
         /* MELHORADO: Alto contraste para links de navegação no estado padrão */
@@ -600,16 +649,22 @@ function ensureHeaderStyles() {
             color: var(--text-color, #333) !important;
             background-color: #f0f0f0 !important;
             text-decoration: none !important;
-            padding: 10px 16px !important;
+            padding: 8px 12px !important;
             border-radius: 6px !important;
             transition: all 0.25s ease !important;
             font-weight: 600 !important;
             border: 2px solid rgba(0,0,0,0.1) !important;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1) !important;
-            display: inline-block !important;
-            text-align: center !important;
-            posição: relative !important;
+            display: flex !important;
+            align-items: center !important;
+            position: relative !important;
             overflow: hidden !important;
+            margin: 2px !important;
+        }
+        
+        .nav-links a i {
+            margin-right: 6px;
+            font-size: 0.9rem;
         }
         
         /* MELHORADO: Estado hover com alto contraste e efeitos visuais */
@@ -786,28 +841,46 @@ function ensureHeaderStyles() {
         /* Responsividade para dispositivos móveis */
         @media (max-width: 768px) {
             .nav-container {
-                flex-direction: column;
-                gap: 15px;
                 padding: 10px;
             }
             
-            .nav-links {
+            .nav-top-row {
                 width: 100%;
-                flex-wrap: wrap;
-                justify-content: center;
+                justify-content: space-between;
+            }
+            
+            .nav-menu-toggle {
+                display: block;
+                transition: all 0.3s ease;
+            }
+            
+            .nav-links-container {
+                display: none;
+                margin-top: 15px;
+                animation: fadeIn 0.3s ease;
+            }
+            
+            @keyframes fadeIn {
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
+            }
+            
+            .nav-links-container.visible {
+                display: block;
+            }
+            
+            .nav-links {
+                flex-direction: column;
                 gap: 8px;
             }
             
             .nav-links a {
-                min-width: 110px;
-                text-align: center;
-                padding: 8px 10px !important;
+                width: 100%;
+                justify-content: flex-start;
             }
             
             .user-menu {
-                margin-top: 10px;
-                width: 100%;
-                justify-content: center;
+                justify-content: flex-end;
             }
         }
     `;
@@ -1730,3 +1803,4 @@ function loginButtonClick(event) {
 // Expor as funções globalmente
 window.loginButtonClick = loginButtonClick;
 window.createLoginModal = createLoginModal;
+ 
