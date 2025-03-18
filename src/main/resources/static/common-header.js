@@ -120,6 +120,27 @@ function insertCommonHeader() {
                 <i class="fas fa-bars"></i>
             </button>
             <div class="user-menu">
+                <button id="themeToggleBtn" class="theme-toggle-btn">
+                    <i class="fas fa-palette"></i> Tema
+                </button>
+                <div id="themeMenu" class="theme-menu">
+                    <div class="theme-option" data-theme="ocean">
+                        <span class="theme-preview ocean-preview"></span>
+                        <span class="theme-name">Ocean</span>
+                    </div>
+                    <div class="theme-option" data-theme="night">
+                        <span class="theme-preview night-preview"></span>
+                        <span class="theme-name">Night</span>
+                    </div>
+                    <div class="theme-option" data-theme="sunlight">
+                        <span class="theme-preview sunlight-preview"></span>
+                        <span class="theme-name">Sunlight</span>
+                    </div>
+                    <div class="theme-option" data-theme="bolchevick">
+                        <span class="theme-preview bolchevick-preview"></span>
+                        <span class="theme-name">Bolchevick</span>
+                    </div>
+                </div>
                 <div id="userInfo" style="display: none;">
                     <span id="welcomeUser">Bem-vindo, <strong id="username"></strong></span>
                     <button id="logoutBtn" class="btn-small">Sair</button>
@@ -152,7 +173,7 @@ function insertCommonHeader() {
         console.warn('Container não encontrado para inserir o cabeçalho');
     }
     
-    // Configurar botão de menu mobile - CORREÇÃO AQUI
+    // Configurar botão de menu mobile
     const menuToggle = header.querySelector('.nav-menu-toggle');
     const navLinksContainer = header.querySelector('.nav-links-container');
     
@@ -167,37 +188,34 @@ function insertCommonHeader() {
             }
         }
         
-        // Verificar inicialmente
         checkScreenSize();
-        
-        // Adicionar evento de redimensionamento
         window.addEventListener('resize', checkScreenSize);
         
-        // Adicionar evento de clique no botão
         menuToggle.addEventListener('click', function() {
             navLinksContainer.classList.toggle('visible');
             
-            // Atualizar a exibição baseada na classe
             if (navLinksContainer.classList.contains('visible')) {
                 navLinksContainer.style.display = 'block';
-                // Alterar ícone para X
                 const icon = menuToggle.querySelector('i');
                 if (icon) icon.className = 'fas fa-times';
             } else {
                 navLinksContainer.style.display = 'none';
-                // Restaurar ícone de hamburger
                 const icon = menuToggle.querySelector('i');
                 if (icon) icon.className = 'fas fa-bars';
             }
         });
     }
     
-    // Restante do código...
-    // Verificar se usuário está logado...
-    // Adicionar seletor de tema...
+    // Configurar seletor de tema
+    setupThemeEvents();
     
-    // Garantir estilos do cabeçalho
+    // Garantir estilos do cabeçalho e tema
     ensureHeaderStyles();
+    addThemeSelectorStyles();
+    ensureThemeMenuStyles();  // Adicionar esta linha
+    
+    // Configurar seletor de tema
+    setTimeout(setupThemeEvents, 100);  // Aumentar o timeout para garantir que DOM esteja pronto
     
     // Após inserir o cabeçalho, atualizar o botão de login/logout
     updateLoginLogoutButton();
@@ -377,6 +395,13 @@ function addThemeSelectorStyles() {
 function setupThemeEvents() {
     console.log("Configurando eventos do seletor de tema");
     
+    // Remover eventos antigos para evitar duplicação
+    const oldToggleBtn = document.getElementById('themeToggleBtn');
+    if (oldToggleBtn) {
+        const newToggleBtn = oldToggleBtn.cloneNode(true);
+        oldToggleBtn.parentNode.replaceChild(newToggleBtn, oldToggleBtn);
+    }
+    
     const themeToggleBtn = document.getElementById('themeToggleBtn');
     const themeMenu = document.getElementById('themeMenu');
     
@@ -390,7 +415,22 @@ function setupThemeEvents() {
         e.preventDefault();
         e.stopPropagation();
         console.log("Clique no botão de tema");
-        themeMenu.style.display = themeMenu.style.display === 'block' ? 'none' : 'block';
+        
+        // Forçar z-index alto para garantir que apareça na frente
+        themeMenu.style.zIndex = "9999";
+        
+        // Verificar posição correta
+        const btnRect = themeToggleBtn.getBoundingClientRect();
+        themeMenu.style.position = "absolute";
+        themeMenu.style.top = (btnRect.bottom + 5) + "px";
+        themeMenu.style.right = "0";
+        
+        // Alternar visibilidade
+        if (themeMenu.style.display === 'block') {
+            themeMenu.style.display = 'none';
+        } else {
+            themeMenu.style.display = 'block';
+        }
     });
     
     // Configurar eventos para cada opção de tema
@@ -412,8 +452,15 @@ function setupThemeEvents() {
     });
     
     // Fechar menu ao clicar fora
-    document.addEventListener('click', function() {
-        if (themeMenu) themeMenu.style.display = 'none';
+    document.addEventListener('click', function(e) {
+        // Verificar se o clique não foi no botão ou no menu
+        if (themeMenu && 
+            e.target !== themeToggleBtn && 
+            !themeToggleBtn.contains(e.target) && 
+            e.target !== themeMenu &&
+            !themeMenu.contains(e.target)) {
+            themeMenu.style.display = 'none';
+        }
     });
     
     console.log("Eventos do seletor de tema configurados com sucesso");
@@ -892,6 +939,53 @@ function ensureHeaderStyles() {
     // Verificar se o tema atual tem suas regras específicas aplicadas
     const currentTheme = document.documentElement.getAttribute('data-theme') || 'ocean';
     console.log(`Estilos de cabeçalho aplicados/atualizados para tema: ${currentTheme}`);
+}
+
+/**
+ * Garante que o CSS do seletor de tema seja aplicado corretamente
+ */
+function ensureThemeMenuStyles() {
+    const style = document.createElement('style');
+    style.id = 'theme-menu-fix-styles';
+    style.textContent = `
+        .theme-menu {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            margin-top: 5px;
+            background-color: var(--card-bg, #ffffff);
+            border: 1px solid var(--card-border, rgba(0,0,0,0.1));
+            border-radius: 4px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+            width: 200px;
+            z-index: 9999 !important;
+            display: none;
+        }
+        
+        .user-menu {
+            position: relative;
+        }
+        
+        /* Garantir que o tema seja visível no modo escuro */
+        [data-theme="night"] .theme-menu {
+            background-color: #333;
+            border-color: #555;
+        }
+        
+        /* Garantir que os botões sejam clicáveis */
+        .theme-toggle-btn,
+        .theme-option {
+            cursor: pointer !important;
+            position: relative !important;
+            z-index: 1000 !important;
+        }
+    `;
+    
+    // Remover estilos antigos se existirem
+    const oldStyle = document.getElementById('theme-menu-fix-styles');
+    if (oldStyle) oldStyle.remove();
+    
+    document.head.appendChild(style);
 }
 
 // -------------------- FUNÇÕES EXPOSTAS GLOBALMENTE --------------------
@@ -1803,4 +1897,3 @@ function loginButtonClick(event) {
 // Expor as funções globalmente
 window.loginButtonClick = loginButtonClick;
 window.createLoginModal = createLoginModal;
- 
