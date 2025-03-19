@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="ocean">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificação Econômica</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="css/common-styles.css">
+    <link rel="stylesheet" href="css/theme-variables.css">
+    <link rel="stylesheet" href="css/theme-elements.css">
+    <script src="common-header.js"></script>
+    <!-- CSS específico para planificação -->
+    <style>
+        .matrix-container {
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+        
+        .vector-container {
+            margin-bottom: 30px;
+        }
+        
+        .editable-table input {
+            width: 80px;
+            text-align: right;
+            border: 1px solid #ccc;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        
+        .results-container {
+            margin-top: 30px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+            display: none;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .result-tables-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .result-tables-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .info-message {
+            background-color: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- O cabeçalho comum será inserido aqui pelo script -->
+        
+        <div id="planificationPage">
+            <h1>Planificação Econômica</h1>
+            
+            <div class="info-message">
+                <p>Esta página permite realizar cálculos de planificação econômica baseados no modelo de insumo-produto de Leontief.</p>
+                <p><strong>Como usar:</strong> Selecione uma instância, ajuste a matriz tecnológica e o vetor de demanda conforme necessário, e clique em "Planificar" para calcular o vetor de produção necessário.</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="instanceSelect">Selecione a Instância:</label>
+                <select id="instanceSelect" class="form-control">
+                    <option value="">Selecione uma instância...</option>
+                </select>
+            </div>
+            
+            <div id="matrixSection" style="display: none;">
+                <h2>Matriz Tecnológica</h2>
+                <p>A matriz tecnológica representa quanto do produto de cada linha é necessário para produzir uma unidade do produto de cada coluna.</p>
+                
+                <div class="matrix-container">
+                    <table id="technologicalMatrix" class="editable-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <!-- Colunas serão adicionadas dinamicamente -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Linhas serão adicionadas dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Vetor de Demanda Final</h2>
+                <p>O vetor de demanda final representa a quantidade de cada produto que precisa ser entregue aos consumidores finais.</p>
+                
+                <div class="vector-container">
+                    <table id="demandVector" class="editable-table">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Demanda Final</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Linhas serão adicionadas dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="controls">
+                    <button id="planifyButton" class="btn">Planificar</button>
+                    <span id="loadingSpinner" class="loading"></span>
+                    <button id="saveButton" class="btn">Salvar Alterações</button>
+                </div>
+                
+                <div id="results" class="results-container" style="display: none;">
+                    <h2>Resultados da Planificação</h2>
+                    
+                    <div class="result-tables-container">
+                        <div>
+                            <h3>Vetor de Produção</h3>
+                            <p>Quantidade total que cada setor precisa produzir para atender à demanda final.</p>
+                            <table id="productionVector">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Produção Necessária</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Linhas serão adicionadas dinamicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div>
+                            <h3>Otimização de Recursos</h3>
+                            <p>Recursos necessários para atingir os níveis de produção calculados.</p>
+                            <table id="optimizationResults">
+                                <thead>
+                                    <tr>
+                                        <th>Produto</th>
+                                        <th>Trabalhadores</th>
+                                        <th>Fábricas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Linhas serão adicionadas dinamicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/planification.js"></script>
+</body>
+</html>

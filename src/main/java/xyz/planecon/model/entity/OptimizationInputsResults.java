@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class OptimizationInputsResults {
     @EmbeddedId
-    private OptimizationInputsResultsId id;
+    private OptimizationInputsResultsId id = new OptimizationInputsResultsId();
     
     @ManyToOne
     @MapsId("instanceId")
@@ -29,9 +29,6 @@ public class OptimizationInputsResults {
     @MapsId("socialMaterializationId")
     @JoinColumn(name = "id_social_materialization")
     private SocialMaterialization socialMaterialization;
-    
-    @Column(name = "worker_limit", nullable = false)
-    private Integer workerLimit;
     
     @Column(name = "worker_hours", precision = 10, scale = 2, nullable = false)
     private BigDecimal workerHours;
@@ -48,17 +45,8 @@ public class OptimizationInputsResults {
     @Column(name = "planned_weekly_scale", nullable = false)
     private Integer plannedWeeklyScale;
     
-    @Column(name = "production_goal", precision = 16, scale = 6, nullable = false)
-    private BigDecimal productionGoal;
-    
     @Column(name = "total_hours", precision = 16, scale = 10, nullable = false)
     private BigDecimal totalHours;
-    
-    @Column(name = "workers_needed", nullable = false)
-    private Integer workersNeeded;
-    
-    @Column(name = "factories_needed", nullable = false)
-    private Integer factoriesNeeded;
     
     @Column(name = "total_shifts", nullable = false)
     private Integer totalShifts;
@@ -66,12 +54,47 @@ public class OptimizationInputsResults {
     @Column(name = "minimum_production_time", precision = 10, scale = 2, nullable = false)
     private BigDecimal minimumProductionTime;
     
-    // Modificar o tipo do campo
     @Column(name = "total_employment_period", nullable = false)
     private Long totalEmploymentPeriodSeconds; // Armazenado em segundos
     
-    // Métodos helper para converter de/para Duration (opcionais)
-    @Transient // Não será persistido no banco
+    @Column(name = "planned_final_demand", precision = 16, scale = 6, nullable = false)
+    private BigDecimal plannedFinalDemand;
+    
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+    
+    @Column(name = "production_goal", precision = 16, scale = 6, nullable = false)
+    private BigDecimal productionGoal;
+    
+    @Column(name = "total_work_hours")
+    private Double totalWorkHours;
+    
+    @Column(name = "workers_needed", nullable = false)
+    private Integer workersNeeded;
+    
+    @Column(name = "factories_needed", nullable = false)
+    private Integer factoriesNeeded;
+    
+    @Column(name = "production_time_in_hours")
+    private Double productionTimeInHours;
+    
+    @Column(name = "weekly_working_hours")
+    private Double weeklyWorkingHours;
+    
+    @Column(name = "worker_hours_per_week")
+    private Double workerHoursPerWeek;
+    
+    @Column(name = "factory_operation_hours")
+    private Double factoryOperationHours;
+    
+    @Column(name = "worker_limit", nullable = false)
+    private Integer workerLimit;
+    
+    @Column(name = "minimum_production_time_in_days")
+    private Double minimumProductionTimeInDays;
+    
+    // Métodos Transient para Duration
+    @Transient
     public Duration getTotalEmploymentPeriodAsDuration() {
         return totalEmploymentPeriodSeconds != null ? Duration.ofSeconds(totalEmploymentPeriodSeconds) : null;
     }
@@ -80,11 +103,24 @@ public class OptimizationInputsResults {
         this.totalEmploymentPeriodSeconds = duration != null ? duration.getSeconds() : null;
     }
     
-    @Column(name = "planned_final_demand", precision = 16, scale = 6, nullable = false)
-    private BigDecimal plannedFinalDemand;
+    // Métodos auxiliares para configurar o ID
+    public void setInstanceId(Integer instanceId) {
+        if (this.id == null) this.id = new OptimizationInputsResultsId();
+        this.id.setInstanceId(instanceId);
+    }
     
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    public Integer getInstanceId() {
+        return this.id != null ? this.id.getInstanceId() : null;
+    }
+    
+    public void setMaterializationId(Integer materializationId) {
+        if (this.id == null) this.id = new OptimizationInputsResultsId();
+        this.id.setSocialMaterializationId(materializationId);
+    }
+    
+    public Integer getMaterializationId() {
+        return this.id != null ? this.id.getSocialMaterializationId() : null;
+    }
     
     @Data
     @Embeddable
