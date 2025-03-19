@@ -46,12 +46,12 @@ public class TechnologicalTensorService {
     }
 
     public Optional<TechnologicalTensor> findById(TechnologicalTensorId id) {
-        // Create a new ID object of the correct type (TechnologicalTensor.TechnologicalTensorId)
-        TechnologicalTensor.TechnologicalTensorId tensorId = new TechnologicalTensor.TechnologicalTensorId(
+        // Se estiver tentando buscar por ID
+        Optional<TechnologicalTensor> tensiorOptional = technologicalTensorRepository.findById(new TechnologicalTensor.TechnologicalTensorId(
             id.getInputSocialMaterializationId(), 
             id.getOutputSocialMaterializationId()
-        );
-        return technologicalTensorRepository.findById(tensorId);
+        ));
+        return tensiorOptional;
     }
 
     @Transactional
@@ -89,14 +89,17 @@ public class TechnologicalTensorService {
 
     @Transactional
     public void delete(TechnologicalTensorId id) {
-        // Create a new ID object of the correct type (TechnologicalTensor.TechnologicalTensorId)
-        TechnologicalTensor.TechnologicalTensorId tensorId = new TechnologicalTensor.TechnologicalTensorId(
+        // Se estiver verificando se um tensor existe
+        boolean exists = technologicalTensorRepository.existsById(new TechnologicalTensor.TechnologicalTensorId(
             id.getInputSocialMaterializationId(), 
             id.getOutputSocialMaterializationId()
-        );
+        ));
         
         // Try to find the entity first
-        Optional<TechnologicalTensor> tensor = technologicalTensorRepository.findById(tensorId);
+        Optional<TechnologicalTensor> tensor = technologicalTensorRepository.findById(new TechnologicalTensor.TechnologicalTensorId(
+            id.getInputSocialMaterializationId(), 
+            id.getOutputSocialMaterializationId()
+        ));
         if (tensor.isPresent()) {
             technologicalTensorRepository.delete(tensor.get());
         } else {

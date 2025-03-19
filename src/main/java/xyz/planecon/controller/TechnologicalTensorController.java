@@ -182,7 +182,7 @@ public class TechnologicalTensorController {
     public ResponseEntity<List<SocialMaterializationDto>> getAllSocialMaterializations() {
         try {
             List<SocialMaterializationDto> materials = tensorService.findAllSocialMaterializations().stream()
-                    .map(SocialMaterializationDto::new)
+                    .map(material -> new SocialMaterializationDto(material))
                     .collect(Collectors.toList());
             
             logger.info("Retornando {} materializações sociais", materials.size());

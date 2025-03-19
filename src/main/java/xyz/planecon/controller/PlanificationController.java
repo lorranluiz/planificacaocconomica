@@ -3,8 +3,11 @@ package xyz.planecon.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import xyz.planecon.dto.InstanceDto;
 import xyz.planecon.dto.PlanificationRequest;
 import xyz.planecon.dto.PlanificationResponse;
+import xyz.planecon.dto.SocialMaterializationDto;
 import xyz.planecon.model.entity.DemandVector;
 import xyz.planecon.model.entity.Instance;
 import xyz.planecon.model.entity.SocialMaterialization;
@@ -15,6 +18,7 @@ import xyz.planecon.repository.SocialMaterializationRepository;
 import xyz.planecon.repository.TechnologicalTensorRepository;
 import xyz.planecon.service.PlanificationService;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,18 +53,92 @@ public class PlanificationController {
      * Endpoint para obter todas as instâncias disponíveis
      */
     @GetMapping("/instances")
-    public ResponseEntity<List<Instance>> getAllInstances() {
+    public ResponseEntity<List<InstanceDto>> getAllInstances() {
         List<Instance> instances = instanceRepository.findAll();
-        return ResponseEntity.ok(instances);
+        List<InstanceDto> instanceDtos = instances.stream()
+            .map(instance -> {
+                InstanceDto dto = new InstanceDto();
+                dto.setId(instance.getId());
+                
+                // Gerar nome com base no tipo da instância
+                if (instance.getType() != null) {
+                    switch (instance.getType()) {
+                        case COMMITTEE:
+                            dto.setName(instance.getCommitteeName() != null ? 
+                                       instance.getCommitteeName() : "Comitê #" + instance.getId());
+                            break;
+                        case COUNCIL:
+                            dto.setName("Conselho #" + instance.getId());
+                            break;
+                        case WORKER:
+                            dto.setName("Worker #" + instance.getId());
+                            break;
+                        default:
+                            dto.setName("Instância #" + instance.getId());
+                            break;
+                    }
+                } else {
+                    dto.setName("Instância #" + instance.getId());
+                }
+                
+                // Gerar descrição com informações adicionais úteis
+                StringBuilder description = new StringBuilder();
+                if (instance.getType() != null) {
+                    description.append("Tipo: ").append(instance.getType());
+                }
+                if (instance.getCreatedAt() != null) {
+                    description.append(description.length() > 0 ? ", " : "");
+                    description.append("Criado em: ").append(instance.getCreatedAt());
+                }
+                dto.setDescription(description.toString());
+                
+                // Se tiver uma instância pai, adicione apenas o ID e nome
+                if (instance.getPopularCouncilAssociatedWithPopularCouncil() != null) {
+                    Instance parent = instance.getPopularCouncilAssociatedWithPopularCouncil();
+                    dto.setParentInstanceId(parent.getId());
+                    
+                    // Gerar nome para o pai também
+                    String parentName;
+                    if (parent.getType() == null) {
+                        parentName = "Instância #" + parent.getId();
+                    } else {
+                        switch (parent.getType()) {
+                            case COMMITTEE:
+                                parentName = parent.getCommitteeName() != null ? 
+                                           parent.getCommitteeName() : "Comitê #" + parent.getId();
+                                break;
+                            case COUNCIL:
+                                parentName = "Conselho #" + parent.getId();
+                                break;
+                            case WORKER:
+                                parentName = "Worker #" + parent.getId();
+                                break;
+                            default:
+                                parentName = "Instância #" + parent.getId();
+                                break;
+                        }
+                    }
+                    dto.setParentInstanceName(parentName);
+                }
+                
+                return dto;
+            })
+            .collect(Collectors.toList());
+        return ResponseEntity.ok(instanceDtos);
     }
 
     /**
      * Endpoint para obter materializações sociais de uma instância
      */
     @GetMapping("/instances/{instanceId}/materializations")
-    public ResponseEntity<List<SocialMaterialization>> getMaterializations(@PathVariable Integer instanceId) {
+    public ResponseEntity<List<SocialMaterializationDto>> getMaterializations(@PathVariable Integer instanceId) {
         List<SocialMaterialization> materializations = materializationRepository.findByInstanceId(instanceId);
-        return ResponseEntity.ok(materializations);
+        
+        List<SocialMaterializationDto> dtos = materializations.stream()
+            .map(material -> new SocialMaterializationDto(material))
+            .collect(Collectors.toList());
+            
+        return ResponseEntity.ok(dtos);
     }
 
     /**
@@ -84,12 +162,12 @@ public class PlanificationController {
         
         // Criar matriz tecnológica
         int size = materializations.size();
-        Double[][] matrix = new Double[size][size];
+        BigDecimal[][] matrix = new BigDecimal[size][size];
         
         // Inicializar com zeros
         for (int i = 0; i < size; i++) {
             for (int j = 0; j < size; j++) {
-                matrix[i][j] = 0.0;
+                matrix[i][j] = BigDecimal.ZERO;
             }
         }
         
@@ -101,11 +179,11 @@ public class PlanificationController {
         
         // Preencher matriz com valores dos tensores
         for (TechnologicalTensor tensor : tensors) {
-            Integer inputIndex = materializationToIndex.get(tensor.getInputMaterializationId());
-            Integer outputIndex = materializationToIndex.get(tensor.getOutputMaterializationId());
+            Integer inputIndex = materializationToIndex.get(tensor.getInputSocialMaterialization().getId());
+            Integer outputIndex = materializationToIndex.get(tensor.getOutputSocialMaterialization().getId());
             
             if (inputIndex != null && outputIndex != null) {
-                matrix[inputIndex][outputIndex] = tensor.getQuantity();
+                matrix[inputIndex][outputIndex] = tensor.getTechnicalCoefficientElementValue();
             }
         }
         
@@ -152,19 +230,19 @@ public class PlanificationController {
         
         // Criar vetor de demanda
         int size = materializations.size();
-        Double[] vector = new Double[size];
+        BigDecimal[] vector = new BigDecimal[size];
         
         // Inicializar com zeros
         for (int i = 0; i < size; i++) {
-            vector[i] = 0.0;
+            vector[i] = BigDecimal.ZERO;
         }
         
         // Preencher vetor com valores de demanda
         for (DemandVector demand : demandVectors) {
-            Integer index = materializationToIndex.get(demand.getMaterializationId());
+            Integer index = materializationToIndex.get(demand.getSocialMaterialization().getId());
             
             if (index != null) {
-                vector[index] = demand.getQuantity();
+                vector[index] = demand.getDemand();
             }
         }
         

@@ -1,45 +1,83 @@
 package xyz.planecon.dto;
 
-import java.time.LocalDateTime;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import xyz.planecon.model.entity.Instance; // Adicionar este import
 
-import xyz.planecon.model.entity.Instance;
-import xyz.planecon.model.enums.InstanceType;
-
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class InstanceDto {
     private Integer id;
     private String name;
-    private InstanceType type;
-    private LocalDateTime createdAt;
+    private String description;
     
+    // Apenas para mostrar a hierarquia, sem incluir objetos completos
+    private Integer parentInstanceId;
+    private String parentInstanceName;
+    
+    // Construtor que recebe uma entidade Instance
     public InstanceDto(Instance instance) {
         this.id = instance.getId();
         
-        // Tratamento para quando committeeName for nulo
-        if (instance.getCommitteeName() != null && !instance.getCommitteeName().isEmpty()) {
-            this.name = instance.getCommitteeName();
+        // Determinar o nome baseado no tipo
+        if (instance.getType() != null) {
+            switch (instance.getType()) {
+                case COMMITTEE:
+                    this.name = instance.getCommitteeName() != null ? 
+                               instance.getCommitteeName() : "Comitê #" + instance.getId();
+                    break;
+                case COUNCIL:
+                    this.name = "Conselho #" + instance.getId();
+                    break;
+                case WORKER:
+                    this.name = "Worker #" + instance.getId();
+                    break;
+                default:
+                    this.name = "Instância #" + instance.getId();
+                    break;
+            }
         } else {
-            // Nome padrão baseado no tipo e ID
-            this.name = instance.getType() + " #" + instance.getId();
+            this.name = "Instância #" + instance.getId();
         }
         
-        this.type = instance.getType();
-        this.createdAt = instance.getCreatedAt();
-    }
-    
-    // Getters
-    public Integer getId() {
-        return id;
-    }
-    
-    public String getName() {
-        return name;
-    }
-    
-    public InstanceType getType() {
-        return type;
-    }
-    
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+        // Gerar descrição
+        StringBuilder desc = new StringBuilder();
+        if (instance.getType() != null) {
+            desc.append("Tipo: ").append(instance.getType());
+        }
+        if (instance.getCreatedAt() != null) {
+            desc.append(desc.length() > 0 ? ", " : "");
+            desc.append("Criado em: ").append(instance.getCreatedAt());
+        }
+        this.description = desc.toString();
+        
+        // Informações do pai, se existir
+        if (instance.getPopularCouncilAssociatedWithPopularCouncil() != null) {
+            Instance parent = instance.getPopularCouncilAssociatedWithPopularCouncil();
+            this.parentInstanceId = parent.getId();
+            
+            // Nome do pai
+            if (parent.getType() == null) {
+                this.parentInstanceName = "Instância #" + parent.getId();
+            } else {
+                switch (parent.getType()) {
+                    case COMMITTEE:
+                        this.parentInstanceName = parent.getCommitteeName() != null ? 
+                                               parent.getCommitteeName() : "Comitê #" + parent.getId();
+                        break;
+                    case COUNCIL:
+                        this.parentInstanceName = "Conselho #" + parent.getId();
+                        break;
+                    case WORKER:
+                        this.parentInstanceName = "Worker #" + parent.getId();
+                        break;
+                    default:
+                        this.parentInstanceName = "Instância #" + parent.getId();
+                        break;
+                }
+            }
+        }
     }
 }
