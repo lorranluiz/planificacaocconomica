@@ -66,7 +66,7 @@ public class OptimizationInputsResults {
     @Column(name = "production_goal", precision = 16, scale = 6, nullable = false)
     private BigDecimal productionGoal;
     
-    @Column(name = "total_work_hours")
+    @Transient
     private Double totalWorkHours;
     
     @Column(name = "workers_needed", nullable = false)
@@ -75,22 +75,22 @@ public class OptimizationInputsResults {
     @Column(name = "factories_needed", nullable = false)
     private Integer factoriesNeeded;
     
-    @Column(name = "production_time_in_hours")
+    @Transient // Adicionar esta anotação
     private Double productionTimeInHours;
     
-    @Column(name = "weekly_working_hours")
+    @Transient // Adicionar esta anotação
     private Double weeklyWorkingHours;
     
-    @Column(name = "worker_hours_per_week")
+    @Transient // Adicionar esta anotação
     private Double workerHoursPerWeek;
     
-    @Column(name = "factory_operation_hours")
+    @Transient // Adicionar esta anotação
     private Double factoryOperationHours;
     
     @Column(name = "worker_limit", nullable = false)
     private Integer workerLimit;
     
-    @Column(name = "minimum_production_time_in_days")
+    @Transient // Adicionar esta anotação
     private Double minimumProductionTimeInDays;
     
     // Métodos Transient para Duration
