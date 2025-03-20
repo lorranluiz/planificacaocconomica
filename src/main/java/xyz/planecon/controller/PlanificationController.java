@@ -1,6 +1,7 @@
 package xyz.planecon.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -8,10 +9,12 @@ import xyz.planecon.dto.InstanceDto;
 import xyz.planecon.dto.PlanificationRequest;
 import xyz.planecon.dto.PlanificationResponse;
 import xyz.planecon.dto.SocialMaterializationDto;
+import xyz.planecon.dto.TensorCreationDto;
 import xyz.planecon.model.entity.DemandVector;
 import xyz.planecon.model.entity.Instance;
 import xyz.planecon.model.entity.SocialMaterialization;
 import xyz.planecon.model.entity.TechnologicalTensor;
+import xyz.planecon.model.entity.TechnologicalTensor.TechnologicalTensorId;
 import xyz.planecon.repository.DemandVectorRepository;
 import xyz.planecon.repository.InstanceRepository;
 import xyz.planecon.repository.SocialMaterializationRepository;
@@ -19,10 +22,12 @@ import xyz.planecon.repository.TechnologicalTensorRepository;
 import xyz.planecon.service.PlanificationService;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -279,17 +284,91 @@ public class PlanificationController {
      * Endpoint para salvar um tensor na matriz tecnológica
      */
     @PostMapping("/technological-tensor")
-    public ResponseEntity<TechnologicalTensor> saveTensor(@RequestBody TechnologicalTensor tensor) {
-        TechnologicalTensor saved = tensorRepository.save(tensor);
-        return ResponseEntity.ok(saved);
+    public ResponseEntity<TechnologicalTensor> saveTensor(@RequestBody TensorCreationDto tensorDto) {
+        try {
+            // Buscar entidades relacionadas
+            SocialMaterialization inputMat = materializationRepository.findById(tensorDto.getInputMaterializationId())
+                    .orElseThrow(() -> new RuntimeException("Materialização de entrada não encontrada"));
+            
+            SocialMaterialization outputMat = materializationRepository.findById(tensorDto.getOutputMaterializationId())
+                    .orElseThrow(() -> new RuntimeException("Materialização de saída não encontrada"));
+            
+            Instance instance = instanceRepository.findById(tensorDto.getInstanceId())
+                    .orElseThrow(() -> new RuntimeException("Instância não encontrada"));
+            
+            // Verificar se já existe um tensor com esses IDs
+            TechnologicalTensorId id = new TechnologicalTensorId(
+                tensorDto.getInputMaterializationId(), 
+                tensorDto.getOutputMaterializationId()
+            );
+            
+            TechnologicalTensor tensor;
+            Optional<TechnologicalTensor> existingTensor = tensorRepository.findById(id);
+            
+            if (existingTensor.isPresent()) {
+                // Atualizar tensor existente
+                tensor = existingTensor.get();
+                tensor.setTechnicalCoefficientElementValue(new BigDecimal(tensorDto.getQuantity().toString()));
+                tensor.setInstance(instance);
+            } else {
+                // Criar novo tensor
+                tensor = new TechnologicalTensor();
+                tensor.setId(id);
+                tensor.setInputSocialMaterialization(inputMat);
+                tensor.setOutputSocialMaterialization(outputMat);
+                tensor.setInstance(instance);
+                tensor.setTechnicalCoefficientElementValue(new BigDecimal(tensorDto.getQuantity().toString()));
+                tensor.setCreatedAt(LocalDateTime.now());
+            }
+            
+            TechnologicalTensor savedTensor = tensorRepository.save(tensor);
+            return ResponseEntity.ok(savedTensor);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
     
     /**
      * Endpoint para salvar um valor no vetor de demanda
      */
     @PostMapping("/demand-vector")
-    public ResponseEntity<DemandVector> saveDemandVector(@RequestBody DemandVector demandVector) {
-        DemandVector saved = demandVectorRepository.save(demandVector);
-        return ResponseEntity.ok(saved);
+    public ResponseEntity<DemandVector> saveDemandVector(@RequestBody Map<String, Object> payload) {
+        try {
+            Integer instanceId = ((Number) payload.get("instanceId")).intValue();
+            Integer materializationId = ((Number) payload.get("materializationId")).intValue();
+            BigDecimal quantity = new BigDecimal(payload.get("quantity").toString());
+            
+            // Buscar entidades relacionadas
+            SocialMaterialization materialization = materializationRepository.findById(materializationId)
+                    .orElseThrow(() -> new RuntimeException("Materialização não encontrada"));
+                    
+            Instance instance = instanceRepository.findById(instanceId)
+                    .orElseThrow(() -> new RuntimeException("Instância não encontrada"));
+            
+            // Verificar se já existe um vetor com esses IDs
+            DemandVector.DemandVectorId id = new DemandVector.DemandVectorId(materializationId, instanceId);
+            DemandVector demandVector;
+            
+            Optional<DemandVector> existingVector = demandVectorRepository.findById(id);
+            if (existingVector.isPresent()) {
+                // Atualizar vetor existente
+                demandVector = existingVector.get();
+                demandVector.setDemand(quantity);
+            } else {
+                // Criar novo vetor
+                demandVector = new DemandVector();
+                demandVector.setSocialMaterialization(materialization);
+                demandVector.setInstance(instance);
+                demandVector.setDemand(quantity);
+                demandVector.setCreatedAt(LocalDateTime.now());
+            }
+            
+            DemandVector savedVector = demandVectorRepository.save(demandVector);
+            return ResponseEntity.ok(savedVector);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 }
