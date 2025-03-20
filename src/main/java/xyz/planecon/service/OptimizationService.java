@@ -15,12 +15,27 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional; // Use esta importação
+// Remova: import jakarta.transaction.Transactional;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.PersistenceContext;
+
 @Service
 public class OptimizationService {
 
     private final OptimizationInputsResultsRepository optimizationRepository;
     private final SocialMaterializationRepository materializationRepository;
     private final InstanceRepository instanceRepository; // Adicione este campo
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    private static final Logger logger = LoggerFactory.getLogger(OptimizationService.class);
 
     @Autowired
     public OptimizationService(OptimizationInputsResultsRepository optimizationRepository,
@@ -32,77 +47,117 @@ public class OptimizationService {
     }
 
     /**
-     * Realiza a otimização de produção para um produto específico.
+     * Limpa resultados anteriores para a instância especificada.
+     * Esta operação agora é executada em uma transação separada.
      */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void clearPreviousResults(Integer instanceId) {
+        optimizationRepository.deleteByInstanceId(instanceId);
+        // Forçar commit da transação após a limpeza
+        entityManager.flush();
+        entityManager.clear();
+    }
+
+    /**
+     * Realiza a otimização de produção para um produto específico.
+     * Agora com gestão melhorada de concorrência.
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public OptimizationResult performOptimization(
             Integer materializationId,
             String productName,
             double productionNeeded,
             Integer instanceId) {
         
-        // Buscar materialização social e instância
-        Optional<SocialMaterialization> materialOptional = 
-            materializationRepository.findById(materializationId);
-        
-        Optional<Instance> instanceOptional = 
-            instanceRepository.findById(instanceId);
-        
-        if (materialOptional.isEmpty() || instanceOptional.isEmpty()) {
-            return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+        try {
+            // Buscar materialização social e instância
+            Optional<SocialMaterialization> materialOptional = 
+                materializationRepository.findById(materializationId);
+            
+            Optional<Instance> instanceOptional = 
+                instanceRepository.findById(instanceId);
+            
+            if (materialOptional.isEmpty() || instanceOptional.isEmpty()) {
+                return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+            }
+            
+            SocialMaterialization material = materialOptional.get();
+            Instance instance = instanceOptional.get();
+            
+            // Criar um ID para o resultado de otimização
+            OptimizationInputsResults.OptimizationInputsResultsId resultId = 
+                new OptimizationInputsResults.OptimizationInputsResultsId(instanceId, materializationId);
+            
+            // Verificar se já existe um resultado
+            OptimizationInputsResults optimizationData;
+            
+            // Lock exclusivo usando LockModeType.PESSIMISTIC_WRITE para evitar concorrência
+            Optional<OptimizationInputsResults> existingResult = 
+                Optional.ofNullable(entityManager.find(
+                    OptimizationInputsResults.class, 
+                    resultId, 
+                    LockModeType.PESSIMISTIC_WRITE
+                ));
+            
+            if (existingResult.isPresent()) {
+                optimizationData = existingResult.get();
+            } else {
+                optimizationData = createNewOptimizationData(instanceId, materializationId);
+            }
+            
+            // Garantir que as associações com entidades estão definidas
+            optimizationData.setInstance(instance);
+            optimizationData.setSocialMaterialization(material);
+            
+            // Usar valores padrão para campos que não existem no banco
+            double productionTime = 1.0; // Valor padrão - não usa o campo transiente  
+            double weeklyScale = 40.0;   // Valor padrão - não usa o campo transiente
+            double workerHours = 40.0;   // Valor padrão - não usa o campo transiente
+            double factoryOperationHours = 168.0; // 7 dias * 24 horas - não usa o campo transiente
+            int workerLimit = optimizationData.getWorkerLimit() != null ? 
+                optimizationData.getWorkerLimit() : 100;
+            double minimumProductionDays = 7.0; // Valor padrão - não usa o campo transiente
+            
+            // Cálculos de otimização
+            double totalHours = productionTime * productionNeeded;
+            double workersNeeded = totalHours / (weeklyScale * workerHours);
+            double factoriesNeeded = totalHours / (factoryOperationHours * workerLimit * minimumProductionDays);
+            
+            // Atualizar e salvar apenas os campos que existem na tabela
+            optimizationData.setProductionGoal(new BigDecimal(productionNeeded));
+            // Manter a variável para cálculos, mas não tentar persistir no banco
+            // optimizationData.setTotalWorkHours(totalHours); // Comentado - não existe no banco
+            // Em vez disso, podemos usar totalHours no banco
+            optimizationData.setTotalHours(new BigDecimal(totalHours));
+            optimizationData.setWorkersNeeded((int)Math.ceil(workersNeeded));
+            optimizationData.setFactoriesNeeded((int)Math.ceil(factoriesNeeded));
+            
+            // Salvar e fazer flush imediatamente para evitar problemas de concorrência
+            optimizationData = optimizationRepository.saveAndFlush(optimizationData);
+            
+            // Limpar o contexto de persistência para evitar problemas em transações subsequentes
+            entityManager.clear();
+            
+            // Retornar resultado da otimização com todos os campos
+            return new OptimizationResult(
+                materializationId,
+                productName, 
+                productionNeeded,
+                totalHours,
+                workersNeeded,
+                factoriesNeeded,
+                productionTime,
+                weeklyScale,
+                workerHours,
+                factoryOperationHours,
+                workerLimit,
+                minimumProductionDays
+            );
+        } catch (Exception e) {
+            // Adicionar log detalhado da exceção
+            logger.error("Erro ao realizar otimização: {}", e.getMessage(), e);
+            throw e;
         }
-        
-        SocialMaterialization material = materialOptional.get();
-        Instance instance = instanceOptional.get();
-        
-        // Buscar dados de otimização existentes ou criar novos
-        OptimizationInputsResults optimizationData = 
-            findOptimizationData(instanceId, materializationId)
-                .orElse(createNewOptimizationData(instanceId, materializationId));
-        
-        // Garantir que as associações com entidades estão definidas
-        optimizationData.setInstance(instance);
-        optimizationData.setSocialMaterialization(material);
-        
-        // Usar valores padrão para campos que não existem no banco
-        double productionTime = 1.0; // Valor padrão - não usa o campo transiente  
-        double weeklyScale = 40.0;   // Valor padrão - não usa o campo transiente
-        double workerHours = 40.0;   // Valor padrão - não usa o campo transiente
-        double factoryOperationHours = 168.0; // 7 dias * 24 horas - não usa o campo transiente
-        int workerLimit = optimizationData.getWorkerLimit() != null ? 
-            optimizationData.getWorkerLimit() : 100;
-        double minimumProductionDays = 7.0; // Valor padrão - não usa o campo transiente
-        
-        // Cálculos de otimização
-        double totalHours = productionTime * productionNeeded;
-        double workersNeeded = totalHours / (weeklyScale * workerHours);
-        double factoriesNeeded = totalHours / (factoryOperationHours * workerLimit * minimumProductionDays);
-        
-        // Atualizar e salvar apenas os campos que existem na tabela
-        optimizationData.setProductionGoal(new BigDecimal(productionNeeded));
-        // Manter a variável para cálculos, mas não tentar persistir no banco
-        // optimizationData.setTotalWorkHours(totalHours); // Comentado - não existe no banco
-        // Em vez disso, podemos usar totalHours no banco
-        optimizationData.setTotalHours(new BigDecimal(totalHours));
-        optimizationData.setWorkersNeeded((int)Math.ceil(workersNeeded));
-        optimizationData.setFactoriesNeeded((int)Math.ceil(factoriesNeeded));
-        
-        optimizationRepository.save(optimizationData);
-        
-        // Retornar resultado da otimização com todos os campos
-        return new OptimizationResult(
-            materializationId,
-            productName, 
-            productionNeeded,
-            totalHours,
-            workersNeeded,
-            factoriesNeeded,
-            productionTime,
-            weeklyScale,
-            workerHours,
-            factoryOperationHours,
-            workerLimit,
-            minimumProductionDays
-        );
     }
     
     /**
@@ -170,13 +225,5 @@ public class OptimizationService {
             productionNeeded, 
             0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0
         );
-    }
-    
-    /**
-     * Limpa resultados anteriores para uma instância específica.
-     */
-    public void clearPreviousResults(Integer instanceId) {
-        List<OptimizationInputsResults> results = optimizationRepository.findById_InstanceId(instanceId);
-        optimizationRepository.deleteByInstanceId(instanceId);
     }
 }
