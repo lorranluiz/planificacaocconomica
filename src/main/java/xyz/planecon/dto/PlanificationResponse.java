@@ -32,5 +32,6 @@ public class PlanificationResponse {
         private Double factoryOperationHours; // Horas de operação da fábrica
         private Integer workerLimit;      // Limite de trabalhadores por fábrica
         private Double minimumProductionTimeInDays; // Tempo mínimo de produção em dias
+        private Boolean nightShift;       // Indica se usa turno noturno
     }
 }

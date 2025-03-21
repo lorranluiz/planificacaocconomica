@@ -137,6 +137,7 @@ function saveOptimizationConfig() {
         });
 }
 
+// Função para exibir detalhes de otimização
 function openOptimizationResultModal(index) {
     // Obter o resultado de otimização correspondente
     const result = optimizationResults[index];
@@ -149,7 +150,7 @@ function openOptimizationResultModal(index) {
         return;
     }
     
-    // Preencher dados na modal
+    // Preencher dados na modal - título do produto
     document.getElementById('optimizationModalProductName').textContent = result.productName || 'Produto';
     
     // Formatar valores numéricos com verificação de existência
@@ -158,36 +159,52 @@ function openOptimizationResultModal(index) {
         return typeof value === 'number' ? value.toFixed(decimals) : '0';
     };
     
-    // Criar o conteúdo HTML com verificações para cada propriedade
+    // Criar o conteúdo HTML estruturado em seções
     let contentHTML = `
-        <p><strong>Produção Necessária:</strong> ${formatNumber(result.productionNeeded)} unidades</p>
-        <p><strong>Total de Horas:</strong> ${formatNumber(result.totalHours)} horas</p>
-        <p><strong>Trabalhadores Necessários:</strong> ${result.workersNeeded ? Math.ceil(result.workersNeeded) : '0'} trabalhadores</p>
-        <p><strong>Fábricas Necessárias:</strong> ${result.factoriesNeeded ? Math.ceil(result.factoriesNeeded) : '0'} fábricas</p>
+        <div class="optimization-section">
+            <h4>Dados de Produção</h4>
+            <p><strong>Produção Necessária:</strong> ${formatNumber(result.productionNeeded)} unidades</p>
+            <p><strong>Total de Horas Necessárias:</strong> ${formatNumber(result.totalHours)} horas</p>
+        </div>
+        
+        <div class="optimization-section">
+            <h4>Parâmetros Configurados</h4>
+            <p><strong>Limite de Trabalhadores por Fábrica:</strong> ${result.workerLimit || '0'}</p>
+            <p><strong>Horas de Trabalho por Dia:</strong> ${formatNumber(result.workerHours, 1)} horas</p>
+            <p><strong>Tempo para Produzir Uma Unidade:</strong> ${formatNumber(result.productionTime, 4)} horas</p>
+            <p><strong>Escala Semanal:</strong> ${formatNumber(result.weeklyScale, 0)} dias por semana</p>
+            <p><strong>Turno Noturno:</strong> ${result.nightShift ? 'Sim' : 'Não'}</p>
+        </div>
+        
+        <div class="optimization-section">
+            <h4>Resultados Calculados</h4>
+            <p><strong>Trabalhadores Necessários:</strong> ${result.workersNeeded ? Math.ceil(result.workersNeeded) : '0'} trabalhadores</p>
+            <p><strong>Fábricas Necessárias:</strong> ${result.factoriesNeeded ? Math.ceil(result.factoriesNeeded) : '0'} fábricas</p>
+            <p><strong>Tempo Mínimo de Produção:</strong> ${formatNumber(result.minimumProductionTimeInDays, 1)} dias</p>
+            <p><strong>Horas de Operação da Fábrica:</strong> ${formatNumber(result.factoryOperationHours)} horas por dia</p>
+        </div>
     `;
     
-    // Adicionar campos opcionais apenas se existirem
-    if (result.weeklyScale) {
-        contentHTML += `<p><strong>Escala Semanal:</strong> ${result.weeklyScale} dias por semana</p>`;
-    }
-    
-    if (result.workerHours) {
-        contentHTML += `<p><strong>Horas por Trabalhador:</strong> ${formatNumber(result.workerHours)} horas por dia</p>`;
-    }
-    
-    if (result.workerLimit) {
-        contentHTML += `<p><strong>Limite de Trabalhadores por Fábrica:</strong> ${result.workerLimit} trabalhadores</p>`;
-    }
-    
-    if (result.productionTime) {
-        contentHTML += `<p><strong>Tempo para Produzir Uma Unidade:</strong> ${formatNumber(result.productionTime, 4)} horas</p>`;
-    }
-    
-    if (result.minimumProductionTimeInDays) {
-        contentHTML += `<p><strong>Tempo Mínimo de Produção:</strong> ${formatNumber(result.minimumProductionTimeInDays)} dias</p>`;
-    }
-    
     document.getElementById('optimizationModalContent').innerHTML = contentHTML;
+    
+    // Adicionar estilos na modal para melhorar a visualização
+    const style = document.createElement('style');
+    style.textContent = `
+        .optimization-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: var(--card-bg, #f9f9f9);
+            border-radius: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .optimization-section h4 {
+            margin-top: 0;
+            margin-bottom: 10px;
+            color: var(--accent-color, #3498db);
+            font-size: 16px;
+        }
+    `;
+    document.head.appendChild(style);
     
     // Exibir a modal
     document.getElementById('optimizationResultModal').style.display = 'flex';
@@ -634,33 +651,15 @@ document.addEventListener('DOMContentLoaded', function() {
         // Limpar tabela
         productionVectorTable.querySelector('tbody').innerHTML = '';
         
-        // Adicionar cabeçalhos incluindo a coluna de ação
-        const headerHTML = `
-            <tr>
-                <th>Materialização Social</th>
-                <th>Produção Necessária</th>
-                <th>Otimização</th>
-            </tr>
-        `;
-        productionVectorTable.querySelector('thead').innerHTML = headerHTML;
-        
-        // Variável para armazenar o HTML das linhas
-        let rowsHTML = '';
-        
         // Adicionar linhas com valores
         productionVector.forEach((value, index) => {
+            const row = document.createElement('tr');
+            
             // Verificar se temos resultados de otimização para este produto
             const hasOptimizationResults = optimizationResults && 
                                           optimizationResults.length > index && 
                                           optimizationResults[index] !== null;
             
-            // Log para debugging
-            console.log(`Produto ${index}: ${productNames[index]}, tem resultados: ${hasOptimizationResults}`);
-            if (hasOptimizationResults) {
-                console.log('Detalhes do resultado:', optimizationResults[index]);
-            }
-            
-            // Criar o botão com base na existência de resultados
             const buttonHTML = hasOptimizationResults
                 ? `<button class="btn btn-sm" onclick="openOptimizationResultModal(${index})">
                      <i class="fas fa-chart-line"></i> Ver Detalhes
@@ -669,47 +668,13 @@ document.addEventListener('DOMContentLoaded', function() {
                      <i class="fas fa-exclamation-circle"></i> Sem Dados
                    </button>`;
             
-            // Criar a linha da tabela
-            rowsHTML += `
-                <tr>
-                    <td>${productNames[index]}</td>
-                    <td>${value.toFixed(2)}</td>
-                    <td>${buttonHTML}</td>
-                </tr>
+            row.innerHTML = `
+                <td>${productNames[index]}</td>
+                <td>${value.toFixed(2)}</td>
+                <td>${buttonHTML}</td>
             `;
-        });
-        
-        // Adicionar todas as linhas ao tbody
-        productionVectorTable.querySelector('tbody').innerHTML = rowsHTML;
-    }
-
-    /**
-     * Renderiza os resultados da otimização
-     */
-    function renderOptimizationResults(results) {
-        // Limpar tabela
-        optimizationResultsTable.querySelector('tbody').innerHTML = '';
-        
-        // Adicionar linhas com valores
-        results.forEach(result => {
-            const tr = document.createElement('tr');
             
-            // Adicionar nome do produto
-            const tdName = document.createElement('td');
-            tdName.textContent = result.productName;
-            tr.appendChild(tdName);
-            
-            // Adicionar número de trabalhadores
-            const tdWorkers = document.createElement('td');
-            tdWorkers.textContent = result.workersNeeded ? result.workersNeeded.toFixed(0) : 'N/D';
-            tr.appendChild(tdWorkers);
-            
-            // Adicionar número de fábricas
-            const tdFactories = document.createElement('td');
-            tdFactories.textContent = result.factoriesNeeded ? result.factoriesNeeded.toFixed(2) : 'N/D';
-            tr.appendChild(tdFactories);
-            
-            optimizationResultsTable.querySelector('tbody').appendChild(tr);
+            productionVectorTable.querySelector('tbody').appendChild(row);
         });
     }
     

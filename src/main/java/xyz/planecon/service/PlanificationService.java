@@ -41,8 +41,8 @@ public class PlanificationService {
     public PlanificationResponse planify(PlanificationRequest request) {
         Integer instanceId = request.getInstanceId();
         
-        // Limpar resultados anteriores para esta instância
-        optimizationService.clearPreviousResults(instanceId);
+        // Não limpar resultados anteriores para preservar configurações do usuário
+        // Remova a linha: optimizationService.clearPreviousResults(instanceId);
         
         // Converter matrizes de Double para double primitivo
         double[][] techMatrix = convertToDoublePrimitive(request.getTechnologicalMatrix());
@@ -51,7 +51,7 @@ public class PlanificationService {
         // Calcular o vetor de produção usando o modelo de Leontief
         double[] productionVector = MatrixOperations.calculateProductionVector(techMatrix, demandVector);
         
-        // IMPORTANTE: Aqui está a mudança principal - Carregar configurações existentes
+        // Carregar configurações existentes para usar nos cálculos de otimização
         Map<Integer, OptimizationInputsResults> existingConfigs = new HashMap<>();
         List<OptimizationInputsResults> configs = optimizationRepository.findById_InstanceId(instanceId);
         
@@ -75,20 +75,16 @@ public class PlanificationService {
                     // Usar configuração existente para a otimização
                     OptimizationInputsResults existingConfig = existingConfigs.get(materializationId);
                     
-                    // Atualizar a meta de produção
-                    existingConfig.setProductionGoal(new BigDecimal(productionNeeded));
-                    existingConfig.setPlannedFinalDemand(new BigDecimal(demandVector[i] * 1000));
-                    
-                    // Realizar otimização com a configuração existente
+                    // Realizar otimização COM a configuração existente
                     result = optimizationService.performOptimization(
                         materializationId, 
                         productName, 
                         productionNeeded, 
                         instanceId,
-                        existingConfig  // Passar a configuração existente
+                        existingConfig
                     );
                 } else {
-                    // Realizar otimização sem configuração prévia
+                    // Criar uma configuração padrão nova
                     result = optimizationService.performOptimization(
                         materializationId, 
                         productName, 

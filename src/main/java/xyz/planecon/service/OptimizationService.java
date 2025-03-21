@@ -189,7 +189,8 @@ public class OptimizationService {
                 workerHours,
                 factoryOperationHours,
                 workerLimit,
-                minimumProductionTimeInDays
+                minimumProductionTimeInDays,
+                nightShift // Adicione este campo
             );
             
             logger.info("Otimização concluída com sucesso para materialização {} ({})", 
@@ -219,10 +220,11 @@ public class OptimizationService {
                     productName, productionNeeded);
         
         try {
-            // Atualizar a configuração existente com a nova meta de produção
+            // Atualizar apenas a meta de produção, preservando os outros valores configurados pelo usuário
             existingConfig.setProductionGoal(new BigDecimal(productionNeeded));
+            existingConfig.setPlannedFinalDemand(new BigDecimal(productionNeeded));
             
-            // Recuperar valores da configuração existente
+            // Recuperar valores da configuração existente (sem modificá-los)
             int workerLimit = existingConfig.getWorkerLimit();
             BigDecimal workerHours = existingConfig.getWorkerHours();
             BigDecimal productionTime = existingConfig.getProductionTime();
@@ -249,7 +251,7 @@ public class OptimizationService {
             // Tempo mínimo de produção em dias (tempo tão rápido quanto possível)
             double minimumProductionTime = totalHours / (factoriesNeeded * workerLimit * factoryOperationHours);
             
-            // Salvar resultados
+            // Salvar apenas os resultados, não os parâmetros de entrada
             existingConfig.setTotalHours(new BigDecimal(totalHours));
             existingConfig.setWorkersNeeded((int) workersNeeded);
             existingConfig.setFactoriesNeeded((int) factoriesNeeded);
@@ -263,7 +265,8 @@ public class OptimizationService {
             // Salvar a configuração atualizada
             optimizationRepository.save(existingConfig);
             
-            // Retornar resultado da otimização
+            // Retornar resultado da otimização, incluindo tanto os parâmetros originais 
+            // quanto os resultados calculados
             return new OptimizationResult(
                 materializationId,
                 productName,
@@ -271,12 +274,13 @@ public class OptimizationService {
                 totalHours,
                 workersNeeded,
                 factoriesNeeded,
-                productionTime.doubleValue(),
-                (double) weeklyScale,  // Converter de int para double
-                workerHours.doubleValue(),
+                productionTime.doubleValue(),     // Valor original do usuário 
+                (double) weeklyScale,             // Valor original do usuário
+                workerHours.doubleValue(),        // Valor original do usuário
                 factoryOperationHours,
-                workerLimit,
-                minimumProductionTime
+                workerLimit,                      // Valor original do usuário
+                minimumProductionTime,
+                nightShift                        // Adicionar o parâmetro nightShift
             );
             
         } catch (Exception e) {
@@ -354,7 +358,8 @@ public class OptimizationService {
             0.0,  // workerHours
             0.0,  // factoryOperationHours
             0,    // workerLimit
-            0.0   // minimumProductionTimeInDays
+            0.0,  // minimumProductionTimeInDays
+            false // Adicionando o valor padrão para nightShift
         );
     }
 }
