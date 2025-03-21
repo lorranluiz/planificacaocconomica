@@ -414,6 +414,53 @@ function updateDemandVectorFromUI() {
     return demandVector;
 }
 
+// Mover renderProductionVector para o escopo global (fora do DOMContentLoaded)
+function renderProductionVector(productionVector) {
+    // Limpar tabela existente
+    const table = document.getElementById('productionVector');
+    const thead = table.querySelector('thead');
+    const tbody = table.querySelector('tbody');
+    
+    // Limpar conteúdo existente
+    thead.innerHTML = '';
+    tbody.innerHTML = '';
+    
+    // Criar cabeçalho
+    const headerRow = document.createElement('tr');
+    headerRow.innerHTML = `
+        <th>Materialização Social</th>
+        <th>Produção Necessária</th>
+        <th>Ações</th>
+    `;
+    thead.appendChild(headerRow);
+    
+    // Adicionar linhas com valores
+    productionVector.forEach((value, index) => {
+        const row = document.createElement('tr');
+        
+        // Verificar se temos resultados de otimização para este produto
+        const hasOptimizationResults = optimizationResults && 
+                                     optimizationResults.some(result => 
+                                         result && result.materializationId === productIds[index]);
+        
+        const buttonHTML = hasOptimizationResults
+            ? `<button class="btn btn-sm" onclick="openOptimizationResultModal(${index})">
+                 <i class="fas fa-chart-line"></i> Ver Detalhes
+               </button>`
+            : `<button class="btn btn-sm" onclick="openOptimizationConfigModal(${index})">
+                 <i class="fas fa-cogs"></i> Configurar Otimização
+               </button>`;
+        
+        row.innerHTML = `
+            <td>${productNames[index]}</td>
+            <td>${value.toFixed(2)}</td>
+            <td>${buttonHTML}</td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+}
+
 // Mantém o restante do código dentro do evento DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
     // Inicializar cabeçalho comum - APENAS UMA VEZ
@@ -739,55 +786,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     /**
-     * Renderiza o vetor de produção
-     */
-    function renderProductionVector(productionVector) {
-        // Limpar tabela existente
-        const table = document.getElementById('productionVector');
-        const thead = table.querySelector('thead');
-        const tbody = table.querySelector('tbody');
-        
-        // Limpar conteúdo existente
-        thead.innerHTML = '';
-        tbody.innerHTML = '';
-        
-        // Criar cabeçalho
-        const headerRow = document.createElement('tr');
-        headerRow.innerHTML = `
-            <th>Materialização Social</th>
-            <th>Produção Necessária</th>
-            <th>Ações</th>
-        `;
-        thead.appendChild(headerRow);
-        
-        // Adicionar linhas com valores
-        productionVector.forEach((value, index) => {
-            const row = document.createElement('tr');
-            
-            // Verificar se temos resultados de otimização para este produto
-            const hasOptimizationResults = optimizationResults && 
-                                          optimizationResults.length > index && 
-                                          optimizationResults[index] !== null;
-            
-            const buttonHTML = hasOptimizationResults
-                ? `<button class="btn btn-sm" onclick="openOptimizationResultModal(${index})">
-                     <i class="fas fa-chart-line"></i> Ver Detalhes
-                   </button>`
-                : `<button class="btn btn-sm" onclick="openOptimizationConfigModal(${index})">
-                     <i class="fas fa-cogs"></i> Configurar Otimização
-                   </button>`;
-            
-            row.innerHTML = `
-                <td>${productNames[index]}</td>
-                <td>${value.toFixed(2)}</td>
-                <td>${buttonHTML}</td>
-            `;
-            
-            tbody.appendChild(row);
-        });
-    }
-    
-    /**
      * Salva as alterações na matriz e no vetor de demanda
      */
     function saveChanges() {
@@ -891,7 +889,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 3000);
     }
 
-    // Modificar a função loadInstanceData para executar planificação automática
+    // Modificar a função loadInstanceData para carregar os resultados anteriores automaticamente
     function loadInstanceData(instanceId) {
         // Desabilitar elementos enquanto carrega
         document.getElementById('planifyButton').disabled = true;
@@ -922,11 +920,8 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('saveButton').disabled = false;
             document.getElementById('loadingSpinner').style.display = 'none';
 
-            // IMPORTANTE: Executa automaticamente a planificação após carregar os dados
-            console.log('Executando planificação automática...');
-            setTimeout(() => {
-                performPlanification(); // Execute a planificação automaticamente
-            }, 500); // Pequeno delay para garantir que a UI esteja pronta
+            // Carregar resultados anteriores em vez de executar planificação
+            loadPreviousResults(instanceId);
         })
         .catch(error => {
             console.error('Erro ao carregar dados da instância:', error);
