@@ -613,3 +613,68 @@ textarea {
     from { transform: translateX(100%); opacity: 0; }
     to { transform: translateX(0); opacity: 1; }
 }
+
+/* Adicionar ao final do arquivo */
+
+/* Estilos para modais */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.modal-content {
+    background-color: var(--card-bg, #fff);
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    width: 90%;
+    max-width: 800px;
+    max-height: 85vh;
+    overflow-y: auto;
+    position: relative;
+}
+
+.close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    color: var(--text-color, #333);
+}
+
+.modal-footer {
+    margin-top: 20px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+/* Customização específica para modal de resultados */
+#optimizationResultModal .modal-content {
+    padding-bottom: 30px;
+}
+
+.optimization-section {
+    margin-bottom: 20px;
+    padding: 15px;
+    background-color: var(--bg-light, #f9f9f9);
+    border-radius: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.optimization-section h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    color: var(--accent-color, #3498db);
+    border-bottom: 1px solid var(--border-color, #eaeaea);
+    padding-bottom: 5px;
+}

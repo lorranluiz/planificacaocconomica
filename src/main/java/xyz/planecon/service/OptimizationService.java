@@ -237,25 +237,64 @@ public class OptimizationService {
                 factoryOperationHours *= 3; // Turnos de 24h (3 turnos)
             }
             
-            // Total de horas necessárias para produção
+            // ===== NOVA LÓGICA DE CÁLCULO DE OTIMIZAÇÃO =====
+            
+            // 1. Tempo total de horas necessárias para produzir toda a quantidade
             double totalHours = productionNeeded * productionTime.doubleValue();
             
-            // Calcular número de trabalhadores necessários
-            double hoursPerDay = workerHours.doubleValue() * weeklyScale / 7.0; // Média diária
-            double daysRequired = totalHours / (workerLimit * hoursPerDay);
-            double workersNeeded = Math.ceil(workerLimit * daysRequired);
+            // 2. Tempo teórico mínimo absoluto (se todos trabalhassem simultaneamente)
+            // Este é o limite físico baseado no tempo de produção por unidade
+            double theoreticalMinimumTimeInHours = totalHours / workerLimit;
             
-            // Calcular número de fábricas necessárias (arredondar para cima)
+            // 3. Horas de trabalho efetivas por trabalhador por dia
+            double effectiveHoursPerWorkerPerDay = workerHours.doubleValue();
+            
+            // 4. Horas de trabalho efetivas por trabalhador por semana
+            double effectiveHoursPerWorkerPerWeek = effectiveHoursPerWorkerPerDay * weeklyScale;
+            
+            // 5. Horas de trabalho efetivas por trabalhador por dia (média semanal)
+            double averageHoursPerWorkerPerDay = effectiveHoursPerWorkerPerWeek / 7.0;
+            
+            // 6. Capacidade de produção diária de um trabalhador (em unidades)
+            double dailyProductionPerWorker = averageHoursPerWorkerPerDay / productionTime.doubleValue();
+            
+            // 7. Capacidade de produção diária de todos os trabalhadores juntos (com limite)
+            double totalDailyProduction = dailyProductionPerWorker * workerLimit;
+            
+            // 8. Dias necessários para produzir todo o lote
+            double daysRequired = productionNeeded / totalDailyProduction;
+            
+            // 9. Trabalhadores necessários para o período calculado
+            double workersNeeded = Math.ceil(productionNeeded / (dailyProductionPerWorker * daysRequired));
+            
+            // 10. Garantir que não exceda o limite de trabalhadores por fábrica
+            workersNeeded = Math.min(workersNeeded, workerLimit);
+            
+            // 11. Reajustar o número de dias se necessário
+            if (workersNeeded < workerLimit) {
+                daysRequired = productionNeeded / (dailyProductionPerWorker * workersNeeded);
+            }
+            
+            // 12. Calcular o número de fábricas necessárias
             double factoriesNeeded = Math.ceil(workersNeeded / workerLimit);
             
-            // Tempo mínimo de produção em dias (tempo tão rápido quanto possível)
-            double minimumProductionTime = totalHours / (factoriesNeeded * workerLimit * factoryOperationHours);
+            // 13. Tempo mínimo de produção em dias
+            // Nunca pode ser zero e deve considerar o tempo físico mínimo para produzir
+            double minimumProductionTimeInDays = Math.max(
+                daysRequired, 
+                theoreticalMinimumTimeInHours / (24 * (nightShift ? 3 : 1))
+            );
             
-            // Salvar apenas os resultados, não os parâmetros de entrada
+            // Garantir que o tempo mínimo respeite a realidade física
+            minimumProductionTimeInDays = Math.max(minimumProductionTimeInDays, 0.1); // Mínimo de 0.1 dias (2.4h)
+            
+            // ===== FIM DA NOVA LÓGICA =====
+            
+            // Salvar resultados calculados na configuração de otimização
             existingConfig.setTotalHours(new BigDecimal(totalHours));
-            existingConfig.setWorkersNeeded((int) workersNeeded);
-            existingConfig.setFactoriesNeeded((int) factoriesNeeded);
-            existingConfig.setMinimumProductionTime(new BigDecimal(minimumProductionTime));
+            existingConfig.setWorkersNeeded((int) Math.ceil(workersNeeded));
+            existingConfig.setFactoriesNeeded((int) Math.ceil(factoriesNeeded));
+            existingConfig.setMinimumProductionTime(new BigDecimal(minimumProductionTimeInDays));
             existingConfig.setTotalShifts(nightShift ? 3 : 1);
             
             // Tempo total de emprego (em segundos)
@@ -265,8 +304,7 @@ public class OptimizationService {
             // Salvar a configuração atualizada
             optimizationRepository.save(existingConfig);
             
-            // Retornar resultado da otimização, incluindo tanto os parâmetros originais 
-            // quanto os resultados calculados
+            // Retornar resultado da otimização
             return new OptimizationResult(
                 materializationId,
                 productName,
@@ -279,8 +317,8 @@ public class OptimizationService {
                 workerHours.doubleValue(),        // Valor original do usuário
                 factoryOperationHours,
                 workerLimit,                      // Valor original do usuário
-                minimumProductionTime,
-                nightShift                        // Adicionar o parâmetro nightShift
+                minimumProductionTimeInDays,
+                nightShift                        // Valor original do usuário
             );
             
         } catch (Exception e) {

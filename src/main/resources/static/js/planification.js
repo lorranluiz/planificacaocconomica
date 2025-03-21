@@ -187,9 +187,15 @@ function openOptimizationResultModal(index) {
     
     document.getElementById('optimizationModalContent').innerHTML = contentHTML;
     
-    // Adicionar estilos na modal para melhorar a visualização
+    // Adicionar estilos na modal para melhorar a exibição
     const style = document.createElement('style');
     style.textContent = `
+        #optimizationResultModal .modal-content {
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+        
         .optimization-section {
             margin-bottom: 20px;
             padding: 15px;
@@ -197,6 +203,7 @@ function openOptimizationResultModal(index) {
             border-radius: 6px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
+        
         .optimization-section h4 {
             margin-top: 0;
             margin-bottom: 10px;
@@ -204,6 +211,13 @@ function openOptimizationResultModal(index) {
             font-size: 16px;
         }
     `;
+    
+    // Remover estilo anterior se existir
+    const oldStyle = document.getElementById('optimization-modal-style');
+    if (oldStyle) oldStyle.remove();
+    
+    // Adicionar ID ao novo estilo para facilitar remoção futura
+    style.id = 'optimization-modal-style';
     document.head.appendChild(style);
     
     // Exibir a modal
