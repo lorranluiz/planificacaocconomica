@@ -14,7 +14,8 @@ import java.util.List;
 @Repository
 public interface OptimizationInputsResultsRepository extends JpaRepository<OptimizationInputsResults, OptimizationInputsResultsId> {
     // Correção: use id.instanceId em vez de instanceId
-    List<OptimizationInputsResults> findById_InstanceId(Integer instanceId);
+    @Query("SELECT o FROM OptimizationInputsResults o WHERE o.id.instanceId = :instanceId")
+    List<OptimizationInputsResults> findById_InstanceId(@Param("instanceId") Integer instanceId);
     
     // Para o método delete, é melhor usar um @Query explícito
     @Transactional

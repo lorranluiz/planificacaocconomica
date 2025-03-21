@@ -181,6 +181,62 @@
         </div>
     </div>
     
+    <!-- Modal de Configuração de Otimização -->
+    <div id="optimizationConfigModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeOptimizationConfigModal()">&times;</span>
+            <h2>Configurar Parâmetros de Otimização</h2>
+            <p>Materialização Social: <span id="optimizationModalProductName"></span></p>
+            
+            <div id="optimizationModalSpinner" class="loading" style="display:none;"></div>
+            
+            <div class="form-group">
+                <label for="workerLimit">Limite de Trabalhadores por Fábrica:</label>
+                <input type="number" id="workerLimit" class="form-control" min="1" step="1">
+            </div>
+            
+            <div class="form-group">
+                <label for="workerHours">Horas de Trabalho por Dia:</label>
+                <input type="number" id="workerHours" class="form-control" min="0.1" step="0.5">
+            </div>
+            
+            <div class="form-group">
+                <label for="productionTime">Tempo para Produzir Uma Unidade (em horas):</label>
+                <input type="number" id="productionTime" class="form-control" min="0.0001" step="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label for="weeklyScale">Escala Semanal (dias de trabalho por semana):</label>
+                <input type="number" id="weeklyScale" class="form-control" min="1" max="7" step="1">
+            </div>
+            
+            <div class="form-check">
+                <input type="checkbox" id="nightShift" class="form-check-input">
+                <label for="nightShift" class="form-check-label">Turno Noturno</label>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn" onclick="saveOptimizationConfig()">Salvar</button>
+                <button class="btn btn-secondary" onclick="closeOptimizationConfigModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Resultados de Otimização -->
+    <div id="optimizationResultModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeOptimizationResultModal()">&times;</span>
+            <h2>Resultados da Otimização</h2>
+            <p>Materialização Social: <span id="optimizationModalProductName"></span></p>
+            
+            <div id="optimizationModalContent"></div>
+            
+            <div class="modal-footer">
+                <button class="btn" onclick="closeOptimizationResultModal()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/planification.js"></script>
 </body>
 </html>

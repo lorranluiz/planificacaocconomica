@@ -1,16 +1,185 @@
 // Script para controlar a página de planificação econômica
 
+// Declarar variáveis globalmente
+let currentInstanceId = null;
+let productNames = [];
+let productIds = [];
+let technologicalMatrix = [];
+let demandVector = [];
+let currentOptimizationProductIndex = -1;
+const optimizationConfigs = {};
+let optimizationResults = [];
+
+// Funções de manipulação das modais precisam ser globais para serem acessíveis pelos botões
+function openOptimizationConfigModal(productIndex) {
+    currentOptimizationProductIndex = productIndex;
+        
+    // Define o nome do produto no modal
+    document.getElementById('optimizationModalProductName').textContent = productNames[productIndex];
+    
+    // Carregar dados existentes para esta materialização específica
+    const materializationId = productIds[productIndex];
+    
+    // Mostrar spinner de carregamento
+    document.getElementById('optimizationModalSpinner').style.display = 'inline-block';
+    
+    // Se já temos em cache, usamos diretamente
+    if (optimizationConfigs[productIndex]) {
+        fillOptimizationModalWithData(optimizationConfigs[productIndex]);
+        document.getElementById('optimizationModalSpinner').style.display = 'none';
+        // Exibe a modal
+        document.getElementById('optimizationConfigModal').style.display = 'flex';
+        return;
+    }
+    
+    // Caso contrário, carregamos do servidor
+    fetch(`/api/planification/optimization-config/${currentInstanceId}/${materializationId}`)
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 404) {
+                    // Não encontrou configuração - usa valores padrão
+                    return {};
+                }
+                throw new Error('Erro ao carregar configuração de otimização');
+            }
+            return response.json();
+        })
+        .then(config => {
+            // Armazena em cache
+            optimizationConfigs[productIndex] = config;
+            // Preenche os campos
+            fillOptimizationModalWithData(config);
+        })
+        .catch(error => {
+            console.error('Erro ao carregar configuração:', error);
+            showError('Erro ao carregar configuração: ' + error.message);
+        })
+        .finally(() => {
+            // Esconde spinner
+            document.getElementById('optimizationModalSpinner').style.display = 'none';
+            // Exibe a modal
+            document.getElementById('optimizationConfigModal').style.display = 'flex';
+        });
+}
+
+function closeOptimizationConfigModal() {
+    document.getElementById('optimizationConfigModal').style.display = 'none';
+    currentOptimizationProductIndex = -1;
+}
+
+function saveOptimizationConfig() {
+    if (currentOptimizationProductIndex < 0) return;
+    
+    // Captura os valores dos campos
+    const workerLimit = parseInt(document.getElementById('workerLimit').value) || null;
+    const workerHours = parseFloat(document.getElementById('workerHours').value) || null;
+    const productionTime = parseFloat(document.getElementById('productionTime').value) || null;
+    const weeklyScale = parseInt(document.getElementById('weeklyScale').value) || null;
+    const nightShift = document.getElementById('nightShift').checked;
+    
+    // Validação básica
+    if (!workerLimit || !workerHours || !productionTime || !weeklyScale) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+    }
+    
+    // Cria a configuração
+    const config = {
+        workerLimit,
+        workerHours,
+        productionTime,
+        weeklyScale,
+        nightShift,
+        materializationId: productIds[currentOptimizationProductIndex]
+    };
+    
+    // Armazena localmente
+    optimizationConfigs[currentOptimizationProductIndex] = config;
+    
+    // Salva no servidor
+    saveOptimizationConfigToServer(config);
+    
+    // Fecha a modal
+    closeOptimizationConfigModal();
+    
+    // Feedback para o usuário
+    showSuccess('Configuração de otimização salva com sucesso!');
+}
+
+function openOptimizationResultModal(index) {
+    // Obter o resultado de otimização correspondente
+    const result = optimizationResults[index];
+    if (!result) {
+        showError('Resultado de otimização não disponível para este produto');
+        return;
+    }
+    
+    // Preencher dados na modal
+    document.getElementById('optimizationModalProductName').textContent = result.productName;
+    document.getElementById('optimizationModalContent').innerHTML = `
+        <p><strong>Produção Necessária:</strong> ${result.productionNeeded.toFixed(2)} unidades</p>
+        <p><strong>Total de Horas:</strong> ${result.totalHours.toFixed(2)} horas</p>
+        <p><strong>Trabalhadores Necessários:</strong> ${Math.ceil(result.workersNeeded)} trabalhadores</p>
+        <p><strong>Fábricas Necessárias:</strong> ${Math.ceil(result.factoriesNeeded)} fábricas</p>
+        <p><strong>Escala Semanal:</strong> ${result.weeklyScale} dias por semana</p>
+        <p><strong>Horas por Trabalhador:</strong> ${result.workerHours} horas por dia</p>
+        <p><strong>Limite de Trabalhadores por Fábrica:</strong> ${result.workerLimit} trabalhadores</p>
+        <p><strong>Tempo para Produzir Uma Unidade:</strong> ${result.productionTime.toFixed(2)} horas</p>
+        <p><strong>Tempo Mínimo de Produção:</strong> ${result.minimumProductionTimeInDays.toFixed(2)} dias</p>
+    `;
+    
+    // Exibir a modal
+    document.getElementById('optimizationResultModal').style.display = 'flex';
+}
+
+function closeOptimizationResultModal() {
+    document.getElementById('optimizationResultModal').style.display = 'none';
+}
+
+function fillOptimizationModalWithData(config) {
+    document.getElementById('workerLimit').value = config.workerLimit || '';
+    document.getElementById('workerHours').value = config.workerHours || '';
+    document.getElementById('productionTime').value = config.productionTime || '';
+    document.getElementById('weeklyScale').value = config.weeklyScale || '';
+    document.getElementById('nightShift').checked = config.nightShift || false;
+}
+
+function saveOptimizationConfigToServer(config) {
+    fetch('/api/planification/optimization-config', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            instanceId: currentInstanceId,
+            materializationId: config.materializationId,
+            workerLimit: config.workerLimit,
+            workerHours: config.workerHours,
+            productionTime: config.productionTime,
+            weeklyScale: config.weeklyScale,
+            nightShift: config.nightShift
+        })
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro ao salvar configuração');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Configuração salva com sucesso:', data);
+    })
+    .catch(error => {
+        console.error('Erro ao salvar configuração:', error);
+        showError('Erro ao salvar configuração: ' + error.message);
+    });
+}
+
+// Mantém o restante do código dentro do evento DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
     // Inicializar cabeçalho comum
     insertCommonHeader();
 
-    // Variáveis para armazenar os dados da instância selecionada
-    let currentInstanceId = null;
-    let productNames = [];
-    let productIds = [];
-    let technologicalMatrix = [];
-    let demandVector = [];
-    
     // Elementos principais da interface
     const instanceSelect = document.getElementById('instanceSelect');
     const matrixSection = document.getElementById('matrixSection');
@@ -186,30 +355,71 @@ document.addEventListener('DOMContentLoaded', function() {
         // Limpar tabela
         demandVectorTable.querySelector('tbody').innerHTML = '';
         
-        // Adicionar linhas com valores
-        demandVector.forEach((value, index) => {
-            const tr = document.createElement('tr');
-            
-            // Adicionar nome do produto
-            const tdName = document.createElement('td');
-            tdName.textContent = productNames[index];
-            tr.appendChild(tdName);
-            
-            // Adicionar valor de demanda
-            const tdValue = document.createElement('td');
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.step = '0.01';
-            input.value = value;
-            input.dataset.index = index;
-            input.addEventListener('change', function() {
-                demandVector[index] = parseFloat(this.value) || 0;
+        // Modificar cabeçalhos para incluir a coluna de ação
+        demandVectorTable.querySelector('thead tr').innerHTML = `
+            <th>Materialização Social</th>
+            <th>Demanda Final</th>
+            <th>Ação</th>
+        `;
+        
+        // Carregar configurações de otimização existentes para esta instância
+        loadOptimizationConfigs()
+            .then(() => {
+                // Adicionar linhas com valores
+                demandVector.forEach((value, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${productNames[index]}</td>
+                        <td>
+                            <input type="number" step="0.01" min="0" value="${value}" 
+                                   onchange="updateDemandVector(${index}, this.value)" />
+                        </td>
+                        <td>
+                            <button class="btn btn-sm" onclick="openOptimizationConfigModal(${index})">
+                                <i class="fas fa-cogs"></i> ${hasOptimizationConfig(index) ? 'Editar' : 'Configurar'} Otimização
+                            </button>
+                        </td>
+                    `;
+                    demandVectorTable.querySelector('tbody').appendChild(row);
+                });
             });
-            tdValue.appendChild(input);
-            tr.appendChild(tdValue);
-            
-            demandVectorTable.querySelector('tbody').appendChild(tr);
-        });
+    }
+
+    /**
+     * Carrega configurações de otimização existentes para a instância atual
+     */
+    function loadOptimizationConfigs() {
+        if (!currentInstanceId) {
+            return Promise.resolve();
+        }
+        
+        return fetch(`/api/planification/optimization-config/by-instance/${currentInstanceId}`)
+            .then(response => {
+                if (!response.ok) {
+                    return [];
+                }
+                return response.json();
+            })
+            .then(configs => {
+                // Mapear configurações por ID de materialização
+                configs.forEach(config => {
+                    const productIndex = productIds.findIndex(id => id === config.materializationId);
+                    if (productIndex >= 0) {
+                        optimizationConfigs[productIndex] = config;
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Erro ao carregar configurações de otimização:', error);
+                return [];
+            });
+    }
+
+    /**
+     * Verifica se existe configuração de otimização para o produto
+     */
+    function hasOptimizationConfig(productIndex) {
+        return optimizationConfigs[productIndex] !== undefined;
     }
     
     /**
@@ -286,24 +496,29 @@ document.addEventListener('DOMContentLoaded', function() {
         // Limpar tabela
         productionVectorTable.querySelector('tbody').innerHTML = '';
         
+        // Adicionar cabeçalhos incluindo a coluna de ação
+        productionVectorTable.querySelector('thead tr').innerHTML = `
+            <th>Materialização Social</th>
+            <th>Produção Necessária</th>
+            <th>Otimização</th>
+        `;
+        
         // Adicionar linhas com valores
         productionVector.forEach((value, index) => {
-            const tr = document.createElement('tr');
-            
-            // Adicionar nome do produto
-            const tdName = document.createElement('td');
-            tdName.textContent = productNames[index];
-            tr.appendChild(tdName);
-            
-            // Adicionar valor de produção
-            const tdValue = document.createElement('td');
-            tdValue.textContent = value.toFixed(2);
-            tr.appendChild(tdValue);
-            
-            productionVectorTable.querySelector('tbody').appendChild(tr);
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${productNames[index]}</td>
+                <td>${value.toFixed(2)}</td>
+                <td>
+                    <button class="btn btn-sm" onclick="openOptimizationResultModal(${index})">
+                        <i class="fas fa-chart-line"></i> Ver Detalhes
+                    </button>
+                </td>
+            `;
+            productionVectorTable.querySelector('tbody').appendChild(row);
         });
     }
-    
+
     /**
      * Renderiza os resultados da otimização
      */
@@ -418,7 +633,19 @@ document.addEventListener('DOMContentLoaded', function() {
      * Exibe mensagem de sucesso
      */
     function showSuccess(message) {
-        // Implementação simples: alerta
-        alert(message);
+        // Em vez de apenas um alerta
+        // alert(message);
+        
+        // Crie um elemento de notificação mais elegante
+        const notification = document.createElement('div');
+        notification.className = 'success-notification';
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        // Remova após alguns segundos
+        setTimeout(() => {
+            notification.classList.add('fade-out');
+            setTimeout(() => notification.remove(), 500);
+        }, 3000);
     }
 });

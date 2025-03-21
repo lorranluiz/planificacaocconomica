@@ -20,11 +20,6 @@ public class OptimizationInputsResults {
     @EmbeddedId
     private OptimizationInputsResultsId id = new OptimizationInputsResultsId();
     
-    // Adicionar campo de versão para controle de concorrência
-    @Version
-    @Column(name = "version")
-    private Long version;
-    
     @ManyToOne
     @MapsId("instanceId")
     @JoinColumn(name = "id_instance")

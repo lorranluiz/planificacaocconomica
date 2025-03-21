@@ -2,65 +2,65 @@ package xyz.planecon.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import xyz.planecon.dto.PlanificationResponse.OptimizationResult;
-import xyz.planecon.model.entity.Instance;
-import xyz.planecon.model.entity.OptimizationInputsResults;
-import xyz.planecon.model.entity.SocialMaterialization;
-import xyz.planecon.repository.OptimizationInputsResultsRepository;
-import xyz.planecon.repository.SocialMaterializationRepository;
-import xyz.planecon.repository.InstanceRepository; // Adicione esta importação
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.List;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional; // Use esta importação
-// Remova: import jakarta.transaction.Transactional;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.LockModeType;
-import jakarta.persistence.PersistenceContext;
+import xyz.planecon.dto.PlanificationResponse.OptimizationResult;
+import xyz.planecon.model.entity.Instance;
+import xyz.planecon.model.entity.OptimizationInputsResults;
+import xyz.planecon.model.entity.OptimizationInputsResults.OptimizationInputsResultsId;
+import xyz.planecon.model.entity.SocialMaterialization;
+import xyz.planecon.repository.InstanceRepository;
+import xyz.planecon.repository.OptimizationInputsResultsRepository;
+import xyz.planecon.repository.SocialMaterializationRepository;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.Optional;
 
 @Service
 public class OptimizationService {
 
+    private static final Logger logger = LoggerFactory.getLogger(OptimizationService.class);
+
     private final OptimizationInputsResultsRepository optimizationRepository;
     private final SocialMaterializationRepository materializationRepository;
-    private final InstanceRepository instanceRepository; // Adicione este campo
+    private final InstanceRepository instanceRepository;
 
     @PersistenceContext
     private EntityManager entityManager;
 
-    private static final Logger logger = LoggerFactory.getLogger(OptimizationService.class);
-
     @Autowired
     public OptimizationService(OptimizationInputsResultsRepository optimizationRepository,
                               SocialMaterializationRepository materializationRepository,
-                              InstanceRepository instanceRepository) { // Adicione este parâmetro
+                              InstanceRepository instanceRepository) {
         this.optimizationRepository = optimizationRepository;
         this.materializationRepository = materializationRepository;
-        this.instanceRepository = instanceRepository; // Inicialize o repositório
+        this.instanceRepository = instanceRepository;
     }
 
     /**
      * Limpa resultados anteriores para a instância especificada.
-     * Esta operação agora é executada em uma transação separada.
+     * Esta operação é executada em uma transação separada.
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void clearPreviousResults(Integer instanceId) {
         optimizationRepository.deleteByInstanceId(instanceId);
-        // Forçar commit da transação após a limpeza
         entityManager.flush();
         entityManager.clear();
     }
 
     /**
      * Realiza a otimização de produção para um produto específico.
-     * Agora com gestão melhorada de concorrência.
+     * Os cálculos que antes eram feitos no cliente são agora feitos no servidor.
      */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public OptimizationResult performOptimization(
@@ -70,6 +70,9 @@ public class OptimizationService {
             Integer instanceId) {
         
         try {
+            logger.info("Iniciando otimização para materialização {} com produção necessária {}", 
+                        materializationId, productionNeeded);
+            
             // Buscar materialização social e instância
             Optional<SocialMaterialization> materialOptional = 
                 materializationRepository.findById(materializationId);
@@ -78,93 +81,135 @@ public class OptimizationService {
                 instanceRepository.findById(instanceId);
             
             if (materialOptional.isEmpty() || instanceOptional.isEmpty()) {
+                logger.warn("Materialização ou instância não encontrada: materializationId={}, instanceId={}", 
+                           materializationId, instanceId);
                 return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
             }
             
             SocialMaterialization material = materialOptional.get();
             Instance instance = instanceOptional.get();
             
-            // Criar um ID para o resultado de otimização
-            OptimizationInputsResults.OptimizationInputsResultsId resultId = 
-                new OptimizationInputsResults.OptimizationInputsResultsId(instanceId, materializationId);
+            // Verificar se já existe configuração ou criar nova
+            OptimizationInputsResultsId resultId = 
+                new OptimizationInputsResultsId(instanceId, materializationId);
             
-            // Verificar se já existe um resultado
             OptimizationInputsResults optimizationData;
+            Optional<OptimizationInputsResults> existingData = optimizationRepository.findById(resultId);
             
-            // Lock exclusivo usando LockModeType.PESSIMISTIC_WRITE para evitar concorrência
-            Optional<OptimizationInputsResults> existingResult = 
-                Optional.ofNullable(entityManager.find(
-                    OptimizationInputsResults.class, 
-                    resultId, 
-                    LockModeType.PESSIMISTIC_WRITE
-                ));
-            
-            if (existingResult.isPresent()) {
-                optimizationData = existingResult.get();
+            if (existingData.isPresent()) {
+                optimizationData = existingData.get();
             } else {
                 optimizationData = createNewOptimizationData(instanceId, materializationId);
             }
             
-            // Garantir que as associações com entidades estão definidas
+            // Garantir que as associações estão definidas
             optimizationData.setInstance(instance);
             optimizationData.setSocialMaterialization(material);
             
-            // Usar valores padrão para campos que não existem no banco
-            double productionTime = 1.0; // Valor padrão - não usa o campo transiente  
-            double weeklyScale = 40.0;   // Valor padrão - não usa o campo transiente
-            double workerHours = 40.0;   // Valor padrão - não usa o campo transiente
-            double factoryOperationHours = 168.0; // 7 dias * 24 horas - não usa o campo transiente
-            int workerLimit = optimizationData.getWorkerLimit() != null ? 
-                optimizationData.getWorkerLimit() : 100;
-            double minimumProductionDays = 7.0; // Valor padrão - não usa o campo transiente
+            // Extrair parâmetros de configuração
+            Integer workerLimit = optimizationData.getWorkerLimit();
+            BigDecimal workerHoursValue = optimizationData.getWorkerHours();
+            BigDecimal productionTimeValue = optimizationData.getProductionTime();
+            Integer weeklyScale = optimizationData.getWeeklyScale();
+            Boolean nightShift = optimizationData.getNightShift();
             
-            // Cálculos de otimização
+            // Verificar se os dados de configuração estão completos
+            if (workerLimit == null || workerHoursValue == null || productionTimeValue == null || 
+                weeklyScale == null || nightShift == null) {
+                logger.warn("Dados de configuração incompletos para otimização");
+                return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+            }
+            
+            // Converter BigDecimal para double para cálculos
+            double workerHours = workerHoursValue.doubleValue();
+            double productionTime = productionTimeValue.doubleValue();
+            
+            // CÁLCULOS DE OTIMIZAÇÃO (mesmo algoritmo do JavaScript)
+            
+            // Cálculo total de horas necessárias para produzir a quantidade desejada
             double totalHours = productionTime * productionNeeded;
-            double workersNeeded = totalHours / (weeklyScale * workerHours);
-            double factoriesNeeded = totalHours / (factoryOperationHours * workerLimit * minimumProductionDays);
             
-            // Atualizar e salvar apenas os campos que existem na tabela
+            // Capacidade semanal por trabalhador (em horas)
+            double weeklyWorkHoursPerWorker = weeklyScale * workerHours;
+            
+            // Cálculo do número de trabalhadores necessários
+            double workersNeeded = Math.ceil(totalHours / weeklyWorkHoursPerWorker);
+            
+            // Capacidade total de trabalho por turno
+            double shiftWorkHours = workerLimit * workerHours;
+            
+            // Total de turnos necessários
+            int totalShifts = (int)Math.ceil(totalHours / shiftWorkHours);
+            
+            // Capacidade diária considerando escala semanal e turno noturno
+            double dailyWorkHours = nightShift ? shiftWorkHours * 2 : shiftWorkHours;
+            double totalDailyWorkHours = dailyWorkHours * weeklyScale / 7;
+            
+            // Prazo mínimo de produção em dias
+            double minimumProductionTime = Math.ceil(totalHours / totalDailyWorkHours);
+            
+            // Período total de trabalho (em dias)
+            int totalWorkDays = (int)Math.ceil(totalHours / dailyWorkHours);
+            
+            // Cálculo das horas de operação por dia
+            double factoryOperationHours = nightShift ? 24 : 12;
+            
+            // Conversão do prazo mínimo de produção para dias
+            double minimumProductionTimeInDays = minimumProductionTime / 24; // Considera 1 dia = 24 horas
+            
+            // Cálculo do número de fábricas necessárias
+            double factoriesNeeded = Math.ceil(totalHours / (factoryOperationHours * workerLimit * minimumProductionTimeInDays));
+            
+            // Período total de emprego em segundos
+            long totalEmploymentPeriodSeconds = (long)(totalWorkDays * 24 * 60 * 60);
+            
+            // Atualizar o objeto com os resultados calculados
             optimizationData.setProductionGoal(new BigDecimal(productionNeeded));
-            // Manter a variável para cálculos, mas não tentar persistir no banco
-            // optimizationData.setTotalWorkHours(totalHours); // Comentado - não existe no banco
-            // Em vez disso, podemos usar totalHours no banco
-            optimizationData.setTotalHours(new BigDecimal(totalHours));
+            optimizationData.setPlannedFinalDemand(new BigDecimal(productionNeeded));
+            optimizationData.setTotalHours(new BigDecimal(totalHours).setScale(2, RoundingMode.HALF_UP));
             optimizationData.setWorkersNeeded((int)Math.ceil(workersNeeded));
             optimizationData.setFactoriesNeeded((int)Math.ceil(factoriesNeeded));
+            optimizationData.setTotalShifts(totalShifts);
+            optimizationData.setMinimumProductionTime(new BigDecimal(minimumProductionTime).setScale(2, RoundingMode.HALF_UP));
+            optimizationData.setTotalEmploymentPeriodSeconds(totalEmploymentPeriodSeconds);
             
-            // Salvar e fazer flush imediatamente para evitar problemas de concorrência
-            optimizationData = optimizationRepository.saveAndFlush(optimizationData);
+            // Salvar os resultados no banco de dados
+            OptimizationInputsResults savedData = optimizationRepository.save(optimizationData);
             
-            // Limpar o contexto de persistência para evitar problemas em transações subsequentes
-            entityManager.clear();
-            
-            // Retornar resultado da otimização com todos os campos
-            return new OptimizationResult(
+            // Criar e retornar o objeto de resultado
+            OptimizationResult result = new OptimizationResult(
                 materializationId,
-                productName, 
+                productName,
                 productionNeeded,
                 totalHours,
                 workersNeeded,
                 factoriesNeeded,
                 productionTime,
-                weeklyScale,
+                (double) weeklyScale,
                 workerHours,
                 factoryOperationHours,
                 workerLimit,
-                minimumProductionDays
+                minimumProductionTimeInDays
             );
+            
+            logger.info("Otimização concluída com sucesso para materialização {} ({})", 
+                        materializationId, productName);
+            
+            return result;
+            
         } catch (Exception e) {
-            // Adicionar log detalhado da exceção
-            logger.error("Erro ao realizar otimização: {}", e.getMessage(), e);
-            throw e;
+            logger.error("Erro detalhado ao realizar otimização para {}: {}", 
+                        materializationId, e.getMessage(), e);
+            return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
         }
     }
     
     /**
-     * Busca os dados de otimização existentes
+     * Encontra dados de otimização existentes.
      */
     public Optional<OptimizationInputsResults> findOptimizationData(Integer instanceId, Integer materializationId) {
-        return optimizationRepository.findById(new OptimizationInputsResults.OptimizationInputsResultsId(instanceId, materializationId));
+        OptimizationInputsResultsId id = new OptimizationInputsResultsId(instanceId, materializationId);
+        return optimizationRepository.findById(id);
     }
     
     /**
@@ -181,26 +226,19 @@ public class OptimizationService {
         OptimizationInputsResults result = new OptimizationInputsResults();
         
         // Definir o ID composto
-        result.setInstanceId(instanceId);
-        result.setMaterializationId(materializationId);
+        OptimizationInputsResultsId id = new OptimizationInputsResultsId(instanceId, materializationId);
+        result.setId(id);
         
-        // Definir as entidades relacionadas (CRUCIAL PARA RESOLVER O ERRO)
+        // Definir as entidades relacionadas
         result.setInstance(instance);
         result.setSocialMaterialization(materialization);
         
-        // Valores transientes
-        result.setProductionTimeInHours(1.0);
-        result.setWeeklyWorkingHours(40.0);
-        result.setWorkerHoursPerWeek(40.0);
-        result.setFactoryOperationHours(168.0);
-        result.setMinimumProductionTimeInDays(7.0);
-        
-        // Inicializar campos obrigatórios
+        // Inicializar campos
         result.setWorkerHours(new BigDecimal("40.0"));
         result.setProductionTime(new BigDecimal("1.0"));
         result.setNightShift(false);
-        result.setWeeklyScale(40);
-        result.setPlannedWeeklyScale(40);
+        result.setWeeklyScale(5);
+        result.setPlannedWeeklyScale(5);
         result.setTotalHours(new BigDecimal("0"));
         result.setTotalShifts(1);
         result.setMinimumProductionTime(new BigDecimal("1.0"));
@@ -218,12 +256,22 @@ public class OptimizationService {
     /**
      * Cria um resultado de otimização padrão quando não há dados suficientes
      */
-    private OptimizationResult createDefaultOptimizationResult(Integer materializationId, String productName, double productionNeeded) {
+    private OptimizationResult createDefaultOptimizationResult(
+            Integer materializationId, String productName, double productionNeeded) {
+        
         return new OptimizationResult(
-            materializationId, 
-            productName, 
-            productionNeeded, 
-            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0, 0.0
+            materializationId,
+            productName,
+            productionNeeded,
+            0.0,  // totalHours
+            0.0,  // workersNeeded
+            0.0,  // factoriesNeeded
+            0.0,  // productionTime
+            0.0,  // weeklyScale
+            0.0,  // workerHours
+            0.0,  // factoryOperationHours
+            0,    // workerLimit
+            0.0   // minimumProductionTimeInDays
         );
     }
 }
