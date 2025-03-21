@@ -850,3 +850,91 @@ table tr:hover {
 [data-theme="night"] button:hover {
     background-color: var(--button-hover);
 }
+
+/* Estilos para botões - garantindo que respeitem o tema */
+.btn,
+button:not(.close):not(.btn-secondary) {
+    background-color: var(--button-bg, var(--primary-color)) !important;
+    color: var(--text-on-primary, white) !important;
+    border-color: transparent !important;
+}
+
+.btn:hover,
+button:not(.close):not(.btn-secondary):hover {
+    background-color: var(--button-hover, var(--primary-light)) !important;
+}
+
+.btn:active,
+button:not(.close):not(.btn-secondary):active {
+    background-color: var(--button-active, var(--primary-dark)) !important;
+}
+
+/* Estilos para tabelas - garantindo que respeitem o tema */
+table th {
+    background-color: var(--table-header-bg, var(--primary-color)) !important;
+    color: var(--table-header-text, var(--text-on-primary)) !important;
+}
+
+table tr:hover {
+    background-color: var(--table-row-hover, var(--hover-bg)) !important;
+}
+
+table tr:nth-child(even) {
+    background-color: var(--bg-light) !important;
+}
+
+/* Célula selecionada ou destacada */
+table td.selected,
+table td.highlight {
+    background-color: var(--table-cell-highlight, var(--primary-light)) !important;
+}
+
+/* Links */
+a:not(.btn) {
+    color: var(--link-color, var(--primary-color)) !important;
+}
+
+a:not(.btn):hover {
+    color: var(--link-hover, var(--primary-light)) !important;
+}
+
+/* Modais */
+.modal-content {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.modal-header {
+    background-color: var(--primary-dark) !important;
+    color: var(--text-on-primary) !important;
+}
+
+/* Elementos de seleção */
+::selection {
+    background-color: var(--selection-bg, var(--primary-color)) !important;
+    color: var(--text-on-primary) !important;
+}
+
+/* Estilos para input e select */
+.form-control,
+input,
+select,
+textarea {
+    background-color: var(--bg-light) !important;
+    color: var(--text-color) !important;
+    border: 1px solid var(--border-color) !important;
+}
+
+.form-control:focus,
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--primary-color) !important;
+    box-shadow: 0 0 0 0.2rem rgba(198, 40, 40, 0.25) !important;
+}
+
+/* Personalização dos spinners de carregamento */
+.loading {
+    border-color: var(--border-color) !important;
+    border-top-color: var(--primary-color) !important;
+}

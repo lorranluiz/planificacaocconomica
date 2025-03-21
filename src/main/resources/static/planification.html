@@ -87,6 +87,122 @@
             margin-right: 8px;
         }
     </style>
+    <!-- Adicionar esta seção de estilos no <head> da página, após os outros estilos -->
+    <style>
+        /* Estilos específicos para garantir que o tema night use vermelho em vez de azul */
+        [data-theme="night"] .editable-table input {
+            background-color: var(--bg-light) !important;
+            color: var(--text-color) !important;
+            border-color: var(--border-color) !important;
+        }
+        
+        [data-theme="night"] .editable-table input:focus {
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 0 0 0.2rem rgba(198, 40, 40, 0.25) !important;
+        }
+        
+        [data-theme="night"] .btn,
+        [data-theme="night"] button:not(.close):not(.btn-secondary) {
+            background-color: var(--primary-color) !important;
+        }
+        
+        [data-theme="night"] .btn:hover,
+        [data-theme="night"] button:not(.close):not(.btn-secondary):hover {
+            background-color: var(--primary-light) !important;
+        }
+        
+        [data-theme="night"] .modal-header {
+            background-color: var(--primary-dark) !important;
+        }
+        
+        [data-theme="night"] table th {
+            background-color: var(--primary-dark) !important;
+        }
+        
+        /* Override para qualquer elemento que ainda use azul no tema night */
+        [data-theme="night"] .blue-bg,
+        [data-theme="night"] .blue-background,
+        [data-theme="night"] .bg-primary,
+        [data-theme="night"] .bg-info {
+            background-color: var(--primary-color) !important;
+        }
+        
+        [data-theme="night"] .text-primary,
+        [data-theme="night"] .text-info {
+            color: var(--primary-light) !important;
+        }
+        
+        /* Garantir que o spinner de carregamento use vermelho */
+        [data-theme="night"] .loading {
+            border-top-color: var(--primary-color) !important;
+        }
+
+        /* Estilos para o rodapé da modal e seus botões */
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .modal-footer button {
+            min-width: 100px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            border: none;
+            transition: background-color 0.2s;
+        }
+        
+        .modal-footer .btn {
+            background-color: var(--primary-color);
+            color: var(--text-on-primary);
+        }
+        
+        .modal-footer .btn:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .modal-footer .btn-secondary {
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+        
+        .modal-footer .btn-secondary:hover {
+            background-color: var(--hover-bg);
+        }
+        
+        /* Garantir que o tema noturno com vermelho seja aplicado corretamente nos botões da modal */
+        [data-theme="night"] .modal-footer .btn {
+            background-color: var(--primary-color) !important;
+            color: white !important;
+        }
+        
+        [data-theme="night"] .modal-footer .btn:hover {
+            background-color: var(--primary-light) !important;
+        }
+        
+        [data-theme="night"] .modal-footer .btn-secondary {
+            background-color: var(--bg-light) !important;
+            color: var(--text-color) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+        
+        /* Aumentar a especificidade dos estilos da modal para garantir que sejam aplicados */
+        .modal .modal-content {
+            padding: 20px;
+            max-width: 600px;
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            background-color: var(--card-bg);
+            position: relative;
+        }
+    </style>
 </head>
 
 <body>

@@ -59,6 +59,24 @@
     --warning-color: #fb8c00;       /* Alerta (laranja) */
     --error-color: #e53935;         /* Erro (vermelho) */
     --info-color: #ef5350;          /* Informativo (vermelho claro) */
+    
+    /* Botões específicos */
+    --button-bg: #c62828;           /* Fundo do botão - vermelho escuro */
+    --button-hover: #ff5f52;        /* Hover do botão - vermelho claro */
+    --button-active: #8e0000;       /* Estado ativo do botão - vermelho muito escuro */
+    
+    /* Elementos de tabela */
+    --table-header-bg: #8e0000;     /* Cabeçalho da tabela - vermelho escuro */
+    --table-header-text: #ffffff;   /* Texto do cabeçalho - branco */
+    --table-row-hover: rgba(198, 40, 40, 0.15); /* Hover na linha - vermelho translúcido */
+    --table-cell-highlight: rgba(255, 95, 82, 0.2); /* Célula destacada - vermelho claro translúcido */
+    
+    /* Links e elementos interativos */
+    --link-color: #ff5f52;          /* Cor de link - vermelho claro */
+    --link-hover: #ff8a80;          /* Hover de link - vermelho mais claro */
+    
+    /* Outros elementos */
+    --selection-bg: rgba(198, 40, 40, 0.2); /* Fundo de seleção - vermelho translúcido */
 }
 
 /* Tema Sunlight */
