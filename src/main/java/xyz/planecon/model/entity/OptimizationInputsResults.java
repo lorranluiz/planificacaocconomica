@@ -45,7 +45,7 @@ public class OptimizationInputsResults {
     @Column(name = "planned_weekly_scale", nullable = false)
     private Integer plannedWeeklyScale;
     
-    @Column(name = "total_hours", precision = 16, scale = 10, nullable = false)
+    @Column(name = "total_hours", precision = 38, scale = 2, nullable = false)
     private BigDecimal totalHours;
     
     @Column(name = "total_shifts", nullable = false)

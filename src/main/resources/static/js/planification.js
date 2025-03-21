@@ -324,6 +324,29 @@ function ensureHeader() {
     }
 }
 
+// Adicione esta função para atualizar valores do vetor demanda a partir da interface
+function updateDemandVectorFromUI() {
+    const demandTable = document.getElementById('demandVector');
+    const tbody = demandTable.querySelector('tbody');
+    const rows = tbody.querySelectorAll('tr');
+    
+    // Limpar o vetor de demanda atual
+    demandVector = [];
+    
+    // Ler os valores atualizados da interface
+    rows.forEach((row, index) => {
+        const inputElement = row.querySelector('input');
+        if (inputElement) {
+            // Converter para número, garantindo que seja um valor válido
+            const value = parseFloat(inputElement.value) || 0;
+            demandVector.push(value);
+        }
+    });
+    
+    console.log('Vetor de demanda atualizado:', demandVector);
+    return demandVector;
+}
+
 // Mantém o restante do código dentro do evento DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
     // Inicializar cabeçalho comum - APENAS UMA VEZ
@@ -576,6 +599,9 @@ document.addEventListener('DOMContentLoaded', function() {
             showError('Selecione uma instância para continuar.');
             return;
         }
+        
+        // IMPORTANTE: Atualizar o vetor de demanda a partir da interface ANTES do cálculo
+        updateDemandVectorFromUI();
         
         // Mostrar spinner de carregamento
         loadingSpinner.style.display = 'inline-block';

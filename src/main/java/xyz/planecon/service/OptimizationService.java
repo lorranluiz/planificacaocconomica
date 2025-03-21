@@ -73,6 +73,11 @@ public class OptimizationService {
             logger.info("Iniciando otimização para materialização {} com produção necessária {}", 
                         materializationId, productionNeeded);
             
+            // Adicione esta verificação antes do cálculo
+            if (productionNeeded > 1e15) {
+                logger.warn("Valor de produção extremamente alto ({}). Considere verificar os dados de entrada.", productionNeeded);
+            }
+            
             // Buscar materialização social e instância
             Optional<SocialMaterialization> materialOptional = 
                 materializationRepository.findById(materializationId);
@@ -291,7 +296,7 @@ public class OptimizationService {
             // ===== FIM DA NOVA LÓGICA =====
             
             // Salvar resultados calculados na configuração de otimização
-            existingConfig.setTotalHours(new BigDecimal(totalHours));
+            existingConfig.setTotalHours(new BigDecimal(totalHours).setScale(2, RoundingMode.HALF_UP));
             existingConfig.setWorkersNeeded((int) Math.ceil(workersNeeded));
             existingConfig.setFactoriesNeeded((int) Math.ceil(factoriesNeeded));
             existingConfig.setMinimumProductionTime(new BigDecimal(minimumProductionTimeInDays));
