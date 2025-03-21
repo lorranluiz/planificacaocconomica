@@ -156,7 +156,8 @@ public class PlanificationService {
             0.0,  // workerHours
             0.0,  // factoryOperationHours
             0,    // workerLimit
-            0.0   // minimumProductionTimeInDays
+            0.0,  // minimumProductionTimeInDays
+            false // nightShift - parâmetro que estava faltando
         );
     }
 }
