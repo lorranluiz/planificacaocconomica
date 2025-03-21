@@ -14,11 +14,8 @@ import xyz.planecon.repository.SocialMaterializationRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/planification/optimization-config")
@@ -32,39 +29,72 @@ public class OptimizationConfigController {
     
     @Autowired
     private SocialMaterializationRepository materializationRepository;
-
+    
     /**
      * Endpoint para salvar configuração de otimização
      */
     @PostMapping
     public ResponseEntity<?> saveOptimizationConfig(@RequestBody Map<String, Object> payload) {
         try {
-            // Extrair dados do payload
-            Integer instanceId = payload.get("instanceId") instanceof Number ? 
-                ((Number) payload.get("instanceId")).intValue() : null;
+            // Logging detalhado para depuração
+            System.out.println("Payload recebido: " + payload);
             
-            Integer materializationId = payload.get("materializationId") instanceof Number ? 
-                ((Number) payload.get("materializationId")).intValue() : null;
+            // Extrair e validar dados com validação mais robusta
+            Integer instanceId = null;
+            Integer materializationId = null;
+            Integer workerLimit = null;
+            BigDecimal workerHours = null;
+            BigDecimal productionTime = null;
+            Integer weeklyScale = null;
+            Boolean nightShift = false;
             
-            Integer workerLimit = payload.get("workerLimit") instanceof Number ? 
-                ((Number) payload.get("workerLimit")).intValue() : null;
+            try {
+                if (payload.containsKey("instanceId")) {
+                    instanceId = Integer.valueOf(payload.get("instanceId").toString());
+                }
+                
+                if (payload.containsKey("materializationId")) {
+                    materializationId = Integer.valueOf(payload.get("materializationId").toString());
+                }
+                
+                if (payload.containsKey("workerLimit")) {
+                    workerLimit = Integer.valueOf(payload.get("workerLimit").toString());
+                }
+                
+                if (payload.containsKey("workerHours")) {
+                    workerHours = new BigDecimal(payload.get("workerHours").toString());
+                }
+                
+                if (payload.containsKey("productionTime")) {
+                    productionTime = new BigDecimal(payload.get("productionTime").toString());
+                }
+                
+                if (payload.containsKey("weeklyScale")) {
+                    weeklyScale = Integer.valueOf(payload.get("weeklyScale").toString());
+                }
+                
+                if (payload.containsKey("nightShift")) {
+                    nightShift = Boolean.valueOf(payload.get("nightShift").toString());
+                }
+            } catch (NumberFormatException e) {
+                System.err.println("Erro na conversão de tipos: " + e.getMessage());
+                Map<String, String> errorResponse = new HashMap<>();
+                errorResponse.put("message", "Formato inválido para um ou mais valores numéricos: " + e.getMessage());
+                return ResponseEntity.badRequest().body(errorResponse);
+            }
             
-            Double workerHours = payload.get("workerHours") instanceof Number ? 
-                ((Number) payload.get("workerHours")).doubleValue() : null;
-            
-            Double productionTime = payload.get("productionTime") instanceof Number ? 
-                ((Number) payload.get("productionTime")).doubleValue() : null;
-            
-            Integer weeklyScale = payload.get("weeklyScale") instanceof Number ? 
-                ((Number) payload.get("weeklyScale")).intValue() : null;
-            
-            Boolean nightShift = (Boolean) payload.get("nightShift");
+            System.out.println("Dados extraídos: instanceId=" + instanceId + 
+                              ", materializationId=" + materializationId +
+                              ", workerLimit=" + workerLimit +
+                              ", workerHours=" + workerHours +
+                              ", productionTime=" + productionTime +
+                              ", weeklyScale=" + weeklyScale +
+                              ", nightShift=" + nightShift);
             
             // Validar campos obrigatórios
-            if (instanceId == null || materializationId == null || workerLimit == null || 
-                workerHours == null || productionTime == null || weeklyScale == null || nightShift == null) {
+            if (instanceId == null || materializationId == null) {
                 Map<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("message", "Todos os campos são obrigatórios");
+                errorResponse.put("message", "ID da instância e ID da materialização são obrigatórios");
                 return ResponseEntity.badRequest().body(errorResponse);
             }
             
@@ -101,23 +131,23 @@ public class OptimizationConfigController {
                 config.setPlannedFinalDemand(BigDecimal.ZERO);
                 config.setWorkersNeeded(0);
                 config.setFactoriesNeeded(0);
-                config.setPlannedWeeklyScale(weeklyScale);
+                config.setPlannedWeeklyScale(weeklyScale != null ? weeklyScale : 5);
             }
             
-            // Atualizar com valores do formulário
-            config.setWorkerLimit(workerLimit);
-            config.setWorkerHours(new BigDecimal(workerHours));
-            config.setProductionTime(new BigDecimal(productionTime));
-            config.setWeeklyScale(weeklyScale);
-            config.setNightShift(nightShift);
+            // Usar valores padrão para campos que podem ser nulos
+            config.setWorkerLimit(workerLimit != null ? workerLimit : 100);
+            config.setWorkerHours(workerHours != null ? workerHours : new BigDecimal("8.0"));
+            config.setProductionTime(productionTime != null ? productionTime : new BigDecimal("1.0"));
+            config.setWeeklyScale(weeklyScale != null ? weeklyScale : 5);
+            config.setNightShift(nightShift != null ? nightShift : false);
             
             // Salvar configuração
             OptimizationInputsResults saved = optimizationRepository.save(config);
             
             // Preparar resposta
             Map<String, Object> response = new HashMap<>();
-            response.put("id", Map.of("instanceId", saved.getId().getInstanceId(), 
-                                      "materializationId", saved.getId().getSocialMaterializationId()));
+            response.put("instanceId", saved.getId().getInstanceId());
+            response.put("materializationId", saved.getId().getSocialMaterializationId());
             response.put("workerLimit", saved.getWorkerLimit());
             response.put("workerHours", saved.getWorkerHours());
             response.put("productionTime", saved.getProductionTime());
@@ -142,13 +172,12 @@ public class OptimizationConfigController {
     public ResponseEntity<?> getOptimizationConfig(
             @PathVariable Integer instanceId,
             @PathVariable Integer materializationId) {
+        
         try {
             OptimizationInputsResultsId id = new OptimizationInputsResultsId(instanceId, materializationId);
             Optional<OptimizationInputsResults> configOpt = optimizationRepository.findById(id);
             
             if (!configOpt.isPresent()) {
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "Configuração não encontrada");
                 return ResponseEntity.notFound().build();
             }
             
@@ -164,15 +193,6 @@ public class OptimizationConfigController {
             response.put("weeklyScale", config.getWeeklyScale());
             response.put("nightShift", config.getNightShift());
             response.put("createdAt", config.getCreatedAt());
-            
-            if (config.getWorkersNeeded() != null && config.getWorkersNeeded() > 0) {
-                // Só inclui resultados se já tiver sido otimizado
-                response.put("workersNeeded", config.getWorkersNeeded());
-                response.put("factoriesNeeded", config.getFactoriesNeeded());
-                response.put("totalHours", config.getTotalHours());
-                response.put("minimumProductionTime", config.getMinimumProductionTime());
-                response.put("productionGoal", config.getProductionGoal());
-            }
             
             return ResponseEntity.ok(response);
             
@@ -192,8 +212,7 @@ public class OptimizationConfigController {
         try {
             List<OptimizationInputsResults> configs = optimizationRepository.findById_InstanceId(instanceId);
             
-            List<Map<String, Object>> responseList = new ArrayList<>();
-            for (OptimizationInputsResults config : configs) {
+            List<Map<String, Object>> responseList = configs.stream().map(config -> {
                 Map<String, Object> item = new HashMap<>();
                 item.put("instanceId", config.getId().getInstanceId());
                 item.put("materializationId", config.getId().getSocialMaterializationId());
@@ -211,8 +230,8 @@ public class OptimizationConfigController {
                     item.put("socialMaterialization", materializationInfo);
                 }
                 
-                responseList.add(item);
-            }
+                return item;
+            }).collect(Collectors.toList());
             
             return ResponseEntity.ok(responseList);
             

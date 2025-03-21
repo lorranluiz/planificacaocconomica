@@ -70,20 +70,41 @@ function closeOptimizationConfigModal() {
 function saveOptimizationConfig() {
     if (currentOptimizationProductIndex < 0) return;
     
-    // Captura os valores dos campos
-    const workerLimit = parseInt(document.getElementById('workerLimit').value) || null;
-    const workerHours = parseFloat(document.getElementById('workerHours').value) || null;
-    const productionTime = parseFloat(document.getElementById('productionTime').value) || null;
-    const weeklyScale = parseInt(document.getElementById('weeklyScale').value) || null;
+    // Captura os valores dos campos com conversão explícita para números
+    const workerLimitValue = document.getElementById('workerLimit').value.trim();
+    const workerHoursValue = document.getElementById('workerHours').value.trim();
+    const productionTimeValue = document.getElementById('productionTime').value.trim();
+    const weeklyScaleValue = document.getElementById('weeklyScale').value.trim();
     const nightShift = document.getElementById('nightShift').checked;
     
-    // Validação básica
-    if (!workerLimit || !workerHours || !productionTime || !weeklyScale) {
-        alert('Por favor, preencha todos os campos obrigatórios.');
+    // Conversão para números, garantindo que não sejam NaN
+    const workerLimit = workerLimitValue ? parseInt(workerLimitValue) : 100;
+    const workerHours = workerHoursValue ? parseFloat(workerHoursValue) : 8;
+    const productionTime = productionTimeValue ? parseFloat(productionTimeValue) : 1;
+    const weeklyScale = weeklyScaleValue ? parseInt(weeklyScaleValue) : 5;
+    
+    // Validação mais rigorosa
+    if (isNaN(workerLimit) || workerLimit <= 0) {
+        showError('O limite de trabalhadores deve ser um número maior que zero.');
         return;
     }
     
-    // Cria a configuração
+    if (isNaN(workerHours) || workerHours <= 0) {
+        showError('As horas de trabalho devem ser um número maior que zero.');
+        return;
+    }
+    
+    if (isNaN(productionTime) || productionTime <= 0) {
+        showError('O tempo de produção deve ser um número maior que zero.');
+        return;
+    }
+    
+    if (isNaN(weeklyScale) || weeklyScale < 1 || weeklyScale > 7) {
+        showError('A escala semanal deve ser um número entre 1 e 7 dias.');
+        return;
+    }
+    
+    // Cria a configuração com valores verificados
     const config = {
         workerLimit,
         workerHours,
@@ -93,40 +114,80 @@ function saveOptimizationConfig() {
         materializationId: productIds[currentOptimizationProductIndex]
     };
     
-    // Armazena localmente
-    optimizationConfigs[currentOptimizationProductIndex] = config;
+    // Log de debug explícito
+    console.log('Config a ser enviada:', {
+        ...config,
+        instanceId: currentInstanceId,
+        productName: productNames[currentOptimizationProductIndex]
+    });
+    
+    // Mostrar indicador de carregamento
+    document.getElementById('optimizationModalSpinner').style.display = 'inline-block';
     
     // Salva no servidor
-    saveOptimizationConfigToServer(config);
-    
-    // Fecha a modal
-    closeOptimizationConfigModal();
-    
-    // Feedback para o usuário
-    showSuccess('Configuração de otimização salva com sucesso!');
+    saveOptimizationConfigToServer(config)
+        .then(() => {
+            document.getElementById('optimizationModalSpinner').style.display = 'none';
+            closeOptimizationConfigModal();
+            showSuccess('Configuração salva com sucesso!');
+        })
+        .catch(err => {
+            document.getElementById('optimizationModalSpinner').style.display = 'none';
+            console.error('Erro detalhado:', err);
+        });
 }
 
 function openOptimizationResultModal(index) {
     // Obter o resultado de otimização correspondente
     const result = optimizationResults[index];
+    
+    console.log('Abrindo modal de resultado para índice:', index);
+    console.log('Resultado disponível:', result);
+    
     if (!result) {
         showError('Resultado de otimização não disponível para este produto');
         return;
     }
     
     // Preencher dados na modal
-    document.getElementById('optimizationModalProductName').textContent = result.productName;
-    document.getElementById('optimizationModalContent').innerHTML = `
-        <p><strong>Produção Necessária:</strong> ${result.productionNeeded.toFixed(2)} unidades</p>
-        <p><strong>Total de Horas:</strong> ${result.totalHours.toFixed(2)} horas</p>
-        <p><strong>Trabalhadores Necessários:</strong> ${Math.ceil(result.workersNeeded)} trabalhadores</p>
-        <p><strong>Fábricas Necessárias:</strong> ${Math.ceil(result.factoriesNeeded)} fábricas</p>
-        <p><strong>Escala Semanal:</strong> ${result.weeklyScale} dias por semana</p>
-        <p><strong>Horas por Trabalhador:</strong> ${result.workerHours} horas por dia</p>
-        <p><strong>Limite de Trabalhadores por Fábrica:</strong> ${result.workerLimit} trabalhadores</p>
-        <p><strong>Tempo para Produzir Uma Unidade:</strong> ${result.productionTime.toFixed(2)} horas</p>
-        <p><strong>Tempo Mínimo de Produção:</strong> ${result.minimumProductionTimeInDays.toFixed(2)} dias</p>
+    document.getElementById('optimizationModalProductName').textContent = result.productName || 'Produto';
+    
+    // Formatar valores numéricos com verificação de existência
+    const formatNumber = (value, decimals = 2) => {
+        if (value === undefined || value === null) return '0';
+        return typeof value === 'number' ? value.toFixed(decimals) : '0';
+    };
+    
+    // Criar o conteúdo HTML com verificações para cada propriedade
+    let contentHTML = `
+        <p><strong>Produção Necessária:</strong> ${formatNumber(result.productionNeeded)} unidades</p>
+        <p><strong>Total de Horas:</strong> ${formatNumber(result.totalHours)} horas</p>
+        <p><strong>Trabalhadores Necessários:</strong> ${result.workersNeeded ? Math.ceil(result.workersNeeded) : '0'} trabalhadores</p>
+        <p><strong>Fábricas Necessárias:</strong> ${result.factoriesNeeded ? Math.ceil(result.factoriesNeeded) : '0'} fábricas</p>
     `;
+    
+    // Adicionar campos opcionais apenas se existirem
+    if (result.weeklyScale) {
+        contentHTML += `<p><strong>Escala Semanal:</strong> ${result.weeklyScale} dias por semana</p>`;
+    }
+    
+    if (result.workerHours) {
+        contentHTML += `<p><strong>Horas por Trabalhador:</strong> ${formatNumber(result.workerHours)} horas por dia</p>`;
+    }
+    
+    if (result.workerLimit) {
+        contentHTML += `<p><strong>Limite de Trabalhadores por Fábrica:</strong> ${result.workerLimit} trabalhadores</p>`;
+    }
+    
+    if (result.productionTime) {
+        contentHTML += `<p><strong>Tempo para Produzir Uma Unidade:</strong> ${formatNumber(result.productionTime, 4)} horas</p>`;
+    }
+    
+    if (result.minimumProductionTimeInDays) {
+        contentHTML += `<p><strong>Tempo Mínimo de Produção:</strong> ${formatNumber(result.minimumProductionTimeInDays)} dias</p>`;
+    }
+    
+    document.getElementById('optimizationModalContent').innerHTML = contentHTML;
     
     // Exibir a modal
     document.getElementById('optimizationResultModal').style.display = 'flex';
@@ -145,41 +206,98 @@ function fillOptimizationModalWithData(config) {
 }
 
 function saveOptimizationConfigToServer(config) {
-    fetch('/api/planification/optimization-config', {
+    if (!currentInstanceId) {
+        showError('ID da instância não definido. Selecione uma instância primeiro.');
+        return Promise.reject(new Error('ID da instância não definido'));
+    }
+    
+    if (!config.materializationId) {
+        showError('ID da materialização social não definido.');
+        return Promise.reject(new Error('ID da materialização social não definido'));
+    }
+    
+    // Payload simplificado e com valores convertidos explicitamente
+    const payload = {
+        instanceId: Number(currentInstanceId),
+        materializationId: Number(config.materializationId),
+        workerLimit: Number(config.workerLimit),
+        workerHours: Number(config.workerHours),
+        productionTime: Number(config.productionTime),
+        weeklyScale: Number(config.weeklyScale),
+        nightShift: Boolean(config.nightShift)
+    };
+    
+    console.log('Dados exatos enviados ao servidor:', JSON.stringify(payload));
+    
+    return fetch('/api/planification/optimization-config', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-            instanceId: currentInstanceId,
-            materializationId: config.materializationId,
-            workerLimit: config.workerLimit,
-            workerHours: config.workerHours,
-            productionTime: config.productionTime,
-            weeklyScale: config.weeklyScale,
-            nightShift: config.nightShift
-        })
+        body: JSON.stringify(payload)
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error('Erro ao salvar configuração');
+            return response.text().then(text => {
+                console.error('Resposta de erro completa:', text);
+                
+                try {
+                    const errorJson = JSON.parse(text);
+                    throw new Error(`Erro HTTP: ${response.status} - ${errorJson.message || 'Erro desconhecido'}`);
+                } catch (e) {
+                    throw new Error(`Erro HTTP: ${response.status} - ${text || 'Sem detalhes'}`);
+                }
+            });
         }
         return response.json();
     })
     .then(data => {
-        console.log('Configuração salva com sucesso:', data);
-    })
-    .catch(error => {
-        console.error('Erro ao salvar configuração:', error);
-        showError('Erro ao salvar configuração: ' + error.message);
+        // Cache os dados retornados
+        optimizationConfigs[currentOptimizationProductIndex] = data;
+        return data;
     });
+}
+
+// Função para exibir mensagem de erro
+function showError(message) {
+    const notification = document.createElement('div');
+    notification.className = 'error-notification';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    // Remover após alguns segundos
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => notification.remove(), 500);
+    }, 3000);
+}
+
+// Função para exibir mensagem de sucesso
+function showSuccess(message) {
+    const notification = document.createElement('div');
+    notification.className = 'success-notification';
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    
+    // Remover após alguns segundos
+    setTimeout(() => {
+        notification.classList.add('fade-out');
+        setTimeout(() => notification.remove(), 500);
+    }, 3000);
+}
+
+// Verificar se o cabeçalho já foi inserido
+function ensureHeader() {
+    if (!document.querySelector('.nav-container')) {
+        insertCommonHeader();
+    }
 }
 
 // Mantém o restante do código dentro do evento DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar cabeçalho comum
-    insertCommonHeader();
-
+    // Inicializar cabeçalho comum - APENAS UMA VEZ
+    ensureHeader();
+    
     // Elementos principais da interface
     const instanceSelect = document.getElementById('instanceSelect');
     const matrixSection = document.getElementById('matrixSection');
@@ -362,27 +480,24 @@ document.addEventListener('DOMContentLoaded', function() {
             <th>Ação</th>
         `;
         
-        // Carregar configurações de otimização existentes para esta instância
-        loadOptimizationConfigs()
-            .then(() => {
-                // Adicionar linhas com valores
-                demandVector.forEach((value, index) => {
-                    const row = document.createElement('tr');
-                    row.innerHTML = `
-                        <td>${productNames[index]}</td>
-                        <td>
-                            <input type="number" step="0.01" min="0" value="${value}" 
-                                   onchange="updateDemandVector(${index}, this.value)" />
-                        </td>
-                        <td>
-                            <button class="btn btn-sm" onclick="openOptimizationConfigModal(${index})">
-                                <i class="fas fa-cogs"></i> ${hasOptimizationConfig(index) ? 'Editar' : 'Configurar'} Otimização
-                            </button>
-                        </td>
-                    `;
-                    demandVectorTable.querySelector('tbody').appendChild(row);
-                });
-            });
+        // Adicionar linhas com valores
+        demandVector.forEach((value, index) => {
+            const row = document.createElement('tr');
+            const hasConfig = optimizationConfigs[index] !== undefined;
+            row.innerHTML = `
+                <td>${productNames[index]}</td>
+                <td>
+                    <input type="number" step="0.01" min="0" value="${value}" 
+                           onchange="updateDemandVector(${index}, this.value)" />
+                </td>
+                <td>
+                    <button class="btn btn-sm ${hasConfig ? 'btn-success' : ''}" onclick="openOptimizationConfigModal(${index})">
+                        <i class="fas fa-cogs"></i> ${hasConfig ? 'Editar' : 'Configurar'} Otimização
+                    </button>
+                </td>
+            `;
+            demandVectorTable.querySelector('tbody').appendChild(row);
+        });
     }
 
     /**
@@ -423,56 +538,79 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     /**
-     * Executa o cálculo de planificação
+     * Executa o processo de planificação
      */
-    function performPlanification() {
+    async function performPlanification() {
         if (!currentInstanceId) {
-            showError('Selecione uma instância primeiro');
+            showError('Selecione uma instância para continuar.');
             return;
         }
         
         // Mostrar spinner de carregamento
         loadingSpinner.style.display = 'inline-block';
-        planifyButton.disabled = true;
         
-        // Preparar requisição
-        const requestData = {
-            instanceId: parseInt(currentInstanceId),
-            technologicalMatrix: technologicalMatrix,
-            demandVector: demandVector,
-            productNames: productNames,
-            materializationIds: productIds
-        };
-        
-        // Enviar requisição
-        fetch('/api/planification/planify', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(requestData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao calcular planificação');
+        try {
+            // Primeiro passo: Carregar todas as configurações de otimização para esta instância
+            const configsResponse = await fetch(`/api/planification/optimization-config/by-instance/${currentInstanceId}`);
+            if (!configsResponse.ok) {
+                throw new Error('Erro ao carregar configurações de otimização');
             }
-            return response.json();
-        })
-        .then(result => {
-            // Renderizar resultados
-            renderResults(result);
             
-            // Rolar para os resultados
+            const configsData = await configsResponse.json();
+            console.log('Configurações carregadas do servidor:', configsData);
+            
+            // Mapear as configurações por ID de materialização para fácil acesso
+            const configsById = {};
+            configsData.forEach(config => {
+                configsById[config.materializationId] = config;
+            });
+            
+            // Segundo passo: Preparar a matriz e vetor para a planificação
+            const matrixInput = technologicalMatrix.map(row => [...row]);
+            const vectorInput = [...demandVector];
+            
+            // Terceiro passo: Executar a planificação no servidor
+            const response = await fetch('/api/planification/planify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    instanceId: currentInstanceId,
+                    technologicalMatrix: matrixInput,
+                    demandVector: vectorInput,
+                    productNames: productNames,
+                    materializationIds: productIds
+                })
+            });
+            
+            if (!response.ok) {
+                throw new Error('Erro ao executar a planificação');
+            }
+            
+            const data = await response.json();
+            console.log('Resultado da planificação:', data);
+            
+            // Armazenar o vetor de produção e resultados de otimização
+            const productionVector = data.productionVector;
+            optimizationResults = data.optimizationResults || [];
+            
+            // Atualizar a interface com os resultados
+            renderProductionVector(productionVector);
+            
+            // Exibir a seção de resultados
+            resultsContainer.style.display = 'block';
+            
+            // Rolar para a seção de resultados
             resultsContainer.scrollIntoView({ behavior: 'smooth' });
-        })
-        .catch(error => {
-            showError('Erro ao calcular planificação: ' + error.message);
-        })
-        .finally(() => {
-            // Ocultar spinner de carregamento
+            
+        } catch (error) {
+            console.error('Erro durante a planificação:', error);
+            showError(`Erro durante a planificação: ${error.message}`);
+        } finally {
+            // Esconder spinner de carregamento
             loadingSpinner.style.display = 'none';
-            planifyButton.disabled = false;
-        });
+        }
     }
     
     /**
@@ -497,26 +635,52 @@ document.addEventListener('DOMContentLoaded', function() {
         productionVectorTable.querySelector('tbody').innerHTML = '';
         
         // Adicionar cabeçalhos incluindo a coluna de ação
-        productionVectorTable.querySelector('thead tr').innerHTML = `
-            <th>Materialização Social</th>
-            <th>Produção Necessária</th>
-            <th>Otimização</th>
+        const headerHTML = `
+            <tr>
+                <th>Materialização Social</th>
+                <th>Produção Necessária</th>
+                <th>Otimização</th>
+            </tr>
         `;
+        productionVectorTable.querySelector('thead').innerHTML = headerHTML;
+        
+        // Variável para armazenar o HTML das linhas
+        let rowsHTML = '';
         
         // Adicionar linhas com valores
         productionVector.forEach((value, index) => {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-                <td>${productNames[index]}</td>
-                <td>${value.toFixed(2)}</td>
-                <td>
-                    <button class="btn btn-sm" onclick="openOptimizationResultModal(${index})">
-                        <i class="fas fa-chart-line"></i> Ver Detalhes
-                    </button>
-                </td>
+            // Verificar se temos resultados de otimização para este produto
+            const hasOptimizationResults = optimizationResults && 
+                                          optimizationResults.length > index && 
+                                          optimizationResults[index] !== null;
+            
+            // Log para debugging
+            console.log(`Produto ${index}: ${productNames[index]}, tem resultados: ${hasOptimizationResults}`);
+            if (hasOptimizationResults) {
+                console.log('Detalhes do resultado:', optimizationResults[index]);
+            }
+            
+            // Criar o botão com base na existência de resultados
+            const buttonHTML = hasOptimizationResults
+                ? `<button class="btn btn-sm" onclick="openOptimizationResultModal(${index})">
+                     <i class="fas fa-chart-line"></i> Ver Detalhes
+                   </button>`
+                : `<button class="btn btn-sm" disabled>
+                     <i class="fas fa-exclamation-circle"></i> Sem Dados
+                   </button>`;
+            
+            // Criar a linha da tabela
+            rowsHTML += `
+                <tr>
+                    <td>${productNames[index]}</td>
+                    <td>${value.toFixed(2)}</td>
+                    <td>${buttonHTML}</td>
+                </tr>
             `;
-            productionVectorTable.querySelector('tbody').appendChild(row);
         });
+        
+        // Adicionar todas as linhas ao tbody
+        productionVectorTable.querySelector('tbody').innerHTML = rowsHTML;
     }
 
     /**
@@ -625,24 +789,28 @@ document.addEventListener('DOMContentLoaded', function() {
      * Exibe mensagem de erro
      */
     function showError(message) {
-        // Implementação simples: alerta
-        alert('Erro: ' + message);
+        const notification = document.createElement('div');
+        notification.className = 'error-notification';
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        
+        // Remover após alguns segundos
+        setTimeout(() => {
+            notification.classList.add('fade-out');
+            setTimeout(() => notification.remove(), 500);
+        }, 3000);
     }
     
     /**
      * Exibe mensagem de sucesso
      */
     function showSuccess(message) {
-        // Em vez de apenas um alerta
-        // alert(message);
-        
-        // Crie um elemento de notificação mais elegante
         const notification = document.createElement('div');
         notification.className = 'success-notification';
         notification.textContent = message;
         document.body.appendChild(notification);
         
-        // Remova após alguns segundos
+        // Remover após alguns segundos
         setTimeout(() => {
             notification.classList.add('fade-out');
             setTimeout(() => notification.remove(), 500);

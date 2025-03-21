@@ -8,9 +8,17 @@
 // Aplicar tema imediatamente quando script é carregado
 (function() {
     try {
-        const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
-        applyThemeToEntirePage(savedTheme);
-        console.log('Tema inicial aplicado:', savedTheme);
+        // Verificar se o DOM já está carregado
+        if (document.readyState === 'complete' || document.readyState === 'interactive') {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            applyThemeToEntirePage(savedTheme);
+        } else {
+            // Se não estiver, aguardar o evento DOMContentLoaded
+            document.addEventListener('DOMContentLoaded', function() {
+                const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+                applyThemeToEntirePage(savedTheme);
+            });
+        }
     } catch (e) {
         console.error('Erro ao aplicar tema inicial:', e);
     }
@@ -57,25 +65,31 @@ function applyThemeToEntirePage(theme) {
     // 2. Salvar no localStorage
     localStorage.setItem('preferredTheme', theme);
     
-    // 3. Adicionar classe ao body
-    document.body.className = document.body.className
-        .replace(/theme-ocean|theme-night|theme-sunlight|theme-bolchevick/g, '')
-        .trim();
-    document.body.classList.add('theme-' + theme);
+    // 3. Adicionar classe ao body - VERIFICAÇÃO DE NULL ADICIONADA
+    if (document.body) {
+        document.body.className = document.body.className
+            .replace(/theme-ocean|theme-night|theme-sunlight|theme-bolchevick/g, '')
+            .trim();
+        document.body.classList.add('theme-' + theme);
+    }
     
     // 4. Aplicar a todos os iframes (se existirem)
-    document.querySelectorAll('iframe').forEach(iframe => {
-        try {
-            iframe.contentDocument.documentElement.setAttribute('data-theme', theme);
-        } catch(e) {
-            // Ignora erros de cross-origin
-        }
-    });
+    if (document.querySelectorAll) {
+        document.querySelectorAll('iframe').forEach(iframe => {
+            try {
+                iframe.contentDocument.documentElement.setAttribute('data-theme', theme);
+            } catch(e) {
+                // Ignora erros de cross-origin
+            }
+        });
+    }
     
-    // 5. Forçar repintagem do DOM para garantir aplicação imediata
-    document.documentElement.style.display = 'none';
-    void document.documentElement.offsetHeight;
-    document.documentElement.style.display = '';
+    // 5. Forçar repintagem do DOM apenas se o body existir
+    if (document.documentElement) {
+        document.documentElement.style.display = 'none';
+        void document.documentElement.offsetHeight;
+        document.documentElement.style.display = '';
+    }
     
     // 6. Disparar evento de mudança de tema
     document.dispatchEvent(new CustomEvent('themeChanged', {
@@ -85,7 +99,7 @@ function applyThemeToEntirePage(theme) {
     console.log(`Tema ${theme} aplicado globalmente com sucesso`);
     
     // ADICIONAR esta linha para garantir que os estilos do cabeçalho sejam reaplicados
-    if (typeof ensureHeaderStyles === 'function') {
+    if (typeof ensureHeaderStyles === 'function' && document.body) {
         ensureHeaderStyles();
     }
     

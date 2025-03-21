@@ -9,20 +9,29 @@ import org.slf4j.LoggerFactory;
 import xyz.planecon.dto.PlanificationRequest;
 import xyz.planecon.dto.PlanificationResponse;
 import xyz.planecon.dto.PlanificationResponse.OptimizationResult;
+import xyz.planecon.model.entity.OptimizationInputsResults;
+import xyz.planecon.repository.OptimizationInputsResultsRepository;
 import xyz.planecon.util.MatrixOperations;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class PlanificationService {
 
     private final OptimizationService optimizationService;
+    private final OptimizationInputsResultsRepository optimizationRepository;
     private static final Logger logger = LoggerFactory.getLogger(PlanificationService.class);
 
     @Autowired
-    public PlanificationService(OptimizationService optimizationService) {
+    public PlanificationService(
+        OptimizationService optimizationService,
+        OptimizationInputsResultsRepository optimizationRepository) {
         this.optimizationService = optimizationService;
+        this.optimizationRepository = optimizationRepository;
     }
 
     /**
@@ -32,17 +41,25 @@ public class PlanificationService {
     public PlanificationResponse planify(PlanificationRequest request) {
         Integer instanceId = request.getInstanceId();
         
-        // 1. Limpar resultados anteriores para esta instância em uma transação separada
+        // Limpar resultados anteriores para esta instância
         optimizationService.clearPreviousResults(instanceId);
         
         // Converter matrizes de Double para double primitivo
         double[][] techMatrix = convertToDoublePrimitive(request.getTechnologicalMatrix());
         double[] demandVector = convertToDoublePrimitive(request.getDemandVector());
         
-        // 2. Calcular o vetor de produção usando o modelo de Leontief
+        // Calcular o vetor de produção usando o modelo de Leontief
         double[] productionVector = MatrixOperations.calculateProductionVector(techMatrix, demandVector);
         
-        // 3. Realizar otimização para cada produto sequencialmente
+        // IMPORTANTE: Aqui está a mudança principal - Carregar configurações existentes
+        Map<Integer, OptimizationInputsResults> existingConfigs = new HashMap<>();
+        List<OptimizationInputsResults> configs = optimizationRepository.findById_InstanceId(instanceId);
+        
+        for (OptimizationInputsResults config : configs) {
+            existingConfigs.put(config.getId().getSocialMaterializationId(), config);
+        }
+        
+        // Realizar otimização para cada produto
         List<OptimizationResult> optimizationResults = new ArrayList<>();
         for (int i = 0; i < productionVector.length; i++) {
             try {
@@ -51,28 +68,53 @@ public class PlanificationService {
                 String productName = request.getProductNames()[i];
                 double productionNeeded = productionVector[i] * 1000; // Ajustar escala (mil unidades)
                 
-                // Realizar otimização em uma transação separada
-                OptimizationResult result = optimizationService.performOptimization(
-                    materializationId, 
-                    productName, 
-                    productionNeeded, 
-                    instanceId
-                );
+                // Verificar se já existe uma configuração para esta materialização
+                OptimizationResult result;
+                
+                if (existingConfigs.containsKey(materializationId)) {
+                    // Usar configuração existente para a otimização
+                    OptimizationInputsResults existingConfig = existingConfigs.get(materializationId);
+                    
+                    // Atualizar a meta de produção
+                    existingConfig.setProductionGoal(new BigDecimal(productionNeeded));
+                    existingConfig.setPlannedFinalDemand(new BigDecimal(demandVector[i] * 1000));
+                    
+                    // Realizar otimização com a configuração existente
+                    result = optimizationService.performOptimization(
+                        materializationId, 
+                        productName, 
+                        productionNeeded, 
+                        instanceId,
+                        existingConfig  // Passar a configuração existente
+                    );
+                } else {
+                    // Realizar otimização sem configuração prévia
+                    result = optimizationService.performOptimization(
+                        materializationId, 
+                        productName, 
+                        productionNeeded, 
+                        instanceId
+                    );
+                }
                 
                 optimizationResults.add(result);
             } catch (Exception e) {
-                // Log e continue com o próximo item
-                logger.error("Erro ao processar otimização para produto {}: {}", i, e.getMessage());
+                logger.error("Erro ao processar otimização para produto {}: {}", i, e.getMessage(), e);
+                // Adicionar um resultado vazio para manter a ordem
+                optimizationResults.add(createEmptyOptimizationResult(
+                    request.getMaterializationIds()[i],
+                    request.getProductNames()[i],
+                    productionVector[i] * 1000
+                ));
             }
         }
         
-        // 4. Converter o vetor de produção para Double[]
+        // Converter o vetor de produção para Double[]
         Double[] boxedProductionVector = new Double[productionVector.length];
         for (int i = 0; i < productionVector.length; i++) {
             boxedProductionVector[i] = productionVector[i];
         }
         
-        // 5. Retornar resposta completa
         return new PlanificationResponse(
             instanceId,
             boxedProductionVector,
@@ -102,5 +144,23 @@ public class PlanificationService {
             result[i] = vector[i] != null ? vector[i] : 0.0;
         }
         return result;
+    }
+
+    // Método auxiliar para criar um resultado de otimização vazio
+    private OptimizationResult createEmptyOptimizationResult(Integer materializationId, String productName, double productionNeeded) {
+        return new OptimizationResult(
+            materializationId,
+            productName,
+            productionNeeded,
+            0.0,  // totalHours
+            0.0,  // workersNeeded
+            0.0,  // factoriesNeeded
+            0.0,  // productionTime
+            0.0,  // weeklyScale
+            0.0,  // workerHours
+            0.0,  // factoryOperationHours
+            0,    // workerLimit
+            0.0   // minimumProductionTimeInDays
+        );
     }
 }

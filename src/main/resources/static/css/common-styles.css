@@ -591,6 +591,19 @@ textarea {
     animation: slide-in 0.5s ease-out;
 }
 
+.error-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background-color: #f44336;
+    color: white;
+    padding: 15px 20px;
+    border-radius: 4px;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    animation: slide-in 0.5s ease-out;
+}
+
 .fade-out {
     opacity: 0;
     transition: opacity 0.5s;

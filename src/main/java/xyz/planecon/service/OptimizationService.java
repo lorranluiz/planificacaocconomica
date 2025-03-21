@@ -205,6 +205,89 @@ public class OptimizationService {
     }
     
     /**
+     * Realiza a otimização usando uma configuração existente
+     */
+    @Transactional
+    public OptimizationResult performOptimization(
+            Integer materializationId, 
+            String productName,
+            double productionNeeded,
+            Integer instanceId,
+            OptimizationInputsResults existingConfig) {
+        
+        logger.info("Realizando otimização para {} usando configuração existente. Produção necessária: {}", 
+                    productName, productionNeeded);
+        
+        try {
+            // Atualizar a configuração existente com a nova meta de produção
+            existingConfig.setProductionGoal(new BigDecimal(productionNeeded));
+            
+            // Recuperar valores da configuração existente
+            int workerLimit = existingConfig.getWorkerLimit();
+            BigDecimal workerHours = existingConfig.getWorkerHours();
+            BigDecimal productionTime = existingConfig.getProductionTime();
+            int weeklyScale = existingConfig.getWeeklyScale();
+            boolean nightShift = existingConfig.getNightShift();
+            
+            // Calcular horas de operação diária da fábrica
+            double factoryOperationHours = workerHours.doubleValue();
+            if (nightShift) {
+                factoryOperationHours *= 3; // Turnos de 24h (3 turnos)
+            }
+            
+            // Total de horas necessárias para produção
+            double totalHours = productionNeeded * productionTime.doubleValue();
+            
+            // Calcular número de trabalhadores necessários
+            double hoursPerDay = workerHours.doubleValue() * weeklyScale / 7.0; // Média diária
+            double daysRequired = totalHours / (workerLimit * hoursPerDay);
+            double workersNeeded = Math.ceil(workerLimit * daysRequired);
+            
+            // Calcular número de fábricas necessárias (arredondar para cima)
+            double factoriesNeeded = Math.ceil(workersNeeded / workerLimit);
+            
+            // Tempo mínimo de produção em dias (tempo tão rápido quanto possível)
+            double minimumProductionTime = totalHours / (factoriesNeeded * workerLimit * factoryOperationHours);
+            
+            // Salvar resultados
+            existingConfig.setTotalHours(new BigDecimal(totalHours));
+            existingConfig.setWorkersNeeded((int) workersNeeded);
+            existingConfig.setFactoriesNeeded((int) factoriesNeeded);
+            existingConfig.setMinimumProductionTime(new BigDecimal(minimumProductionTime));
+            existingConfig.setTotalShifts(nightShift ? 3 : 1);
+            
+            // Tempo total de emprego (em segundos)
+            long employmentTimeSeconds = Math.round(totalHours * 3600); // horas para segundos
+            existingConfig.setTotalEmploymentPeriodSeconds(employmentTimeSeconds);
+            
+            // Salvar a configuração atualizada
+            optimizationRepository.save(existingConfig);
+            
+            // Retornar resultado da otimização
+            return new OptimizationResult(
+                materializationId,
+                productName,
+                productionNeeded,
+                totalHours,
+                workersNeeded,
+                factoriesNeeded,
+                productionTime.doubleValue(),
+                (double) weeklyScale,  // Converter de int para double
+                workerHours.doubleValue(),
+                factoryOperationHours,
+                workerLimit,
+                minimumProductionTime
+            );
+            
+        } catch (Exception e) {
+            logger.error("Erro ao realizar otimização para {} com config existente: {}", 
+                        productName, e.getMessage(), e);
+            
+            return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+        }
+    }
+    
+    /**
      * Encontra dados de otimização existentes.
      */
     public Optional<OptimizationInputsResults> findOptimizationData(Integer instanceId, Integer materializationId) {
