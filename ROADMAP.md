@@ -45,7 +45,7 @@ Porém, o trabalho só pode ser acumulado pela própria pessoa que trabalhou, n�
 O Estado Operário apenas realoca obrigatoriamente parte do trabalho acumulado, de forma análoga ao imposto, mas essencialmente diferente, pois todo o realocado vai de volta para os próprios trabalhadores que obrigatoriamente só o recebem se trabalharem em um dos setores essenciais, não existe vantagem, privilégio, mordomia, sevidão, não vai para setor bancário, especulativo nem alimenta nenhum capital produtivo ou não, é a justiça final que se autojustifica, sem classes acima explorando as de baixo.
 
 
-[~] 4) Segurança
+[ok] 4) Segurança
 
 [ok] 4.1) Colocar HTTPS novamente para funcionar integralmente.
 
@@ -129,7 +129,7 @@ psql
 
 
 
-Colocar um .java no servidor, intermediário, que, depois que o .java correto pega os dados corretamente, de maneira organizada, o java intermediário "embaralha" pra criar a resposta como se tivesse sendo lido o arquivo json abaixo, porém apenas com o dado do conselho/instância/usuário solicitado carregado, única e exclusivamente.
+- [ok] Colocar um .java no servidor, intermediário, que, depois que o .java correto pega os dados corretamente, de maneira organizada, o java intermediário "embaralha" pra criar a resposta como se tivesse sendo lido o arquivo json abaixo, porém apenas com o dado do conselho/instância/usuário solicitado carregado, única e exclusivamente.
 
 
 "Conselho Popular Municipal de Petrópolis": {
@@ -256,11 +256,11 @@ Colocar um .java no servidor, intermediário, que, depois que o .java correto pe
 [ok] c) A partir disso, ver a partir das querys possíveis ou a partir das bibliotecas possíveis (tipo Hibernate) quais seriam as que menos causariam impacto no código, nas funções fetch, para consulta de dados (de preferência alguma que não precise de query, tipo Hibernate para javascript).
 [ok] d) A partir disso, escolher a tecnologia que usa isso, o método de consulta (se query ou tipo Hibernate), escolher com base na tecnologia que seja mais fácil ou mais automático (se já existe, se possível) de fazer a transição dos dados de .json para essa tecnologia, de maneira automática e consistente (seguindo ou dentro do modelo desenhado (ou modelado) de banco de dados inicialmente).
 [ok] e) A partir disso, desenvolver os códigos ou scripts para essa transição (se já não tiver nada que faça automaticamente ou que facilite isso, mas provavelmente escrever em detalhes permite melhor modelagem), e executá-los, testá-los se estão consistentes etc (tudo isso com os dados reduzidos de data.json, não o completo ainda).
-[~] f) Começar a passar então os trechos de código fetch para a nova forma de chamada e consulta/busca de dados (se com query ou tipo Hibernate).
+[ok] f) Começar a passar então os trechos de código fetch para a nova forma de chamada e consulta/busca de dados (se com query ou tipo Hibernate).
 
-[~] f.1) Java no servidor que irá consultar e alimentar as chamadas de fetch (para leitura e escrita no banco de dados).
-      [~] - Começar a desenvolver o Java.
-      [~] - Passar dados de data.json para banco de dados
+[ok] f.1) Java no servidor que irá consultar e alimentar as chamadas de fetch (para leitura e escrita no banco de dados).
+      [ok] - Começar a desenvolver o Java.
+      [recriando, é melhor e mais fácil, mais limpo e organizado] - Passar dados de data.json para banco de dados
 
       [ok] - Criar ambiente Servidor Java Web
         [ok] - Hello World Servidor Java Web
@@ -270,36 +270,46 @@ Colocar um .java no servidor, intermediário, que, depois que o .java correto pe
 
       - [ok] Ver campos nulos (no db designer), ver campo a campo, e suas relações, e pedir pra gerar script python que carrega esses campos com valores existentes nas tabelas com que esses campos se relacionam, de modo que não fique mais nenhum campo nulo no banco de dados, e todos sejam preenchidos seguindo as condições de relacionamento. -> Substituído por script para carregamento de dados para teste de velocidade. 6 mil usuários e 6 mil instâncias foram criadas, carregamento de login quase que instantâneo, ou seja, aprovado de longe em relação ao método usando arquivo .json.
       
-      - corrigir tema não aplicando em todas as páginas e Materialização Social* não carregando na aba de Cadastro da página Instâncias.
+      - [recriando novos temas, haverá uma atualização do antigo também] corrigir tema não aplicando em todas as páginas e Materialização Social* não carregando na aba de Cadastro da página Instâncias.
 
 
-      - Separar arquivos da página html (css, javascript, separar scripts, pra melhorar contexto e processamento).
+      - [~] Separar arquivos da página html (css, javascript, separar scripts, pra melhorar contexto e processamento).
 
-      - Todas as constraints implementadas, se basear na tela de cadastro de usuários para criar tela de cadastro de conselho/comitê (quando o usuário a se cadastrar clicar em "novo" na tela de cadastro).
+      - [ok] Todas as constraints implementadas, se basear na tela de cadastro de usuários para criar tela de cadastro de conselho/comitê (quando o usuário a se cadastrar clicar em "novo" na tela de cadastro).
 
-      - Depois fazer telas com objetos para carregar e para editar e salvar esses campos nessas tabelas, respeitando os tipos e condições (carregando listas de opções, quando relações com outras tabelas). Fazer isso com todas, pois essas páginas e objetos serão a base para a implementação real no código com a lógica e o sistema de planificação já prontos.
+      - [ok] Depois fazer telas com objetos para carregar e para editar e salvar esses campos nessas tabelas, respeitando os tipos e condições (carregando listas de opções, quando relações com outras tabelas). Fazer isso com todas, pois essas páginas e objetos serão a base para a implementação real no código com a lógica e o sistema de planificação já prontos.
 
-      - Por último, a partir das páginas e objetos anteriores, criar código Java e página que recebe e exibe os objetos como json.
+      - [~ refazendo tudo do zero]  Por último, a partir das páginas e objetos anteriores, criar código Java e página que recebe e exibe os objetos como json.
       Depois criar objetos Java exatamente partir do data.json (pedir script py que faca arquivo .Java com esses objetos, de modo que a resposta do servidor seja um .json exatamente com a estrutura de data.json, inicialmente sem dados, só a estrutura), criar página que carrega e exibe esse data.json gerado na hora (sem armazenar em disco, é "virtual" e temporário, só para a requisição).
       Depois fazer outro .java juntando os objetos que já carregam os dados com a geração do data.json "virtual" temporário requisitado. Os dados carregados nos objetos devem ser ou colocados diretamente nos respectivos campos dos objetos do data.json ou processados para preencher os objetos do data.json (como a matriz tecnológica e os vetores de demanda, principalmente, e outros que existirem e forem necessários). Colocar consulta por usuário, que carrega a instância dele e todos esses dados e monta o data.json da requisição desse usuário e exibe na tela. Pode ter um campo nessa tela, sem nada carregado inicialmente, para login e senha do usuário, dali, carrega os dados e exibe o data.json gerado na tela.
       Dali, criar o .Java que recebe os dados da tela de login real e retorna esse data.json da requisição para o fetch que já existe no login do sistema real, que solicita os dados de data.json do servidor, se o usuário e senha estiverem corretos e existirem (ver apenas a requisição para conferir se ele existe, e implementar no java do servidor). Usar a lógica de rotas que já existe no Java e já funciona, de @rota na anotação e a função que deve ser executada e retorna o data.json esperado em baixo (com mero return desde texto de data.json gerado).
 
-      - Depois que tiver tudo funcionando como antes, fazer script preciso que leia data.json e popular o banco, mas garantindo que nenhum campo fique nulo, preenchendo com ids de valores que existem nas tabelas relacionadas, e nos tipos corretos. Fazer e refazer, testar até passar tudo corretamente. Começar com poucos dados, pra testar e ganhar tempo, depois finalizar testando até concluir com os dados do data.json completo, com os dados parciais de todo o mundo (todos os continentes e dentro deles).
+      - [refazendo do zero, melhor] Depois que tiver tudo funcionando como antes, fazer script preciso que leia data.json e popular o banco, mas garantindo que nenhum campo fique nulo, preenchendo com ids de valores que existem nas tabelas relacionadas, e nos tipos corretos. Fazer e refazer, testar até passar tudo corretamente. Começar com poucos dados, pra testar e ganhar tempo, depois finalizar testando até concluir com os dados do data.json completo, com os dados parciais de todo o mundo (todos os continentes e dentro deles).
       Depois testar sistema, logar e ver se carrega, se carregar, ver a velocidade de uso (carregando e salvando dados) e comparar com antes.
 
-      - Se carregar e salvar tudo corretamente, e todos os dados do data.json grande já estiverem no novo banco de dados, a missão estará cumprida. Ir para próximas etapas (profissionalização do tema, tradução, documentação, artigos, etc).
+      - [refazendo do zero, melhor] Se carregar e salvar tudo corretamente, e todos os dados do data.json grande já estiverem no novo banco de dados, a missão estará cumprida. Ir para próximas etapas (profissionalização do tema, tradução, documentação, artigos, etc).
 
-      [~] - Pensar script iterar dados, alimentar objetos e persistir na tabela, um por um, com barra de progresso.
+      - [refazendo do zero, melhor] Pensar script iterar dados, alimentar objetos e persistir na tabela, um por um, com barra de progresso.
 
-      [~] - Carregar e mostrar na tabela alguns dados, com dependências, etc, tudo orientado a objetos.
+      - [ok] Carregar e mostrar na tabela alguns dados, com dependências, etc, tudo orientado a objetos.
 
-      - Ver o que fetch solicita carregar, montar json com conteúdo solicitado (a partir de objetos carregados, criar classe java intermediária (temporária talvez) pra cuidar especificamente disso).
+      - [ok] Ver o que fetch solicita carregar, montar json com conteúdo solicitado (a partir de objetos carregados, criar classe java intermediária (temporária talvez) pra cuidar especificamente disso).
 
-      - Criar classe que recebe fetch para gravar, que faz o processo inverso, passa para objetos e persiste. Ver se está persistindo.
+      - [não precisa, ficou melhor sem isso] Criar classe que recebe fetch para gravar, que faz o processo inverso, passa para objetos e persiste. Ver se está persistindo.
 
-      - Ver possibilidade de refletir esses objetos no JavaScript (os que forem necessários), em teste, código a parte. Se sim, criar código que calcula a matriz de otimização usando esses objetos. Mas manter o micro processamento no cliente, ao invés de centralizado (o processamento).
+      - [ok - DTO] Ver possibilidade de refletir esses objetos no JavaScript (os que forem necessários), em teste, código a parte. Se sim, criar código que calcula a matriz de otimização usando esses objetos. Mas manter o micro processamento no cliente, ao invés de centralizado (o processamento).
 
-      - Ver se vai otimizar velocidade de processamento de dados usar esses objetos no cliente, no JavaScript, se sim, usar, se não, só otimizar o que já é feito, mas mantendo estrutura de código.
+      - [ok - otimizou, melhorou, ficou mais rápido, mas pode ficar ainda mais e mais facilmente agora] Ver se vai otimizar velocidade de processamento de dados usar esses objetos no cliente, no JavaScript, se sim, usar, se não, só otimizar o que já é feito, mas mantendo estrutura de código.
+
+      - No campo "Selecione a Instância:" implementar para Conselho, Comitê e Worker, aí abre a tela que abrirá depois quando eu implementar os fluxos de acordo com o tipo de usuário logado (ver como colocar em páginas separadas, vai ficar melhor, já começar colocando em páginas separadas na vdd, só reaproveitando essa, colocar filtro no select, cada página um filtro, uma só conselhos, outra só comitês outra só trabalhadores (intancias tipo WORKER)).
+
+      - Implementar agregados, médias de instâncias inferiores/filhas para alimentar tabelas de matriz tecnológica (vetor tecnológico de comitê ou qualquer coisa de usuário não agrega de nada abaixo, só para cima, então só implementa isso na página de tipo Conselho (a atual que estou trabalhando, já fazer isso agora, antes de ir para a próxima))
+
+      - Depois de tudo colocar funcionalidade de inserir ou excluir materialização da tabela, mantendo ela quadrada mas mudando o tamanho dela e do vetor demanda, consequentemente (tudo dinamicamente, com link para cadastro de nova materialização, que redireciona para a página que faz isso, etc, depois essa página já fica com a instância preenchida automaticamente, a partir do link que encaminhou pra ela)
+
+      Tudo muito bem amarrado, pra evitar bugs e inconsistências nos dados.
+
+
 
 g) Testar e ver inconsistências, encontrá-las, e ver como resolvê-las. Resolvê-las todas, o sistema deve voltar funcionar exatamente como antes, mas mais rápido e fluido. Mais fluido, natural, profissional, aumentar a usabilidade, profissionalizar a usabilidade dos dados.
 h) Preparar para a próxima etapa, ver se script python responde corretamente à mesma consulta (integração python-Java, python para processamento de dados matemáticos, gráficos, etc), fazer outro que faça a mesma consulta, mudando a forma de leitura de dados nele, mas entregando a mesma saída, mantendo todo o resto na camada javascript e do cliente (que deve continuar usando .json para comunicação, se possível, mesmo que/se integrado com query ou Hibernate em algum momento, em alguns trechos).
