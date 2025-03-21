@@ -15,22 +15,50 @@
     --error-color: #e74c3c;
 }
 
-/* Tema Night */
+/* Melhorar tema Night com cores vermelhas */
 [data-theme="night"] {
-    --primary-color: #90caf9;           /* Azul claro para título principal */
-    --primary-color-light: #64b5f6;     /* Azul médio para elementos destacados */
-    --primary-color-dark: #42a5f5;      /* Azul escuro para hover/ativos */
-    --secondary-color: #81c784;         /* Verde claro para botões secundários */
-    --secondary-color-dark: #66bb6a;    /* Verde escuro para hover */
-    --text-color: #e0e0e0;              /* Cinza muito claro para texto geral */
-    --bg-color: #121212;                /* Fundo quase preto */
-    --card-bg: #1e1e1e;                 /* Fundo dos cards um pouco mais claro */
-    --card-border: rgba(255, 255, 255, 0.15); /* Borda mais visível */
-    --header-text: #ffffff;             /* Texto do cabeçalho branco */
-    --accent-color: #64b5f6;            /* Azul médio para acentos */
-    --error-color: #ff6b6b;             /* Vermelho para erros */
-    --card-text: #ffffff;               /* Branco para texto em cards */
-    --divider-color: rgba(255, 255, 255, 0.12); /* Divisor mais visível */
+    /* Cores primárias e de acento */
+    --primary-color: #c62828;       /* Vermelho escuro com preto */
+    --primary-light: #ff5f52;       /* Vermelho claro para hover */
+    --primary-dark: #8e0000;        /* Vermelho muito escuro para elementos de destaque */
+    --accent-color: #d32f2f;        /* Tom de vermelho para acentuação */
+    --accent-hover: #b71c1c;        /* Tom de vermelho para hover em acentuação */
+    
+    /* Ajustar cores de sucesso para contrastarem bem */
+    --success-color: #66bb6a;       /* Verde mais claro e vibrante para melhor contraste */
+    --info-color: #ef5350;          /* Vermelho claro para informações */
+    
+    /* Cores de fundo */
+    --bg-color: #121212;            /* Fundo principal (preto elegante) */
+    --bg-light: #1e1e1e;            /* Fundo claro (preto acinzentado) */
+    --card-bg: #212121;             /* Fundo de cartões */
+    --hover-bg: #2d2d2d;            /* Fundo para elementos em hover */
+    
+    /* Cores de texto */
+    --text-color: #f5f5f5;          /* Texto principal (quase branco) */
+    --text-secondary: #b0b0b0;      /* Texto secundário (cinza claro) */
+    --text-tertiary: #909090;       /* Texto terciário (cinza médio) */
+    --text-on-primary: #ffffff;     /* Texto sobre cor primária (branco puro) */
+    
+    /* Cores de borda */
+    --border-color: #383838;        /* Bordas padrão */
+    --divider-color: #424242;       /* Divisores */
+    
+    /* Cores de cabeçalho */
+    --header-bg: #1a1a1a;           /* Fundo do cabeçalho */
+    --header-text: #f0f0f0;         /* Texto do cabeçalho */
+    
+    /* Cores de botões */
+    --button-bg: #b71c1c;           /* Fundo de botão (vermelho elegante) */
+    --button-hover: #d32f2f;        /* Hover de botão (vermelho mais claro) */
+    --button-active: #7f0000;       /* Estado ativo de botão (vermelho mais escuro) */
+    --button-text: #ffffff;         /* Texto de botão */
+    
+    /* Cores de notificação */
+    --success-color: #66bb6a;       /* Verde mais claro e vibrante para melhor contraste */
+    --warning-color: #fb8c00;       /* Alerta (laranja) */
+    --error-color: #e53935;         /* Erro (vermelho) */
+    --info-color: #ef5350;          /* Informativo (vermelho claro) */
 }
 
 /* Tema Sunlight */
@@ -89,4 +117,51 @@ a {
 
 button {
     transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Estilizar a mensagem de informação para cada tema */
+.info-message {
+    color: var(--text-color);
+    background-color: var(--bg-light);
+    border-left: 4px solid var(--primary-color);
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+/* Estilo específico para mensagem de sucesso */
+.info-message.success-message {
+    background-color: var(--bg-light);
+    border-left: 4px solid var(--success-color);
+    color: var(--text-color);
+    padding: 15px;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.5s ease-out;
+}
+
+[data-theme="night"] .info-message.success-message {
+    background-color: rgba(102, 187, 106, 0.15); /* Verde translúcido */
+    border-left-color: var(--success-color);
+}
+
+.info-message p {
+    margin: 0;
+    margin-bottom: 8px;
+}
+
+.info-message p:last-child {
+    margin-bottom: 0;
+}
+
+.info-message i {
+    margin-right: 8px;
+    color: var(--primary-color);
+}
+
+.info-message.success-message i {
+    color: var(--success-color);
+    margin-right: 8px;
 }

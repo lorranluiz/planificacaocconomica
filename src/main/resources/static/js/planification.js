@@ -10,6 +10,73 @@ let currentOptimizationProductIndex = -1;
 const optimizationConfigs = {};
 let optimizationResults = [];
 
+// Adicione esta função após a declaração de variáveis no início do arquivo
+function loadPreviousResults(instanceId) {
+    console.log(`Carregando resultados anteriores da instância ${instanceId}...`);
+    
+    // Mostrar spinner
+    document.getElementById('loadingSpinner').style.display = 'inline-block';
+    
+    fetch(`/api/planification/previous-results/${instanceId}`)
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 404) {
+                    console.log('Nenhum resultado anterior encontrado para esta instância');
+                    return null;
+                }
+                throw new Error(`Erro ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Esconder spinner independentemente do resultado
+            document.getElementById('loadingSpinner').style.display = 'none';
+            
+            if (!data) return; // Se não há dados, não faz nada
+            
+            console.log('Resultados anteriores carregados:', data);
+            
+            // Verificar se temos um vetor de produção válido
+            if (data.productionVector && data.productionVector.length > 0) {
+                // Armazenar os resultados
+                optimizationResults = data.optimizationResults || [];
+                
+                // Renderizar a tabela de produção
+                renderProductionVector(data.productionVector);
+                
+                // Mostrar a seção de resultados
+                document.getElementById('results').style.display = 'block';
+                
+                // Adicionar uma mensagem informativa
+                const infoContainer = document.createElement('div');
+                infoContainer.className = 'info-message success-message';
+                infoContainer.innerHTML = `
+                    <p><i class="fas fa-info-circle"></i> Exibindo resultados da planificação anterior. 
+                    Você pode ajustar os valores e clicar em "Planificar" para recalcular.</p>
+                `;
+                
+                // Verificar se já existe uma mensagem similar para evitar duplicação
+                const existingMessage = document.querySelector('.success-message');
+                if (!existingMessage) {
+                    const resultsElement = document.getElementById('results');
+                    resultsElement.parentNode.insertBefore(infoContainer, resultsElement);
+                    
+                    // Remover após alguns segundos
+                    setTimeout(() => {
+                        if (infoContainer.parentNode) {
+                            infoContainer.remove();
+                        }
+                    }, 8000);
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar resultados anteriores:', error);
+            document.getElementById('loadingSpinner').style.display = 'none';
+            // Não exibir erro ao usuário, apenas log
+        });
+}
+
 // Funções de manipulação das modais precisam ser globais para serem acessíveis pelos botões
 function openOptimizationConfigModal(productIndex) {
     currentOptimizationProductIndex = productIndex;
@@ -414,22 +481,9 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        currentInstanceId = instanceId;
-        
-        // Carregar dados da instância
-        Promise.all([
-            loadTechnologicalMatrix(instanceId),
-            loadDemandVector(instanceId)
-        ])
-        .then(() => {
-            // Mostrar seção da matriz
-            matrixSection.style.display = 'block';
-            // Esconder resultados
-            resultsContainer.style.display = 'none';
-        })
-        .catch(error => {
-            showError('Erro ao carregar dados da instância: ' + error.message);
-        });
+        // IMPORTANTE: Em vez de chamar loadTechnologicalMatrix e loadDemandVector,
+        // chamar a função loadInstanceData que executa a planificação automática
+        loadInstanceData(instanceId);
     }
     
     /**
@@ -599,7 +653,7 @@ document.addEventListener('DOMContentLoaded', function() {
             showError('Selecione uma instância para continuar.');
             return;
         }
-        
+
         // IMPORTANTE: Atualizar o vetor de demanda a partir da interface ANTES do cálculo
         updateDemandVectorFromUI();
         
@@ -625,7 +679,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Segundo passo: Preparar a matriz e vetor para a planificação
             const matrixInput = technologicalMatrix.map(row => [...row]);
             const vectorInput = [...demandVector];
-            
+
             // Terceiro passo: Executar a planificação no servidor
             const response = await fetch('/api/planification/planify', {
                 method: 'POST',
@@ -644,7 +698,7 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!response.ok) {
                 throw new Error('Erro ao executar a planificação');
             }
-            
+
             const data = await response.json();
             console.log('Resultado da planificação:', data);
             
@@ -688,8 +742,23 @@ document.addEventListener('DOMContentLoaded', function() {
      * Renderiza o vetor de produção
      */
     function renderProductionVector(productionVector) {
-        // Limpar tabela
-        productionVectorTable.querySelector('tbody').innerHTML = '';
+        // Limpar tabela existente
+        const table = document.getElementById('productionVector');
+        const thead = table.querySelector('thead');
+        const tbody = table.querySelector('tbody');
+        
+        // Limpar conteúdo existente
+        thead.innerHTML = '';
+        tbody.innerHTML = '';
+        
+        // Criar cabeçalho
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = `
+            <th>Materialização Social</th>
+            <th>Produção Necessária</th>
+            <th>Ações</th>
+        `;
+        thead.appendChild(headerRow);
         
         // Adicionar linhas com valores
         productionVector.forEach((value, index) => {
@@ -704,8 +773,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 ? `<button class="btn btn-sm" onclick="openOptimizationResultModal(${index})">
                      <i class="fas fa-chart-line"></i> Ver Detalhes
                    </button>`
-                : `<button class="btn btn-sm" disabled>
-                     <i class="fas fa-exclamation-circle"></i> Sem Dados
+                : `<button class="btn btn-sm" onclick="openOptimizationConfigModal(${index})">
+                     <i class="fas fa-cogs"></i> Configurar Otimização
                    </button>`;
             
             row.innerHTML = `
@@ -714,7 +783,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${buttonHTML}</td>
             `;
             
-            productionVectorTable.querySelector('tbody').appendChild(row);
+            tbody.appendChild(row);
         });
     }
     
@@ -820,5 +889,49 @@ document.addEventListener('DOMContentLoaded', function() {
             notification.classList.add('fade-out');
             setTimeout(() => notification.remove(), 500);
         }, 3000);
+    }
+
+    // Modificar a função loadInstanceData para executar planificação automática
+    function loadInstanceData(instanceId) {
+        // Desabilitar elementos enquanto carrega
+        document.getElementById('planifyButton').disabled = true;
+        document.getElementById('saveButton').disabled = true;
+        document.getElementById('loadingSpinner').style.display = 'inline-block';
+
+        // Limpar resultados anteriores
+        document.getElementById('results').style.display = 'none';
+        
+        currentInstanceId = instanceId;
+        
+        Promise.all([
+            fetch(`/api/planification/instances/${instanceId}/technological-matrix`).then(res => res.json()),
+            fetch(`/api/planification/instances/${instanceId}/demand-vector`).then(res => res.json())
+        ])
+        .then(([matrixData, vectorData]) => {
+            // Processamento da matriz e vetor
+            technologicalMatrix = matrixData.matrix;
+            productNames = matrixData.productNames;
+            productIds = matrixData.productIds;
+            demandVector = vectorData.vector;
+
+            renderTechnologicalMatrix();
+            renderDemandVector();
+
+            document.getElementById('matrixSection').style.display = 'block';
+            document.getElementById('planifyButton').disabled = false;
+            document.getElementById('saveButton').disabled = false;
+            document.getElementById('loadingSpinner').style.display = 'none';
+
+            // IMPORTANTE: Executa automaticamente a planificação após carregar os dados
+            console.log('Executando planificação automática...');
+            setTimeout(() => {
+                performPlanification(); // Execute a planificação automaticamente
+            }, 500); // Pequeno delay para garantir que a UI esteja pronta
+        })
+        .catch(error => {
+            console.error('Erro ao carregar dados da instância:', error);
+            showError(`Erro ao carregar dados: ${error.message}`);
+            document.getElementById('loadingSpinner').style.display = 'none';
+        });
     }
 });

@@ -70,11 +70,21 @@
         }
         
         .info-message {
-            background-color: #e3f2fd;
-            border-left: 4px solid #2196f3;
+            background-color: var(--bg-light, #e3f2fd);
+            border-left: 4px solid var(--primary-color, #2196f3);
             padding: 10px 15px;
             margin-bottom: 15px;
             border-radius: 4px;
+            color: var(--text-color);
+        }
+        
+        [data-theme="night"] .info-message {
+            background-color: rgba(198, 40, 40, 0.15); /* Vermelho translúcido */
+        }
+        
+        .info-message i {
+            color: var(--primary-color);
+            margin-right: 8px;
         }
     </style>
 </head>
@@ -87,7 +97,7 @@
             <h1>Planificação Econômica</h1>
             
             <div class="info-message">
-                <p>Esta página permite realizar cálculos de planificação econômica baseados no modelo de insumo-produto de Leontief.</p>
+                <p><i class="fas fa-info-circle"></i> Esta página permite realizar cálculos de planificação econômica baseados no modelo de insumo-produto de Leontief.</p>
                 <p><strong>Como usar:</strong> Selecione uma instância, ajuste a matriz tecnológica e o vetor de demanda conforme necessário, e clique em "Planificar" para calcular o vetor de produção necessário.</p>
             </div>
             

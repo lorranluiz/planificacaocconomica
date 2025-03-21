@@ -678,3 +678,175 @@ textarea {
     border-bottom: 1px solid var(--border-color, #eaeaea);
     padding-bottom: 5px;
 }
+
+/* Estilos aprimorados para tabelas */
+#productionVector {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+#productionVector th, 
+#productionVector td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+#productionVector th {
+    background-color: var(--primary-dark);
+    color: var(--text-on-primary);
+    font-weight: bold;
+}
+
+#productionVector tr:last-child td {
+    border-bottom: none;
+}
+
+#productionVector tr:nth-child(even) {
+    background-color: var(--bg-light);
+}
+
+#productionVector tr:hover {
+    background-color: var(--hover-bg);
+}
+
+#productionVector button {
+    padding: 6px 12px;
+    background-color: var(--accent-color);
+    color: var(--text-on-primary);
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+#productionVector button:hover {
+    background-color: var(--accent-hover);
+}
+
+#productionVector button:disabled {
+    background-color: var(--border-color);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+#productionVector button i {
+    font-size: 14px;
+}
+
+/* Animação sutil para carregar resultados anteriores */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+#results {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Estilos para botões que respeitam o tema */
+.btn {
+    background-color: var(--button-bg, var(--primary-color));
+    color: var(--button-text, white);
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.btn:hover {
+    background-color: var(--button-hover, var(--primary-light));
+}
+
+.btn:active {
+    background-color: var(--button-active, var(--primary-dark));
+    transform: translateY(1px);
+}
+
+.btn:disabled {
+    background-color: var(--border-color);
+    cursor: not-allowed;
+    opacity: 0.7;
+}
+
+.btn i {
+    font-size: 14px;
+}
+
+/* Estilos para tabelas que respeitam o tema */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+table th {
+    background-color: var(--primary-color);
+    color: var(--text-on-primary);
+    text-align: left;
+    padding: 12px 15px;
+    font-weight: 600;
+}
+
+table td {
+    padding: 10px 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+table tr:last-child td {
+    border-bottom: none;
+}
+
+table tr:nth-child(even) {
+    background-color: var(--bg-light);
+}
+
+table tr:hover {
+    background-color: var(--hover-bg);
+}
+
+/* Estilos específicos para o tema Night */
+[data-theme="night"] .modal-content {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="night"] .info-message {
+    background-color: rgba(183, 28, 28, 0.15); /* Vermelho translúcido */
+    border-left-color: var(--primary-color);
+}
+
+[data-theme="night"] .info-message.success-message {
+    background-color: rgba(67, 160, 71, 0.15); /* Verde translúcido */
+    border-left-color: var(--success-color);
+}
+
+[data-theme="night"] .editable-table input {
+    background-color: var(--bg-light);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+[data-theme="night"] button {
+    background-color: var(--button-bg);
+}
+
+[data-theme="night"] button:hover {
+    background-color: var(--button-hover);
+}
