@@ -335,15 +335,32 @@
         <div class="modal-content">
             <span class="close" onclick="closeOptimizationResultModal()">&times;</span>
             <h2>Resultados da Otimização</h2>
-            <p>Materialização Social: <span id="optimizationModalProductName"></span></p>
+            <p class="product-info">Materialização Social: <strong><span id="optimizationModalProductName">Carregando...</span></strong></p>
             
-            <div id="optimizationModalContent"></div>
+            <div id="optimizationModalContent">
+                <!-- O conteúdo será preenchido dinamicamente -->
+            </div>
             
             <div class="modal-footer">
                 <button class="btn" onclick="closeOptimizationResultModal()">Fechar</button>
             </div>
         </div>
     </div>
+
+    <style>
+        /* Melhorar a exibição do nome do produto na modal */
+        .product-info {
+            margin-bottom: 20px;
+            padding: 10px;
+            background-color: var(--bg-light);
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        
+        .product-info strong {
+            color: var(--primary-color);
+        }
+    </style>
 
     <script src="js/planification.js"></script>
 </body>

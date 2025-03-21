@@ -206,24 +206,33 @@ function saveOptimizationConfig() {
 
 // Função para exibir detalhes de otimização
 function openOptimizationResultModal(index) {
-    // Obter o resultado de otimização correspondente
-    const result = optimizationResults[index];
+    // Ajuste importante: garantir que o índice seja usado para obter os dados corretos
+    const materializationId = productIds[index];
+    
+    // Encontrar o resultado de otimização correto com base no ID da materialização
+    const result = optimizationResults.find(r => r && r.materializationId === materializationId);
     
     console.log('Abrindo modal de resultado para índice:', index);
-    console.log('Resultado disponível:', result);
+    console.log('Materialização ID:', materializationId);
+    console.log('Produto:', productNames[index]);
+    console.log('Resultado encontrado:', result);
     
     if (!result) {
-        showError('Resultado de otimização não disponível para este produto');
+        console.error('Resultado de otimização não encontrado para índice ' + index);
+        showError('Dados de otimização não disponíveis para este produto.');
         return;
     }
     
-    // Preencher dados na modal - título do produto
-    document.getElementById('optimizationModalProductName').textContent = result.productName || 'Produto';
+    // Definir explicitamente o nome do produto com base no índice atual da tabela
+    // em vez de confiar no nome armazenado no resultado
+    document.getElementById('optimizationModalProductName').textContent = productNames[index];
+    
+    // Restante do código permanece o mesmo...
     
     // Formatar valores numéricos com verificação de existência
     const formatNumber = (value, decimals = 2) => {
-        if (value === undefined || value === null) return '0';
-        return typeof value === 'number' ? value.toFixed(decimals) : '0';
+        if (value === undefined || value === null) return 'N/A';
+        return typeof value === 'number' ? value.toFixed(decimals) : value;
     };
     
     // Criar o conteúdo HTML estruturado em seções
@@ -414,7 +423,7 @@ function updateDemandVectorFromUI() {
     return demandVector;
 }
 
-// Mover renderProductionVector para o escopo global (fora do DOMContentLoaded)
+// Corrigir a função renderProductionVector para vincular corretamente os botões às materializações
 function renderProductionVector(productionVector) {
     // Limpar tabela existente
     const table = document.getElementById('productionVector');
@@ -434,28 +443,50 @@ function renderProductionVector(productionVector) {
     `;
     thead.appendChild(headerRow);
     
-    // Adicionar linhas com valores
+    // Manter um mapeamento de materializationId para o índice no array de resultados
+    const resultIndexMap = {};
+    if (optimizationResults) {
+        optimizationResults.forEach((result, idx) => {
+            if (result && result.materializationId) {
+                resultIndexMap[result.materializationId] = idx;
+            }
+        });
+    }
+    
+    // Adicionar linhas com valores - cada linha representa uma materialização
     productionVector.forEach((value, index) => {
         const row = document.createElement('tr');
         
-        // Verificar se temos resultados de otimização para este produto
+        // Obter o ID da materialização para esta linha
+        const materializationId = productIds[index];
+        
+        // Verificar se temos resultados de otimização para esta materialização específica
         const hasOptimizationResults = optimizationResults && 
                                      optimizationResults.some(result => 
-                                         result && result.materializationId === productIds[index]);
+                                         result && result.materializationId === materializationId);
         
+        // O botão agora armazena o ID da materialização em um atributo data
+        // e usa o índice da linha atual apenas para fins de exibição
         const buttonHTML = hasOptimizationResults
-            ? `<button class="btn btn-sm" onclick="openOptimizationResultModal(${index})">
+            ? `<button class="btn btn-sm" 
+                       onclick="openOptimizationResultModal(${index})" 
+                       data-materialization-id="${materializationId}">
                  <i class="fas fa-chart-line"></i> Ver Detalhes
                </button>`
-            : `<button class="btn btn-sm" onclick="openOptimizationConfigModal(${index})">
+            : `<button class="btn btn-sm" 
+                       onclick="openOptimizationConfigModal(${index})" 
+                       data-materialization-id="${materializationId}">
                  <i class="fas fa-cogs"></i> Configurar Otimização
                </button>`;
         
         row.innerHTML = `
-            <td>${productNames[index]}</td>
+            <td data-product-id="${materializationId}">${productNames[index]}</td>
             <td>${value.toFixed(2)}</td>
             <td>${buttonHTML}</td>
         `;
+        
+        // Adicionar atributo data para identificar a linha pela materialização
+        row.setAttribute('data-materialization-id', materializationId);
         
         tbody.appendChild(row);
     });
