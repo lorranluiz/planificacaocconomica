@@ -423,73 +423,83 @@ function updateDemandVectorFromUI() {
     return demandVector;
 }
 
-// Corrigir a função renderProductionVector para vincular corretamente os botões às materializações
+// Função corrigida para renderizar o vetor de produção
 function renderProductionVector(productionVector) {
-    // Limpar tabela existente
-    const table = document.getElementById('productionVector');
-    const thead = table.querySelector('thead');
-    const tbody = table.querySelector('tbody');
-    
-    // Limpar conteúdo existente
-    thead.innerHTML = '';
-    tbody.innerHTML = '';
-    
-    // Criar cabeçalho
-    const headerRow = document.createElement('tr');
-    headerRow.innerHTML = `
-        <th>Materialização Social</th>
-        <th>Produção Necessária</th>
-        <th>Ações</th>
-    `;
-    thead.appendChild(headerRow);
-    
-    // Manter um mapeamento de materializationId para o índice no array de resultados
-    const resultIndexMap = {};
-    if (optimizationResults) {
-        optimizationResults.forEach((result, idx) => {
-            if (result && result.materializationId) {
-                resultIndexMap[result.materializationId] = idx;
-            }
-        });
+    const resultsContainer = document.getElementById('results');
+    if (!resultsContainer) {
+        console.error("Container de resultados não encontrado");
+        return;
     }
     
-    // Adicionar linhas com valores - cada linha representa uma materialização
-    productionVector.forEach((value, index) => {
-        const row = document.createElement('tr');
-        
-        // Obter o ID da materialização para esta linha
-        const materializationId = productIds[index];
-        
-        // Verificar se temos resultados de otimização para esta materialização específica
-        const hasOptimizationResults = optimizationResults && 
-                                     optimizationResults.some(result => 
-                                         result && result.materializationId === materializationId);
-        
-        // O botão agora armazena o ID da materialização em um atributo data
-        // e usa o índice da linha atual apenas para fins de exibição
-        const buttonHTML = hasOptimizationResults
-            ? `<button class="btn btn-sm" 
-                       onclick="openOptimizationResultModal(${index})" 
-                       data-materialization-id="${materializationId}">
-                 <i class="fas fa-chart-line"></i> Ver Detalhes
-               </button>`
-            : `<button class="btn btn-sm" 
-                       onclick="openOptimizationConfigModal(${index})" 
-                       data-materialization-id="${materializationId}">
-                 <i class="fas fa-cogs"></i> Configurar Otimização
-               </button>`;
-        
-        row.innerHTML = `
-            <td data-product-id="${materializationId}">${productNames[index]}</td>
-            <td>${value.toFixed(2)}</td>
-            <td>${buttonHTML}</td>
-        `;
-        
-        // Adicionar atributo data para identificar a linha pela materialização
-        row.setAttribute('data-materialization-id', materializationId);
-        
-        tbody.appendChild(row);
+    // Preservar o container de otimização se existir
+    const optimizationContainer = document.getElementById('optimizationResultsContainer');
+    
+    // 1. Limpar o container de resultados, mas preservar o container de otimização
+    if (optimizationContainer) {
+        optimizationContainer.remove(); // Remover temporariamente
+    }
+    
+    // 2. Limpar todo o conteúdo atual
+    resultsContainer.innerHTML = '';
+    
+    // 3. Criar elementos HTML para a tabela de produção
+    const header = document.createElement('h2');
+    header.textContent = 'Resultados da Planificação';
+    resultsContainer.appendChild(header);
+    
+    const table = document.createElement('table');
+    table.className = 'data-table';
+    
+    // 4. Criar cabeçalho da tabela
+    const thead = document.createElement('thead');
+    thead.innerHTML = `
+        <tr>
+            <th>Produto</th>
+            <th>Produção Necessária</th>
+            <th>Ações</th>
+        </tr>
+    `;
+    table.appendChild(thead);
+    
+    // 5. Criar corpo da tabela
+    const tbody = document.createElement('tbody');
+    tbody.id = 'productionResults';
+    
+    // Função para formatar números
+    const formatNumber = (value) => {
+        if (value === undefined || value === null) return 'N/A';
+        return typeof value === 'number' ? value.toFixed(2) : value;
+    };
+    
+    // Adicionar linhas para cada produto
+    productionVector.forEach((production, index) => {
+        if (index < productNames.length) {
+            const tr = document.createElement('tr');
+            
+            tr.innerHTML = `
+                <td>${productNames[index]}</td>
+                <td>${formatNumber(production)}</td>
+                <td>
+                    <button class="btn optimize-btn" onclick="openOptimizationConfigModal(${index})">
+                        Configurar Otimização
+                    </button>
+                </td>
+            `;
+            
+            tbody.appendChild(tr);
+        }
     });
+    
+    table.appendChild(tbody);
+    resultsContainer.appendChild(table);
+    
+    // 6. Reinserir o container de otimização no final, se existia
+    if (optimizationContainer) {
+        resultsContainer.appendChild(optimizationContainer);
+    }
+    
+    // 7. Garantir que o container de resultados esteja visível
+    resultsContainer.style.display = 'block';
 }
 
 // Mantém o restante do código dentro do evento DOMContentLoaded
@@ -736,115 +746,91 @@ document.addEventListener('DOMContentLoaded', function() {
         planifyButton.disabled = true;
         loadingSpinner.style.display = 'inline-block';
         
-        // Atualizar dados a partir da interface
-        updateMatrixAndVectorData();
-        
-        // Verificar e garantir dimensões compatíveis
-        ensureMatrixDimensions();
-        
-        console.log("Matriz tecnológica:", technologicalMatrix);
-        console.log("Vetor de demanda:", demandVector);
-        console.log("Produtos:", productNames);
-        console.log("IDs dos produtos:", productIds);
-        
-        // Verificar se há dados suficientes
-        if (!technologicalMatrix.length || !demandVector.length) {
-            showError("Não há dados suficientes para realizar a planificação.");
-            planifyButton.disabled = false;
-            loadingSpinner.style.display = 'none';
-            return;
-        }
-        
-        // Preparar o objeto com os dados da planificação
-        const planificationRequest = {
-            instanceId: currentInstanceId,
-            technologicalMatrix: technologicalMatrix,
-            demandVector: demandVector,
-            productNames: productNames,
-            materializationIds: productIds
-        };
-        
-        // Enviar a requisição para o servidor
-        fetch('/api/planification/planify', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(planificationRequest)
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.json().then(errorData => {
-                    throw new Error(errorData.message || 'Erro ao executar a planificação');
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log("Resposta da planificação:", data);
+        try {
+            // Atualizar dados a partir da interface
+            updateMatrixAndVectorData();
             
-            // Exibir resultados
-            if (data.productionVector) {
-                // Processar e exibir os resultados
+            // Verificar se há dados para planificar
+            if (!productIds || productIds.length === 0) {
+                console.error("IDs de materialização inválidos ou vazios:", productIds);
+                showError("Não há materializações válidas para planificar. Adicione pelo menos uma materialização.");
+                planifyButton.disabled = false;
+                loadingSpinner.style.display = 'none';
+                return;
+            }
+            
+            console.log("Dados para planificação:");
+            console.log("Matriz tecnológica:", technologicalMatrix);
+            console.log("Vetor de demanda:", demandVector);
+            console.log("Produtos:", productNames);
+            console.log("IDs dos produtos:", productIds);
+            
+            // Verificar e ajustar dimensões da matriz e vetor
+            ensureMatrixDimensions();
+            
+            // Preparar o objeto com os dados da planificação
+            const planificationRequest = {
+                instanceId: currentInstanceId,
+                technologicalMatrix: technologicalMatrix,
+                demandVector: demandVector,
+                productNames: productNames,
+                materializationIds: productIds
+            };
+            
+            console.log("Enviando requisição de planificação:", planificationRequest);
+            
+            // Enviar a requisição para o servidor
+            fetch('/api/planification/planify', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(planificationRequest)
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.message || 'Erro ao executar a planificação');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Resposta da planificação:", data);
+                
+                // Exibir resultados
                 const results = document.getElementById('results');
                 results.style.display = 'block';
                 
                 // Renderizar o vetor de produção
-                let html = `
-                    <h2>Resultados da Planificação</h2>
-                    <table class="data-table">
-                        <thead>
-                            <tr>
-                                <th>Produto</th>
-                                <th>Produção Necessária</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                `;
+                renderProductionVector(data.productionVector);
                 
-                data.productionVector.forEach((production, index) => {
-                    const productName = productNames[index];
-                    html += `
-                        <tr>
-                            <td>${productName}</td>
-                            <td>${production.toFixed(2)}</td>
-                            <td>
-                                <button class="btn optimize-btn" onclick="openOptimizationConfigModal(${index})">
-                                    Configurar Otimização
-                                </button>
-                            </td>
-                        </tr>
-                    `;
-                });
-                
-                html += `
-                        </tbody>
-                    </table>
-                `;
-                
-                results.innerHTML = html;
-                
-                // Armazenar resultados de otimização, se houver
+                // Renderizar resultados de otimização
                 if (data.optimizationResults) {
                     optimizationResults = data.optimizationResults;
+                    renderOptimizationResults(data.optimizationResults);
                 }
                 
                 // Rolar para os resultados
                 results.scrollIntoView({ behavior: 'smooth' });
-            }
-            
-            showSuccess("Planificação concluída com sucesso!");
-        })
-        .catch(error => {
-            console.error("Erro durante a planificação:", error);
-            showError("Erro durante a planificação: " + error.message);
-        })
-        .finally(() => {
-            // Habilitar o botão e esconder spinner
+                
+                showSuccess("Planificação concluída com sucesso!");
+            })
+            .catch(error => {
+                console.error("Erro durante a planificação:", error);
+                showError("Erro durante a planificação: " + error.message);
+            })
+            .finally(() => {
+                // Habilitar o botão e esconder spinner
+                planifyButton.disabled = false;
+                loadingSpinner.style.display = 'none';
+            });
+        } catch (error) {
+            console.error("Erro ao preparar dados para planificação:", error);
+            showError("Erro ao preparar dados: " + error.message);
             planifyButton.disabled = false;
             loadingSpinner.style.display = 'none';
-        });
+        }
     }
     
     /**
@@ -866,71 +852,134 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     function saveChanges() {
         if (!currentInstanceId) {
-            showError('Selecione uma instância primeiro');
+            showError("Selecione uma instância primeiro");
             return;
         }
         
         // Mostrar spinner de carregamento
-        loadingSpinner.style.display = 'inline-block';
-        saveButton.disabled = true;
+        document.getElementById('loadingSpinner').style.display = 'inline-block';
         
-        // Array de promessas para salvar todos os tensores
-        const promises = [];
-        
-        // Salvar cada elemento da matriz tecnológica
-        technologicalMatrix.forEach((row, inputIndex) => {
-            row.forEach((value, outputIndex) => {
-                if (value > 0) {  // Só salva valores positivos
-                    const tensor = {
-                        instanceId: parseInt(currentInstanceId),
-                        inputMaterializationId: productIds[inputIndex],
-                        outputMaterializationId: productIds[outputIndex],
-                        quantity: value
-                    };
+        try {
+            // 1. Atualizar variáveis com os dados atuais da interface
+            updateMatrixAndVectorData();
+            
+            // 2. Obter os IDs das materializações atualmente na tabela
+            const currentMaterializationIds = Array.from(
+                document.querySelectorAll('#demandVector tbody tr')
+            ).map(row => {
+                const idStr = row.dataset.materializationId;
+                return idStr ? parseInt(idStr) : null;
+            }).filter(id => id && !isNaN(id));
+            
+            console.log("IDs atuais na tabela:", currentMaterializationIds);
+            
+            // 3. Determinar quais materializações foram excluídas 
+            // Comparando IDs originais com os atuais na tabela
+            const removedIds = [];
+            if (window.originalMaterializationIds) {
+                removedIds.push(...window.originalMaterializationIds.filter(
+                    id => !currentMaterializationIds.includes(id)
+                ));
+            }
+            
+            console.log("IDs removidos:", removedIds);
+            
+            // 4. Criar promessas para salvar/atualizar cada entrada da matriz
+            const matrixPromises = [];
+            
+            for (let i = 0; i < technologicalMatrix.length; i++) {
+                const rowId = productIds[i];
+                
+                for (let j = 0; j < technologicalMatrix[i].length; j++) {
+                    const colId = productIds[j];
+                    const value = technologicalMatrix[i][j];
                     
-                    promises.push(
+                    matrixPromises.push(
                         fetch('/api/planification/technological-tensor', {
                             method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(tensor)
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                inputMaterializationId: rowId,
+                                outputMaterializationId: colId,
+                                instanceId: currentInstanceId,
+                                quantity: value
+                            })
                         })
                     );
                 }
-            });
-        });
-        
-        // Salvar cada elemento do vetor de demanda
-        demandVector.forEach((value, index) => {
-            if (value > 0) {  // Só salva valores positivos
-                const demandVectorItem = {
-                    instanceId: parseInt(currentInstanceId),
-                    materializationId: productIds[index],
-                    quantity: value
-                };
+            }
+            
+            // 5. Criar promessas para salvar/atualizar cada entrada do vetor de demanda
+            const vectorPromises = [];
+            
+            for (let i = 0; i < demandVector.length; i++) {
+                const materializationId = productIds[i];
+                const value = demandVector[i];
                 
-                promises.push(
+                vectorPromises.push(
                     fetch('/api/planification/demand-vector', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(demandVectorItem)
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            materializationId: materializationId,
+                            instanceId: currentInstanceId,
+                            demand: value
+                        })
                     })
                 );
             }
-        });
-        
-        // Aguardar todas as requisições completarem
-        Promise.all(promises)
-            .then(() => {
-                showSuccess('Dados salvos com sucesso!');
-            })
-            .catch(error => {
-                showError('Erro ao salvar dados: ' + error.message);
-            })
-            .finally(() => {
-                // Ocultar spinner de carregamento
-                loadingSpinner.style.display = 'none';
-                saveButton.disabled = false;
-            });
+            
+            // 6. Criar promessas para excluir as materializações removidas
+            const deletePromises = [];
+            
+            for (const id of removedIds) {
+                // Excluir da matriz tecnológica (deleta linha e coluna)
+                deletePromises.push(
+                    fetch(`/api/planification/technological-tensor/by-materialization/${id}/instance/${currentInstanceId}`, {
+                        method: 'DELETE'
+                    })
+                );
+                
+                // Excluir do vetor de demanda
+                deletePromises.push(
+                    fetch(`/api/planification/demand-vector/${id}/instance/${currentInstanceId}`, {
+                        method: 'DELETE'
+                    })
+                );
+            }
+            
+            // 7. Executar todas as promessas
+            Promise.all([...matrixPromises, ...vectorPromises, ...deletePromises])
+                .then(responses => {
+                    // Verificar se todas as respostas foram bem-sucedidas
+                    const hasErrors = responses.some(res => !res.ok);
+                    
+                    if (hasErrors) {
+                        throw new Error("Alguns dados não puderam ser salvos");
+                    }
+                    
+                    // Atualizar a lista de IDs originais
+                    window.originalMaterializationIds = [...currentMaterializationIds];
+                    
+                    showSuccess("Dados salvos com sucesso!");
+                })
+                .catch(error => {
+                    console.error("Erro ao salvar dados:", error);
+                    showError("Erro ao salvar dados: " + error.message);
+                })
+                .finally(() => {
+                    // Ocultar spinner de carregamento
+                    document.getElementById('loadingSpinner').style.display = 'none';
+                });
+        } catch (error) {
+            console.error("Erro ao preparar dados para salvar:", error);
+            showError("Erro ao preparar dados: " + error.message);
+            document.getElementById('loadingSpinner').style.display = 'none';
+        }
     }
     
     /**
@@ -967,48 +1016,85 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Modificar a função loadInstanceData para carregar os resultados anteriores automaticamente
     function loadInstanceData(instanceId) {
-        // Desabilitar elementos enquanto carrega
-        document.getElementById('planifyButton').disabled = true;
-        document.getElementById('saveButton').disabled = true;
+        currentInstanceId = instanceId;
+        
+        // Mostrar spinner de carregamento
         document.getElementById('loadingSpinner').style.display = 'inline-block';
-
+        
         // Limpar resultados anteriores
         document.getElementById('results').style.display = 'none';
-        
-        currentInstanceId = instanceId;
         
         Promise.all([
             fetch(`/api/planification/instances/${instanceId}/technological-matrix`).then(res => res.json()),
             fetch(`/api/planification/instances/${instanceId}/demand-vector`).then(res => res.json())
         ])
         .then(([matrixData, vectorData]) => {
-            // Processamento da matriz e vetor
-            technologicalMatrix = matrixData.matrix;
-            productNames = matrixData.productNames;
-            productIds = matrixData.productIds;
-            demandVector = vectorData.vector;
-
-            renderTechnologicalMatrix();
-            renderDemandVector();
-
-            document.getElementById('matrixSection').style.display = 'block';
-            document.getElementById('planifyButton').disabled = false;
-            document.getElementById('saveButton').disabled = false;
-            document.getElementById('loadingSpinner').style.display = 'none';
-
-            // Carregar resultados anteriores em vez de executar planificação
-            loadPreviousResults(instanceId);
-
-            // Preencher o vetor de demanda - AQUI É ONDE PRECISAMOS MODIFICAR
+            // Preencher a matriz tecnológica
+            const matrixTable = document.getElementById('technologicalMatrix');
+            const matrixThead = matrixTable.querySelector('thead');
+            const matrixTbody = matrixTable.querySelector('tbody');
+            
+            // Limpar conteúdo atual
+            matrixThead.innerHTML = '';
+            matrixTbody.innerHTML = '';
+            
+            // Criar cabeçalho
+            const headerRow = document.createElement('tr');
+            
+            // Primeira célula vazia do cabeçalho
+            const emptyHeader = document.createElement('th');
+            headerRow.appendChild(emptyHeader);
+            
+            // Adicionar nomes dos produtos como cabeçalhos
+            for (let i = 0; i < matrixData.productNames.length; i++) {
+                const th = document.createElement('th');
+                th.textContent = matrixData.productNames[i];
+                th.dataset.materializationId = matrixData.productIds[i];
+                headerRow.appendChild(th);
+            }
+            
+            matrixThead.appendChild(headerRow);
+            
+            // Adicionar linhas com valores da matriz
+            for (let i = 0; i < matrixData.matrix.length; i++) {
+                const tr = document.createElement('tr');
+                tr.dataset.materializationId = matrixData.productIds[i];
+                
+                // Primeira célula com nome do produto
+                const nameCell = document.createElement('td');
+                nameCell.className = 'product-name';
+                nameCell.textContent = matrixData.productNames[i];
+                tr.appendChild(nameCell);
+                
+                // Adicionar células com inputs para valores
+                for (let j = 0; j < matrixData.matrix[i].length; j++) {
+                    const td = document.createElement('td');
+                    const input = document.createElement('input');
+                    input.type = 'number';
+                    input.min = '0';
+                    input.max = '1';
+                    input.step = '0.01';
+                    input.value = matrixData.matrix[i][j];
+                    input.dataset.row = matrixData.productIds[i];
+                    input.dataset.col = matrixData.productIds[j];
+                    input.className = 'matrix-input';
+                    
+                    td.appendChild(input);
+                    tr.appendChild(td);
+                }
+                
+                matrixTbody.appendChild(tr);
+            }
+            
+            // Preencher o vetor de demanda
             const demandTable = document.getElementById('demandVector');
             const demandTbody = demandTable.querySelector('tbody');
             demandTbody.innerHTML = '';
             
             for (let i = 0; i < vectorData.vector.length; i++) {
                 const tr = document.createElement('tr');
-                tr.dataset.materializationId = vectorData.productIds[i]; // Importante para identificação
+                tr.dataset.materializationId = vectorData.productIds[i];
                 
-                // Adicionar células (nome, demanda, ações)
                 tr.innerHTML = `
                     <td>${vectorData.productNames[i]}</td>
                     <td>
@@ -1040,9 +1126,15 @@ document.addEventListener('DOMContentLoaded', function() {
             technologicalMatrix = matrixData.matrix;
             demandVector = vectorData.vector;
             
+            // NOVO: Salvar os IDs originais para referência
+            window.originalMaterializationIds = [...vectorData.productIds];
+            
             // Mostrar a seção da matriz
             document.getElementById('matrixSection').style.display = 'block';
             document.getElementById('loadingSpinner').style.display = 'none';
+            
+            // Adicionar botão de adição ao vetor de demanda se não existir
+            addDemandVectorAddButton();
         })
         .catch(error => {
             console.error('Erro ao carregar dados da instância:', error);
@@ -1428,27 +1520,52 @@ function removeMaterialization(materializationId) {
     console.log('Atualização dos dados internos concluída');
 }
 
-// Função para atualizar os dados da matriz tecnológica
+// Função corrigida para atualizar os dados da matriz tecnológica
 function updateMatrixData() {
     const matrixTable = document.getElementById('technologicalMatrix');
     const thead = matrixTable.querySelector('thead');
     const tbody = matrixTable.querySelector('tbody');
     
-    // Obter IDs das materializações das colunas
+    // Obter IDs das materializações das colunas com filtragem de valores inválidos
     const headerRow = thead.querySelector('tr');
     const columnIds = Array.from(headerRow.querySelectorAll('th'))
         .slice(1) // Ignorar primeira coluna (rótulo)
-        .map(th => parseInt(th.dataset.materializationId));
+        .map(th => {
+            const idStr = th.dataset.materializationId;
+            const id = idStr ? parseInt(idStr) : NaN;
+            return id;
+        })
+        .filter(id => !isNaN(id) && id > 0); // Garantir IDs válidos
     
-    // Obter IDs das materializações das linhas
+    // Obter IDs das materializações das linhas com filtragem de valores inválidos
     const rowIds = Array.from(tbody.querySelectorAll('tr'))
-        .map(tr => parseInt(tr.dataset.materializationId));
+        .map(tr => {
+            const idStr = tr.dataset.materializationId;
+            const id = idStr ? parseInt(idStr) : NaN;
+            return id;
+        })
+        .filter(id => !isNaN(id) && id > 0); // Garantir IDs válidos
+    
+    console.log("IDs válidos das linhas:", rowIds);
+    console.log("IDs válidos das colunas:", columnIds);
     
     // Reconstruir a matriz tecnológica
     technologicalMatrix = [];
-    productIds = [...rowIds]; // Copiar os IDs para a variável global
-    productNames = Array.from(tbody.querySelectorAll('tr .product-name'))
-        .map(cell => cell.textContent);
+    productIds = [...rowIds]; // Copiar os IDs válidos para a variável global
+    productNames = Array.from(tbody.querySelectorAll('tr'))
+        .filter(row => {
+            const idStr = row.dataset.materializationId;
+            const id = idStr ? parseInt(idStr) : NaN;
+            return !isNaN(id) && id > 0;
+        })
+        .map(row => {
+            const nameCell = row.querySelector('.product-name');
+            return nameCell ? nameCell.textContent.trim() : '';
+        })
+        .filter(name => name); // Filtrar nomes vazios
+    
+    console.log("Nomes dos produtos:", productNames);
+    console.log("IDs dos produtos:", productIds);
     
     // Criar matriz zerada
     for (let i = 0; i < rowIds.length; i++) {
@@ -1461,33 +1578,21 @@ function updateMatrixData() {
     // Preencher matriz com valores dos inputs
     const inputs = tbody.querySelectorAll('.matrix-input');
     inputs.forEach(input => {
+        if (!input.dataset.row || !input.dataset.col) return;
+        
         const rowId = parseInt(input.dataset.row);
         const colId = parseInt(input.dataset.col);
+        
+        if (isNaN(rowId) || isNaN(colId)) return;
         
         const rowIndex = rowIds.indexOf(rowId);
         const colIndex = columnIds.indexOf(colId);
         
         if (rowIndex >= 0 && colIndex >= 0) {
-            technologicalMatrix[rowIndex][colIndex] = parseFloat(input.value) || 0;
+            const value = parseFloat(input.value) || 0;
+            technologicalMatrix[rowIndex][colIndex] = value;
         }
     });
-
-    // Adicione esta verificação no final da função updateMatrixData
-    // Verificação adicional para garantir que a matriz seja quadrada
-    const size = productIds.length;
-    for (let i = 0; i < size; i++) {
-        if (!technologicalMatrix[i]) {
-            technologicalMatrix[i] = [];
-        }
-        
-        // Garantir que cada linha tenha o tamanho correto
-        while (technologicalMatrix[i].length < size) {
-            technologicalMatrix[i].push(0);
-        }
-        if (technologicalMatrix[i].length > size) {
-            technologicalMatrix[i] = technologicalMatrix[i].slice(0, size);
-        }
-    }
 }
 
 // Função para atualizar os dados do vetor de demanda
@@ -1678,4 +1783,170 @@ function ensureMatrixDimensions() {
 function updateMatrixAndVectorData() {
     updateMatrixData();
     updateVectorData();
+}
+
+// Adicione esta função ao arquivo planification.js
+function renderOptimizationResults(results) {
+    // Verificar se há resultados para mostrar
+    if (!results || results.length === 0) {
+        // Se não houver resultados, esconder a seção
+        const optimizationResultsContainer = document.getElementById('optimizationResultsContainer');
+        if (optimizationResultsContainer) {
+            optimizationResultsContainer.style.display = 'none';
+        }
+        return;
+    }
+
+    // Armazenar resultados globalmente para uso nas modais
+    optimizationResults = results;
+
+    // Obter referência à tabela
+    const optimizationTable = document.getElementById('optimizationResults');
+    if (!optimizationTable) {
+        console.error('Tabela de resultados de otimização não encontrada');
+        return;
+    }
+
+    // Mostrar seção
+    const optimizationResultsContainer = document.getElementById('optimizationResultsContainer');
+    if (optimizationResultsContainer) {
+        optimizationResultsContainer.style.display = 'block';
+    }
+
+    // Limpar conteúdo existente
+    const tbody = optimizationTable.querySelector('tbody');
+    if (tbody) {
+        tbody.innerHTML = '';
+    } else {
+        console.error('Corpo da tabela de resultados de otimização não encontrado');
+        return;
+    }
+
+    // Renderizar resultados
+    results.forEach(result => {
+        if (!result) return;
+
+        const row = document.createElement('tr');
+        
+        // Formatação de números para exibição
+        const formatNumber = (value) => {
+            if (value === undefined || value === null) return 'N/A';
+            return typeof value === 'number' ? value.toFixed(2) : value;
+        };
+
+        // Colunas: Produto, Produção, Trabalhadores, Fábricas, Turnos, Horas, Ações
+        row.innerHTML = `
+            <td>${result.productName || 'Sem nome'}</td>
+            <td>${formatNumber(result.productionNeeded)}</td>
+            <td>${formatNumber(result.workersNeeded)}</td>
+            <td>${formatNumber(result.factoriesNeeded)}</td>
+            <td>${result.nightShift ? 'Diurno e Noturno' : 'Diurno'}</td>
+            <td>${formatNumber(result.totalHours)}</td>
+            <td>
+                <button class="btn details-btn" onclick="openOptimizationResultModal(${productIds.indexOf(result.materializationId)})">
+                    Detalhes
+                </button>
+            </td>
+        `;
+
+        tbody.appendChild(row);
+    });
+}
+
+// Adicione esta função ao arquivo planification.js
+function renderResults(data) {
+    console.log("Renderizando resultados da planificação:", data);
+    
+    if (!data || !data.productionVector || data.productionVector.length === 0) {
+        showError("Não há resultados de planificação para exibir");
+        return;
+    }
+    
+    // Exibir resultados
+    const results = document.getElementById('results');
+    if (!results) {
+        console.error("Elemento de resultados não encontrado");
+        return;
+    }
+    
+    results.style.display = 'block';
+    
+    // Renderizar o vetor de produção na tabela principal
+    const productionResultsBody = document.getElementById('productionResults');
+    if (!productionResultsBody) {
+        console.error("Tabela de resultados de produção não encontrada");
+        return;
+    }
+    
+    // Limpar conteúdo anterior
+    productionResultsBody.innerHTML = '';
+    
+    // Função para formatar números
+    const formatNumber = (value) => {
+        if (value === undefined || value === null) return 'N/A';
+        return typeof value === 'number' ? value.toFixed(2) : value;
+    };
+    
+    // Adicionar linhas à tabela de produção
+    data.productionVector.forEach((production, index) => {
+        // Verificar se temos o nome e ID correspondentes
+        if (index < productNames.length) {
+            const row = document.createElement('tr');
+            
+            row.innerHTML = `
+                <td>${productNames[index]}</td>
+                <td>${formatNumber(production)}</td>
+                <td>
+                    <button class="btn optimize-btn" onclick="openOptimizationConfigModal(${index})">
+                        Configurar Otimização
+                    </button>
+                </td>
+            `;
+            
+            productionResultsBody.appendChild(row);
+        } else {
+            console.warn(`Índice ${index} fora dos limites dos nomes de produtos disponíveis`);
+        }
+    });
+    
+    // Renderizar resultados de otimização, se disponíveis
+    if (data.optimizationResults && data.optimizationResults.length > 0) {
+        optimizationResults = data.optimizationResults;
+        renderOptimizationResults(data.optimizationResults);
+    }
+    
+    // Rolar para os resultados
+    results.scrollIntoView({ behavior: 'smooth' });
+}
+
+// Função para adicionar o botão de adição ao vetor de demanda
+function addDemandVectorAddButton() {
+    const vectorContainer = document.querySelector('.vector-container');
+    
+    // Verificar se já existe um botão de adição
+    if (!vectorContainer.querySelector('.vector-actions')) {
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'vector-actions';
+        
+        actionsDiv.innerHTML = `
+            <button id="addMaterializationBtn" class="action-btn add-btn" title="Adicionar materialização">
+                <i class="fas fa-plus"></i>
+            </button>
+        `;
+        
+        // Inserir antes da tabela
+        const demandTable = document.getElementById('demandVector');
+        vectorContainer.insertBefore(actionsDiv, demandTable);
+        
+        // Adicionar evento ao botão
+        const addButton = document.getElementById('addMaterializationBtn');
+        if (addButton) {
+            addButton.addEventListener('click', function() {
+                // Carregar materializações disponíveis
+                loadAvailableMaterializations().then(materializations => {
+                    showMaterializationDropdown(materializations, this);
+                });
+            });
+        }
+    }
 }

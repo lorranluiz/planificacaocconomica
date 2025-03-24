@@ -471,4 +471,62 @@ public class PlanificationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    /**
+     * Endpoint para excluir um tensor da matriz tecnológica por materialização
+     */
+    @DeleteMapping("/technological-tensor/by-materialization/{materializationId}/instance/{instanceId}")
+    public ResponseEntity<?> deleteTensorByMaterialization(
+            @PathVariable Integer materializationId,
+            @PathVariable Integer instanceId) {
+        try {
+            // Excluir todos os tensores relacionados a esta materialização para esta instância
+            List<TechnologicalTensor> tensorsToDelete = tensorRepository.findByInstanceIdAndMaterializationId(
+                    instanceId, materializationId);
+            
+            tensorRepository.deleteAll(tensorsToDelete);
+            
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Tensores relacionados à materialização excluídos com sucesso");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Erro ao excluir tensores: " + e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+
+    /**
+     * Endpoint para excluir um valor do vetor de demanda
+     */
+    @DeleteMapping("/demand-vector/{materializationId}/instance/{instanceId}")
+    public ResponseEntity<?> deleteDemandVector(
+            @PathVariable Integer materializationId,
+            @PathVariable Integer instanceId) {
+        try {
+            // Criar o ID composto
+            DemandVector.DemandVectorId id = new DemandVector.DemandVectorId(materializationId, instanceId);
+            
+            // Verificar se existe
+            Optional<DemandVector> vectorOptional = demandVectorRepository.findById(id);
+            if (!vectorOptional.isPresent()) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Vetor de demanda não encontrado");
+                return ResponseEntity.status(404).body(response);
+            }
+            
+            // Excluir
+            demandVectorRepository.deleteById(id);
+            
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Vetor de demanda excluído com sucesso");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Erro ao excluir vetor de demanda: " + e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
 }
