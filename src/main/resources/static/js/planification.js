@@ -726,80 +726,125 @@ document.addEventListener('DOMContentLoaded', function() {
     /**
      * Executa o processo de planificação
      */
-    async function performPlanification() {
-        if (!currentInstanceId) {
-            showError('Selecione uma instância para continuar.');
-            return;
-        }
-
-        // IMPORTANTE: Atualizar o vetor de demanda a partir da interface ANTES do cálculo
-        updateDemandVectorFromUI();
+    function performPlanification() {
+        const planifyButton = document.getElementById('planifyButton');
+        const loadingSpinner = document.getElementById('loadingSpinner');
         
-        // Mostrar spinner de carregamento
+        console.log("Iniciando planificação...");
+        
+        // Desabilitar o botão e mostrar spinner
+        planifyButton.disabled = true;
         loadingSpinner.style.display = 'inline-block';
         
-        try {
-            // Primeiro passo: Carregar todas as configurações de otimização para esta instância
-            const configsResponse = await fetch(`/api/planification/optimization-config/by-instance/${currentInstanceId}`);
-            if (!configsResponse.ok) {
-                throw new Error('Erro ao carregar configurações de otimização');
-            }
-            
-            const configsData = await configsResponse.json();
-            console.log('Configurações carregadas do servidor:', configsData);
-            
-            // Mapear as configurações por ID de materialização para fácil acesso
-            const configsById = {};
-            configsData.forEach(config => {
-                configsById[config.materializationId] = config;
-            });
-            
-            // Segundo passo: Preparar a matriz e vetor para a planificação
-            const matrixInput = technologicalMatrix.map(row => [...row]);
-            const vectorInput = [...demandVector];
-
-            // Terceiro passo: Executar a planificação no servidor
-            const response = await fetch('/api/planification/planify', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    instanceId: currentInstanceId,
-                    technologicalMatrix: matrixInput,
-                    demandVector: vectorInput,
-                    productNames: productNames,
-                    materializationIds: productIds
-                })
-            });
-            
-            if (!response.ok) {
-                throw new Error('Erro ao executar a planificação');
-            }
-
-            const data = await response.json();
-            console.log('Resultado da planificação:', data);
-            
-            // Armazenar o vetor de produção e resultados de otimização
-            const productionVector = data.productionVector;
-            optimizationResults = data.optimizationResults || [];
-            
-            // Atualizar a interface com os resultados
-            renderProductionVector(productionVector);
-            
-            // Exibir a seção de resultados
-            resultsContainer.style.display = 'block';
-            
-            // Rolar para a seção de resultados
-            resultsContainer.scrollIntoView({ behavior: 'smooth' });
-            
-        } catch (error) {
-            console.error('Erro durante a planificação:', error);
-            showError(`Erro durante a planificação: ${error.message}`);
-        } finally {
-            // Esconder spinner de carregamento
+        // Atualizar dados a partir da interface
+        updateMatrixAndVectorData();
+        
+        // Verificar e garantir dimensões compatíveis
+        ensureMatrixDimensions();
+        
+        console.log("Matriz tecnológica:", technologicalMatrix);
+        console.log("Vetor de demanda:", demandVector);
+        console.log("Produtos:", productNames);
+        console.log("IDs dos produtos:", productIds);
+        
+        // Verificar se há dados suficientes
+        if (!technologicalMatrix.length || !demandVector.length) {
+            showError("Não há dados suficientes para realizar a planificação.");
+            planifyButton.disabled = false;
             loadingSpinner.style.display = 'none';
+            return;
         }
+        
+        // Preparar o objeto com os dados da planificação
+        const planificationRequest = {
+            instanceId: currentInstanceId,
+            technologicalMatrix: technologicalMatrix,
+            demandVector: demandVector,
+            productNames: productNames,
+            materializationIds: productIds
+        };
+        
+        // Enviar a requisição para o servidor
+        fetch('/api/planification/planify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(planificationRequest)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.message || 'Erro ao executar a planificação');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Resposta da planificação:", data);
+            
+            // Exibir resultados
+            if (data.productionVector) {
+                // Processar e exibir os resultados
+                const results = document.getElementById('results');
+                results.style.display = 'block';
+                
+                // Renderizar o vetor de produção
+                let html = `
+                    <h2>Resultados da Planificação</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Produção Necessária</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                data.productionVector.forEach((production, index) => {
+                    const productName = productNames[index];
+                    html += `
+                        <tr>
+                            <td>${productName}</td>
+                            <td>${production.toFixed(2)}</td>
+                            <td>
+                                <button class="btn optimize-btn" onclick="openOptimizationConfigModal(${index})">
+                                    Configurar Otimização
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                });
+                
+                html += `
+                        </tbody>
+                    </table>
+                `;
+                
+                results.innerHTML = html;
+                
+                // Armazenar resultados de otimização, se houver
+                if (data.optimizationResults) {
+                    optimizationResults = data.optimizationResults;
+                }
+                
+                // Rolar para os resultados
+                results.scrollIntoView({ behavior: 'smooth' });
+            }
+            
+            showSuccess("Planificação concluída com sucesso!");
+        })
+        .catch(error => {
+            console.error("Erro durante a planificação:", error);
+            showError("Erro durante a planificação: " + error.message);
+        })
+        .finally(() => {
+            // Habilitar o botão e esconder spinner
+            planifyButton.disabled = false;
+            loadingSpinner.style.display = 'none';
+        });
     }
     
     /**
@@ -1426,6 +1471,23 @@ function updateMatrixData() {
             technologicalMatrix[rowIndex][colIndex] = parseFloat(input.value) || 0;
         }
     });
+
+    // Adicione esta verificação no final da função updateMatrixData
+    // Verificação adicional para garantir que a matriz seja quadrada
+    const size = productIds.length;
+    for (let i = 0; i < size; i++) {
+        if (!technologicalMatrix[i]) {
+            technologicalMatrix[i] = [];
+        }
+        
+        // Garantir que cada linha tenha o tamanho correto
+        while (technologicalMatrix[i].length < size) {
+            technologicalMatrix[i].push(0);
+        }
+        if (technologicalMatrix[i].length > size) {
+            technologicalMatrix[i] = technologicalMatrix[i].slice(0, size);
+        }
+    }
 }
 
 // Função para atualizar os dados do vetor de demanda
@@ -1553,4 +1615,67 @@ function showNewMaterializationSuccess(message) {
     successElement.textContent = message;
     successElement.style.display = 'block';
     document.getElementById('newMaterializationModalSpinner').style.display = 'none';
+}
+
+// Função para verificar e garantir as dimensões corretas antes de planificar
+function ensureMatrixDimensions() {
+    console.log("Verificando dimensões da matriz e vetor antes de planificar...");
+    
+    // Verificar se existem dados
+    if (!technologicalMatrix || !demandVector) {
+        console.warn("Matriz ou vetor não definidos!");
+        return;
+    }
+    
+    // Verificar se a matriz é quadrada
+    const matrixSize = technologicalMatrix.length;
+    
+    // Verificar se o vetor tem o mesmo tamanho
+    if (demandVector.length !== matrixSize) {
+        console.warn("Tamanho do vetor de demanda incompatível, ajustando...");
+        console.warn(`Matriz: ${matrixSize}x${matrixSize}, Vetor: ${demandVector.length}`);
+        
+        // Ajustar o vetor de demanda
+        if (demandVector.length < matrixSize) {
+            // Adicionar zeros ao vetor
+            while (demandVector.length < matrixSize) {
+                demandVector.push(0);
+            }
+        } else if (demandVector.length > matrixSize) {
+            // Cortar o vetor
+            demandVector = demandVector.slice(0, matrixSize);
+        }
+    }
+    
+    // Verificar se cada linha da matriz tem o tamanho correto
+    for (let i = 0; i < matrixSize; i++) {
+        if (!technologicalMatrix[i] || technologicalMatrix[i].length !== matrixSize) {
+            console.warn(`Linha ${i} da matriz com tamanho incorreto, ajustando...`);
+            
+            // Se a linha não existe, criar com zeros
+            if (!technologicalMatrix[i]) {
+                technologicalMatrix[i] = new Array(matrixSize).fill(0);
+            } 
+            // Se a linha é menor que o necessário, completar com zeros
+            else if (technologicalMatrix[i].length < matrixSize) {
+                while (technologicalMatrix[i].length < matrixSize) {
+                    technologicalMatrix[i].push(0);
+                }
+            } 
+            // Se a linha é maior que o necessário, cortar
+            else if (technologicalMatrix[i].length > matrixSize) {
+                technologicalMatrix[i] = technologicalMatrix[i].slice(0, matrixSize);
+            }
+        }
+    }
+    
+    console.log("Após ajustes:");
+    console.log("Matriz tecnológica:", technologicalMatrix);
+    console.log("Vetor de demanda:", demandVector);
+}
+
+// Função para atualizar os dados da matriz e do vetor após modificações
+function updateMatrixAndVectorData() {
+    updateMatrixData();
+    updateVectorData();
 }
