@@ -953,6 +953,51 @@ document.addEventListener('DOMContentLoaded', function() {
 
             // Carregar resultados anteriores em vez de executar planificação
             loadPreviousResults(instanceId);
+
+            // Preencher o vetor de demanda - AQUI É ONDE PRECISAMOS MODIFICAR
+            const demandTable = document.getElementById('demandVector');
+            const demandTbody = demandTable.querySelector('tbody');
+            demandTbody.innerHTML = '';
+            
+            for (let i = 0; i < vectorData.vector.length; i++) {
+                const tr = document.createElement('tr');
+                tr.dataset.materializationId = vectorData.productIds[i]; // Importante para identificação
+                
+                // Adicionar células (nome, demanda, ações)
+                tr.innerHTML = `
+                    <td>${vectorData.productNames[i]}</td>
+                    <td>
+                        <input type="number" min="0" step="0.01" value="${vectorData.vector[i]}" 
+                               class="demand-input" data-id="${vectorData.productIds[i]}">
+                    </td>
+                    <td class="action-cell">
+                        <button class="action-btn remove-btn" title="Remover materialização" 
+                                data-id="${vectorData.productIds[i]}">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                `;
+                
+                demandTbody.appendChild(tr);
+                
+                // Adicionar evento ao botão de remoção
+                const removeBtn = tr.querySelector('.remove-btn');
+                if (removeBtn) {
+                    removeBtn.addEventListener('click', function() {
+                        removeMaterialization(vectorData.productIds[i]);
+                    });
+                }
+            }
+            
+            // Atualizar variáveis globais
+            productNames = vectorData.productNames;
+            productIds = vectorData.productIds;
+            technologicalMatrix = matrixData.matrix;
+            demandVector = vectorData.vector;
+            
+            // Mostrar a seção da matriz
+            document.getElementById('matrixSection').style.display = 'block';
+            document.getElementById('loadingSpinner').style.display = 'none';
         })
         .catch(error => {
             console.error('Erro ao carregar dados da instância:', error);
@@ -1230,70 +1275,112 @@ function addMaterializationToTechnologicalMatrix(materialization) {
     updateMatrixData();
 }
 
-// Função para remover uma materialização
+// Função corrigida para remover uma materialização
 function removeMaterialization(materializationId) {
     // Confirmar antes de remover
     if (!confirm('Tem certeza que deseja remover esta materialização? Isso também removerá a linha e coluna correspondente na matriz tecnológica.')) {
         return;
     }
     
+    console.log(`Removendo materialização com ID: ${materializationId}`);
+    
     // 1. Remover linha da tabela de demanda
     const demandTable = document.getElementById('demandVector');
     const demandRow = demandTable.querySelector(`tr[data-materialization-id="${materializationId}"]`);
     if (demandRow) {
+        console.log('Removendo linha da tabela de demanda');
         demandRow.remove();
+    } else {
+        console.warn('Linha não encontrada na tabela de demanda');
     }
     
-    // 2. Remover linha e coluna da matriz tecnológica
+    // 2. Remover da matriz tecnológica - usando uma abordagem mais robusta
     const matrixTable = document.getElementById('technologicalMatrix');
+    if (!matrixTable) {
+        console.error('Tabela de matriz tecnológica não encontrada');
+        return;
+    }
     
-    // 2.1 Remover coluna (célula em cada linha)
-    const colIndex = getColumnIndex(matrixTable, materializationId);
-    if (colIndex > 0) { // Não remover a primeira coluna (nomes de produtos)
-        matrixTable.querySelectorAll('tr').forEach(row => {
-            const cell = row.cells[colIndex];
-            if (cell) {
-                cell.remove();
+    // 2.1. Precisamos encontrar o índice da coluna de forma mais robusta
+    // Primeiro, obtenha todos os cabeçalhos da matriz
+    const headerRow = matrixTable.querySelector('thead tr');
+    if (!headerRow) {
+        console.error('Linha de cabeçalho não encontrada na matriz tecnológica');
+        return;
+    }
+    
+    // Encontre o índice da coluna que corresponde à materialização a ser removida
+    let colIndex = -1;
+    const headers = headerRow.querySelectorAll('th');
+    
+    // Tentar encontrar por data-attribute
+    for (let i = 0; i < headers.length; i++) {
+        if (headers[i].dataset.materializationId == materializationId) {
+            colIndex = i;
+            break;
+        }
+    }
+    
+    // Se não encontrou por data-attribute, tente encontrar pelo texto do cabeçalho
+    if (colIndex === -1) {
+        const productName = demandRow ? demandRow.cells[0].textContent.trim() : null;
+        if (productName) {
+            for (let i = 0; i < headers.length; i++) {
+                if (headers[i].textContent.trim() === productName) {
+                    colIndex = i;
+                    break;
+                }
+            }
+        }
+    }
+    
+    // 2.2. Se encontrou a coluna, remova-a de todas as linhas
+    if (colIndex >= 0) {
+        console.log(`Coluna encontrada na posição ${colIndex}, removendo de todas as linhas`);
+        
+        // Remover o cabeçalho da coluna primeiro
+        headers[colIndex].remove();
+        
+        // Remover a célula correspondente de cada linha
+        const rows = matrixTable.querySelectorAll('tbody tr');
+        rows.forEach(row => {
+            if (row.cells.length > colIndex) {
+                row.cells[colIndex].remove();
             }
         });
+    } else {
+        console.warn(`Coluna não encontrada para a materialização ${materializationId}`);
     }
     
-    // 2.2 Remover a linha inteira
-    const matrixRow = matrixTable.querySelector(`tbody tr[data-materialization-id="${materializationId}"]`);
-    if (matrixRow) {
-        matrixRow.remove();
+    // 2.3. Encontrar e remover a linha correspondente
+    // Primeiro, tente pelo atributo data-materialization-id
+    let rowToRemove = matrixTable.querySelector(`tbody tr[data-materialization-id="${materializationId}"]`);
+    
+    // Se não encontrou, procure pelo nome do produto na primeira célula
+    if (!rowToRemove && demandRow) {
+        const productName = demandRow.cells[0].textContent.trim();
+        const rows = matrixTable.querySelectorAll('tbody tr');
+        
+        for (const row of rows) {
+            const firstCell = row.cells[0];
+            if (firstCell && firstCell.textContent.trim() === productName) {
+                rowToRemove = row;
+                break;
+            }
+        }
     }
     
-    // 2.3 Remover cabeçalho da coluna
-    const headerCell = matrixTable.querySelector(`thead th[data-materialization-id="${materializationId}"]`);
-    if (headerCell) {
-        headerCell.remove();
+    // Remover a linha encontrada
+    if (rowToRemove) {
+        console.log('Removendo linha da matriz tecnológica');
+        rowToRemove.remove();
+    } else {
+        console.warn('Linha não encontrada na matriz tecnológica');
     }
     
     // 3. Atualizar dados internos
     updateMatrixAndVectorData();
-}
-
-// Função auxiliar para encontrar o índice da coluna pelo ID da materialização
-function getColumnIndex(table, materializationId) {
-    const headerRow = table.querySelector('thead tr');
-    let columnIndex = -1;
-    
-    if (headerRow) {
-        headerRow.querySelectorAll('th').forEach((th, index) => {
-            if (th.dataset.materializationId === materializationId.toString()) {
-                columnIndex = index;
-            }
-        });
-    }
-    
-    return columnIndex;
-}
-
-// Função para atualizar os dados da matriz e do vetor após modificações
-function updateMatrixAndVectorData() {
-    updateMatrixData();
-    updateVectorData();
+    console.log('Atualização dos dados internos concluída');
 }
 
 // Função para atualizar os dados da matriz tecnológica

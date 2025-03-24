@@ -982,3 +982,20 @@ textarea:focus {
     color: #28a745;
     border: 1px solid rgba(40, 167, 69, 0.2);
 }
+
+/* Adicionar ao <style> existente em planification.html */
+.action-cell {
+    text-align: center;
+    width: 80px;
+}
+
+/* Garantir que os botões de ação tenham o mesmo visual independente de serem adicionados dinamicamente */
+.remove-btn {
+    background-color: var(--danger-color, #dc3545);
+    color: white;
+    font-size: 14px;
+}
+
+.remove-btn:hover {
+    background-color: var(--danger-light, #e25563);
+}
