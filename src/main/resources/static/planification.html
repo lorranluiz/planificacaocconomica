@@ -86,6 +86,83 @@
             color: var(--primary-color);
             margin-right: 8px;
         }
+
+        .vector-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .add-btn {
+            background-color: var(--primary-color);
+            color: var(--text-on-primary);
+        }
+
+        .add-btn:hover {
+            background-color: var(--primary-light);
+        }
+
+        .remove-btn {
+            background-color: var(--danger-color, #dc3545);
+            color: white;
+            font-size: 14px;
+        }
+
+        .remove-btn:hover {
+            background-color: var(--danger-light, #e25563);
+        }
+
+        /* Estilos para o dropdown de seleção */
+        .materialization-dropdown {
+            position: absolute;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+            min-width: 250px;
+        }
+
+        .materialization-dropdown .dropdown-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .materialization-dropdown .dropdown-item:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .materialization-dropdown .add-new-item {
+            border-top: 1px solid var(--border-color);
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .materialization-dropdown .empty-message {
+            padding: 12px 16px;
+            font-style: italic;
+            color: var(--text-muted);
+            text-align: center;
+        }
     </style>
     <!-- Adicionar esta seção de estilos no <head> da página, após os outros estilos -->
     <style>
@@ -244,13 +321,20 @@
                 
                 <h2>Vetor de Demanda Final</h2>
                 <p>O vetor de demanda final representa a quantidade de cada produto que precisa ser entregue aos consumidores finais.</p>
-                
+
+                <div class="vector-actions">
+                    <button id="addMaterializationBtn" class="action-btn add-btn" title="Adicionar materialização social">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+
                 <div class="vector-container">
                     <table id="demandVector" class="editable-table">
                         <thead>
                             <tr>
                                 <th>Produto</th>
                                 <th>Demanda Final</th>
+                                <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -361,6 +445,44 @@
             color: var(--primary-color);
         }
     </style>
+
+    <!-- Modal de Cadastro de Nova Materialização -->
+    <div id="newMaterializationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeNewMaterializationModal()">&times;</span>
+            <h2>Nova Materialização Social</h2>
+            
+            <div id="newMaterializationModalSpinner" class="loading" style="display:none;"></div>
+            <div id="newMaterializationFormError" class="message error" style="display:none;"></div>
+            <div id="newMaterializationFormSuccess" class="message success" style="display:none;"></div>
+            
+            <form id="newMaterializationForm">
+                <div class="form-group">
+                    <label for="materialName">Nome:</label>
+                    <input type="text" id="materialName" class="form-control" required>
+                </div>
+                
+                <!-- Adicionar opções ao select no modal -->
+                <div class="form-group">
+                    <label for="materialType">Tipo:</label>
+                    <select id="materialType" class="form-control" required>
+                        <option value="PRODUCT">Produto</option>
+                        <option value="SERVICE">Serviço</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="materialDescription">Descrição:</label>
+                    <textarea id="materialDescription" class="form-control" rows="3"></textarea>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="submit" class="btn">Salvar</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeNewMaterializationModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script src="js/planification.js"></script>
 </body>

@@ -960,4 +960,512 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('loadingSpinner').style.display = 'none';
         });
     }
+
+    // Inicializar o botão de adicionar materialização
+    initAddMaterializationButton();
+
+    // Inicializar o formulário de nova materialização
+    initNewMaterializationForm();
 });
+
+// Adicionar ao arquivo planification.js
+
+// Declarar variáveis adicionais para controle do dropdown
+let materializationDropdown = null;
+let availableMaterializations = [];
+
+// Função para inicializar os eventos do botão de adicionar materialização
+function initAddMaterializationButton() {
+    const addButton = document.getElementById('addMaterializationBtn');
+    if (!addButton) return;
+    
+    addButton.addEventListener('click', function(e) {
+        e.stopPropagation();
+        
+        // Se o dropdown já estiver aberto, feche-o
+        if (materializationDropdown) {
+            document.body.removeChild(materializationDropdown);
+            materializationDropdown = null;
+            return;
+        }
+        
+        // Carregar as materializações disponíveis
+        loadAvailableMaterializations()
+            .then(materializations => {
+                showMaterializationDropdown(materializations, e.target);
+            })
+            .catch(error => {
+                console.error('Erro ao carregar materializações:', error);
+                showError('Não foi possível carregar as materializações disponíveis.');
+            });
+    });
+    
+    // Fechar o dropdown ao clicar fora dele
+    document.addEventListener('click', function() {
+        if (materializationDropdown) {
+            document.body.removeChild(materializationDropdown);
+            materializationDropdown = null;
+        }
+    });
+}
+
+// Função corrigida para carregar TODAS as materializações que NÃO estão na tabela
+async function loadAvailableMaterializations() {
+    try {
+        // Obtém as materializações já presentes na tabela
+        const existingRows = document.querySelectorAll('#demandVector tbody tr');
+        const existingMaterializationsIds = [];
+        
+        // Iterar sobre as linhas existentes e extrair os IDs com verificação rigorosa
+        existingRows.forEach(row => {
+            if (row.dataset && row.dataset.materializationId) {
+                const id = parseInt(row.dataset.materializationId);
+                if (!isNaN(id)) {
+                    existingMaterializationsIds.push(id);
+                }
+            }
+        });
+        
+        console.log('IDs já existentes na tabela:', existingMaterializationsIds);
+        
+        // Carrega TODAS as materializações sociais do banco de dados
+        // Utilizando o endpoint que retorna todas as materializações
+        const response = await fetch('/api/social-materializations');
+        if (!response.ok) {
+            throw new Error('Erro ao carregar materializações');
+        }
+        
+        const allMaterializations = await response.json();
+        console.log('Todas as materializações do banco:', allMaterializations);
+        
+        // Filtra para obter apenas as que NÃO estão na tabela
+        const availableMats = allMaterializations.filter(mat => 
+            !existingMaterializationsIds.includes(mat.id)
+        );
+        
+        console.log('Materializações disponíveis para adicionar:', availableMats);
+        return availableMats;
+    } catch (error) {
+        console.error('Erro ao carregar materializações disponíveis:', error);
+        showError('Não foi possível carregar as materializações disponíveis: ' + error.message);
+        return [];
+    }
+}
+
+// Função para exibir o dropdown de materializações
+function showMaterializationDropdown(materializations, targetElement) {
+    // Armazenar para uso posterior
+    availableMaterializations = materializations;
+    
+    // Criar o elemento de dropdown
+    materializationDropdown = document.createElement('div');
+    materializationDropdown.className = 'materialization-dropdown';
+    
+    // Determinar a posição do dropdown
+    const buttonRect = targetElement.getBoundingClientRect();
+    materializationDropdown.style.top = `${buttonRect.bottom + window.scrollY + 5}px`;
+    materializationDropdown.style.left = `${buttonRect.left + window.scrollX - 200 + buttonRect.width/2}px`;
+    
+    // Criar os itens do dropdown
+    if (materializations.length === 0) {
+        materializationDropdown.innerHTML = `
+            <div class="empty-message">
+                Não há materializações disponíveis para adicionar.
+            </div>
+        `;
+    } else {
+        let dropdownHTML = '';
+        
+        // Adicionar cada materialização como uma opção
+        materializations.forEach(mat => {
+            dropdownHTML += `
+                <div class="dropdown-item" data-id="${mat.id}">
+                    ${mat.name} (${mat.type === 'PRODUCT' ? 'Produto' : 'Serviço'})
+                </div>
+            `;
+        });
+        
+        // Adicionar a opção "Incluir nova"
+        dropdownHTML += `
+            <div class="dropdown-item add-new-item" data-action="add-new">
+                <i class="fas fa-plus-circle"></i> Incluir nova materialização
+            </div>
+        `;
+        
+        materializationDropdown.innerHTML = dropdownHTML;
+        
+        // Adicionar eventos de clique aos itens
+        materializationDropdown.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', function(e) {
+                e.stopPropagation();
+                
+                if (item.dataset.action === 'add-new') {
+                    // Abrir modal para cadastrar nova materialização
+                    openNewMaterializationModal();
+                } else {
+                    // Adicionar materialização existente
+                    const materializationId = parseInt(item.dataset.id);
+                    const materialization = availableMaterializations.find(m => m.id === materializationId);
+                    
+                    if (materialization) {
+                        addMaterializationToDemandVector(materialization);
+                    }
+                }
+                
+                // Fechar o dropdown
+                document.body.removeChild(materializationDropdown);
+                materializationDropdown = null;
+            });
+        });
+    }
+    
+    // Adicionar o dropdown ao corpo do documento
+    document.body.appendChild(materializationDropdown);
+    
+    // Prevenir o comportamento padrão de fechar ao clicar no dropdown
+    materializationDropdown.addEventListener('click', function(e) {
+        e.stopPropagation();
+    });
+}
+
+// Função para adicionar a materialização à tabela de demanda
+function addMaterializationToDemandVector(materialization) {
+    const demandTable = document.getElementById('demandVector');
+    const tbody = demandTable.querySelector('tbody');
+    
+    // Criar uma nova linha
+    const row = document.createElement('tr');
+    row.dataset.materializationId = materialization.id;
+    
+    // Estrutura da linha
+    row.innerHTML = `
+        <td>${materialization.name}</td>
+        <td>
+            <input type="number" min="0" step="0.01" value="0" 
+                   class="demand-input" data-id="${materialization.id}">
+        </td>
+        <td class="action-cell">
+            <button class="action-btn remove-btn" title="Remover materialização" 
+                    data-id="${materialization.id}">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </td>
+    `;
+    
+    // Adicionar a linha à tabela
+    tbody.appendChild(row);
+    
+    // Adicionar evento ao botão de remover
+    row.querySelector('.remove-btn').addEventListener('click', function() {
+        removeMaterialization(materialization.id);
+    });
+    
+    // Adicionar também à matriz tecnológica
+    addMaterializationToTechnologicalMatrix(materialization);
+    
+    // Atualizar dados internos
+    updateMatrixAndVectorData();
+}
+
+// Função para adicionar materialização à matriz tecnológica
+function addMaterializationToTechnologicalMatrix(materialization) {
+    const matrixTable = document.getElementById('technologicalMatrix');
+    const thead = matrixTable.querySelector('thead');
+    const tbody = matrixTable.querySelector('tbody');
+    
+    // 1. Adicionar coluna ao cabeçalho
+    const headerRow = thead.querySelector('tr');
+    const newTh = document.createElement('th');
+    newTh.textContent = materialization.name;
+    newTh.dataset.materializationId = materialization.id;
+    headerRow.appendChild(newTh);
+    
+    // 2. Adicionar linha à matriz
+    const newRow = document.createElement('tr');
+    newRow.dataset.materializationId = materialization.id;
+    
+    // Adiciona célula de produto
+    const productCell = document.createElement('td');
+    productCell.className = 'product-name';
+    productCell.textContent = materialization.name;
+    newRow.appendChild(productCell);
+    
+    // Adiciona células para cada coluna existente
+    const columnsCount = headerRow.querySelectorAll('th').length - 1; // -1 porque a primeira coluna é rótulo de linha
+    
+    for (let i = 0; i < columnsCount; i++) {
+        const cell = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.min = '0';
+        input.max = '1';
+        input.step = '0.01';
+        input.value = '0';
+        input.dataset.row = materialization.id;
+        input.dataset.col = headerRow.querySelectorAll('th')[i+1].dataset.materializationId; // +1 para pular a primeira coluna
+        input.className = 'matrix-input';
+        
+        cell.appendChild(input);
+        newRow.appendChild(cell);
+    }
+    
+    tbody.appendChild(newRow);
+    
+    // 3. Adicionar nova célula a cada linha existente
+    tbody.querySelectorAll('tr:not(:last-child)').forEach(row => {
+        const cell = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'number';
+        input.min = '0';
+        input.max = '1';
+        input.step = '0.01';
+        input.value = '0';
+        input.dataset.row = row.dataset.materializationId;
+        input.dataset.col = materialization.id;
+        input.className = 'matrix-input';
+        
+        cell.appendChild(input);
+        row.appendChild(cell);
+    });
+    
+    // Atualizar dados internos da matriz
+    updateMatrixData();
+}
+
+// Função para remover uma materialização
+function removeMaterialization(materializationId) {
+    // Confirmar antes de remover
+    if (!confirm('Tem certeza que deseja remover esta materialização? Isso também removerá a linha e coluna correspondente na matriz tecnológica.')) {
+        return;
+    }
+    
+    // 1. Remover linha da tabela de demanda
+    const demandTable = document.getElementById('demandVector');
+    const demandRow = demandTable.querySelector(`tr[data-materialization-id="${materializationId}"]`);
+    if (demandRow) {
+        demandRow.remove();
+    }
+    
+    // 2. Remover linha e coluna da matriz tecnológica
+    const matrixTable = document.getElementById('technologicalMatrix');
+    
+    // 2.1 Remover coluna (célula em cada linha)
+    const colIndex = getColumnIndex(matrixTable, materializationId);
+    if (colIndex > 0) { // Não remover a primeira coluna (nomes de produtos)
+        matrixTable.querySelectorAll('tr').forEach(row => {
+            const cell = row.cells[colIndex];
+            if (cell) {
+                cell.remove();
+            }
+        });
+    }
+    
+    // 2.2 Remover a linha inteira
+    const matrixRow = matrixTable.querySelector(`tbody tr[data-materialization-id="${materializationId}"]`);
+    if (matrixRow) {
+        matrixRow.remove();
+    }
+    
+    // 2.3 Remover cabeçalho da coluna
+    const headerCell = matrixTable.querySelector(`thead th[data-materialization-id="${materializationId}"]`);
+    if (headerCell) {
+        headerCell.remove();
+    }
+    
+    // 3. Atualizar dados internos
+    updateMatrixAndVectorData();
+}
+
+// Função auxiliar para encontrar o índice da coluna pelo ID da materialização
+function getColumnIndex(table, materializationId) {
+    const headerRow = table.querySelector('thead tr');
+    let columnIndex = -1;
+    
+    if (headerRow) {
+        headerRow.querySelectorAll('th').forEach((th, index) => {
+            if (th.dataset.materializationId === materializationId.toString()) {
+                columnIndex = index;
+            }
+        });
+    }
+    
+    return columnIndex;
+}
+
+// Função para atualizar os dados da matriz e do vetor após modificações
+function updateMatrixAndVectorData() {
+    updateMatrixData();
+    updateVectorData();
+}
+
+// Função para atualizar os dados da matriz tecnológica
+function updateMatrixData() {
+    const matrixTable = document.getElementById('technologicalMatrix');
+    const thead = matrixTable.querySelector('thead');
+    const tbody = matrixTable.querySelector('tbody');
+    
+    // Obter IDs das materializações das colunas
+    const headerRow = thead.querySelector('tr');
+    const columnIds = Array.from(headerRow.querySelectorAll('th'))
+        .slice(1) // Ignorar primeira coluna (rótulo)
+        .map(th => parseInt(th.dataset.materializationId));
+    
+    // Obter IDs das materializações das linhas
+    const rowIds = Array.from(tbody.querySelectorAll('tr'))
+        .map(tr => parseInt(tr.dataset.materializationId));
+    
+    // Reconstruir a matriz tecnológica
+    technologicalMatrix = [];
+    productIds = [...rowIds]; // Copiar os IDs para a variável global
+    productNames = Array.from(tbody.querySelectorAll('tr .product-name'))
+        .map(cell => cell.textContent);
+    
+    // Criar matriz zerada
+    for (let i = 0; i < rowIds.length; i++) {
+        technologicalMatrix[i] = [];
+        for (let j = 0; j < columnIds.length; j++) {
+            technologicalMatrix[i][j] = 0;
+        }
+    }
+    
+    // Preencher matriz com valores dos inputs
+    const inputs = tbody.querySelectorAll('.matrix-input');
+    inputs.forEach(input => {
+        const rowId = parseInt(input.dataset.row);
+        const colId = parseInt(input.dataset.col);
+        
+        const rowIndex = rowIds.indexOf(rowId);
+        const colIndex = columnIds.indexOf(colId);
+        
+        if (rowIndex >= 0 && colIndex >= 0) {
+            technologicalMatrix[rowIndex][colIndex] = parseFloat(input.value) || 0;
+        }
+    });
+}
+
+// Função para atualizar os dados do vetor de demanda
+function updateVectorData() {
+    const demandTable = document.getElementById('demandVector');
+    const tbody = demandTable.querySelector('tbody');
+    
+    // Obter IDs das materializações
+    const rowIds = Array.from(tbody.querySelectorAll('tr'))
+        .map(tr => parseInt(tr.dataset.materializationId));
+    
+    // Reconstruir o vetor de demanda
+    demandVector = [];
+    
+    // Criar vetor zerado
+    for (let i = 0; i < rowIds.length; i++) {
+        demandVector[i] = 0;
+    }
+    
+    // Preencher vetor com valores dos inputs
+    const inputs = tbody.querySelectorAll('.demand-input');
+    inputs.forEach(input => {
+        const id = parseInt(input.dataset.id);
+        const index = rowIds.indexOf(id);
+        
+        if (index >= 0) {
+            demandVector[index] = parseFloat(input.value) || 0;
+        }
+    });
+}
+
+// Função para abrir a modal de cadastro de nova materialização
+function openNewMaterializationModal() {
+    // Limpar campos do formulário
+    document.getElementById('newMaterializationForm').reset();
+    
+    // Limpar mensagens de erro/sucesso anteriores
+    document.getElementById('newMaterializationFormError').style.display = 'none';
+    document.getElementById('newMaterializationFormSuccess').style.display = 'none';
+    
+    // Exibir a modal
+    document.getElementById('newMaterializationModal').style.display = 'block';
+}
+
+// Função para fechar a modal
+function closeNewMaterializationModal() {
+    document.getElementById('newMaterializationModal').style.display = 'none';
+}
+
+// Inicializar o formulário de nova materialização
+function initNewMaterializationForm() {
+    const form = document.getElementById('newMaterializationForm');
+    
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Mostrar spinner
+        document.getElementById('newMaterializationModalSpinner').style.display = 'inline-block';
+        
+        // Obter dados do formulário
+        const formData = {
+            name: document.getElementById('materialName').value.trim(),
+            type: document.getElementById('materialType').value,
+            description: document.getElementById('materialDescription').value.trim(),
+            instanceId: currentInstanceId
+        };
+        
+        // Validar
+        if (!formData.name) {
+            showNewMaterializationError('O nome é obrigatório.');
+            return;
+        }
+        
+        // Enviar para o servidor
+        submitNewMaterialization(formData);
+    });
+}
+
+// Função para enviar nova materialização para o servidor
+async function submitNewMaterialization(formData) {
+    try {
+        // Adicionar o ID da instância ao formData
+        formData.instanceId = currentInstanceId;
+        
+        const response = await fetch('/api/social-materializations', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.message || 'Erro ao cadastrar materialização.');
+        }
+        
+        const result = await response.json();
+        
+        // Mostrar mensagem de sucesso
+        showNewMaterializationSuccess('Materialização cadastrada com sucesso!');
+        
+        // Adicionar a nova materialização à tabela
+        setTimeout(() => {
+            closeNewMaterializationModal();
+            addMaterializationToDemandVector(result);
+        }, 1500);
+    } catch (error) {
+        showNewMaterializationError(error.message);
+    } finally {
+        document.getElementById('newMaterializationModalSpinner').style.display = 'none';
+    }
+}
+
+// Funções para exibir mensagens no formulário
+function showNewMaterializationError(message) {
+    const errorElement = document.getElementById('newMaterializationFormError');
+    errorElement.textContent = message;
+    errorElement.style.display = 'block';
+    document.getElementById('newMaterializationModalSpinner').style.display = 'none';
+}
+
+function showNewMaterializationSuccess(message) {
+    const successElement = document.getElementById('newMaterializationFormSuccess');
+    successElement.textContent = message;
+    successElement.style.display = 'block';
+    document.getElementById('newMaterializationModalSpinner').style.display = 'none';
+}
