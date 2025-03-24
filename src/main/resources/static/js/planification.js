@@ -1009,45 +1009,43 @@ function initAddMaterializationButton() {
     });
 }
 
-// Função corrigida para carregar TODAS as materializações que NÃO estão na tabela
+// Função simplificada para carregar materializações disponíveis
 async function loadAvailableMaterializations() {
     try {
-        // Obtém as materializações já presentes na tabela
-        const existingRows = document.querySelectorAll('#demandVector tbody tr');
-        const existingMaterializationsIds = [];
+        // 1. Coletar nomes das materializações já presentes na tabela
+        const existingNames = [];
+        const rows = document.querySelectorAll('#demandVector tbody tr');
         
-        // Iterar sobre as linhas existentes e extrair os IDs com verificação rigorosa
-        existingRows.forEach(row => {
-            if (row.dataset && row.dataset.materializationId) {
-                const id = parseInt(row.dataset.materializationId);
-                if (!isNaN(id)) {
-                    existingMaterializationsIds.push(id);
-                }
+        // Extrair os nomes das células da primeira coluna de cada linha
+        rows.forEach(row => {
+            const nameCell = row.cells[0]; // A primeira célula contém o nome
+            if (nameCell && nameCell.textContent) {
+                existingNames.push(nameCell.textContent.trim());
             }
         });
         
-        console.log('IDs já existentes na tabela:', existingMaterializationsIds);
+        console.log('Nomes já existentes na tabela:', existingNames);
         
-        // Carrega TODAS as materializações sociais do banco de dados
-        // Utilizando o endpoint que retorna todas as materializações
+        // 2. Buscar todas as materializações do servidor
         const response = await fetch('/api/social-materializations');
         if (!response.ok) {
             throw new Error('Erro ao carregar materializações');
         }
         
         const allMaterializations = await response.json();
-        console.log('Todas as materializações do banco:', allMaterializations);
+        console.log('Todas materializações do servidor:', allMaterializations);
         
-        // Filtra para obter apenas as que NÃO estão na tabela
+        // 3. Filtrar com base no nome - abordagem mais simples e direta
         const availableMats = allMaterializations.filter(mat => 
-            !existingMaterializationsIds.includes(mat.id)
+            !existingNames.includes(mat.name)
         );
         
-        console.log('Materializações disponíveis para adicionar:', availableMats);
+        console.log('Materializações filtradas para o dropdown (por nome):', availableMats);
         return availableMats;
+        
     } catch (error) {
-        console.error('Erro ao carregar materializações disponíveis:', error);
-        showError('Não foi possível carregar as materializações disponíveis: ' + error.message);
+        console.error('Erro ao carregar materializações:', error);
+        showError('Erro ao carregar materializações: ' + error.message);
         return [];
     }
 }
