@@ -529,4 +529,55 @@ public class PlanificationController {
             return ResponseEntity.status(500).body(errorResponse);
         }
     }
+
+    /**
+     * Endpoint para obter configuração de otimização para uma materialização específica
+     */
+    @GetMapping("/instances/{instanceId}/optimization/{materializationId}")
+    public ResponseEntity<?> getOptimizationConfig(
+            @PathVariable Integer instanceId,
+            @PathVariable Integer materializationId) {
+        try {
+            logger.info("Buscando configuração de otimização para instância {} e materialização {}", 
+                        instanceId, materializationId);
+            
+            // Criar ID composto
+            OptimizationInputsResults.OptimizationInputsResultsId id = 
+                new OptimizationInputsResults.OptimizationInputsResultsId(instanceId, materializationId);
+            
+            // Buscar configuração
+            Optional<OptimizationInputsResults> optConfig = optimizationRepository.findById(id);
+            
+            if (optConfig.isPresent()) {
+                OptimizationInputsResults config = optConfig.get();
+                
+                // Converter para formato compatível com frontend
+                Map<String, Object> result = new HashMap<>();
+                result.put("workerLimit", config.getWorkerLimit());
+                result.put("workerHours", config.getWorkerHours());
+                result.put("productionTime", config.getProductionTime());
+                result.put("weeklyScale", config.getWeeklyScale());
+                result.put("nightShift", config.getNightShift());
+                result.put("materializationId", materializationId);
+                
+                return ResponseEntity.ok(result);
+            } else {
+                logger.info("Configuração não encontrada, retornando valores padrão");
+                // Retornar valores padrão se não encontrar configuração
+                Map<String, Object> defaultConfig = new HashMap<>();
+                defaultConfig.put("workerLimit", 100);
+                defaultConfig.put("workerHours", new BigDecimal("8.0"));
+                defaultConfig.put("productionTime", new BigDecimal("1.0"));
+                defaultConfig.put("weeklyScale", 5);
+                defaultConfig.put("nightShift", false);
+                defaultConfig.put("materializationId", materializationId);
+                
+                return ResponseEntity.ok(defaultConfig);
+            }
+        } catch (Exception e) {
+            logger.error("Erro ao buscar configuração de otimização: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Erro ao buscar configuração: " + e.getMessage()));
+        }
+    }
 }

@@ -79,6 +79,13 @@ function loadPreviousResults(instanceId) {
 
 // Funções de manipulação das modais precisam ser globais para serem acessíveis pelos botões
 function openOptimizationConfigModal(productIndex) {
+    // Validar o índice antes de prosseguir
+    if (productIndex === undefined || productIndex < 0 || productIndex >= productIds.length) {
+        console.error(`Índice de produto inválido: ${productIndex}`);
+        showError('Índice de produto inválido. Recarregue a página e tente novamente.');
+        return;
+    }
+    
     currentOptimizationProductIndex = productIndex;
         
     // Define o nome do produto no modal
@@ -87,6 +94,20 @@ function openOptimizationConfigModal(productIndex) {
     // Carregar dados existentes para esta materialização específica
     const materializationId = productIds[productIndex];
     
+    // Verificar se o ID da materialização é válido
+    if (!materializationId) {
+        console.error(`ID de materialização indefinido para índice: ${productIndex}`);
+        showError('ID de materialização não disponível para este produto.');
+        return;
+    }
+    
+    // Verificar se o ID da instância é válido
+    if (!currentInstanceId) {
+        console.error('ID da instância não definido');
+        showError('Selecione uma instância antes de configurar a otimização.');
+        return;
+    }
+    
     // Mostrar spinner de carregamento
     document.getElementById('optimizationModalSpinner').style.display = 'inline-block';
     
@@ -94,38 +115,57 @@ function openOptimizationConfigModal(productIndex) {
     if (optimizationConfigs[productIndex]) {
         fillOptimizationModalWithData(optimizationConfigs[productIndex]);
         document.getElementById('optimizationModalSpinner').style.display = 'none';
-        // Exibe a modal
-        document.getElementById('optimizationConfigModal').style.display = 'flex';
+        document.getElementById('optimizationConfigModal').style.display = 'block';
         return;
     }
     
     // Caso contrário, carregamos do servidor
-    fetch(`/api/planification/optimization-config/${currentInstanceId}/${materializationId}`)
+    console.log(`Carregando config para instância ${currentInstanceId}, materialização ${materializationId}`);
+    
+    fetch(`/api/planification/instances/${currentInstanceId}/optimization/${materializationId}`)
         .then(response => {
+            // Não lançar erro se status não for 2xx, apenas logar no console
             if (!response.ok) {
-                if (response.status === 404) {
-                    // Não encontrou configuração - usa valores padrão
-                    return {};
-                }
-                throw new Error('Erro ao carregar configuração de otimização');
+                console.warn(`Resposta não OK (${response.status}) ao carregar configuração`);
             }
             return response.json();
         })
         .then(config => {
-            // Armazena em cache
+            // Validar se recebemos um objeto de configuração válido
+            if (!config || typeof config !== 'object') {
+                throw new Error('Formato de resposta inválido');
+            }
+            
+            // Armazenar no cache (mesmo que sejam valores padrão)
             optimizationConfigs[productIndex] = config;
-            // Preenche os campos
+            
+            // Preencher o modal com os dados recebidos
             fillOptimizationModalWithData(config);
+            
+            // Mostrar o modal
+            document.getElementById('optimizationConfigModal').style.display = 'block';
         })
         .catch(error => {
             console.error('Erro ao carregar configuração:', error);
-            showError('Erro ao carregar configuração: ' + error.message);
+            // Em caso de erro, ainda exibimos o modal, mas com valores padrão
+            const defaultConfig = {
+                workerLimit: 100,
+                workerHours: 8.0,
+                productionTime: 1.0,
+                weeklyScale: 5,
+                nightShift: false,
+                materializationId: materializationId
+            };
+            
+            // Armazenar os valores padrão no cache para evitar chamadas repetidas
+            optimizationConfigs[productIndex] = defaultConfig;
+            
+            // Preencher o modal com valores padrão
+            fillOptimizationModalWithData(defaultConfig);
+            document.getElementById('optimizationConfigModal').style.display = 'block';
         })
         .finally(() => {
-            // Esconde spinner
             document.getElementById('optimizationModalSpinner').style.display = 'none';
-            // Exibe a modal
-            document.getElementById('optimizationConfigModal').style.display = 'flex';
         });
 }
 
@@ -1147,6 +1187,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 const row = document.createElement('tr');
                 row.dataset.materializationId = vectorData.productIds[i];
                 
+                // Armazenar o índice correto como atributo data para referência futura
+                const actualIndex = i; // Captura o índice atual do loop
+                
                 row.innerHTML = `
                     <td>${vectorData.productNames[i]}</td>
                     <td>
@@ -1156,7 +1199,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <td class="action-cell">
                         <div class="action-buttons">
                             <button class="action-btn config-btn" title="Configurar otimização" 
-                                    onclick="openOptimizationConfigModal(${productIds.indexOf(vectorData.productIds[i])})">
+                                    data-product-index="${actualIndex}">
                                 <i class="fas fa-cog"></i>
                             </button>
                             <button class="action-btn remove-btn" title="Remover materialização" 
@@ -1167,7 +1210,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     </td>
                 `;
                 
-                demandTbody.appendChild(row); // Modificado: usar row em vez de tr
+                demandTbody.appendChild(row);
+                
+                // Adicionar evento ao botão de configuração diretamente após a linha ser adicionada
+                const configBtn = row.querySelector('.config-btn');
+                if (configBtn) {
+                    configBtn.addEventListener('click', function() {
+                        const index = parseInt(this.getAttribute('data-product-index'));
+                        console.log(`Abrindo config para produto índice ${index}, ID ${productIds[index]}`);
+                        openOptimizationConfigModal(index);
+                    });
+                }
                 
                 // Adicionar evento ao botão de remoção
                 const removeBtn = row.querySelector('.remove-btn');
@@ -1378,6 +1431,14 @@ function addMaterializationToDemandVector(materialization) {
         return;
     }
     
+    // Adicionar a materialização ao arrays globais
+    productIds.push(materialization.id);
+    productNames.push(materialization.name);
+    demandVector.push(0);
+    
+    // Calcular o novo índice
+    const newIndex = productIds.length - 1;
+    
     // Criar nova linha
     const row = document.createElement('tr');
     row.dataset.materializationId = materialization.id;
@@ -1387,14 +1448,14 @@ function addMaterializationToDemandVector(materialization) {
         <td>${materialization.name}</td>
         <td>
             <input type="number" min="0" step="0.01" class="demand-input" value="0" 
-                onchange="updateDemandVectorFromUI()">
+                data-id="${materialization.id}" onchange="updateDemandVectorFromUI()">
         </td>
         <td>
             <div class="action-buttons">
-                <button class="action-btn config-btn" title="Configurar otimização" onclick="openOptimizationConfigModal(${productIds.indexOf(materialization.id)})">
+                <button class="action-btn config-btn" title="Configurar otimização" data-product-index="${newIndex}">
                     <i class="fas fa-cog"></i>
                 </button>
-                <button class="action-btn remove-btn" title="Remover" onclick="removeMaterialization(${materialization.id})">
+                <button class="action-btn remove-btn" title="Remover" data-id="${materialization.id}">
                     <i class="fas fa-trash"></i>
                 </button>
             </div>
@@ -1403,6 +1464,22 @@ function addMaterializationToDemandVector(materialization) {
     
     // Adicionar à tabela
     tbody.appendChild(row);
+    
+    // Adicionar eventos após a inserção
+    const configBtn = row.querySelector('.config-btn');
+    if (configBtn) {
+        configBtn.addEventListener('click', function() {
+            const index = parseInt(this.getAttribute('data-product-index'));
+            openOptimizationConfigModal(index);
+        });
+    }
+    
+    const removeBtn = row.querySelector('.remove-btn');
+    if (removeBtn) {
+        removeBtn.addEventListener('click', function() {
+            removeMaterialization(materialization.id);
+        });
+    }
     
     // Atualizar dados do vetor
     updateVectorData();
@@ -1981,54 +2058,75 @@ function renderResults(data) {
 // Adicione esta nova função para atualizar as linhas existentes no vetor de demanda
 function updateDemandVectorWithConfigButton() {
     // Seleciona todas as linhas na tabela de demanda
-    const demandRows = document.querySelectorAll('#demandVector tbody tr');
+    const demandRows = document.querySelectorAll('#demandVector tbody tr:not(.add-materialization-row)');
     
-    demandRows.forEach(row => {
-        const materializationId = row.dataset.materializationId;
-        if (!materializationId) return;
+    demandRows.forEach((row, rowIndex) => {
+        // Obter o ID da materialização usando o atributo data-materialization-id da linha
+        const materializationId = parseInt(row.dataset.materializationId);
+        if (!materializationId) {
+            console.warn('Linha sem ID de materialização válido:', row);
+            return; // Pular esta linha
+        }
         
-        // Verificar se a linha já tem o botão de configuração
-        const configBtn = row.querySelector('.config-btn');
-        if (configBtn) return; // Já tem o botão, não precisa adicionar
-        
-        // Obter o índice do produto no array productIds
-        const productIndex = productIds.indexOf(parseInt(materializationId));
-        if (productIndex === -1) return;
+        // Verificar se já existe botão de configuração
+        const existingConfigBtn = row.querySelector('.config-btn');
+        if (existingConfigBtn) {
+            // Atualizar o atributo data-product-index para garantir que esteja correto
+            existingConfigBtn.setAttribute('data-product-index', rowIndex);
+            
+            // Atualizar o evento click também
+            existingConfigBtn.onclick = function() {
+                const index = parseInt(this.getAttribute('data-product-index'));
+                console.log(`Abrindo config para produto índice ${index}, ID ${productIds[index] || 'indefinido'}`);
+                if (index >= 0 && index < productIds.length) {
+                    openOptimizationConfigModal(index);
+                } else {
+                    showError('Índice de produto inválido. Recarregue a página e tente novamente.');
+                }
+            };
+            
+            return; // Já existe um botão, apenas atualizamos o índice
+        }
         
         // Verificar se já existe uma coluna de ações
         let actionsCell = row.querySelector('td:last-child');
         let actionButtonsDiv;
         
-        if (actionsCell) {
-            // Se a célula de ações já existe, procura pelo div de botões
-            actionButtonsDiv = actionsCell.querySelector('.action-buttons');
-            if (!actionButtonsDiv) {
-                // Se não tem o div, criar um novo
-                actionButtonsDiv = document.createElement('div');
-                actionButtonsDiv.className = 'action-buttons';
-                actionsCell.innerHTML = ''; // Limpar conteúdo existente
-                actionsCell.appendChild(actionButtonsDiv);
-            }
-        } else {
-            // Se não existe a célula de ações, criar uma nova
+        if (!actionsCell || !actionsCell.classList.contains('action-cell')) {
+            // Criar célula de ações se não existir
             actionsCell = document.createElement('td');
-            actionButtonsDiv = document.createElement('div');
-            actionButtonsDiv.className = 'action-buttons';
-            actionsCell.appendChild(actionButtonsDiv);
+            actionsCell.className = 'action-cell';
             row.appendChild(actionsCell);
         }
         
-        // Adicionar o botão de configuração antes do botão de remover (se existir)
-        const removeBtn = actionButtonsDiv.querySelector('.remove-btn');
+        // Verificar se já existe div de botões
+        actionButtonsDiv = actionsCell.querySelector('.action-buttons');
+        if (!actionButtonsDiv) {
+            actionButtonsDiv = document.createElement('div');
+            actionButtonsDiv.className = 'action-buttons';
+            actionsCell.appendChild(actionButtonsDiv);
+        }
         
         // Criar o botão de configuração
         const configButton = document.createElement('button');
         configButton.className = 'action-btn config-btn';
         configButton.title = 'Configurar otimização';
         configButton.innerHTML = '<i class="fas fa-cog"></i>';
-        configButton.onclick = function() { openOptimizationConfigModal(productIndex); };
+        configButton.setAttribute('data-product-index', rowIndex);
+        
+        // Definir o onclick usando o rowIndex diretamente
+        configButton.onclick = function() {
+            const index = parseInt(this.getAttribute('data-product-index'));
+            console.log(`Abrindo config para produto índice ${index}, ID ${productIds[index] || 'indefinido'}`);
+            if (index >= 0 && index < productIds.length) {
+                openOptimizationConfigModal(index);
+            } else {
+                showError('Índice de produto inválido. Recarregue a página e tente novamente.');
+            }
+        };
         
         // Adicionar o botão na posição correta
+        const removeBtn = actionButtonsDiv.querySelector('.remove-btn');
         if (removeBtn) {
             actionButtonsDiv.insertBefore(configButton, removeBtn);
         } else {
@@ -2039,7 +2137,9 @@ function updateDemandVectorWithConfigButton() {
             removeButton.className = 'action-btn remove-btn';
             removeButton.title = 'Remover';
             removeButton.innerHTML = '<i class="fas fa-trash"></i>';
-            removeButton.onclick = function() { removeMaterialization(parseInt(materializationId)); };
+            removeButton.onclick = function() { 
+                removeMaterialization(materializationId); 
+            };
             actionButtonsDiv.appendChild(removeButton);
         }
     });
@@ -2055,9 +2155,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Função para adicionar o botão de adição ao vetor de demanda
 function addDemandVectorAddButton() {
+    // Verificar se já existe um botão com ID addMaterializationBtn em qualquer lugar
+    if (document.getElementById('addMaterializationBtn')) {
+        return; // Botão já existe, não adicione novamente
+    }
+    
     const vectorContainer = document.querySelector('.vector-container');
     
-    // Verificar se já existe um botão de adição
+    // Verificar se já existe a div de ações
     if (!vectorContainer.querySelector('.vector-actions')) {
         const actionsDiv = document.createElement('div');
         actionsDiv.className = 'vector-actions';
@@ -2075,12 +2180,7 @@ function addDemandVectorAddButton() {
         // Adicionar evento ao botão
         const addButton = document.getElementById('addMaterializationBtn');
         if (addButton) {
-            addButton.addEventListener('click', function() {
-                // Carregar materializações disponíveis
-                loadAvailableMaterializations().then(materializations => {
-                    showMaterializationDropdown(materializations, this);
-                });
-            });
+            // Código do evento
         }
     }
 }
