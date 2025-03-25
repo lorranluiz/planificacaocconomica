@@ -342,11 +342,38 @@ public class PlanificationController {
      * Endpoint para salvar um valor no vetor de demanda
      */
     @PostMapping("/demand-vector")
-    public ResponseEntity<DemandVector> saveDemandVector(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<?> saveDemandVector(@RequestBody Map<String, Object> payload) {
         try {
-            Integer instanceId = ((Number) payload.get("instanceId")).intValue();
-            Integer materializationId = ((Number) payload.get("materializationId")).intValue();
-            BigDecimal quantity = new BigDecimal(payload.get("quantity").toString());
+            // Safe conversion of instanceId
+            Integer instanceId = null;
+            if (payload.get("instanceId") instanceof Number) {
+                instanceId = ((Number) payload.get("instanceId")).intValue();
+            } else if (payload.get("instanceId") instanceof String) {
+                instanceId = Integer.parseInt((String) payload.get("instanceId"));
+            } else {
+                throw new IllegalArgumentException("instanceId deve ser um número válido");
+            }
+
+            // Safe conversion of materializationId
+            Integer materializationId = null;
+            if (payload.get("materializationId") instanceof Number) {
+                materializationId = ((Number) payload.get("materializationId")).intValue();
+            } else if (payload.get("materializationId") instanceof String) {
+                materializationId = Integer.parseInt((String) payload.get("materializationId"));
+            } else {
+                throw new IllegalArgumentException("materializationId deve ser um número válido");
+            }
+
+            // Safe conversion of quantity to BigDecimal
+            BigDecimal quantity;
+            Object quantityObj = payload.get("quantity");
+            if (quantityObj instanceof Number) {
+                quantity = new BigDecimal(quantityObj.toString());
+            } else if (quantityObj instanceof String) {
+                quantity = new BigDecimal((String) quantityObj);
+            } else {
+                quantity = BigDecimal.ZERO; // Default to zero if invalid
+            }
             
             // Buscar entidades relacionadas
             SocialMaterialization materialization = materializationRepository.findById(materializationId)
@@ -374,7 +401,16 @@ public class PlanificationController {
             }
             
             DemandVector savedVector = demandVectorRepository.save(demandVector);
-            return ResponseEntity.ok(savedVector);
+            
+            // Return a simplified response instead of the entity to avoid circular references
+            Map<String, Object> response = new HashMap<>();
+            response.put("instanceId", instanceId);
+            response.put("materializationId", materializationId);
+            response.put("materializationName", materialization.getName());
+            response.put("demand", savedVector.getDemand());
+            response.put("createdAt", savedVector.getCreatedAt());
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -505,7 +541,10 @@ public class PlanificationController {
             @PathVariable Integer materializationId,
             @PathVariable Integer instanceId) {
         try {
-            // Criar o ID composto
+            logger.info("Excluindo vetor de demanda para materialização {} na instância {}", 
+                        materializationId, instanceId);
+            
+            // Criar o ID composto para o vetor de demanda
             DemandVector.DemandVectorId id = new DemandVector.DemandVectorId(materializationId, instanceId);
             
             // Verificar se existe
@@ -516,14 +555,22 @@ public class PlanificationController {
                 return ResponseEntity.status(404).body(response);
             }
             
-            // Excluir
+            // Excluir o vetor de demanda
             demandVectorRepository.deleteById(id);
             
+            // IMPORTANTE: Também excluir os tensores relacionados a esta materialização
+            // para garantir integridade referencial completa
+            List<TechnologicalTensor> tensorsToDelete = tensorRepository.findByInstanceIdAndMaterializationId(
+                    instanceId, materializationId);
+            
+            logger.info("Excluindo também {} tensores tecnológicos relacionados", tensorsToDelete.size());
+            tensorRepository.deleteAll(tensorsToDelete);
+            
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Vetor de demanda excluído com sucesso");
+            response.put("message", "Vetor de demanda e tensores tecnológicos relacionados excluídos com sucesso");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            e.printStackTrace();
+            logger.error("Erro ao excluir vetor de demanda: {}", e.getMessage(), e);
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("message", "Erro ao excluir vetor de demanda: " + e.getMessage());
             return ResponseEntity.status(500).body(errorResponse);

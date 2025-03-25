@@ -80,8 +80,7 @@ function loadPreviousResults(instanceId) {
 // Funções de manipulação das modais precisam ser globais para serem acessíveis pelos botões
 function openOptimizationConfigModal(productIndex) {
     // Validar o índice antes de prosseguir
-    if (productIndex === undefined || productIndex < 0 || productIndex >= productIds.length) {
-        console.error(`Índice de produto inválido: ${productIndex}`);
+    if (!validateProductIndex(productIndex)) {
         showError('Índice de produto inválido. Recarregue a página e tente novamente.');
         return;
     }
@@ -246,6 +245,12 @@ function saveOptimizationConfig() {
 
 // Função para exibir detalhes de otimização
 function openOptimizationResultModal(index) {
+    // Validar o índice antes de prosseguir
+    if (!validateProductIndex(index)) {
+        showError('Índice de produto inválido. Recarregue a página e tente novamente.');
+        return;
+    }
+    
     // Ajuste importante: garantir que o índice seja usado para obter os dados corretos
     const materializationId = productIds[index];
     
@@ -529,6 +534,137 @@ function renderProductionVector(productionVector) {
     resultsContainer.style.display = 'block';
 }
 
+// Function to validate product indices
+function validateProductIndex(index) {
+    if (index === undefined || index === null || isNaN(index) || 
+        index < 0 || index >= productIds.length) {
+        console.error(`Índice de produto inválido: ${index}`);
+        console.log("productIds.length =", productIds.length);
+        console.log("productIds =", productIds);
+        return false;
+    }
+    return true;
+}
+
+// Function to render the technological matrix
+function renderTechnologicalMatrix() {
+    if (!technologicalMatrix || !productNames) return;
+    
+    const technologicalMatrixTable = document.getElementById('technologicalMatrix');
+    if (!technologicalMatrixTable) {
+        console.error("Tabela de matriz tecnológica não encontrada");
+        return;
+    }
+    
+    // Limpar tabela
+    technologicalMatrixTable.querySelector('thead tr').innerHTML = '<th></th>';
+    technologicalMatrixTable.querySelector('tbody').innerHTML = '';
+    
+    // Adicionar cabeçalhos de colunas
+    productNames.forEach(name => {
+        const th = document.createElement('th');
+        th.textContent = name;
+        technologicalMatrixTable.querySelector('thead tr').appendChild(th);
+    });
+    
+    // Adicionar linhas com valores
+    technologicalMatrix.forEach((row, rowIndex) => {
+        const tr = document.createElement('tr');
+        
+        // Adicionar nome do produto como primeira célula
+        const headerCell = document.createElement('th');
+        headerCell.textContent = productNames[rowIndex];
+        tr.appendChild(headerCell);
+        
+        // Adicionar valores da matriz
+        row.forEach((value, colIndex) => {
+            const td = document.createElement('td');
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.step = '0.01';
+            input.value = value;
+            input.dataset.row = rowIndex;
+            input.dataset.col = colIndex;
+            input.addEventListener('change', function() {
+                technologicalMatrix[rowIndex][colIndex] = parseFloat(this.value) || 0;
+            });
+            td.appendChild(input);
+            tr.appendChild(td);
+        });
+        
+        technologicalMatrixTable.querySelector('tbody').appendChild(tr);
+    });
+}
+
+// Function to render optimization results - moved to global scope
+function renderOptimizationResults(optimizationResults) {
+    // This is a simplified version - just logging the results
+    console.log("Optimization results:", optimizationResults);
+    
+    // In a complete implementation, you would:
+    // 1. Find or create a container for the optimization results
+    // 2. Render a table or cards showing the optimization details
+    // 3. Add visualizations like charts if needed
+    
+    // Since we're now using the more complete renderProductionVector function,
+    // which already includes the optimization results, this function can be minimal
+}
+
+// Function to render demand vector - moved to global scope
+function renderDemandVector() {
+    if (!demandVector || !productNames) return;
+    
+    const demandVectorTable = document.getElementById('demandVector');
+    if (!demandVectorTable) {
+        console.error("Table element for demand vector not found");
+        return;
+    }
+    
+    // Limpar tabela
+    const tbody = demandVectorTable.querySelector('tbody');
+    if (!tbody) {
+        console.error("Tbody element not found in demand vector table");
+        return;
+    }
+    tbody.innerHTML = '';
+    
+    // Modificar cabeçalhos para incluir a coluna de ação
+    const thead = demandVectorTable.querySelector('thead tr');
+    if (thead) {
+        thead.innerHTML = `
+            <th>Materialização Social</th>
+            <th>Demanda Final</th>
+            <th>Ação</th>
+        `;
+    }
+    
+    // Adicionar linhas com valores
+    demandVector.forEach((value, index) => {
+        const row = document.createElement('tr');
+        // Add data attribute for the materialization ID
+        row.dataset.materializationId = productIds[index];
+        
+        const hasConfig = optimizationConfigs[index] !== undefined;
+        row.innerHTML = `
+            <td>${productNames[index]}</td>
+            <td>
+                <input type="number" step="0.01" min="0" value="${value}" 
+                      onchange="updateDemandVector(${index}, this.value)" />
+            </td>
+            <td class="action-buttons">
+                <button class="btn btn-sm ${hasConfig ? 'btn-success' : ''}" onclick="openOptimizationConfigModal(${index})">
+                    <i class="fas fa-cogs"></i>
+                </button>
+                <button class="btn btn-sm remove-btn" onclick="removeMaterialization(${productIds[index]})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </td>
+        `;
+        
+        tbody.appendChild(row);
+    });
+}
+
 // Mantém o restante do código dentro do evento DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
     // Inicializar cabeçalho comum - APENAS UMA VEZ
@@ -617,7 +753,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 productNames = data.productNames;
                 productIds = data.productIds;
                 
-                // Renderizar a matriz na tabela
+                // Renderizar a matriz na tabela - now uses global function
                 renderTechnologicalMatrix();
             });
     }
@@ -634,95 +770,53 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
-                demandVector = data.vector;
+                console.log("Raw demand vector data:", data); // Debug the raw data
+                
+                // Ensure vector data exists
+                if (!data.vector || !Array.isArray(data.vector)) {
+                    console.error("Vector data is missing or not an array");
+                    demandVector = [];
+                    return;
+                }
+                
+                // Clear existing demand vector
+                demandVector = [];
+                
+                // Process each value carefully
+                data.vector.forEach((val, index) => {
+                    let numValue = 0;
+                    
+                    try {
+                        if (typeof val === 'number') {
+                            numValue = val;
+                        } else if (typeof val === 'string') {
+                            numValue = parseFloat(val);
+                        } else if (val && typeof val === 'object') {
+                            // Handle BigDecimal JSON structure
+                            if (val.scale !== undefined && val.value !== undefined) {
+                                // This is likely a Jackson serialized BigDecimal
+                                numValue = parseFloat(val.value) / Math.pow(10, val.scale);
+                            } else {
+                                // Try to convert using toString()
+                                numValue = parseFloat(val.toString());
+                            }
+                        }
+                    } catch (e) {
+                        console.warn(`Error converting demand value at index ${index}:`, e);
+                    }
+                    
+                    // Ensure we have a valid number (default to 0 if NaN)
+                    numValue = isNaN(numValue) ? 0 : numValue;
+                    demandVector.push(numValue);
+                });
+                
+                console.log("Processed demand vector:", demandVector);
                 
                 // Renderizar o vetor na tabela
                 renderDemandVector();
             });
     }
     
-    /**
-     * Renderiza a matriz tecnológica na tabela HTML
-     */
-    function renderTechnologicalMatrix() {
-        if (!technologicalMatrix || !productNames) return;
-        
-        // Limpar tabela
-        technologicalMatrixTable.querySelector('thead tr').innerHTML = '<th></th>';
-        technologicalMatrixTable.querySelector('tbody').innerHTML = '';
-        
-        // Adicionar cabeçalhos de colunas
-        productNames.forEach(name => {
-            const th = document.createElement('th');
-            th.textContent = name;
-            technologicalMatrixTable.querySelector('thead tr').appendChild(th);
-        });
-        
-        // Adicionar linhas com valores
-        technologicalMatrix.forEach((row, rowIndex) => {
-            const tr = document.createElement('tr');
-            
-            // Adicionar nome do produto como primeira célula
-            const headerCell = document.createElement('th');
-            headerCell.textContent = productNames[rowIndex];
-            tr.appendChild(headerCell);
-            
-            // Adicionar valores da matriz
-            row.forEach((value, colIndex) => {
-                const td = document.createElement('td');
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.step = '0.01';
-                input.value = value;
-                input.dataset.row = rowIndex;
-                input.dataset.col = colIndex;
-                input.addEventListener('change', function() {
-                    technologicalMatrix[rowIndex][colIndex] = parseFloat(this.value) || 0;
-                });
-                td.appendChild(input);
-                tr.appendChild(td);
-            });
-            
-            technologicalMatrixTable.querySelector('tbody').appendChild(tr);
-        });
-    }
-    
-    /**
-     * Renderiza o vetor de demanda na tabela HTML
-     */
-    function renderDemandVector() {
-        if (!demandVector || !productNames) return;
-        
-        // Limpar tabela
-        demandVectorTable.querySelector('tbody').innerHTML = '';
-        
-        // Modificar cabeçalhos para incluir a coluna de ação
-        demandVectorTable.querySelector('thead tr').innerHTML = `
-            <th>Materialização Social</th>
-            <th>Demanda Final</th>
-            <th>Ação</th>
-        `;
-        
-        // Adicionar linhas com valores
-        demandVector.forEach((value, index) => {
-            const row = document.createElement('tr');
-            const hasConfig = optimizationConfigs[index] !== undefined;
-            row.innerHTML = `
-                <td>${productNames[index]}</td>
-                <td>
-                    <input type="number" step="0.01" min="0" value="${value}" 
-                           onchange="updateDemandVector(${index}, this.value)" />
-                </td>
-                <td>
-                    <button class="btn btn-sm ${hasConfig ? 'btn-success' : ''}" onclick="openOptimizationConfigModal(${index})">
-                        <i class="fas fa-cogs"></i> ${hasConfig ? 'Editar' : 'Configurar'} Otimização
-                    </button>
-                </td>
-            `;
-            demandVectorTable.querySelector('tbody').appendChild(row);
-        });
-    }
-
     /**
      * Carrega configurações de otimização existentes para a instância atual
      */
@@ -960,30 +1054,29 @@ document.addEventListener('DOMContentLoaded', function() {
             // 1. Atualizar variáveis com os dados atuais da interface
             updateMatrixAndVectorData();
             
-            // 2. Obter os IDs das materializações atualmente na tabela
-            const currentMaterializationIds = Array.from(
-                document.querySelectorAll('#demandVector tbody tr')
-            ).map(row => {
-                const idStr = row.dataset.materializationId;
-                return idStr ? parseInt(idStr) : null;
-            }).filter(id => id && !isNaN(id));
+            // 2. Prepare all promises that will be executed
+            const allPromises = [];
             
-            console.log("IDs atuais na tabela:", currentMaterializationIds);
-            
-            // 3. Determinar quais materializações foram excluídas 
-            // Comparando IDs originais com os atuais na tabela
-            const removedIds = [];
-            if (window.originalMaterializationIds) {
-                removedIds.push(...window.originalMaterializationIds.filter(
-                    id => !currentMaterializationIds.includes(id)
-                ));
+            // 3. Create deletion promises for the tracked removed materializations
+            if (window.removedMaterializationIds && window.removedMaterializationIds.length > 0) {
+                console.log("Excluindo materializações removidas:", window.removedMaterializationIds);
+                
+                window.removedMaterializationIds.forEach(materializationId => {
+                    // Delete this materialization from the technological matrix
+                    const deleteTensorPromise = fetch(`/api/planification/technological-tensor/by-materialization/${materializationId}/instance/${currentInstanceId}`, {
+                        method: 'DELETE'
+                    });
+                    allPromises.push(deleteTensorPromise);
+                    
+                    // Delete this materialization from the demand vector
+                    const deleteDemandPromise = fetch(`/api/planification/demand-vector/${materializationId}/instance/${currentInstanceId}`, {
+                        method: 'DELETE'
+                    });
+                    allPromises.push(deleteDemandPromise);
+                });
             }
             
-            console.log("IDs removidos:", removedIds);
-            
-            // 4. Criar promessas para salvar/atualizar cada entrada da matriz
-            const matrixPromises = [];
-            
+            // 4. Create promises to save/update each entry in the technological matrix
             for (let i = 0; i < technologicalMatrix.length; i++) {
                 const rowId = productIds[i];
                 
@@ -991,7 +1084,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     const colId = productIds[j];
                     const value = technologicalMatrix[i][j];
                     
-                    matrixPromises.push(
+                    allPromises.push(
                         fetch('/api/planification/technological-tensor', {
                             method: 'POST',
                             headers: {
@@ -1008,14 +1101,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             }
             
-            // 5. Criar promessas para salvar/atualizar cada entrada do vetor de demanda
-            const vectorPromises = [];
-            
+            // 5. Create promises to save/update each entry in the demand vector
             for (let i = 0; i < demandVector.length; i++) {
                 const materializationId = productIds[i];
                 const value = demandVector[i];
                 
-                vectorPromises.push(
+                allPromises.push(
                     fetch('/api/planification/demand-vector', {
                         method: 'POST',
                         headers: {
@@ -1024,43 +1115,27 @@ document.addEventListener('DOMContentLoaded', function() {
                         body: JSON.stringify({
                             materializationId: materializationId,
                             instanceId: currentInstanceId,
-                            demand: value
+                            quantity: value
                         })
                     })
                 );
             }
             
-            // 6. Criar promessas para excluir as materializações removidas
-            const deletePromises = [];
-            
-            for (const id of removedIds) {
-                // Excluir da matriz tecnológica (deleta linha e coluna)
-                deletePromises.push(
-                    fetch(`/api/planification/technological-tensor/by-materialization/${id}/instance/${currentInstanceId}`, {
-                        method: 'DELETE'
-                    })
-                );
-                
-                // Excluir do vetor de demanda
-                deletePromises.push(
-                    fetch(`/api/planification/demand-vector/${id}/instance/${currentInstanceId}`, {
-                        method: 'DELETE'
-                    })
-                );
-            }
-            
-            // 7. Executar todas as promessas
-            Promise.all([...matrixPromises, ...vectorPromises, ...deletePromises])
+            // 6. Execute all promises
+            Promise.all(allPromises)
                 .then(responses => {
-                    // Verificar se todas as respostas foram bem-sucedidas
+                    // Check if all responses were successful
                     const hasErrors = responses.some(res => !res.ok);
                     
                     if (hasErrors) {
                         throw new Error("Alguns dados não puderam ser salvos");
                     }
                     
-                    // Atualizar a lista de IDs originais
-                    window.originalMaterializationIds = [...currentMaterializationIds];
+                    // Clear the removed materializations list after successful save
+                    window.removedMaterializationIds = [];
+                    
+                    // Update the original IDs reference to match current state
+                    window.originalMaterializationIds = [...productIds];
                     
                     showSuccess("Dados salvos com sucesso!");
                 })
@@ -1069,7 +1144,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     showError("Erro ao salvar dados: " + error.message);
                 })
                 .finally(() => {
-                    // Ocultar spinner de carregamento
+                    // Hide loading spinner
                     document.getElementById('loadingSpinner').style.display = 'none';
                 });
         } catch (error) {
@@ -1078,40 +1153,22 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('loadingSpinner').style.display = 'none';
         }
     }
-    
-    /**
-     * Exibe mensagem de erro
-     */
-    function showError(message) {
-        const notification = document.createElement('div');
-        notification.className = 'error-notification';
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        
-        // Remover após alguns segundos
-        setTimeout(() => {
-            notification.classList.add('fade-out');
-            setTimeout(() => notification.remove(), 500);
-        }, 3000);
-    }
-    
-    /**
-     * Exibe mensagem de sucesso
-     */
-    function showSuccess(message) {
-        const notification = document.createElement('div');
-        notification.className = 'success-notification';
-        notification.textContent = message;
-        document.body.appendChild(notification);
-        
-        // Remover após alguns segundos
-        setTimeout(() => {
-            notification.classList.add('fade-out');
-            setTimeout(() => notification.remove(), 500);
-        }, 3000);
+
+    // Function to ensure we have valid indices before accessing elements
+    function validateProductIndex(index) {
+        if (index === undefined || index === null || isNaN(index) || 
+            index < 0 || index >= productIds.length) {
+            console.error(`Índice de produto inválido: ${index}`);
+            console.log("productIds.length =", productIds.length);
+            console.log("productIds =", productIds);
+            return false;
+        }
+        return true;
     }
 
-    // Modificar a função loadInstanceData para carregar os resultados anteriores automaticamente
+    /**
+     * Carrega todos os dados da instância selecionada
+     */
     function loadInstanceData(instanceId) {
         currentInstanceId = instanceId;
         
@@ -1121,441 +1178,235 @@ document.addEventListener('DOMContentLoaded', function() {
         // Limpar resultados anteriores
         document.getElementById('results').style.display = 'none';
         
+        // Limpar configurações de otimização existentes
+        Object.keys(optimizationConfigs).forEach(key => delete optimizationConfigs[key]);
+        
+        // Carregar matriz tecnológica e vetor de demanda em paralelo
         Promise.all([
-            fetch(`/api/planification/instances/${instanceId}/technological-matrix`).then(res => res.json()),
-            fetch(`/api/planification/instances/${instanceId}/demand-vector`).then(res => res.json())
+            loadTechnologicalMatrix(instanceId),
+            loadDemandVector(instanceId)
         ])
-        .then(([matrixData, vectorData]) => {
-            // Preencher a matriz tecnológica
-            const matrixTable = document.getElementById('technologicalMatrix');
-            const matrixThead = matrixTable.querySelector('thead');
-            const matrixTbody = matrixTable.querySelector('tbody');
-            
-            // Limpar conteúdo atual
-            matrixThead.innerHTML = '';
-            matrixTbody.innerHTML = '';
-            
-            // Criar cabeçalho
-            const headerRow = document.createElement('tr');
-            
-            // Primeira célula vazia do cabeçalho
-            const emptyHeader = document.createElement('th');
-            headerRow.appendChild(emptyHeader);
-            
-            // Adicionar nomes dos produtos como cabeçalhos
-            for (let i = 0; i < matrixData.productNames.length; i++) {
-                const th = document.createElement('th');
-                th.textContent = matrixData.productNames[i];
-                th.dataset.materializationId = matrixData.productIds[i];
-                headerRow.appendChild(th);
-            }
-            
-            matrixThead.appendChild(headerRow);
-            
-            // Adicionar linhas com valores da matriz
-            for (let i = 0; i < matrixData.matrix.length; i++) {
-                const tr = document.createElement('tr');
-                tr.dataset.materializationId = matrixData.productIds[i];
-                
-                // Primeira célula com nome do produto
-                const nameCell = document.createElement('td');
-                nameCell.className = 'product-name';
-                nameCell.textContent = matrixData.productNames[i];
-                tr.appendChild(nameCell);
-                
-                // Adicionar células com inputs para valores
-                for (let j = 0; j < matrixData.matrix[i].length; j++) {
-                    const td = document.createElement('td');
-                    const input = document.createElement('input');
-                    input.type = 'number';
-                    input.min = '0';
-                    input.max = '1';
-                    input.step = '0.01';
-                    input.value = matrixData.matrix[i][j];
-                    input.dataset.row = matrixData.productIds[i];
-                    input.dataset.col = matrixData.productIds[j];
-                    input.className = 'matrix-input';
-                    
-                    td.appendChild(input);
-                    tr.appendChild(td);
-                }
-                
-                matrixTbody.appendChild(tr);
-            }
-            
-            // Preencher o vetor de demanda
-            const demandTable = document.getElementById('demandVector');
-            const demandTbody = demandTable.querySelector('tbody');
-            demandTbody.innerHTML = '';
-            
-            for (let i = 0; i < vectorData.vector.length; i++) {
-                const row = document.createElement('tr');
-                row.dataset.materializationId = vectorData.productIds[i];
-                
-                // Armazenar o índice correto como atributo data para referência futura
-                const actualIndex = i; // Captura o índice atual do loop
-                
-                row.innerHTML = `
-                    <td>${vectorData.productNames[i]}</td>
-                    <td>
-                        <input type="number" min="0" step="0.01" value="${vectorData.vector[i]}" 
-                               class="demand-input" data-id="${vectorData.productIds[i]}">
-                    </td>
-                    <td class="action-cell">
-                        <div class="action-buttons">
-                            <button class="action-btn config-btn" title="Configurar otimização" 
-                                    data-product-index="${actualIndex}">
-                                <i class="fas fa-cog"></i>
-                            </button>
-                            <button class="action-btn remove-btn" title="Remover materialização" 
-                                    data-id="${vectorData.productIds[i]}">
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </div>
-                    </td>
-                `;
-                
-                demandTbody.appendChild(row);
-                
-                // Adicionar evento ao botão de configuração diretamente após a linha ser adicionada
-                const configBtn = row.querySelector('.config-btn');
-                if (configBtn) {
-                    configBtn.addEventListener('click', function() {
-                        const index = parseInt(this.getAttribute('data-product-index'));
-                        console.log(`Abrindo config para produto índice ${index}, ID ${productIds[index]}`);
-                        openOptimizationConfigModal(index);
-                    });
-                }
-                
-                // Adicionar evento ao botão de remoção
-                const removeBtn = row.querySelector('.remove-btn');
-                if (removeBtn) {
-                    removeBtn.addEventListener('click', function() {
-                        removeMaterialization(vectorData.productIds[i]);
-                    });
-                }
-            }
-            
-            // Atualizar variáveis globais
-            productNames = vectorData.productNames;
-            productIds = vectorData.productIds;
-            technologicalMatrix = matrixData.matrix;
-            demandVector = vectorData.vector;
-            
-            // NOVO: Salvar os IDs originais para referência
-            window.originalMaterializationIds = [...vectorData.productIds];
-            
-            // Mostrar a seção da matriz
-            document.getElementById('matrixSection').style.display = 'block';
-            document.getElementById('loadingSpinner').style.display = 'none';
-            
-            // Adicionar botão de adição ao vetor de demanda se não existir
-            addDemandVectorAddButton();
+        .then(() => {
+            // Carregar configurações de otimização existentes
+            return loadOptimizationConfigs();
+        })
+        .then(() => {
+            // Tentar carregar resultados anteriores, se existirem
+            return loadPreviousResults(instanceId);
         })
         .catch(error => {
             console.error('Erro ao carregar dados da instância:', error);
             showError(`Erro ao carregar dados: ${error.message}`);
+        })
+        .finally(() => {
+            // Mostrar a seção da matriz
+            document.getElementById('matrixSection').style.display = 'block';
             document.getElementById('loadingSpinner').style.display = 'none';
+            
+            // Garantir que o botão de adicionar materialização esteja inicializado
+            initAddMaterializationButton();
         });
     }
-
-    // Inicializar o botão de adicionar materialização
-    initAddMaterializationButton();
-
-    // Inicializar o formulário de nova materialização
-    initNewMaterializationForm();
 });
 
-// Adicionar ao arquivo planification.js
-
-// Declarar variáveis adicionais para controle do dropdown
-let materializationDropdown = null;
-let availableMaterializations = [];
-
-// Função para inicializar os eventos do botão de adicionar materialização
+// Add this function to initialize the "+ Add Materialization" button
 function initAddMaterializationButton() {
     const addButton = document.getElementById('addMaterializationBtn');
     if (!addButton) return;
     
-    addButton.addEventListener('click', function(e) {
-        e.stopPropagation();
-        
-        // Se o dropdown já estiver aberto, feche-o
-        if (materializationDropdown) {
-            document.body.removeChild(materializationDropdown);
-            materializationDropdown = null;
-            return;
-        }
-        
-        // Carregar as materializações disponíveis
-        loadAvailableMaterializations()
-            .then(materializations => {
-                showMaterializationDropdown(materializations, e.target);
-            })
-            .catch(error => {
-                console.error('Erro ao carregar materializações:', error);
-                showError('Não foi possível carregar as materializações disponíveis.');
-            });
-    });
+    // Clear previous content and event listeners
+    addButton.innerHTML = '';
+    const newIcon = document.createElement('i');
+    newIcon.className = 'fas fa-plus';
+    addButton.appendChild(newIcon);
     
-    // Fechar o dropdown ao clicar fora dele
-    document.addEventListener('click', function() {
-        if (materializationDropdown) {
-            document.body.removeChild(materializationDropdown);
-            materializationDropdown = null;
-        }
-    });
+    // Remove old event listeners by cloning and replacing
+    const newButton = addButton.cloneNode(true);
+    addButton.parentNode.replaceChild(newButton, addButton);
+    
+    // Add event listener to the new button
+    newButton.addEventListener('click', showMaterializationSelector);
 }
 
-// Função simplificada para carregar materializações disponíveis
-async function loadAvailableMaterializations() {
-    try {
-        // 1. Coletar nomes das materializações já presentes na tabela
-        const existingNames = [];
-        const rows = document.querySelectorAll('#demandVector tbody tr');
-        
-        // Extrair os nomes das células da primeira coluna de cada linha
-        rows.forEach(row => {
-            const nameCell = row.cells[0]; // A primeira célula contém o nome
-            if (nameCell && nameCell.textContent) {
-                existingNames.push(nameCell.textContent.trim());
-            }
-        });
-        
-        console.log('Nomes já existentes na tabela:', existingNames);
-        
-        // 2. Buscar todas as materializações do servidor
-        const response = await fetch('/api/social-materializations');
-        if (!response.ok) {
-            throw new Error('Erro ao carregar materializações');
-        }
-        
-        const allMaterializations = await response.json();
-        console.log('Todas materializações do servidor:', allMaterializations);
-        
-        // 3. Filtrar com base no nome - abordagem mais simples e direta
-        const availableMats = allMaterializations.filter(mat => 
-            !existingNames.includes(mat.name)
-        );
-        
-        console.log('Materializações filtradas para o dropdown (por nome):', availableMats);
-        return availableMats;
-        
-    } catch (error) {
-        console.error('Erro ao carregar materializações:', error);
-        showError('Erro ao carregar materializações: ' + error.message);
-        return [];
-    }
-}
-
-// Função para exibir o dropdown de materializações
-function showMaterializationDropdown(materializations, targetElement) {
-    // Armazenar para uso posterior
-    availableMaterializations = materializations;
-    
-    // Criar o elemento de dropdown
-    materializationDropdown = document.createElement('div');
-    materializationDropdown.className = 'materialization-dropdown';
-    
-    // Determinar a posição do dropdown
-    const buttonRect = targetElement.getBoundingClientRect();
-    materializationDropdown.style.top = `${buttonRect.bottom + window.scrollY + 5}px`;
-    materializationDropdown.style.left = `${buttonRect.left + window.scrollX - 200 + buttonRect.width/2}px`;
-    
-    // Criar os itens do dropdown
-    if (materializations.length === 0) {
-        materializationDropdown.innerHTML = `
-            <div class="empty-message">
-                Não há materializações disponíveis para adicionar.
-            </div>
-        `;
-    } else {
-        let dropdownHTML = '';
-        
-        // Adicionar cada materialização como uma opção
-        materializations.forEach(mat => {
-            dropdownHTML += `
-                <div class="dropdown-item" data-id="${mat.id}">
-                    ${mat.name} (${mat.type === 'PRODUCT' ? 'Produto' : 'Serviço'})
-                </div>
-            `;
-        });
-        
-        // Adicionar a opção "Incluir nova"
-        dropdownHTML += `
-            <div class="dropdown-item add-new-item" data-action="add-new">
-                <i class="fas fa-plus-circle"></i> Incluir nova materialização
-            </div>
-        `;
-        
-        materializationDropdown.innerHTML = dropdownHTML;
-        
-        // Adicionar eventos de clique aos itens
-        materializationDropdown.querySelectorAll('.dropdown-item').forEach(item => {
-            item.addEventListener('click', function(e) {
-                e.stopPropagation();
-                
-                if (item.dataset.action === 'add-new') {
-                    // Abrir modal para cadastrar nova materialização
-                    openNewMaterializationModal();
-                } else {
-                    // Adicionar materialização existente
-                    const materializationId = parseInt(item.dataset.id);
-                    const materialization = availableMaterializations.find(m => m.id === materializationId);
-                    
-                    if (materialization) {
-                        addMaterializationToDemandVector(materialization);
-                    }
-                }
-                
-                // Fechar o dropdown
-                document.body.removeChild(materializationDropdown);
-                materializationDropdown = null;
-            });
-        });
-    }
-    
-    // Adicionar o dropdown ao corpo do documento
-    document.body.appendChild(materializationDropdown);
-    
-    // Prevenir o comportamento padrão de fechar ao clicar no dropdown
-    materializationDropdown.addEventListener('click', function(e) {
-        e.stopPropagation();
-    });
-}
-
-// Função para adicionar a materialização à tabela de demanda
-function addMaterializationToDemandVector(materialization) {
-    const demandTable = document.getElementById('demandVector');
-    const tbody = demandTable.querySelector('tbody');
-    
-    // Verificar se já existe
-    const existingRow = tbody.querySelector(`tr[data-materialization-id="${materialization.id}"]`);
-    if (existingRow) {
-        showError(`Materialização "${materialization.name}" já está na tabela de demanda`);
+// Function to show the materialization selector dropdown
+function showMaterializationSelector() {
+    if (!currentInstanceId) {
+        showError('Por favor, selecione uma instância primeiro');
         return;
     }
     
-    // Adicionar a materialização ao arrays globais
+    const addButton = document.getElementById('addMaterializationBtn');
+    // Check if dropdown already exists
+    let dropdown = document.querySelector('.materialization-dropdown');
+    if (dropdown) {
+        dropdown.remove();
+        return;
+    }
+    
+    // Create dropdown
+    dropdown = document.createElement('div');
+    dropdown.className = 'materialization-dropdown';
+    
+    // Position dropdown under the button
+    const buttonRect = addButton.getBoundingClientRect();
+    dropdown.style.top = `${buttonRect.bottom + window.scrollY}px`;
+    dropdown.style.left = `${buttonRect.left + window.scrollX}px`;
+    
+    // Create loading message
+    const loadingItem = document.createElement('div');
+    loadingItem.className = 'dropdown-item';
+    loadingItem.textContent = 'Carregando materializações...';
+    dropdown.appendChild(loadingItem);
+    
+    // Append dropdown to body
+    document.body.appendChild(dropdown);
+    
+    // Load available materializations
+    loadAvailableMaterializations(currentInstanceId, dropdown);
+}
+
+// Function to load available materializations for the dropdown
+function loadAvailableMaterializations(instanceId, dropdown) {
+    fetch('/api/social-materializations')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao carregar materializações sociais');
+            }
+            return response.json();
+        })
+        .then(allMaterializations => {
+            // Clear dropdown
+            dropdown.innerHTML = '';
+            
+            // Filter out materializations already in the table
+            const existingIds = productIds || [];
+            const availableMaterializations = allMaterializations.filter(
+                mat => !existingIds.includes(mat.id)
+            );
+            
+            if (availableMaterializations.length === 0) {
+                const emptyMessage = document.createElement('div');
+                emptyMessage.className = 'empty-message';
+                emptyMessage.textContent = 'Não há materializações sociais disponíveis';
+                dropdown.appendChild(emptyMessage);
+                return;
+            }
+            
+            // Add materializations to dropdown
+            availableMaterializations.forEach(mat => {
+                const item = document.createElement('div');
+                item.className = 'dropdown-item';
+                item.textContent = `${mat.name} (${mat.type})`;
+                item.onclick = () => addMaterializationToTable(mat, instanceId);
+                dropdown.appendChild(item);
+            });
+            
+            // Add option to create new materialization
+            const newItem = document.createElement('div');
+            newItem.className = 'dropdown-item add-new-item';
+            newItem.textContent = '+ Criar Nova Materialização';
+            newItem.onclick = showNewMaterializationModal;
+            dropdown.appendChild(newItem);
+        })
+        .catch(error => {
+            console.error('Erro ao carregar materializações:', error);
+            dropdown.innerHTML = '';
+            const errorMessage = document.createElement('div');
+            errorMessage.className = 'empty-message';
+            errorMessage.textContent = 'Erro ao carregar materializações';
+            dropdown.appendChild(errorMessage);
+        });
+}
+
+// Function to add selected materialization to the table
+function addMaterializationToTable(materialization, instanceId) {
+    // Close dropdown
+    const dropdown = document.querySelector('.materialization-dropdown');
+    if (dropdown) dropdown.remove();
+    
+    // Add materialization to arrays
     productIds.push(materialization.id);
     productNames.push(materialization.name);
-    demandVector.push(0);
     
-    // Calcular o novo índice
-    const newIndex = productIds.length - 1;
+    // Add empty row to technological matrix
+    const matrixRow = new Array(technologicalMatrix[0]?.length || 0).fill(0);
+    technologicalMatrix.push(matrixRow);
     
-    // Criar nova linha
-    const row = document.createElement('tr');
-    row.dataset.materializationId = materialization.id;
-    
-    // Adicionar células
-    row.innerHTML = `
-        <td>${materialization.name}</td>
-        <td>
-            <input type="number" min="0" step="0.01" class="demand-input" value="0" 
-                data-id="${materialization.id}" onchange="updateDemandVectorFromUI()">
-        </td>
-        <td>
-            <div class="action-buttons">
-                <button class="action-btn config-btn" title="Configurar otimização" data-product-index="${newIndex}">
-                    <i class="fas fa-cog"></i>
-                </button>
-                <button class="action-btn remove-btn" title="Remover" data-id="${materialization.id}">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-        </td>
-    `;
-    
-    // Adicionar à tabela
-    tbody.appendChild(row);
-    
-    // Adicionar eventos após a inserção
-    const configBtn = row.querySelector('.config-btn');
-    if (configBtn) {
-        configBtn.addEventListener('click', function() {
-            const index = parseInt(this.getAttribute('data-product-index'));
-            openOptimizationConfigModal(index);
-        });
-    }
-    
-    const removeBtn = row.querySelector('.remove-btn');
-    if (removeBtn) {
-        removeBtn.addEventListener('click', function() {
-            removeMaterialization(materialization.id);
-        });
-    }
-    
-    // Atualizar dados do vetor
-    updateVectorData();
-}
-
-// Função para adicionar materialização à matriz tecnológica
-function addMaterializationToTechnologicalMatrix(materialization) {
-    const matrixTable = document.getElementById('technologicalMatrix');
-    const thead = matrixTable.querySelector('thead');
-    const tbody = matrixTable.querySelector('tbody');
-    
-    // 1. Adicionar coluna ao cabeçalho
-    const headerRow = thead.querySelector('tr');
-    const newTh = document.createElement('th');
-    newTh.textContent = materialization.name;
-    newTh.dataset.materializationId = materialization.id;
-    headerRow.appendChild(newTh);
-    
-    // 2. Adicionar linha à matriz
-    const newRow = document.createElement('tr');
-    newRow.dataset.materializationId = materialization.id;
-    
-    // Adiciona célula de produto
-    const productCell = document.createElement('td');
-    productCell.className = 'product-name';
-    productCell.textContent = materialization.name;
-    newRow.appendChild(productCell);
-    
-    // Adiciona células para cada coluna existente
-    const columnsCount = headerRow.querySelectorAll('th').length - 1; // -1 porque a primeira coluna é rótulo de linha
-    
-    for (let i = 0; i < columnsCount; i++) {
-        const cell = document.createElement('td');
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.min = '0';
-        input.max = '1';
-        input.step = '0.01';
-        input.value = '0';
-        input.dataset.row = materialization.id;
-        input.dataset.col = headerRow.querySelectorAll('th')[i+1].dataset.materializationId; // +1 para pular a primeira coluna
-        input.className = 'matrix-input';
-        
-        cell.appendChild(input);
-        newRow.appendChild(cell);
-    }
-    
-    tbody.appendChild(newRow);
-    
-    // 3. Adicionar nova célula a cada linha existente
-    tbody.querySelectorAll('tr:not(:last-child)').forEach(row => {
-        const cell = document.createElement('td');
-        const input = document.createElement('input');
-        input.type = 'number';
-        input.min = '0';
-        input.max = '1';
-        input.step = '0.01';
-        input.value = '0';
-        input.dataset.row = row.dataset.materializationId;
-        input.dataset.col = materialization.id;
-        input.className = 'matrix-input';
-        
-        cell.appendChild(input);
-        row.appendChild(cell);
+    // Add column to each existing row
+    technologicalMatrix.forEach(row => {
+        row.push(0);
     });
     
-    // Atualizar dados internos da matriz
-    updateMatrixData();
+    // Add to demand vector
+    demandVector.push(0);
+    
+    // Re-render tables
+    renderTechnologicalMatrix();
+    renderDemandVector();
+    
+    showSuccess(`Materialização "${materialization.name}" adicionada com sucesso`);
 }
 
-// Função corrigida para remover uma materialização
+// Function to update demand vector value
+function updateDemandVector(index, value) {
+    if (index >= 0 && index < demandVector.length) {
+        demandVector[index] = parseFloat(value) || 0;
+    }
+}
+
+// Function to ensure matrix dimensions match
+function ensureMatrixDimensions() {
+    const size = productIds.length;
+    
+    // Ensure each dimension of technologicalMatrix is correct
+    if (technologicalMatrix.length !== size) {
+        // Add or remove rows as needed
+        while (technologicalMatrix.length < size) {
+            technologicalMatrix.push(new Array(size).fill(0));
+        }
+        while (technologicalMatrix.length > size) {
+            technologicalMatrix.pop();
+        }
+    }
+    
+    // Ensure each row has the correct number of columns
+    technologicalMatrix.forEach((row, i) => {
+        while (row.length < size) {
+            row.push(0);
+        }
+        while (row.length > size) {
+            row.pop();
+        }
+    });
+    
+    // Ensure demandVector has correct size
+    while (demandVector.length < size) {
+        demandVector.push(0);
+    }
+    while (demandVector.length > size) {
+        demandVector.pop();
+    }
+}
+
+// Function to update matrix and vector data from UI
+function updateMatrixAndVectorData() {
+    // Update matrix values from UI
+    const matrixTable = document.getElementById('technologicalMatrix');
+    const matrixInputs = matrixTable.querySelectorAll('input');
+    
+    matrixInputs.forEach(input => {
+        const row = parseInt(input.dataset.row);
+        const col = parseInt(input.dataset.col);
+        if (!isNaN(row) && !isNaN(col)) {
+            technologicalMatrix[row][col] = parseFloat(input.value) || 0;
+        }
+    });
+    
+    // Update demand vector from UI
+    updateDemandVectorFromUI();
+}
+
+// Function to remove a materialization from the tables
 function removeMaterialization(materializationId) {
     // Confirmar antes de remover
     if (!confirm('Tem certeza que deseja remover esta materialização? Isso também removerá a linha e coluna correspondente na matriz tecnológica.')) {
@@ -1564,630 +1415,60 @@ function removeMaterialization(materializationId) {
     
     console.log(`Removendo materialização com ID: ${materializationId}`);
     
-    // 1. Remover linha da tabela de demanda
-    const demandTable = document.getElementById('demandVector');
-    const demandRow = demandTable.querySelector(`tr[data-materialization-id="${materializationId}"]`);
-    if (demandRow) {
-        console.log('Removendo linha da tabela de demanda');
-        demandRow.remove();
-    } else {
-        console.warn('Linha não encontrada na tabela de demanda');
+    // Track removed materials globally if the tracking array doesn't exist yet
+    if (!window.removedMaterializationIds) {
+        window.removedMaterializationIds = [];
     }
     
-    // 2. Remover da matriz tecnológica - usando uma abordagem mais robusta
-    const matrixTable = document.getElementById('technologicalMatrix');
-    if (!matrixTable) {
-        console.error('Tabela de matriz tecnológica não encontrada');
+    // Add this ID to our tracking array of removed materializations
+    if (!window.removedMaterializationIds.includes(materializationId)) {
+        window.removedMaterializationIds.push(materializationId);
+    }
+    
+    // Find the index of this materialization in our global arrays
+    const matIndex = productIds.indexOf(materializationId);
+    if (matIndex === -1) {
+        console.error(`Materialização com ID ${materializationId} não encontrada nos arrays globais`);
         return;
     }
     
-    // 2.1. Precisamos encontrar o índice da coluna de forma mais robusta
-    // Primeiro, obtenha todos os cabeçalhos da matriz
-    const headerRow = matrixTable.querySelector('thead tr');
-    if (!headerRow) {
-        console.error('Linha de cabeçalho não encontrada na matriz tecnológica');
-        return;
-    }
+    // Update global arrays before updating the UI
+    // Remove the materialization from productIds and productNames
+    productIds.splice(matIndex, 1);
+    productNames.splice(matIndex, 1);
     
-    // Encontre o índice da coluna que corresponde à materialização a ser removida
-    let colIndex = -1;
-    const headers = headerRow.querySelectorAll('th');
-    
-    // Tentar encontrar por data-attribute
-    for (let i = 0; i < headers.length; i++) {
-        if (headers[i].dataset.materializationId == materializationId) {
-            colIndex = i;
-            break;
+    // Remove the row and column from the technologicalMatrix
+    technologicalMatrix.splice(matIndex, 1); // Remove row
+    for (let i = 0; i < technologicalMatrix.length; i++) {
+        if (technologicalMatrix[i]) {
+            technologicalMatrix[i].splice(matIndex, 1); // Remove column from each remaining row
         }
     }
     
-    // Se não encontrou por data-attribute, tente encontrar pelo texto do cabeçalho
-    if (colIndex === -1) {
-        const productName = demandRow ? demandRow.cells[0].textContent.trim() : null;
-        if (productName) {
-            for (let i = 0; i < headers.length; i++) {
-                if (headers[i].textContent.trim() === productName) {
-                    colIndex = i;
-                    break;
-                }
-            }
+    // Remove from the demandVector
+    demandVector.splice(matIndex, 1);
+    
+    // Re-render both tables completely
+    renderTechnologicalMatrix();
+    renderDemandVector();
+    
+    // Also update optimizationConfigs to prevent accessing invalid indices
+    const newOptimizationConfigs = {};
+    Object.keys(optimizationConfigs).forEach(key => {
+        const numIndex = parseInt(key);
+        if (numIndex < matIndex) {
+            // Indices before the removed one stay the same
+            newOptimizationConfigs[numIndex] = optimizationConfigs[numIndex];
+        } else if (numIndex > matIndex) {
+            // Indices after the removed one are decremented
+            newOptimizationConfigs[numIndex - 1] = optimizationConfigs[numIndex];
         }
-    }
-    
-    // 2.2. Se encontrou a coluna, remova-a de todas as linhas
-    if (colIndex >= 0) {
-        console.log(`Coluna encontrada na posição ${colIndex}, removendo de todas as linhas`);
-        
-        // Remover o cabeçalho da coluna primeiro
-        headers[colIndex].remove();
-        
-        // Remover a célula correspondente de cada linha
-        const rows = matrixTable.querySelectorAll('tbody tr');
-        rows.forEach(row => {
-            if (row.cells.length > colIndex) {
-                row.cells[colIndex].remove();
-            }
-        });
-    } else {
-        console.warn(`Coluna não encontrada para a materialização ${materializationId}`);
-    }
-    
-    // 2.3. Encontrar e remover a linha correspondente
-    // Primeiro, tente pelo atributo data-materialization-id
-    let rowToRemove = matrixTable.querySelector(`tbody tr[data-materialization-id="${materializationId}"]`);
-    
-    // Se não encontrou, procure pelo nome do produto na primeira célula
-    if (!rowToRemove && demandRow) {
-        const productName = demandRow.cells[0].textContent.trim();
-        const rows = matrixTable.querySelectorAll('tbody tr');
-        
-        for (const row of rows) {
-            const firstCell = row.cells[0];
-            if (firstCell && firstCell.textContent.trim() === productName) {
-                rowToRemove = row;
-                break;
-            }
-        }
-    }
-    
-    // Remover a linha encontrada
-    if (rowToRemove) {
-        console.log('Removendo linha da matriz tecnológica');
-        rowToRemove.remove();
-    } else {
-        console.warn('Linha não encontrada na matriz tecnológica');
-    }
-    
-    // 3. Atualizar dados internos
-    updateMatrixAndVectorData();
-    console.log('Atualização dos dados internos concluída');
-}
-
-// Função corrigida para atualizar os dados da matriz tecnológica
-function updateMatrixData() {
-    const matrixTable = document.getElementById('technologicalMatrix');
-    const thead = matrixTable.querySelector('thead');
-    const tbody = matrixTable.querySelector('tbody');
-    
-    // Obter IDs das materializações das colunas com filtragem de valores inválidos
-    const headerRow = thead.querySelector('tr');
-    const columnIds = Array.from(headerRow.querySelectorAll('th'))
-        .slice(1) // Ignorar primeira coluna (rótulo)
-        .map(th => {
-            const idStr = th.dataset.materializationId;
-            const id = idStr ? parseInt(idStr) : NaN;
-            return id;
-        })
-        .filter(id => !isNaN(id) && id > 0); // Garantir IDs válidos
-    
-    // Obter IDs das materializações das linhas com filtragem de valores inválidos
-    const rowIds = Array.from(tbody.querySelectorAll('tr'))
-        .map(tr => {
-            const idStr = tr.dataset.materializationId;
-            const id = idStr ? parseInt(idStr) : NaN;
-            return id;
-        })
-        .filter(id => !isNaN(id) && id > 0); // Garantir IDs válidos
-    
-    console.log("IDs válidos das linhas:", rowIds);
-    console.log("IDs válidos das colunas:", columnIds);
-    
-    // Reconstruir a matriz tecnológica
-    technologicalMatrix = [];
-    productIds = [...rowIds]; // Copiar os IDs válidos para a variável global
-    productNames = Array.from(tbody.querySelectorAll('tr'))
-        .filter(row => {
-            const idStr = row.dataset.materializationId;
-            const id = idStr ? parseInt(idStr) : NaN;
-            return !isNaN(id) && id > 0;
-        })
-        .map(row => {
-            const nameCell = row.querySelector('.product-name');
-            return nameCell ? nameCell.textContent.trim() : '';
-        })
-        .filter(name => name); // Filtrar nomes vazios
-    
-    console.log("Nomes dos produtos:", productNames);
-    console.log("IDs dos produtos:", productIds);
-    
-    // Criar matriz zerada
-    for (let i = 0; i < rowIds.length; i++) {
-        technologicalMatrix[i] = [];
-        for (let j = 0; j < columnIds.length; j++) {
-            technologicalMatrix[i][j] = 0;
-        }
-    }
-    
-    // Preencher matriz com valores dos inputs
-    const inputs = tbody.querySelectorAll('.matrix-input');
-    inputs.forEach(input => {
-        if (!input.dataset.row || !input.dataset.col) return;
-        
-        const rowId = parseInt(input.dataset.row);
-        const colId = parseInt(input.dataset.col);
-        
-        if (isNaN(rowId) || isNaN(colId)) return;
-        
-        const rowIndex = rowIds.indexOf(rowId);
-        const colIndex = columnIds.indexOf(colId);
-        
-        if (rowIndex >= 0 && colIndex >= 0) {
-            const value = parseFloat(input.value) || 0;
-            technologicalMatrix[rowIndex][colIndex] = value;
-        }
-    });
-}
-
-// Função para atualizar os dados do vetor de demanda
-function updateVectorData() {
-    const demandTable = document.getElementById('demandVector');
-    const tbody = demandTable.querySelector('tbody');
-    
-    // Obter IDs das materializações
-    const rowIds = Array.from(tbody.querySelectorAll('tr'))
-        .map(tr => parseInt(tr.dataset.materializationId));
-    
-    // Reconstruir o vetor de demanda
-    demandVector = [];
-    
-    // Criar vetor zerado
-    for (let i = 0; i < rowIds.length; i++) {
-        demandVector[i] = 0;
-    }
-    
-    // Preencher vetor com valores dos inputs
-    const inputs = tbody.querySelectorAll('.demand-input');
-    inputs.forEach(input => {
-        const id = parseInt(input.dataset.id);
-        const index = rowIds.indexOf(id);
-        
-        if (index >= 0) {
-            demandVector[index] = parseFloat(input.value) || 0;
-        }
-    });
-}
-
-// Função para abrir a modal de cadastro de nova materialização
-function openNewMaterializationModal() {
-    // Limpar campos do formulário
-    document.getElementById('newMaterializationForm').reset();
-    
-    // Limpar mensagens de erro/sucesso anteriores
-    document.getElementById('newMaterializationFormError').style.display = 'none';
-    document.getElementById('newMaterializationFormSuccess').style.display = 'none';
-    
-    // Exibir a modal
-    document.getElementById('newMaterializationModal').style.display = 'block';
-}
-
-// Função para fechar a modal
-function closeNewMaterializationModal() {
-    document.getElementById('newMaterializationModal').style.display = 'none';
-}
-
-// Inicializar o formulário de nova materialização
-function initNewMaterializationForm() {
-    const form = document.getElementById('newMaterializationForm');
-    
-    form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        // Mostrar spinner
-        document.getElementById('newMaterializationModalSpinner').style.display = 'inline-block';
-        
-        // Obter dados do formulário
-        const formData = {
-            name: document.getElementById('materialName').value.trim(),
-            type: document.getElementById('materialType').value,
-            description: document.getElementById('materialDescription').value.trim(),
-            instanceId: currentInstanceId
-        };
-        
-        // Validar
-        if (!formData.name) {
-            showNewMaterializationError('O nome é obrigatório.');
-            return;
-        }
-        
-        // Enviar para o servidor
-        submitNewMaterialization(formData);
-    });
-}
-
-// Função para enviar nova materialização para o servidor
-async function submitNewMaterialization(formData) {
-    try {
-        // Adicionar o ID da instância ao formData
-        formData.instanceId = currentInstanceId;
-        
-        const response = await fetch('/api/social-materializations', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        });
-        
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.message || 'Erro ao cadastrar materialização.');
-        }
-        
-        const result = await response.json();
-        
-        // Mostrar mensagem de sucesso
-        showNewMaterializationSuccess('Materialização cadastrada com sucesso!');
-        
-        // Adicionar a nova materialização à tabela
-        setTimeout(() => {
-            closeNewMaterializationModal();
-            addMaterializationToDemandVector(result);
-        }, 1500);
-    } catch (error) {
-        showNewMaterializationError(error.message);
-    } finally {
-        document.getElementById('newMaterializationModalSpinner').style.display = 'none';
-    }
-}
-
-// Funções para exibir mensagens no formulário
-function showNewMaterializationError(message) {
-    const errorElement = document.getElementById('newMaterializationFormError');
-    errorElement.textContent = message;
-    errorElement.style.display = 'block';
-    document.getElementById('newMaterializationModalSpinner').style.display = 'none';
-}
-
-function showNewMaterializationSuccess(message) {
-    const successElement = document.getElementById('newMaterializationFormSuccess');
-    successElement.textContent = message;
-    successElement.style.display = 'block';
-    document.getElementById('newMaterializationModalSpinner').style.display = 'none';
-}
-
-// Função para verificar e garantir as dimensões corretas antes de planificar
-function ensureMatrixDimensions() {
-    console.log("Verificando dimensões da matriz e vetor antes de planificar...");
-    
-    // Verificar se existem dados
-    if (!technologicalMatrix || !demandVector) {
-        console.warn("Matriz ou vetor não definidos!");
-        return;
-    }
-    
-    // Verificar se a matriz é quadrada
-    const matrixSize = technologicalMatrix.length;
-    
-    // Verificar se o vetor tem o mesmo tamanho
-    if (demandVector.length !== matrixSize) {
-        console.warn("Tamanho do vetor de demanda incompatível, ajustando...");
-        console.warn(`Matriz: ${matrixSize}x${matrixSize}, Vetor: ${demandVector.length}`);
-        
-        // Ajustar o vetor de demanda
-        if (demandVector.length < matrixSize) {
-            // Adicionar zeros ao vetor
-            while (demandVector.length < matrixSize) {
-                demandVector.push(0);
-            }
-        } else if (demandVector.length > matrixSize) {
-            // Cortar o vetor
-            demandVector = demandVector.slice(0, matrixSize);
-        }
-    }
-    
-    // Verificar se cada linha da matriz tem o tamanho correto
-    for (let i = 0; i < matrixSize; i++) {
-        if (!technologicalMatrix[i] || technologicalMatrix[i].length !== matrixSize) {
-            console.warn(`Linha ${i} da matriz com tamanho incorreto, ajustando...`);
-            
-            // Se a linha não existe, criar com zeros
-            if (!technologicalMatrix[i]) {
-                technologicalMatrix[i] = new Array(matrixSize).fill(0);
-            } 
-            // Se a linha é menor que o necessário, completar com zeros
-            else if (technologicalMatrix[i].length < matrixSize) {
-                while (technologicalMatrix[i].length < matrixSize) {
-                    technologicalMatrix[i].push(0);
-                }
-            } 
-            // Se a linha é maior que o necessário, cortar
-            else if (technologicalMatrix[i].length > matrixSize) {
-                technologicalMatrix[i] = technologicalMatrix[i].slice(0, matrixSize);
-            }
-        }
-    }
-    
-    console.log("Após ajustes:");
-    console.log("Matriz tecnológica:", technologicalMatrix);
-    console.log("Vetor de demanda:", demandVector);
-}
-
-// Função para atualizar os dados da matriz e do vetor após modificações
-function updateMatrixAndVectorData() {
-    updateMatrixData();
-    updateVectorData();
-}
-
-// Adicione esta função ao arquivo planification.js
-function renderOptimizationResults(results) {
-    // Verificar se há resultados para mostrar
-    if (!results || results.length === 0) {
-        // Se não houver resultados, esconder a seção
-        const optimizationResultsContainer = document.getElementById('optimizationResultsContainer');
-        if (optimizationResultsContainer) {
-            optimizationResultsContainer.style.display = 'none';
-        }
-        return;
-    }
-
-    // Armazenar resultados globalmente para uso nas modais
-    optimizationResults = results;
-
-    // Obter referência à tabela
-    const optimizationTable = document.getElementById('optimizationResults');
-    if (!optimizationTable) {
-        console.error('Tabela de resultados de otimização não encontrada');
-        return;
-    }
-
-    // Mostrar seção
-    const optimizationResultsContainer = document.getElementById('optimizationResultsContainer');
-    if (optimizationResultsContainer) {
-        optimizationResultsContainer.style.display = 'block';
-    }
-
-    // Limpar conteúdo existente
-    const tbody = optimizationTable.querySelector('tbody');
-    if (tbody) {
-        tbody.innerHTML = '';
-    } else {
-        console.error('Corpo da tabela de resultados de otimização não encontrado');
-        return;
-    }
-
-    // Renderizar resultados - sem o botão de configuração!
-    results.forEach(result => {
-        if (!result) return;
-
-        const row = document.createElement('tr');
-        
-        // Formatação de números para exibição
-        const formatNumber = (value) => {
-            if (value === undefined || value === null) return 'N/A';
-            return typeof value === 'number' ? value.toFixed(2) : value;
-        };
-
-        // Colunas: Produto, Produção, Trabalhadores, Fábricas, Turnos, Horas, Ações
-        row.innerHTML = `
-            <td>${result.productName || 'Sem nome'}</td>
-            <td>${formatNumber(result.productionNeeded)}</td>
-            <td>${formatNumber(result.workersNeeded)}</td>
-            <td>${formatNumber(result.factoriesNeeded)}</td>
-            <td>${result.nightShift ? 'Diurno e Noturno' : 'Diurno'}</td>
-            <td>${formatNumber(result.totalHours)}</td>
-            <td>
-                <button class="btn details-btn" onclick="openOptimizationResultModal(${productIds.indexOf(result.materializationId)})">
-                    Detalhes
-                </button>
-            </td>
-        `;
-
-        tbody.appendChild(row);
-    });
-}
-
-// Adicione esta função ao arquivo planification.js
-function renderResults(data) {
-    console.log("Renderizando resultados da planificação:", data);
-    
-    if (!data || !data.productionVector || data.productionVector.length === 0) {
-        showError("Não há resultados de planificação para exibir");
-        return;
-    }
-    
-    // Exibir resultados
-    const results = document.getElementById('results');
-    if (!results) {
-        console.error("Elemento de resultados não encontrado");
-        return;
-    }
-    
-    results.style.display = 'block';
-    
-    // Armazenar resultados globalmente para uso nas modais
-    optimizationResults = data.optimizationResults;
-    
-    // Renderizar o vetor de produção na tabela principal
-    const productionResultsBody = document.getElementById('productionResults');
-    if (!productionResultsBody) {
-        console.error("Tabela de resultados de produção não encontrada");
-        return;
-    }
-    
-    // Limpar conteúdo anterior
-    productionResultsBody.innerHTML = '';
-    
-    // Função para formatar números
-    const formatNumber = (value) => {
-        if (value === undefined || value === null) return 'N/A';
-        return typeof value === 'number' ? value.toFixed(2) : value;
-    };
-    
-    // Adicionar linhas à tabela de produção - COM BOTÃO DE DETALHES
-    data.productionVector.forEach((production, index) => {
-        // Verificar se temos o nome e ID correspondentes
-        if (index < productNames.length) {
-            const row = document.createElement('tr');
-            
-            row.innerHTML = `
-                <td>${productNames[index]}</td>
-                <td>${formatNumber(production)}</td>
-                <td>
-                    <button class="btn details-btn" onclick="openOptimizationResultModal(${index})">
-                        Detalhes
-                    </button>
-                </td>
-            `;
-            
-            productionResultsBody.appendChild(row);
-        } else {
-            console.warn(`Índice ${index} fora dos limites dos nomes de produtos disponíveis`);
-        }
+        // The removed index itself is skipped
     });
     
-    // Rolar para os resultados
-    results.scrollIntoView({ behavior: 'smooth' });
+    // Replace the old configs with the updated ones
+    Object.assign(optimizationConfigs, newOptimizationConfigs);
     
-    // Atualizar as linhas do vetor de demanda para adicionar o botão de configuração
-    updateDemandVectorWithConfigButton();
-}
-
-// Adicione esta nova função para atualizar as linhas existentes no vetor de demanda
-function updateDemandVectorWithConfigButton() {
-    // Seleciona todas as linhas na tabela de demanda
-    const demandRows = document.querySelectorAll('#demandVector tbody tr:not(.add-materialization-row)');
-    
-    demandRows.forEach((row, rowIndex) => {
-        // Obter o ID da materialização usando o atributo data-materialization-id da linha
-        const materializationId = parseInt(row.dataset.materializationId);
-        if (!materializationId) {
-            console.warn('Linha sem ID de materialização válido:', row);
-            return; // Pular esta linha
-        }
-        
-        // Verificar se já existe botão de configuração
-        const existingConfigBtn = row.querySelector('.config-btn');
-        if (existingConfigBtn) {
-            // Atualizar o atributo data-product-index para garantir que esteja correto
-            existingConfigBtn.setAttribute('data-product-index', rowIndex);
-            
-            // Atualizar o evento click também
-            existingConfigBtn.onclick = function() {
-                const index = parseInt(this.getAttribute('data-product-index'));
-                console.log(`Abrindo config para produto índice ${index}, ID ${productIds[index] || 'indefinido'}`);
-                if (index >= 0 && index < productIds.length) {
-                    openOptimizationConfigModal(index);
-                } else {
-                    showError('Índice de produto inválido. Recarregue a página e tente novamente.');
-                }
-            };
-            
-            return; // Já existe um botão, apenas atualizamos o índice
-        }
-        
-        // Verificar se já existe uma coluna de ações
-        let actionsCell = row.querySelector('td:last-child');
-        let actionButtonsDiv;
-        
-        if (!actionsCell || !actionsCell.classList.contains('action-cell')) {
-            // Criar célula de ações se não existir
-            actionsCell = document.createElement('td');
-            actionsCell.className = 'action-cell';
-            row.appendChild(actionsCell);
-        }
-        
-        // Verificar se já existe div de botões
-        actionButtonsDiv = actionsCell.querySelector('.action-buttons');
-        if (!actionButtonsDiv) {
-            actionButtonsDiv = document.createElement('div');
-            actionButtonsDiv.className = 'action-buttons';
-            actionsCell.appendChild(actionButtonsDiv);
-        }
-        
-        // Criar o botão de configuração
-        const configButton = document.createElement('button');
-        configButton.className = 'action-btn config-btn';
-        configButton.title = 'Configurar otimização';
-        configButton.innerHTML = '<i class="fas fa-cog"></i>';
-        configButton.setAttribute('data-product-index', rowIndex);
-        
-        // Definir o onclick usando o rowIndex diretamente
-        configButton.onclick = function() {
-            const index = parseInt(this.getAttribute('data-product-index'));
-            console.log(`Abrindo config para produto índice ${index}, ID ${productIds[index] || 'indefinido'}`);
-            if (index >= 0 && index < productIds.length) {
-                openOptimizationConfigModal(index);
-            } else {
-                showError('Índice de produto inválido. Recarregue a página e tente novamente.');
-            }
-        };
-        
-        // Adicionar o botão na posição correta
-        const removeBtn = actionButtonsDiv.querySelector('.remove-btn');
-        if (removeBtn) {
-            actionButtonsDiv.insertBefore(configButton, removeBtn);
-        } else {
-            actionButtonsDiv.appendChild(configButton);
-            
-            // Se não tinha botão de remover, adicionar um
-            const removeButton = document.createElement('button');
-            removeButton.className = 'action-btn remove-btn';
-            removeButton.title = 'Remover';
-            removeButton.innerHTML = '<i class="fas fa-trash"></i>';
-            removeButton.onclick = function() { 
-                removeMaterialization(materializationId); 
-            };
-            actionButtonsDiv.appendChild(removeButton);
-        }
-    });
-}
-
-// Adicione uma chamada a esta função no carregamento inicial da instância
-document.addEventListener('DOMContentLoaded', function() {
-    // Outras inicializações...
-    
-    // Adicionar esta linha para garantir que seja chamada quando a página carregar
-    setTimeout(updateDemandVectorWithConfigButton, 1000);
-});
-
-// Função para adicionar o botão de adição ao vetor de demanda
-function addDemandVectorAddButton() {
-    // Verificar se já existe um botão com ID addMaterializationBtn em qualquer lugar
-    if (document.getElementById('addMaterializationBtn')) {
-        return; // Botão já existe, não adicione novamente
-    }
-    
-    const vectorContainer = document.querySelector('.vector-container');
-    
-    // Verificar se já existe a div de ações
-    if (!vectorContainer.querySelector('.vector-actions')) {
-        const actionsDiv = document.createElement('div');
-        actionsDiv.className = 'vector-actions';
-        
-        actionsDiv.innerHTML = `
-            <button id="addMaterializationBtn" class="action-btn add-btn" title="Adicionar materialização">
-                <i class="fas fa-plus"></i>
-            </button>
-        `;
-        
-        // Inserir antes da tabela
-        const demandTable = document.getElementById('demandVector');
-        vectorContainer.insertBefore(actionsDiv, demandTable);
-        
-        // Adicionar evento ao botão
-        const addButton = document.getElementById('addMaterializationBtn');
-        if (addButton) {
-            // Código do evento
-        }
-    }
+    // Show success message
+    showSuccess('Materialização removida. Clique em "Salvar Alterações" para confirmar a exclusão no banco de dados.');
 }
