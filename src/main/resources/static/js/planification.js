@@ -471,18 +471,10 @@ function renderProductionVector(productionVector) {
         return;
     }
     
-    // Preservar o container de otimização se existir
-    const optimizationContainer = document.getElementById('optimizationResultsContainer');
-    
-    // 1. Limpar o container de resultados, mas preservar o container de otimização
-    if (optimizationContainer) {
-        optimizationContainer.remove(); // Remover temporariamente
-    }
-    
-    // 2. Limpar todo o conteúdo atual
+    // 1. Limpar o container de resultados
     resultsContainer.innerHTML = '';
     
-    // 3. Criar elementos HTML para a tabela de produção
+    // 2. Criar elementos HTML para a tabela de produção
     const header = document.createElement('h2');
     header.textContent = 'Resultados da Planificação';
     resultsContainer.appendChild(header);
@@ -490,7 +482,7 @@ function renderProductionVector(productionVector) {
     const table = document.createElement('table');
     table.className = 'data-table';
     
-    // 4. Criar cabeçalho da tabela
+    // 3. Criar cabeçalho da tabela
     const thead = document.createElement('thead');
     thead.innerHTML = `
         <tr>
@@ -501,7 +493,7 @@ function renderProductionVector(productionVector) {
     `;
     table.appendChild(thead);
     
-    // 5. Criar corpo da tabela
+    // 4. Criar corpo da tabela
     const tbody = document.createElement('tbody');
     tbody.id = 'productionResults';
     
@@ -511,7 +503,7 @@ function renderProductionVector(productionVector) {
         return typeof value === 'number' ? value.toFixed(2) : value;
     };
     
-    // Adicionar linhas para cada produto
+    // Adicionar linhas para cada produto - IMPORTANTE: Com botão "Detalhes" em vez de "Configurar Otimização"
     productionVector.forEach((production, index) => {
         if (index < productNames.length) {
             const tr = document.createElement('tr');
@@ -520,8 +512,8 @@ function renderProductionVector(productionVector) {
                 <td>${productNames[index]}</td>
                 <td>${formatNumber(production)}</td>
                 <td>
-                    <button class="btn optimize-btn" onclick="openOptimizationConfigModal(${index})">
-                        Configurar Otimização
+                    <button class="btn details-btn" onclick="openOptimizationResultModal(${index})">
+                        Detalhes
                     </button>
                 </td>
             `;
@@ -533,12 +525,7 @@ function renderProductionVector(productionVector) {
     table.appendChild(tbody);
     resultsContainer.appendChild(table);
     
-    // 6. Reinserir o container de otimização no final, se existia
-    if (optimizationContainer) {
-        resultsContainer.appendChild(optimizationContainer);
-    }
-    
-    // 7. Garantir que o container de resultados esteja visível
+    // 5. Garantir que o container de resultados esteja visível
     resultsContainer.style.display = 'block';
 }
 
@@ -893,6 +880,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         results.style.display = 'block';
         
+        // Armazenar resultados globalmente para uso nas modais
+        optimizationResults = data.optimizationResults;
+        
         // Renderizar o vetor de produção na tabela principal
         const productionResultsBody = document.getElementById('productionResults');
         if (!productionResultsBody) {
@@ -909,34 +899,49 @@ document.addEventListener('DOMContentLoaded', function() {
             return typeof value === 'number' ? value.toFixed(2) : value;
         };
         
-        // Adicionar linhas à tabela de produção - SEM O BOTÃO DE CONFIGURAÇÃO
+        // Adicionar linhas à tabela de produção - AGORA COM BOTÃO DE DETALHES
         data.productionVector.forEach((production, index) => {
             // Verificar se temos o nome e ID correspondentes
             if (index < productNames.length) {
                 const row = document.createElement('tr');
                 
+                // Obter o ID da materialização correspondente a este índice
+                const materializationId = productIds[index];
+                
+                // Encontrar os dados de otimização correspondentes
+                const optimizationData = optimizationResults ? 
+                    optimizationResults.find(r => r.materializationId === materializationId) : null;
+                
                 row.innerHTML = `
                     <td>${productNames[index]}</td>
                     <td>${formatNumber(production)}</td>
+                    <td>
+                        <button class="btn details-btn" onclick="openOptimizationResultModal(${index})">
+                            Detalhes
+                        </button>
+                    </td>
                 `;
                 
                 productionResultsBody.appendChild(row);
             } else {
-                console.warn(`Índice ${index} fora dos limites dos nomes de produtos disponíveis`);
+                console.warn("Índice fora dos limites para vetor de produção:", index);
             }
         });
-        
-        // Renderizar resultados de otimização, se disponíveis
-        if (data.optimizationResults && data.optimizationResults.length > 0) {
-            optimizationResults = data.optimizationResults;
-            renderOptimizationResults(data.optimizationResults);
-        }
         
         // Rolar para os resultados
         results.scrollIntoView({ behavior: 'smooth' });
         
         // Atualizar as linhas do vetor de demanda para adicionar o botão de configuração
         updateDemandVectorWithConfigButton();
+        
+        // Não chamar mais a função de renderização de resultados de otimização
+        // renderOptimizationResults(optimizationResults);
+        
+        // Esconder a seção de resultados de otimização
+        const optimizationResultsContainer = document.getElementById('optimizationResultsContainer');
+        if (optimizationResultsContainer) {
+            optimizationResultsContainer.style.display = 'none';
+        }
     }
     
     /**
@@ -2009,6 +2014,9 @@ function renderResults(data) {
     
     results.style.display = 'block';
     
+    // Armazenar resultados globalmente para uso nas modais
+    optimizationResults = data.optimizationResults;
+    
     // Renderizar o vetor de produção na tabela principal
     const productionResultsBody = document.getElementById('productionResults');
     if (!productionResultsBody) {
@@ -2025,7 +2033,7 @@ function renderResults(data) {
         return typeof value === 'number' ? value.toFixed(2) : value;
     };
     
-    // Adicionar linhas à tabela de produção - SEM O BOTÃO DE CONFIGURAÇÃO
+    // Adicionar linhas à tabela de produção - COM BOTÃO DE DETALHES
     data.productionVector.forEach((production, index) => {
         // Verificar se temos o nome e ID correspondentes
         if (index < productNames.length) {
@@ -2034,6 +2042,11 @@ function renderResults(data) {
             row.innerHTML = `
                 <td>${productNames[index]}</td>
                 <td>${formatNumber(production)}</td>
+                <td>
+                    <button class="btn details-btn" onclick="openOptimizationResultModal(${index})">
+                        Detalhes
+                    </button>
+                </td>
             `;
             
             productionResultsBody.appendChild(row);
@@ -2041,12 +2054,6 @@ function renderResults(data) {
             console.warn(`Índice ${index} fora dos limites dos nomes de produtos disponíveis`);
         }
     });
-    
-    // Renderizar resultados de otimização, se disponíveis
-    if (data.optimizationResults && data.optimizationResults.length > 0) {
-        optimizationResults = data.optimizationResults;
-        renderOptimizationResults(data.optimizationResults);
-    }
     
     // Rolar para os resultados
     results.scrollIntoView({ behavior: 'smooth' });
