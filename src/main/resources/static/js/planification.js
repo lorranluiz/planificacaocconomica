@@ -1472,3 +1472,166 @@ function removeMaterialization(materializationId) {
     // Show success message
     showSuccess('Materialização removida. Clique em "Salvar Alterações" para confirmar a exclusão no banco de dados.');
 }
+
+// Function to show the modal for creating a new materialization
+function showNewMaterializationModal() {
+    // Close the materialization dropdown if it's open
+    const dropdown = document.querySelector('.materialization-dropdown');
+    if (dropdown) dropdown.remove();
+    
+    // Get modal element
+    const modal = document.getElementById('newMaterializationModal');
+    if (!modal) {
+        console.error("Modal for new materialization not found");
+        showError("Erro: Modal para nova materialização não encontrada");
+        return;
+    }
+    
+    // Clear previous content
+    const modalContent = modal.querySelector('.modal-content');
+    modalContent.innerHTML = `
+        <div class="modal-header">
+            <h3>Criar Nova Materialização Social</h3>
+            <span class="close" onclick="closeNewMaterializationModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="newMaterializationForm">
+                <div class="form-group">
+                    <label for="newMaterializationName">Nome:</label>
+                    <input type="text" id="newMaterializationName" required>
+                </div>
+                <div class="form-group">
+                    <label for="newMaterializationType">Tipo:</label>
+                    <select id="newMaterializationType" required>
+                        <option value="">Selecione um tipo</option>
+                        <option value="SERVICE">Serviço</option>
+                        <option value="GOOD">Bem</option>
+                        <option value="INFRASTRUCTURE">Infraestrutura</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="newMaterializationSector">Setor:</label>
+                    <select id="newMaterializationSector" required>
+                        <option value="">Carregando setores...</option>
+                    </select>
+                </div>
+                <div id="newMaterializationError" class="error-message" style="display: none;"></div>
+            </form>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" onclick="closeNewMaterializationModal()">Cancelar</button>
+            <button type="button" class="btn btn-primary" onclick="saveNewMaterialization()">Salvar</button>
+            <div id="newMaterializationSpinner" class="loading" style="display: none;"></div>
+        </div>
+    `;
+    
+    // Show modal
+    modal.style.display = 'block';
+    
+    // Load sectors for dropdown
+    loadSectorsForDropdown();
+}
+
+// Function to close the new materialization modal
+function closeNewMaterializationModal() {
+    const modal = document.getElementById('newMaterializationModal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+}
+
+// Function to load sectors for dropdown
+function loadSectorsForDropdown() {
+    const sectorSelect = document.getElementById('newMaterializationSector');
+    if (!sectorSelect) return;
+    
+    fetch('/api/sectors')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao carregar setores');
+            }
+            return response.json();
+        })
+        .then(sectors => {
+            // Clear loading option
+            sectorSelect.innerHTML = '<option value="">Selecione um setor</option>';
+            
+            // Add sectors to dropdown
+            sectors.forEach(sector => {
+                const option = document.createElement('option');
+                option.value = sector.id;
+                option.textContent = sector.name;
+                sectorSelect.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Erro ao carregar setores:', error);
+            sectorSelect.innerHTML = '<option value="">Erro ao carregar setores</option>';
+        });
+}
+
+// Function to save new materialization
+function saveNewMaterialization() {
+    // Get form values
+    const name = document.getElementById('newMaterializationName').value.trim();
+    const type = document.getElementById('newMaterializationType').value;
+    const sectorId = document.getElementById('newMaterializationSector').value;
+    
+    // Validate form
+    if (!name || !type || !sectorId) {
+        const errorElement = document.getElementById('newMaterializationError');
+        errorElement.textContent = 'Todos os campos são obrigatórios';
+        errorElement.style.display = 'block';
+        return;
+    }
+    
+    // Show spinner
+    const spinner = document.getElementById('newMaterializationSpinner');
+    spinner.style.display = 'inline-block';
+    
+    // Prepare data
+    const data = {
+        name: name,
+        type: type,
+        sectorId: parseInt(sectorId)
+    };
+    
+    // Send request
+    fetch('/api/social-materializations', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(errorData => {
+                throw new Error(errorData.message || 'Erro ao criar materialização');
+            });
+        }
+        return response.json();
+    })
+    .then(result => {
+        // Close modal
+        closeNewMaterializationModal();
+        
+        // Show success message
+        showSuccess(`Materialização "${result.name}" criada com sucesso`);
+        
+        // Add to table if we're in a planification context
+        if (currentInstanceId) {
+            addMaterializationToTable(result, currentInstanceId);
+        }
+    })
+    .catch(error => {
+        console.error('Erro ao criar materialização:', error);
+        const errorElement = document.getElementById('newMaterializationError');
+        errorElement.textContent = error.message || 'Erro ao criar materialização';
+        errorElement.style.display = 'block';
+    })
+    .finally(() => {
+        // Hide spinner
+        spinner.style.display = 'none';
+    });
+}
