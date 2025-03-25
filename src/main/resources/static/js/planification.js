@@ -836,15 +836,67 @@ document.addEventListener('DOMContentLoaded', function() {
     /**
      * Renderiza os resultados da planificação
      */
-    function renderResults(result) {
-        // Mostrar container de resultados
-        resultsContainer.style.display = 'block';
+    function renderResults(data) {
+        console.log("Renderizando resultados da planificação:", data);
         
-        // Renderizar vetor de produção
-        renderProductionVector(result.productionVector);
+        if (!data || !data.productionVector || data.productionVector.length === 0) {
+            showError("Não há resultados de planificação para exibir");
+            return;
+        }
         
-        // Renderizar resultados da otimização
-        renderOptimizationResults(result.optimizationResults);
+        // Exibir resultados
+        const results = document.getElementById('results');
+        if (!results) {
+            console.error("Elemento de resultados não encontrado");
+            return;
+        }
+        
+        results.style.display = 'block';
+        
+        // Renderizar o vetor de produção na tabela principal
+        const productionResultsBody = document.getElementById('productionResults');
+        if (!productionResultsBody) {
+            console.error("Tabela de resultados de produção não encontrada");
+            return;
+        }
+        
+        // Limpar conteúdo anterior
+        productionResultsBody.innerHTML = '';
+        
+        // Função para formatar números
+        const formatNumber = (value) => {
+            if (value === undefined || value === null) return 'N/A';
+            return typeof value === 'number' ? value.toFixed(2) : value;
+        };
+        
+        // Adicionar linhas à tabela de produção - SEM O BOTÃO DE CONFIGURAÇÃO
+        data.productionVector.forEach((production, index) => {
+            // Verificar se temos o nome e ID correspondentes
+            if (index < productNames.length) {
+                const row = document.createElement('tr');
+                
+                row.innerHTML = `
+                    <td>${productNames[index]}</td>
+                    <td>${formatNumber(production)}</td>
+                `;
+                
+                productionResultsBody.appendChild(row);
+            } else {
+                console.warn(`Índice ${index} fora dos limites dos nomes de produtos disponíveis`);
+            }
+        });
+        
+        // Renderizar resultados de otimização, se disponíveis
+        if (data.optimizationResults && data.optimizationResults.length > 0) {
+            optimizationResults = data.optimizationResults;
+            renderOptimizationResults(data.optimizationResults);
+        }
+        
+        // Rolar para os resultados
+        results.scrollIntoView({ behavior: 'smooth' });
+        
+        // Atualizar as linhas do vetor de demanda para adicionar o botão de configuração
+        updateDemandVectorWithConfigButton();
     }
     
     /**
@@ -1092,27 +1144,33 @@ document.addEventListener('DOMContentLoaded', function() {
             demandTbody.innerHTML = '';
             
             for (let i = 0; i < vectorData.vector.length; i++) {
-                const tr = document.createElement('tr');
-                tr.dataset.materializationId = vectorData.productIds[i];
+                const row = document.createElement('tr');
+                row.dataset.materializationId = vectorData.productIds[i];
                 
-                tr.innerHTML = `
+                row.innerHTML = `
                     <td>${vectorData.productNames[i]}</td>
                     <td>
                         <input type="number" min="0" step="0.01" value="${vectorData.vector[i]}" 
                                class="demand-input" data-id="${vectorData.productIds[i]}">
                     </td>
                     <td class="action-cell">
-                        <button class="action-btn remove-btn" title="Remover materialização" 
-                                data-id="${vectorData.productIds[i]}">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
+                        <div class="action-buttons">
+                            <button class="action-btn config-btn" title="Configurar otimização" 
+                                    onclick="openOptimizationConfigModal(${productIds.indexOf(vectorData.productIds[i])})">
+                                <i class="fas fa-cog"></i>
+                            </button>
+                            <button class="action-btn remove-btn" title="Remover materialização" 
+                                    data-id="${vectorData.productIds[i]}">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
                     </td>
                 `;
                 
-                demandTbody.appendChild(tr);
+                demandTbody.appendChild(row); // Modificado: usar row em vez de tr
                 
                 // Adicionar evento ao botão de remoção
-                const removeBtn = tr.querySelector('.remove-btn');
+                const removeBtn = row.querySelector('.remove-btn');
                 if (removeBtn) {
                     removeBtn.addEventListener('click', function() {
                         removeMaterialization(vectorData.productIds[i]);
@@ -1313,38 +1371,41 @@ function addMaterializationToDemandVector(materialization) {
     const demandTable = document.getElementById('demandVector');
     const tbody = demandTable.querySelector('tbody');
     
-    // Criar uma nova linha
+    // Verificar se já existe
+    const existingRow = tbody.querySelector(`tr[data-materialization-id="${materialization.id}"]`);
+    if (existingRow) {
+        showError(`Materialização "${materialization.name}" já está na tabela de demanda`);
+        return;
+    }
+    
+    // Criar nova linha
     const row = document.createElement('tr');
     row.dataset.materializationId = materialization.id;
     
-    // Estrutura da linha
+    // Adicionar células
     row.innerHTML = `
         <td>${materialization.name}</td>
         <td>
-            <input type="number" min="0" step="0.01" value="0" 
-                   class="demand-input" data-id="${materialization.id}">
+            <input type="number" min="0" step="0.01" class="demand-input" value="0" 
+                onchange="updateDemandVectorFromUI()">
         </td>
-        <td class="action-cell">
-            <button class="action-btn remove-btn" title="Remover materialização" 
-                    data-id="${materialization.id}">
-                <i class="fas fa-trash-alt"></i>
-            </button>
+        <td>
+            <div class="action-buttons">
+                <button class="action-btn config-btn" title="Configurar otimização" onclick="openOptimizationConfigModal(${productIds.indexOf(materialization.id)})">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button class="action-btn remove-btn" title="Remover" onclick="removeMaterialization(${materialization.id})">
+                    <i class="fas fa-trash"></i>
+                </button>
+            </div>
         </td>
     `;
     
-    // Adicionar a linha à tabela
+    // Adicionar à tabela
     tbody.appendChild(row);
     
-    // Adicionar evento ao botão de remover
-    row.querySelector('.remove-btn').addEventListener('click', function() {
-        removeMaterialization(materialization.id);
-    });
-    
-    // Adicionar também à matriz tecnológica
-    addMaterializationToTechnologicalMatrix(materialization);
-    
-    // Atualizar dados internos
-    updateMatrixAndVectorData();
+    // Atualizar dados do vetor
+    updateVectorData();
 }
 
 // Função para adicionar materialização à matriz tecnológica
@@ -1822,7 +1883,7 @@ function renderOptimizationResults(results) {
         return;
     }
 
-    // Renderizar resultados
+    // Renderizar resultados - sem o botão de configuração!
     results.forEach(result => {
         if (!result) return;
 
@@ -1887,7 +1948,7 @@ function renderResults(data) {
         return typeof value === 'number' ? value.toFixed(2) : value;
     };
     
-    // Adicionar linhas à tabela de produção
+    // Adicionar linhas à tabela de produção - SEM O BOTÃO DE CONFIGURAÇÃO
     data.productionVector.forEach((production, index) => {
         // Verificar se temos o nome e ID correspondentes
         if (index < productNames.length) {
@@ -1896,11 +1957,6 @@ function renderResults(data) {
             row.innerHTML = `
                 <td>${productNames[index]}</td>
                 <td>${formatNumber(production)}</td>
-                <td>
-                    <button class="btn optimize-btn" onclick="openOptimizationConfigModal(${index})">
-                        Configurar Otimização
-                    </button>
-                </td>
             `;
             
             productionResultsBody.appendChild(row);
@@ -1917,7 +1973,85 @@ function renderResults(data) {
     
     // Rolar para os resultados
     results.scrollIntoView({ behavior: 'smooth' });
+    
+    // Atualizar as linhas do vetor de demanda para adicionar o botão de configuração
+    updateDemandVectorWithConfigButton();
 }
+
+// Adicione esta nova função para atualizar as linhas existentes no vetor de demanda
+function updateDemandVectorWithConfigButton() {
+    // Seleciona todas as linhas na tabela de demanda
+    const demandRows = document.querySelectorAll('#demandVector tbody tr');
+    
+    demandRows.forEach(row => {
+        const materializationId = row.dataset.materializationId;
+        if (!materializationId) return;
+        
+        // Verificar se a linha já tem o botão de configuração
+        const configBtn = row.querySelector('.config-btn');
+        if (configBtn) return; // Já tem o botão, não precisa adicionar
+        
+        // Obter o índice do produto no array productIds
+        const productIndex = productIds.indexOf(parseInt(materializationId));
+        if (productIndex === -1) return;
+        
+        // Verificar se já existe uma coluna de ações
+        let actionsCell = row.querySelector('td:last-child');
+        let actionButtonsDiv;
+        
+        if (actionsCell) {
+            // Se a célula de ações já existe, procura pelo div de botões
+            actionButtonsDiv = actionsCell.querySelector('.action-buttons');
+            if (!actionButtonsDiv) {
+                // Se não tem o div, criar um novo
+                actionButtonsDiv = document.createElement('div');
+                actionButtonsDiv.className = 'action-buttons';
+                actionsCell.innerHTML = ''; // Limpar conteúdo existente
+                actionsCell.appendChild(actionButtonsDiv);
+            }
+        } else {
+            // Se não existe a célula de ações, criar uma nova
+            actionsCell = document.createElement('td');
+            actionButtonsDiv = document.createElement('div');
+            actionButtonsDiv.className = 'action-buttons';
+            actionsCell.appendChild(actionButtonsDiv);
+            row.appendChild(actionsCell);
+        }
+        
+        // Adicionar o botão de configuração antes do botão de remover (se existir)
+        const removeBtn = actionButtonsDiv.querySelector('.remove-btn');
+        
+        // Criar o botão de configuração
+        const configButton = document.createElement('button');
+        configButton.className = 'action-btn config-btn';
+        configButton.title = 'Configurar otimização';
+        configButton.innerHTML = '<i class="fas fa-cog"></i>';
+        configButton.onclick = function() { openOptimizationConfigModal(productIndex); };
+        
+        // Adicionar o botão na posição correta
+        if (removeBtn) {
+            actionButtonsDiv.insertBefore(configButton, removeBtn);
+        } else {
+            actionButtonsDiv.appendChild(configButton);
+            
+            // Se não tinha botão de remover, adicionar um
+            const removeButton = document.createElement('button');
+            removeButton.className = 'action-btn remove-btn';
+            removeButton.title = 'Remover';
+            removeButton.innerHTML = '<i class="fas fa-trash"></i>';
+            removeButton.onclick = function() { removeMaterialization(parseInt(materializationId)); };
+            actionButtonsDiv.appendChild(removeButton);
+        }
+    });
+}
+
+// Adicione uma chamada a esta função no carregamento inicial da instância
+document.addEventListener('DOMContentLoaded', function() {
+    // Outras inicializações...
+    
+    // Adicionar esta linha para garantir que seja chamada quando a página carregar
+    setTimeout(updateDemandVectorWithConfigButton, 1000);
+});
 
 // Função para adicionar o botão de adição ao vetor de demanda
 function addDemandVectorAddButton() {
