@@ -452,6 +452,7 @@ function updateDemandVectorFromUI() {
     const rows = tbody.querySelectorAll('tr');
     
     // Limpar o vetor de demanda atual
+    const oldDemandVector = [...demandVector]; // Para depuração
     demandVector = [];
     
     // Ler os valores atualizados da interface
@@ -461,10 +462,35 @@ function updateDemandVectorFromUI() {
             // Converter para número, garantindo que seja um valor válido
             const value = parseFloat(inputElement.value) || 0;
             demandVector.push(value);
+            
+            // Verificar se o ID de materialização correspondente existe
+            if (index >= productIds.length) {
+                console.warn(`Aviso: Índice ${index} não tem ID de materialização correspondente!`);
+            }
         }
     });
     
-    console.log('Vetor de demanda atualizado:', demandVector);
+    console.log("Vetor de demanda atualizado da UI:");
+    console.log("- Antes:", oldDemandVector);
+    console.log("- Depois:", demandVector);
+    console.log("- IDs correspondentes:", productIds);
+    
+    // Garantir que o comprimento do vetor de demanda corresponda ao dos IDs de materialização
+    if (demandVector.length !== productIds.length) {
+        console.warn(`Aviso: Comprimento do vetor de demanda (${demandVector.length}) não corresponde ao dos IDs (${productIds.length})`);
+        
+        // Ajustar para garantir consistência
+        while (demandVector.length > productIds.length) {
+            demandVector.pop();
+        }
+        
+        while (demandVector.length < productIds.length) {
+            demandVector.push(0);
+        }
+        
+        console.log("- Depois do ajuste:", demandVector);
+    }
+    
     return demandVector;
 }
 
@@ -1081,6 +1107,12 @@ document.addEventListener('DOMContentLoaded', function() {
             // 2. Prepare all promises that will be executed
             const allPromises = [];
             
+            // Debug log para ajudar a identificar problemas
+            console.log("Estado atual antes de salvar:");
+            console.log("- productIds:", productIds);
+            console.log("- demandVector:", demandVector);
+            console.log("- Removidos:", window.removedMaterializationIds || []);
+            
             // 3. Create deletion promises for the tracked removed materializations
             if (window.removedMaterializationIds && window.removedMaterializationIds.length > 0) {
                 console.log("Excluindo materializações removidas:", window.removedMaterializationIds);
@@ -1100,6 +1132,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     // Now delete the demand vector which triggers cascading deletion
                     const deleteDemandPromise = fetch(`/api/planification/demand-vector/${materializationId}/instance/${currentInstanceId}`, {
                         method: 'DELETE'
+                    }).then(response => {
+                        if (!response.ok) {
+                            console.error(`Erro ao excluir vetor de demanda para materialização ${materializationId}:`, response.statusText);
+                            // Tenta ler detalhes do erro do corpo da resposta
+                            return response.text().then(text => {
+                                console.error("Detalhes do erro:", text);
+                                return response;
+                            });
+                        }
+                        console.log(`Vetor de demanda para materialização ${materializationId} excluído com sucesso`);
+                        return response;
                     });
                     allPromises.push(deleteDemandPromise);
                 });
@@ -1135,19 +1178,46 @@ document.addEventListener('DOMContentLoaded', function() {
                 const materializationId = productIds[i];
                 const value = demandVector[i];
                 
-                allPromises.push(
-                    fetch('/api/planification/demand-vector', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({
-                            materializationId: materializationId,
-                            instanceId: currentInstanceId,
-                            quantity: value
-                        })
-                    })
-                );
+                // Verificar se o ID de materialização e o valor são válidos
+                if (!materializationId || isNaN(materializationId) || materializationId <= 0) {
+                    console.error(`ID de materialização inválido no índice ${i}:`, materializationId);
+                    continue;
+                }
+                
+                console.log(`Salvando demanda para materialização ${materializationId}: ${value}`);
+                
+                // Criar um payload explícito para depuração mais clara
+                const demandPayload = {
+                    materializationId: materializationId,
+                    instanceId: currentInstanceId,
+                    demand: value  // Importante: use "demand" em vez de "quantity" no payload
+                };
+                
+                console.log(`Payload da demanda:`, demandPayload);
+                
+                const demandPromise = fetch('/api/planification/demand-vector', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(demandPayload)
+                }).then(response => {
+                    if (!response.ok) {
+                        console.error(`Erro ao salvar vetor de demanda para materialização ${materializationId}:`, response.statusText);
+                        // Tenta ler detalhes do erro do corpo da resposta
+                        return response.text().then(text => {
+                            console.error("Detalhes do erro:", text);
+                            return response;
+                        });
+                    }
+                    console.log(`Vetor de demanda para materialização ${materializationId} salvo com sucesso`);
+                    return response;
+                }).catch(error => {
+                    console.error(`Erro na requisição para salvar demanda:`, error);
+                    throw error;
+                });
+                
+                allPromises.push(demandPromise);
             }
             
             // 6. Execute all promises
@@ -1461,6 +1531,12 @@ function removeMaterialization(materializationId) {
         return;
     }
     
+    // Registrar estado antes da remoção para depuração
+    console.log("Estado antes da remoção:");
+    console.log("- productIds:", [...productIds]);
+    console.log("- demandVector:", [...demandVector]);
+    console.log("- Índice a remover:", matIndex);
+    
     // Update global arrays before updating the UI
     // Remove the materialization from productIds and productNames
     productIds.splice(matIndex, 1);
@@ -1497,6 +1573,12 @@ function removeMaterialization(materializationId) {
     
     // Replace the old configs with the updated ones
     Object.assign(optimizationConfigs, newOptimizationConfigs);
+    
+    // Registrar estado após a remoção para depuração
+    console.log("Estado após a remoção:");
+    console.log("- productIds:", productIds);
+    console.log("- demandVector:", demandVector);
+    console.log("- A remover:", window.removedMaterializationIds);
     
     // Show success message
     showSuccess('Materialização removida. Clique em "Salvar Alterações" para confirmar a exclusão no banco de dados.');

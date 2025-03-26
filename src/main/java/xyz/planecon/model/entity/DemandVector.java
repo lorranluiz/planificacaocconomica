@@ -46,7 +46,7 @@ public class DemandVector {
         this.createdAt = LocalDateTime.now();
     }
     
-    // Método de conveniência para criar um objeto DemandVector
+    // Método de conveniência para criar um objeto DemandVector com ID já definido
     public static DemandVector create(
             SocialMaterialization socialization,
             Instance instance,
@@ -75,6 +75,14 @@ public class DemandVector {
         @Column(name = "id_social_materialization")
         private Integer socialMaterializationId;
         
+        @Override
+        public String toString() {
+            return "DemandVectorId{" +
+                   "socialMaterializationId=" + socialMaterializationId +
+                   ", instanceId=" + instanceId +
+                   '}';
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;

@@ -344,6 +344,9 @@ public class PlanificationController {
     @PostMapping("/demand-vector")
     public ResponseEntity<?> saveDemandVector(@RequestBody Map<String, Object> payload) {
         try {
+            // Log para debug dos dados recebidos
+            logger.info("Recebido payload para salvar vetor de demanda: {}", payload);
+            
             // Safe conversion of instanceId
             Integer instanceId = null;
             if (payload.get("instanceId") instanceof Number) {
@@ -364,16 +367,26 @@ public class PlanificationController {
                 throw new IllegalArgumentException("materializationId deve ser um número válido");
             }
 
-            // Safe conversion of quantity to BigDecimal
-            BigDecimal quantity;
-            Object quantityObj = payload.get("quantity");
-            if (quantityObj instanceof Number) {
-                quantity = new BigDecimal(quantityObj.toString());
-            } else if (quantityObj instanceof String) {
-                quantity = new BigDecimal((String) quantityObj);
-            } else {
-                quantity = BigDecimal.ZERO; // Default to zero if invalid
+            // Safe conversion of quantity/demand to BigDecimal
+            BigDecimal demand = null;
+            // Primeiro tente com o nome "demand" (novo nome do campo)
+            Object demandObj = payload.get("demand");
+            if (demandObj == null) {
+                // Se não encontrar, tente com "quantity" (nome antigo do campo) para compatibilidade
+                demandObj = payload.get("quantity");
             }
+            
+            if (demandObj instanceof Number) {
+                demand = new BigDecimal(demandObj.toString());
+            } else if (demandObj instanceof String) {
+                demand = new BigDecimal((String) demandObj);
+            } else {
+                demand = BigDecimal.ZERO; // Default to zero if invalid
+                logger.warn("Valor de demanda inválido no payload: {}, usando 0 como padrão", demandObj);
+            }
+            
+            logger.info("Valores convertidos: instanceId={}, materializationId={}, demand={}", 
+                       instanceId, materializationId, demand);
             
             // Buscar entidades relacionadas
             SocialMaterialization materialization = materializationRepository.findById(materializationId)
@@ -383,24 +396,28 @@ public class PlanificationController {
                     .orElseThrow(() -> new RuntimeException("Instância não encontrada"));
             
             // Verificar se já existe um vetor com esses IDs
-            DemandVector.DemandVectorId id = new DemandVector.DemandVectorId(materializationId, instanceId);
+            DemandVector.DemandVectorId id = new DemandVector.DemandVectorId(instanceId, materializationId);
             DemandVector demandVector;
             
             Optional<DemandVector> existingVector = demandVectorRepository.findById(id);
             if (existingVector.isPresent()) {
                 // Atualizar vetor existente
+                logger.info("Atualizando vetor de demanda existente: {}", id);
                 demandVector = existingVector.get();
-                demandVector.setDemand(quantity);
+                demandVector.setDemand(demand);
             } else {
                 // Criar novo vetor
+                logger.info("Criando novo vetor de demanda: {}", id);
                 demandVector = new DemandVector();
+                demandVector.setId(id); // Definir ID diretamente
                 demandVector.setSocialMaterialization(materialization);
                 demandVector.setInstance(instance);
-                demandVector.setDemand(quantity);
+                demandVector.setDemand(demand);
                 demandVector.setCreatedAt(LocalDateTime.now());
             }
             
             DemandVector savedVector = demandVectorRepository.save(demandVector);
+            logger.info("Vetor de demanda salvo com sucesso: {}", savedVector.getId());
             
             // Return a simplified response instead of the entity to avoid circular references
             Map<String, Object> response = new HashMap<>();
@@ -412,11 +429,13 @@ public class PlanificationController {
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            logger.error("Erro ao salvar vetor de demanda", e);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Erro ao salvar vetor de demanda: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
-
+    
     /**
      * Endpoint para buscar resultados de planificação anteriores
      */
