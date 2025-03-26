@@ -638,6 +638,11 @@ function renderDemandVector() {
         `;
     }
     
+    // Logging para depuração
+    console.log("productNames:", productNames);
+    console.log("productIds:", productIds);
+    console.log("demandVector:", demandVector);
+    
     // Adicionar linhas com valores
     demandVector.forEach((value, index) => {
         const row = document.createElement('tr');
@@ -645,8 +650,10 @@ function renderDemandVector() {
         row.dataset.materializationId = productIds[index];
         
         const hasConfig = optimizationConfigs[index] !== undefined;
+        const displayName = productNames[index] || `Materialização #${productIds[index] || index+1}`;
+        
         row.innerHTML = `
-            <td>${productNames[index]}</td>
+            <td>${displayName}</td>
             <td>
                 <input type="number" step="0.01" min="0" value="${value}" 
                       onchange="updateDemandVector(${index}, this.value)" />
@@ -779,6 +786,21 @@ document.addEventListener('DOMContentLoaded', function() {
                     return;
                 }
                 
+                // Ensure productNames and productIds arrays exist
+                if (!data.productNames || !Array.isArray(data.productNames)) {
+                    console.error("Product names data is missing or not an array");
+                    productNames = [];
+                } else {
+                    productNames = data.productNames;
+                }
+                
+                if (!data.productIds || !Array.isArray(data.productIds)) {
+                    console.error("Product IDs data is missing or not an array");
+                    productIds = [];
+                } else {
+                    productIds = data.productIds;
+                }
+                
                 // Clear existing demand vector
                 demandVector = [];
                 
@@ -811,6 +833,8 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
                 
                 console.log("Processed demand vector:", demandVector);
+                console.log("Product names:", productNames);
+                console.log("Product IDs:", productIds);
                 
                 // Renderizar o vetor na tabela
                 renderDemandVector();
