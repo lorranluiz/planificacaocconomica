@@ -1062,13 +1062,18 @@ document.addEventListener('DOMContentLoaded', function() {
                 console.log("Excluindo materializações removidas:", window.removedMaterializationIds);
                 
                 window.removedMaterializationIds.forEach(materializationId => {
-                    // Delete this materialization from the technological matrix
+                    // Directly delete other related data first to ensure proper cleanup
+                    const deleteOptimizationPromise = fetch(`/api/planification/optimization/${materializationId}/instance/${currentInstanceId}`, {
+                        method: 'DELETE'
+                    });
+                    allPromises.push(deleteOptimizationPromise);
+                    
                     const deleteTensorPromise = fetch(`/api/planification/technological-tensor/by-materialization/${materializationId}/instance/${currentInstanceId}`, {
                         method: 'DELETE'
                     });
                     allPromises.push(deleteTensorPromise);
                     
-                    // Delete this materialization from the demand vector
+                    // Now delete the demand vector which triggers cascading deletion
                     const deleteDemandPromise = fetch(`/api/planification/demand-vector/${materializationId}/instance/${currentInstanceId}`, {
                         method: 'DELETE'
                     });

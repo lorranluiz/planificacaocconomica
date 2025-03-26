@@ -555,19 +555,27 @@ public class PlanificationController {
                 return ResponseEntity.status(404).body(response);
             }
             
-            // Excluir o vetor de demanda
+            // 1. Excluir o vetor de demanda
             demandVectorRepository.deleteById(id);
             
-            // IMPORTANTE: Também excluir os tensores relacionados a esta materialização
-            // para garantir integridade referencial completa
+            // 2. Excluir os tensores tecnológicos relacionados
             List<TechnologicalTensor> tensorsToDelete = tensorRepository.findByInstanceIdAndMaterializationId(
                     instanceId, materializationId);
             
             logger.info("Excluindo também {} tensores tecnológicos relacionados", tensorsToDelete.size());
             tensorRepository.deleteAll(tensorsToDelete);
             
+            // 3. Excluir configurações de otimização relacionadas
+            OptimizationInputsResults.OptimizationInputsResultsId optimizationId = 
+                new OptimizationInputsResults.OptimizationInputsResultsId(instanceId, materializationId);
+            
+            if (optimizationRepository.existsById(optimizationId)) {
+                logger.info("Excluindo também configuração de otimização relacionada");
+                optimizationRepository.deleteById(optimizationId);
+            }
+            
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Vetor de demanda e tensores tecnológicos relacionados excluídos com sucesso");
+            response.put("message", "Vetor de demanda, tensores tecnológicos e configuração de otimização relacionados excluídos com sucesso");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.error("Erro ao excluir vetor de demanda: {}", e.getMessage(), e);
@@ -625,6 +633,42 @@ public class PlanificationController {
             logger.error("Erro ao buscar configuração de otimização: {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Map.of("error", "Erro ao buscar configuração: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Endpoint for directly deleting optimization configuration entries
+     */
+    @DeleteMapping("/optimization/{materializationId}/instance/{instanceId}")
+    public ResponseEntity<?> deleteOptimizationConfig(
+            @PathVariable Integer materializationId,
+            @PathVariable Integer instanceId) {
+        try {
+            logger.info("Excluindo configuração de otimização para materialização {} na instância {}", 
+                        materializationId, instanceId);
+            
+            // Create the composite ID for the optimization config
+            OptimizationInputsResults.OptimizationInputsResultsId id = 
+                new OptimizationInputsResults.OptimizationInputsResultsId(instanceId, materializationId);
+            
+            // Check if it exists
+            if (!optimizationRepository.existsById(id)) {
+                Map<String, String> response = new HashMap<>();
+                response.put("message", "Configuração de otimização não encontrada");
+                return ResponseEntity.ok(response); // Return OK even if not found
+            }
+            
+            // Delete the optimization config
+            optimizationRepository.deleteById(id);
+            
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Configuração de otimização excluída com sucesso");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Erro ao excluir configuração de otimização: {}", e.getMessage(), e);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Erro ao excluir configuração de otimização: " + e.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
         }
     }
 }

@@ -14,10 +14,9 @@ public interface TechnologicalTensorRepository extends JpaRepository<Technologic
     
     List<TechnologicalTensor> findByInstanceId(Integer instanceId);
     
-    // Adicione este método para encontrar tensores por instância e materialização
+    // Custom query to find tensors by instance and materialization
     @Query("SELECT t FROM TechnologicalTensor t WHERE t.instance.id = :instanceId AND " +
-           "(t.id.inputSocialMaterializationId = :materializationId OR " +
-           "t.id.outputSocialMaterializationId = :materializationId)")
+           "(t.inputSocialMaterialization.id = :materializationId OR t.outputSocialMaterialization.id = :materializationId)")
     List<TechnologicalTensor> findByInstanceIdAndMaterializationId(
             @Param("instanceId") Integer instanceId, 
             @Param("materializationId") Integer materializationId);
