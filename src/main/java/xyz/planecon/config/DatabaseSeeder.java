@@ -528,7 +528,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         DemandVector demandVector = new DemandVector();
         demandVector.setSocialMaterialization(socialMaterialization);
         demandVector.setInstance(instance);
-        demandVector.setDemand(demand); // Define o valor da demanda passado como parâmetro
+        demandVector.setDemand(demand); // Alterado: setQuantity() → setDemand()
         demandVector.setCreatedAt(LocalDateTime.now());  // Define o timestamp atual
         demandVectorRepository.save(demandVector);
         return demandVector;
@@ -587,28 +587,19 @@ public class DatabaseSeeder implements CommandLineRunner {
         SocialMaterialization inputSocialMaterialization,
         SocialMaterialization outputSocialMaterialization,
         BigDecimal coefficient,
-        Instance instance) {  // Adicionar parâmetro de instância
-    
-    TechnologicalTensor technologicalTensor = new TechnologicalTensor();
-    
-    // Criar a chave composta
-    TechnologicalTensor.TechnologicalTensorId id = new TechnologicalTensor.TechnologicalTensorId();
-    id.setInputSocialMaterializationId(inputSocialMaterialization.getId());
-    id.setOutputSocialMaterializationId(outputSocialMaterialization.getId());
-    technologicalTensor.setId(id);
-    
-    technologicalTensor.setInputSocialMaterialization(inputSocialMaterialization);
-    technologicalTensor.setOutputSocialMaterialization(outputSocialMaterialization);
-    technologicalTensor.setInstance(instance);  // Definir a instância
-    
-    // Garantir que o coeficiente tenha 6 casas decimais
-    BigDecimal adjustedCoefficient = coefficient.setScale(6, BigDecimal.ROUND_HALF_UP);
-    technologicalTensor.setTechnicalCoefficientElementValue(adjustedCoefficient);
-    
-    technologicalTensor.setCreatedAt(LocalDateTime.now());  // Define o timestamp atual
-    technologicalTensorRepository.save(technologicalTensor);
-    return technologicalTensor;
-}
+        Instance instance) {
+
+        // Usar o método create da classe que já implementa corretamente a criação do ID
+        TechnologicalTensor technologicalTensor = TechnologicalTensor.create(
+            inputSocialMaterialization,
+            outputSocialMaterialization,
+            coefficient,
+            instance
+        );
+        
+        technologicalTensorRepository.save(technologicalTensor);
+        return technologicalTensor;
+    }
 
     private Instance createInstance(InstanceType type, String name, Integer workerLimit, Sector sector, 
                                    Integer associatedCouncilId, BigDecimal totalSocialWork,

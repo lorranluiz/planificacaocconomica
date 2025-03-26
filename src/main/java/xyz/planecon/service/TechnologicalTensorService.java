@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import xyz.planecon.model.entity.Instance;
 import xyz.planecon.model.entity.SocialMaterialization;
 import xyz.planecon.model.entity.TechnologicalTensor;
-import xyz.planecon.model.entity.TechnologicalTensorId;
+import xyz.planecon.model.entity.TechnologicalTensor.TechnologicalTensorId; // Corrigido: Usar classe interna
 import xyz.planecon.repository.InstanceRepository;
 import xyz.planecon.repository.SocialMaterializationRepository;
 import xyz.planecon.repository.TechnologicalTensorRepository;
@@ -46,12 +46,26 @@ public class TechnologicalTensorService {
     }
 
     public Optional<TechnologicalTensor> findById(TechnologicalTensorId id) {
-        // Se estiver tentando buscar por ID
-        Optional<TechnologicalTensor> tensiorOptional = technologicalTensorRepository.findById(new TechnologicalTensor.TechnologicalTensorId(
-            id.getInputSocialMaterializationId(), 
-            id.getOutputSocialMaterializationId()
-        ));
-        return tensiorOptional;
+        // Usamos um método de verificação em vez de instanceof
+        Integer instanceId = getInstanceIdSafely(id);
+        
+        if (instanceId == null) {
+            // Tenta buscar usando apenas input e output (para compatibilidade)
+            List<TechnologicalTensor> tensors = technologicalTensorRepository.findByInputAndOutputIds(
+                id.getInputSocialMaterializationId(), 
+                id.getOutputSocialMaterializationId()
+            );
+            return tensors.isEmpty() ? Optional.empty() : Optional.of(tensors.get(0));
+        } else {
+            // Busca completa com instância, input e output
+            return technologicalTensorRepository.findById(
+                new TechnologicalTensorId(
+                    instanceId,
+                    id.getInputSocialMaterializationId(),
+                    id.getOutputSocialMaterializationId()
+                )
+            );
+        }
     }
 
     @Transactional
@@ -89,22 +103,71 @@ public class TechnologicalTensorService {
 
     @Transactional
     public void delete(TechnologicalTensorId id) {
-        // Se estiver verificando se um tensor existe
-        boolean exists = technologicalTensorRepository.existsById(new TechnologicalTensor.TechnologicalTensorId(
-            id.getInputSocialMaterializationId(), 
-            id.getOutputSocialMaterializationId()
-        ));
+        // Usamos o mesmo método de verificação aqui
+        Integer instanceId = getInstanceIdSafely(id);
         
-        // Try to find the entity first
-        Optional<TechnologicalTensor> tensor = technologicalTensorRepository.findById(new TechnologicalTensor.TechnologicalTensorId(
-            id.getInputSocialMaterializationId(), 
-            id.getOutputSocialMaterializationId()
-        ));
-        if (tensor.isPresent()) {
-            technologicalTensorRepository.delete(tensor.get());
+        if (instanceId == null) {
+            List<TechnologicalTensor> tensors = technologicalTensorRepository.findByInputAndOutputIds(
+                id.getInputSocialMaterializationId(), 
+                id.getOutputSocialMaterializationId()
+            );
+            
+            if (tensors.isEmpty()) {
+                throw new RuntimeException("TechnologicalTensor not found with id: " + id);
+            }
+            
+            // Excluir todos os tensores encontrados
+            for (TechnologicalTensor tensor : tensors) {
+                technologicalTensorRepository.delete(tensor);
+            }
         } else {
-            throw new RuntimeException("TechnologicalTensor not found with id: " + id);
+            // Verificar se existe com o ID completo
+            Optional<TechnologicalTensor> tensor = technologicalTensorRepository.findById(
+                new TechnologicalTensorId(
+                    instanceId,
+                    id.getInputSocialMaterializationId(),
+                    id.getOutputSocialMaterializationId()
+                )
+            );
+            if (tensor.isPresent()) {
+                technologicalTensorRepository.delete(tensor.get());
+            } else {
+                throw new RuntimeException("TechnologicalTensor not found with id: " + id);
+            }
         }
+    }
+    
+    @Transactional
+    public int deleteByMaterializationAndInstance(Integer materializationId, Integer instanceId) {
+        logger.info("Excluindo tensores para materialização {} na instância {}", materializationId, instanceId);
+        
+        // Buscar todos os tensores relacionados a esta materialização na instância especificada
+        List<TechnologicalTensor> tensorsToDelete = 
+            technologicalTensorRepository.findByInstanceIdAndMaterializationId(instanceId, materializationId);
+        
+        logger.info("Encontrados {} tensores para excluir", tensorsToDelete.size());
+        
+        int deletedCount = 0;
+        if (!tensorsToDelete.isEmpty()) {
+            // Excluir cada tensor individualmente para garantir que todos os callbacks sejam acionados
+            for (TechnologicalTensor tensor : tensorsToDelete) {
+                try {
+                    // Usar o ID correto para exclusão
+                    TechnologicalTensorId id = tensor.getId();
+                    logger.debug("Excluindo tensor com ID: [{}, {}]", 
+                        id.getInputSocialMaterializationId(), 
+                        id.getOutputSocialMaterializationId());
+                    
+                    technologicalTensorRepository.delete(tensor);
+                    deletedCount++;
+                } catch (Exception e) {
+                    logger.error("Erro ao excluir tensor: {}", e.getMessage(), e);
+                }
+            }
+        }
+        
+        logger.info("Excluídos {} tensores com sucesso", deletedCount);
+        return deletedCount;
     }
 
     public List<SocialMaterialization> findAllSocialMaterializations() {
@@ -128,5 +191,17 @@ public class TechnologicalTensorService {
 
     public Optional<Instance> findInstanceById(Integer id) {
         return instanceRepository.findById(id);
+    }
+
+    // Adicionar este método auxiliar para obter o instanceId de forma segura
+    private Integer getInstanceIdSafely(TechnologicalTensorId id) {
+        try {
+            // Tentamos acessar instanceId usando reflection para evitar erros de tipos
+            java.lang.reflect.Method method = id.getClass().getMethod("getInstanceId");
+            return (Integer) method.invoke(id);
+        } catch (Exception e) {
+            // Se falhar, assumimos que é null
+            return null;
+        }
     }
 }

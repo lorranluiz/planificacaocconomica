@@ -14,7 +14,7 @@ import xyz.planecon.dto.TechnologicalTensorDto;
 import xyz.planecon.model.entity.Instance;
 import xyz.planecon.model.entity.SocialMaterialization;
 import xyz.planecon.model.entity.TechnologicalTensor;
-import xyz.planecon.model.entity.TechnologicalTensorId;
+import xyz.planecon.model.entity.TechnologicalTensor.TechnologicalTensorId;
 import xyz.planecon.service.TechnologicalTensorService;
 
 import org.slf4j.Logger;
@@ -171,6 +171,28 @@ public class TechnologicalTensorController {
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.error("Erro ao excluir tensor", e);
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(error);
+        }
+    }
+    
+    @DeleteMapping("/api/by-materialization/{materializationId}/instance/{instanceId}")
+    @ResponseBody
+    public ResponseEntity<?> deleteTensorsByMaterialization(
+            @PathVariable("materializationId") Integer materializationId,
+            @PathVariable("instanceId") Integer instanceId) {
+        
+        try {
+            int deletedCount = tensorService.deleteByMaterializationAndInstance(materializationId, instanceId);
+            
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Tensores tecnológicos excluídos com sucesso!");
+            response.put("count", deletedCount);
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            logger.error("Erro ao excluir tensores por materialização", e);
             Map<String, String> error = new HashMap<>();
             error.put("error", e.getMessage());
             return ResponseEntity.badRequest().body(error);

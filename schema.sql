@@ -472,7 +472,7 @@ CREATE TABLE public.optimization_inputs_results (
     weekly_scale integer NOT NULL,
     planned_weekly_scale integer NOT NULL,
     production_goal numeric(16,6) NOT NULL,
-    total_hours numeric(16,10) NOT NULL,
+    total_hours numeric(38,2) NOT NULL,
     workers_needed integer NOT NULL,
     factories_needed integer NOT NULL,
     total_shifts integer NOT NULL,
@@ -795,6 +795,46 @@ ALTER TABLE ONLY public.business_rule_violation_log
 
 ALTER TABLE ONLY public.instance
     ADD CONSTRAINT instance_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: demand_stock pk_demand_stock; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.demand_stock
+    ADD CONSTRAINT pk_demand_stock PRIMARY KEY (id_instance, id_social_materialization);
+
+
+--
+-- Name: demand_vector pk_demand_vector; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.demand_vector
+    ADD CONSTRAINT pk_demand_vector PRIMARY KEY (id_instance, id_social_materialization);
+
+
+--
+-- Name: optimization_inputs_results pk_optimization_inputs_results; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.optimization_inputs_results
+    ADD CONSTRAINT pk_optimization_inputs_results PRIMARY KEY (id_instance, id_social_materialization);
+
+
+--
+-- Name: technological_tensor pk_technological_tensor; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.technological_tensor
+    ADD CONSTRAINT pk_technological_tensor PRIMARY KEY (id_instance, id_production_input, id_social_materialization);
+
+
+--
+-- Name: workers_proposal pk_workers_proposal; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.workers_proposal
+    ADD CONSTRAINT pk_workers_proposal PRIMARY KEY (id_instance);
 
 
 --

@@ -256,7 +256,7 @@ public class PlanificationController {
             Integer index = materializationToIndex.get(demand.getSocialMaterialization().getId());
             
             if (index != null) {
-                vector[index] = demand.getDemand();
+                vector[index] = demand.getDemand(); // Alterado: getQuantity() → getDemand()
             }
         }
         
@@ -305,8 +305,9 @@ public class PlanificationController {
             Instance instance = instanceRepository.findById(tensorDto.getInstanceId())
                     .orElseThrow(() -> new RuntimeException("Instância não encontrada"));
             
-            // Verificar se já existe um tensor com esses IDs
-            TechnologicalTensorId id = new TechnologicalTensorId(
+            // Criar o ID completo com os três campos
+            TechnologicalTensor.TechnologicalTensorId id = new TechnologicalTensor.TechnologicalTensorId(
+                instance.getId(),
                 tensorDto.getInputMaterializationId(), 
                 tensorDto.getOutputMaterializationId()
             );
@@ -318,7 +319,6 @@ public class PlanificationController {
                 // Atualizar tensor existente
                 tensor = existingTensor.get();
                 tensor.setTechnicalCoefficientElementValue(new BigDecimal(tensorDto.getQuantity().toString()));
-                tensor.setInstance(instance);
             } else {
                 // Criar novo tensor
                 tensor = new TechnologicalTensor();
@@ -407,7 +407,7 @@ public class PlanificationController {
             response.put("instanceId", instanceId);
             response.put("materializationId", materializationId);
             response.put("materializationName", materialization.getName());
-            response.put("demand", savedVector.getDemand());
+            response.put("demand", savedVector.getDemand()); // Alterado: getQuantity() → getDemand()
             response.put("createdAt", savedVector.getCreatedAt());
             
             return ResponseEntity.ok(response);

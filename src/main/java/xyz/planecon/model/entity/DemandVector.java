@@ -1,46 +1,92 @@
 package xyz.planecon.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
-@Data
 @Entity
 @Table(name = "demand_vector")
+@Getter
+@Setter
 @NoArgsConstructor
-@AllArgsConstructor
-@IdClass(DemandVector.DemandVectorId.class)
 public class DemandVector {
     
-    @Id
-    @ManyToOne
-    @JoinColumn(name = "id_social_materialization", nullable = false)
-    private SocialMaterialization socialMaterialization;
+    @EmbeddedId
+    private DemandVectorId id;
     
-    @Id
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("instanceId")
     @JoinColumn(name = "id_instance", nullable = false)
     private Instance instance;
     
+    @ManyToOne(fetch = FetchType.LAZY)
+    @MapsId("socialMaterializationId")
+    @JoinColumn(name = "id_social_materialization", nullable = false)
+    private SocialMaterialization socialMaterialization;
+    
     @Column(name = "demand", nullable = false)
     private BigDecimal demand;
-
-    // Adicionar o campo createdAt
+    
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
-    @Data
+    // Construtor com todos os campos necessários
+    public DemandVector(DemandVectorId id, 
+                       SocialMaterialization socialMaterialization,
+                       Instance instance,
+                       BigDecimal demand) {
+        this.id = id;
+        this.socialMaterialization = socialMaterialization;
+        this.instance = instance;
+        this.demand = demand;
+        this.createdAt = LocalDateTime.now();
+    }
+    
+    // Método de conveniência para criar um objeto DemandVector
+    public static DemandVector create(
+            SocialMaterialization socialization,
+            Instance instance,
+            BigDecimal demand) {
+        
+        DemandVectorId id = new DemandVectorId(
+            instance.getId(), 
+            socialization.getId()
+        );
+        
+        return new DemandVector(id, socialization, instance, demand);
+    }
+    
+    @Getter
+    @Setter
+    @Embeddable
     @NoArgsConstructor
     @AllArgsConstructor
+    @EqualsAndHashCode
     public static class DemandVectorId implements Serializable {
         private static final long serialVersionUID = 1L;
         
-        private Integer socialMaterialization;
-        private Integer instance;
+        @Column(name = "id_instance")
+        private Integer instanceId;
+        
+        @Column(name = "id_social_materialization")
+        private Integer socialMaterializationId;
+        
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            DemandVectorId that = (DemandVectorId) o;
+            return Objects.equals(instanceId, that.instanceId) &&
+                   Objects.equals(socialMaterializationId, that.socialMaterializationId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(instanceId, socialMaterializationId);
+        }
     }
 }

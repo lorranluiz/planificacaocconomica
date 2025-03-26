@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Data
 @Entity
@@ -17,6 +18,7 @@ public class WorkersProposal {
     private WorkersProposalId id;
     
     @ManyToOne
+    @MapsId("instanceId")
     @JoinColumn(name = "id_instance", insertable = false, updatable = false)
     private Instance instance;
     
@@ -51,9 +53,23 @@ public class WorkersProposal {
         public WorkersProposalId() {
         }
         
-        // Construtor que recebe o ID da instância
+        // Construtor com instanceId
         public WorkersProposalId(Integer instanceId) {
             this.instanceId = instanceId;
+        }
+        
+        // Métodos equals e hashCode
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            WorkersProposalId that = (WorkersProposalId) o;
+            return Objects.equals(instanceId, that.instanceId);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(instanceId);
         }
     }
 }

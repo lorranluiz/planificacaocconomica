@@ -93,7 +93,7 @@ public class DemandVectorController {
                     item.put("instance", instanceInfo);
                 }
                 
-                item.put("demand", dv.getDemand());
+                item.put("demand", dv.getDemand()); // Alterado: getQuantity() → getDemand()
                 item.put("createdAt", dv.getCreatedAt() != null ? dv.getCreatedAt().toString() : null);
                 
                 result.add(item);
@@ -161,13 +161,13 @@ public class DemandVectorController {
             if (existingVector.isPresent()) {
                 // Atualizar existente
                 demandVector = existingVector.get();
-                demandVector.setDemand(demand);
+                demandVector.setDemand(demand); // Alterado: setQuantity() → setDemand()
             } else {
                 // Criar novo
                 demandVector = new DemandVector();
                 demandVector.setSocialMaterialization(materializationOpt.get());
                 demandVector.setInstance(instanceOpt.get());
-                demandVector.setDemand(demand);
+                demandVector.setDemand(demand); // Alterado: setQuantity() → setDemand()
                 demandVector.setCreatedAt(LocalDateTime.now());
             }
             
@@ -177,7 +177,7 @@ public class DemandVectorController {
             Map<String, Object> result = new HashMap<>();
             result.put("materializationId", saved.getSocialMaterialization().getId());
             result.put("instanceId", saved.getInstance().getId());
-            result.put("demand", saved.getDemand());
+            result.put("demand", saved.getDemand()); // Alterado: getQuantity() → getDemand()
             result.put("createdAt", saved.getCreatedAt() != null ? saved.getCreatedAt().toString() : null);
             
             return ResponseEntity.ok(result);
