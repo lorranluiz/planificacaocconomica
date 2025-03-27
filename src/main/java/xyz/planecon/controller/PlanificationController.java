@@ -293,7 +293,7 @@ public class PlanificationController {
      * Endpoint para salvar um tensor na matriz tecnológica
      */
     @PostMapping("/technological-tensor")
-    public ResponseEntity<TechnologicalTensor> saveTensor(@RequestBody TensorCreationDto tensorDto) {
+    public ResponseEntity<?> saveTensor(@RequestBody TensorCreationDto tensorDto) {
         try {
             // Buscar entidades relacionadas
             SocialMaterialization inputMat = materializationRepository.findById(tensorDto.getInputMaterializationId())
@@ -331,10 +331,26 @@ public class PlanificationController {
             }
             
             TechnologicalTensor savedTensor = tensorRepository.save(tensor);
-            return ResponseEntity.ok(savedTensor);
+            
+            // CORREÇÃO: Em vez de retornar a entidade diretamente, retornar um Map com os dados simplificados
+            // para evitar ciclos de referência durante a serialização JSON
+            Map<String, Object> response = new HashMap<>();
+            response.put("id", Map.of(
+                "instanceId", savedTensor.getId().getInstanceId(),
+                "inputSocialMaterializationId", savedTensor.getId().getInputSocialMaterializationId(),
+                "outputSocialMaterializationId", savedTensor.getId().getOutputSocialMaterializationId()
+            ));
+            response.put("coefficient", savedTensor.getTechnicalCoefficientElementValue());
+            response.put("inputMaterialization", savedTensor.getInputSocialMaterialization().getName());
+            response.put("outputMaterialization", savedTensor.getOutputSocialMaterialization().getName());
+            response.put("createdAt", savedTensor.getCreatedAt());
+            
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            logger.error("Erro ao salvar tensor tecnológico", e);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Erro ao salvar tensor tecnológico: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
         }
     }
     
