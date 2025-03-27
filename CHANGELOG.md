@@ -1,6 +1,13 @@
 # Changelog
 
+- As próximas atualizações irão usar mudanças no repositório para gerar a descrição das mudanças feitas usando o padrão:
 
+- Added (Adicionado): Novos recursos ou funcionalidades.
+- Changed (Alterado): Alterações em funcionalidades existentes.
+- Deprecated (Descontinuado): Funcionalidades descontinuadas.
+- Removed (Removido): Funcionalidades removidas.
+- Fixed (Corrigido): Correções de bugs.
+- Security (Segurança): Mudanças relacionadas a segurança
 
 ## v0.2.1-alpha (03/27/2025)
 - Start of optimization in database transactions to optimize data flow, mainly regarding speed .
