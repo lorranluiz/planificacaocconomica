@@ -1133,15 +1133,17 @@ document.addEventListener('DOMContentLoaded', function() {
                     const deleteDemandPromise = fetch(`/api/planification/demand-vector/${materializationId}/instance/${currentInstanceId}`, {
                         method: 'DELETE'
                     }).then(response => {
-                        if (!response.ok) {
-                            console.error(`Erro ao excluir vetor de demanda para materialização ${materializationId}:`, response.statusText);
-                            // Tenta ler detalhes do erro do corpo da resposta
+                        console.log(`Status da exclusão do vetor de demanda para materialização ${materializationId}:`, response.status);
+                        
+                        // Mesmo se não encontrar (404), consideramos como "processado" para limpar a lista
+                        if (!response.ok && response.status !== 404) {
                             return response.text().then(text => {
-                                console.error("Detalhes do erro:", text);
-                                return response;
+                                console.error(`Erro ao excluir vetor de demanda para materialização ${materializationId}:`, text);
+                                throw new Error(`Falha ao excluir vetor de demanda: ${text}`);
                             });
                         }
-                        console.log(`Vetor de demanda para materialização ${materializationId} excluído com sucesso`);
+                        
+                        console.log(`Vetor de demanda para materialização ${materializationId} processado com sucesso`);
                         return response;
                     });
                     allPromises.push(deleteDemandPromise);
@@ -1237,6 +1239,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.originalMaterializationIds = [...productIds];
                     
                     showSuccess("Dados salvos com sucesso!");
+                    
+                    // Verificar o estado após salvar
+                    setTimeout(logDemandVectorStatus, 500);
                 })
                 .catch(error => {
                     console.error("Erro ao salvar dados:", error);
@@ -1745,4 +1750,16 @@ function saveNewMaterialization() {
         // Hide spinner
         spinner.style.display = 'none';
     });
+}
+
+// Adicione esta função de log para ajudar no diagnóstico
+function logDemandVectorStatus() {
+    if (!currentInstanceId) return;
+    
+    fetch(`/api/planification/instances/${currentInstanceId}/demand-vector`)
+        .then(response => response.json())
+        .then(data => {
+            console.log("Estado atual do vetor de demanda no servidor:", data);
+        })
+        .catch(err => console.error("Erro ao verificar vetor de demanda:", err));
 }

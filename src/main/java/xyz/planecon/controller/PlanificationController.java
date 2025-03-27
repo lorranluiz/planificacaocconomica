@@ -563,15 +563,25 @@ public class PlanificationController {
             logger.info("Excluindo vetor de demanda para materialização {} na instância {}", 
                         materializationId, instanceId);
             
-            // Criar o ID composto para o vetor de demanda
-            DemandVector.DemandVectorId id = new DemandVector.DemandVectorId(materializationId, instanceId);
+            // CORREÇÃO: Invertida a ordem dos parâmetros para corresponder à definição da classe
+            DemandVector.DemandVectorId id = new DemandVector.DemandVectorId(instanceId, materializationId);
             
             // Verificar se existe
             Optional<DemandVector> vectorOptional = demandVectorRepository.findById(id);
             if (!vectorOptional.isPresent()) {
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "Vetor de demanda não encontrado");
-                return ResponseEntity.status(404).body(response);
+                // Se não encontrar, pode ser devido à ordem invertida nas versões anteriores
+                // Tente com a ordem inversa para compatibilidade
+                DemandVector.DemandVectorId alternativeId = new DemandVector.DemandVectorId(materializationId, instanceId);
+                vectorOptional = demandVectorRepository.findById(alternativeId);
+                
+                if (!vectorOptional.isPresent()) {
+                    Map<String, String> response = new HashMap<>();
+                    response.put("message", "Vetor de demanda não encontrado");
+                    return ResponseEntity.ok(response); // Retornar OK mesmo se não encontrar
+                } else {
+                    // Se encontrou com a ordem inversa, use esse ID
+                    id = alternativeId;
+                }
             }
             
             // 1. Excluir o vetor de demanda
