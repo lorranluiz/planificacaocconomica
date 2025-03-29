@@ -1,7 +1,5 @@
 # Changelog
 
-- As próximas atualizações irão usar mudanças no repositório para gerar a descrição das mudanças feitas usando o padrão:
-
 - Added (Adicionado): Novos recursos ou funcionalidades.
 - Changed (Alterado): Alterações em funcionalidades existentes.
 - Deprecated (Descontinuado): Funcionalidades descontinuadas.
@@ -9,10 +7,18 @@
 - Fixed (Corrigido): Correções de bugs.
 - Security (Segurança): Mudanças relacionadas a segurança
 
+## v0.2.2-alpha (03/29/2025)
+
+- Added: Critical updates for performance leap in data flow
+
 ## v0.2.1-alpha (03/27/2025)
-- Start of optimization in database transactions to optimize data flow, mainly regarding speed .
+
+- Added: Start of optimization in database transactions to optimize data flow, mainly regarding speed .
 
 ## v0.2.0-alpha (03/03/2025)
+
+- Added:
+
 - Beginning of implementation using a database. The initially chosen database has been PostgreSQL.
 - For this reason, the language for the business logic on the server was changed to Java.
 - Server modeling.
@@ -23,6 +29,8 @@
 - Optimization calculation performed correctly (but can still be improved).
 
 ## v0.1.0-alpha (11/11/2024)
+
+- Added:
 
 - Project creation.
 - Initial functionalities.
