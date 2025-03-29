@@ -3,6 +3,8 @@ package xyz.planecon.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import xyz.planecon.model.enums.InstanceType;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,6 +15,8 @@ import java.util.Set;
 
 @Data
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "instance")
 public class Instance {
     @Id

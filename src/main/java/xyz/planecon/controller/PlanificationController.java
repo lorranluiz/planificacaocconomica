@@ -12,6 +12,7 @@ import xyz.planecon.dto.PlanificationRequest;
 import xyz.planecon.dto.PlanificationResponse;
 import xyz.planecon.dto.SocialMaterializationDto;
 import xyz.planecon.dto.TensorCreationDto;
+import xyz.planecon.dto.PlanificationFullDataDTO;
 import xyz.planecon.model.entity.DemandVector;
 import xyz.planecon.model.entity.Instance;
 import xyz.planecon.model.entity.OptimizationInputsResults;
@@ -714,6 +715,25 @@ public class PlanificationController {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("message", "Erro ao excluir configuração de otimização: " + e.getMessage());
             return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+
+    /**
+     * Endpoint composto que retorna todos os dados necessários para a página de planificação em uma única chamada
+     */
+    @GetMapping("/instances/{instanceId}/full-data")
+    public ResponseEntity<PlanificationFullDataDTO> getFullPlanificationData(@PathVariable Integer instanceId) {
+        try {
+            PlanificationFullDataDTO fullData = planificationService.getFullPlanificationData(instanceId);
+            
+            if (fullData == null) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            return ResponseEntity.ok(fullData);
+        } catch (Exception e) {
+            logger.error("Erro ao buscar dados completos de planificação: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

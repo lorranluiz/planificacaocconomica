@@ -3,6 +3,8 @@ package xyz.planecon.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import xyz.planecon.model.enums.SocialMaterializationType;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -10,6 +12,8 @@ import java.util.Set;
 
 @Data
 @Entity
+@Cacheable
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @Table(name = "social_materialization")
 public class SocialMaterialization {
     @Id

@@ -51,7 +51,7 @@ public class TechnologicalTensorService {
         
         if (instanceId == null) {
             // Tenta buscar usando apenas input e output (para compatibilidade)
-            List<TechnologicalTensor> tensors = technologicalTensorRepository.findByInputAndOutputIds(
+            List<TechnologicalTensor> tensors = technologicalTensorRepository.findByInputSocialMaterialization_IdAndOutputSocialMaterialization_Id(
                 id.getInputSocialMaterializationId(), 
                 id.getOutputSocialMaterializationId()
             );
@@ -107,7 +107,7 @@ public class TechnologicalTensorService {
         Integer instanceId = getInstanceIdSafely(id);
         
         if (instanceId == null) {
-            List<TechnologicalTensor> tensors = technologicalTensorRepository.findByInputAndOutputIds(
+            List<TechnologicalTensor> tensors = technologicalTensorRepository.findByInputSocialMaterialization_IdAndOutputSocialMaterialization_Id(
                 id.getInputSocialMaterializationId(), 
                 id.getOutputSocialMaterializationId()
             );
