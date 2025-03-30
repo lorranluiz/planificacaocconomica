@@ -604,24 +604,33 @@ public class PlanificationController {
             // 1. Excluir o vetor de demanda
             demandVectorRepository.deleteById(id);
             
-            // 2. Excluir os tensores tecnológicos relacionados
-            List<TechnologicalTensor> tensorsToDelete = tensorRepository.findByInstanceIdAndMaterializationId(
-                    instanceId, materializationId);
-            
-            logger.info("Excluindo também {} tensores tecnológicos relacionados", tensorsToDelete.size());
-            tensorRepository.deleteAll(tensorsToDelete);
+            // 2. Excluir os tensores tecnológicos relacionados usando a nova query otimizada
+            // MODIFICAÇÃO: Use o método específico em vez de buscar e depois excluir
+            try {
+                tensorRepository.deleteByInstanceIdAndMaterializationId(instanceId, materializationId);
+                logger.info("Tensores tecnológicos relacionados excluídos com sucesso");
+            } catch (Exception e) {
+                // Log o erro mas continue - não queremos falhar a operação inteira
+                // se alguns tensores não puderam ser excluídos
+                logger.warn("Aviso ao excluir tensores tecnológicos relacionados: {}", e.getMessage());
+            }
             
             // 3. Excluir configurações de otimização relacionadas
-            OptimizationInputsResults.OptimizationInputsResultsId optimizationId = 
-                new OptimizationInputsResults.OptimizationInputsResultsId(instanceId, materializationId);
-            
-            if (optimizationRepository.existsById(optimizationId)) {
-                logger.info("Excluindo também configuração de otimização relacionada");
-                optimizationRepository.deleteById(optimizationId);
+            try {
+                OptimizationInputsResults.OptimizationInputsResultsId optimizationId = 
+                    new OptimizationInputsResults.OptimizationInputsResultsId(instanceId, materializationId);
+                
+                if (optimizationRepository.existsById(optimizationId)) {
+                    logger.info("Excluindo também configuração de otimização relacionada");
+                    optimizationRepository.deleteById(optimizationId);
+                }
+            } catch (Exception e) {
+                // Log o erro mas continue
+                logger.warn("Aviso ao excluir configuração de otimização relacionada: {}", e.getMessage());
             }
             
             Map<String, String> response = new HashMap<>();
-            response.put("message", "Vetor de demanda, tensores tecnológicos e configuração de otimização relacionados excluídos com sucesso");
+            response.put("message", "Vetor de demanda e dados relacionados excluídos com sucesso");
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.error("Erro ao excluir vetor de demanda: {}", e.getMessage(), e);

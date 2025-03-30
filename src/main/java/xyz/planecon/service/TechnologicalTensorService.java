@@ -137,37 +137,16 @@ public class TechnologicalTensorService {
         }
     }
     
+    /**
+     * Delete tensors for a specific materialization and instance
+     */
     @Transactional
-    public int deleteByMaterializationAndInstance(Integer materializationId, Integer instanceId) {
-        logger.info("Excluindo tensores para materialização {} na instância {}", materializationId, instanceId);
+    public void deleteByMaterializationAndInstance(Integer materializationId, Integer instanceId) {
+        // Use the direct repository method for deletion
+        technologicalTensorRepository.deleteByInstanceIdAndMaterializationId(instanceId, materializationId);
         
-        // Buscar todos os tensores relacionados a esta materialização na instância especificada
-        List<TechnologicalTensor> tensorsToDelete = 
-            technologicalTensorRepository.findByInstanceIdAndMaterializationId(instanceId, materializationId);
-        
-        logger.info("Encontrados {} tensores para excluir", tensorsToDelete.size());
-        
-        int deletedCount = 0;
-        if (!tensorsToDelete.isEmpty()) {
-            // Excluir cada tensor individualmente para garantir que todos os callbacks sejam acionados
-            for (TechnologicalTensor tensor : tensorsToDelete) {
-                try {
-                    // Usar o ID correto para exclusão
-                    TechnologicalTensorId id = tensor.getId();
-                    logger.debug("Excluindo tensor com ID: [{}, {}]", 
-                        id.getInputSocialMaterializationId(), 
-                        id.getOutputSocialMaterializationId());
-                    
-                    technologicalTensorRepository.delete(tensor);
-                    deletedCount++;
-                } catch (Exception e) {
-                    logger.error("Erro ao excluir tensor: {}", e.getMessage(), e);
-                }
-            }
-        }
-        
-        logger.info("Excluídos {} tensores com sucesso", deletedCount);
-        return deletedCount;
+        // Log the operation
+        logger.info("Deleted tensors for materialization ID {} in instance ID {}", materializationId, instanceId);
     }
 
     public List<SocialMaterialization> findAllSocialMaterializations() {

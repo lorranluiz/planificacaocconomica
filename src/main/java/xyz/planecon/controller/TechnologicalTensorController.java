@@ -179,16 +179,20 @@ public class TechnologicalTensorController {
     
     @DeleteMapping("/api/by-materialization/{materializationId}/instance/{instanceId}")
     @ResponseBody
-    public ResponseEntity<?> deleteTensorsByMaterialization(
+    public ResponseEntity<?> deleteTensorByMaterialization(
             @PathVariable("materializationId") Integer materializationId,
             @PathVariable("instanceId") Integer instanceId) {
         
         try {
-            int deletedCount = tensorService.deleteByMaterializationAndInstance(materializationId, instanceId);
+            logger.info("Excluindo tensores para materialização {} na instância {}", 
+                        materializationId, instanceId);
+            
+            // Use the new direct deletion method instead
+            tensorService.deleteByMaterializationAndInstance(materializationId, instanceId);
             
             Map<String, Object> response = new HashMap<>();
             response.put("message", "Tensores tecnológicos excluídos com sucesso!");
-            response.put("count", deletedCount);
+            response.put("count", "N/A"); // We don't know the count when using direct deletion
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
