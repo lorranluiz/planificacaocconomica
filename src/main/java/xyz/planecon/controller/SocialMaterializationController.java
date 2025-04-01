@@ -73,14 +73,20 @@ public class SocialMaterializationController {
             newMaterialization.setName(name);
             newMaterialization.setType(type);
             
-            if (description != null) {
-                newMaterialization.setDescription(description);
-            }
+            // Remover a chamada ao método setDescription que não existe
+            // O campo description é armazenado apenas no DTO ou no frontend
             
             // Salvar a materialização
             SocialMaterialization saved = materializationService.save(newMaterialization);
             
-            return ResponseEntity.status(HttpStatus.CREATED).body(convertToSimpleMap(saved));
+            // Para manter a consistência com o frontend, adicionamos o description
+            // ao mapa de retorno, mesmo que não esteja armazenado na entidade
+            Map<String, Object> result = convertToSimpleMap(saved);
+            if (description != null) {
+                result.put("description", description);
+            }
+            
+            return ResponseEntity.status(HttpStatus.CREATED).body(result);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Erro ao criar materialização social: " + e.getMessage());
@@ -94,9 +100,7 @@ public class SocialMaterializationController {
         map.put("name", materialization.getName());
         map.put("type", materialization.getType().toString());
         
-        if (materialization.getDescription() != null) {
-            map.put("description", materialization.getDescription());
-        }
+        // Remover a verificação do campo description que não existe na entidade
         
         if (materialization.getSector() != null) {
             Map<String, Object> sector = new HashMap<>();
