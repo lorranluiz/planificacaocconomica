@@ -12,6 +12,17 @@ let optimizationResults = [];
 // Adicionar variável para rastrear o tipo da instância atual
 let currentInstanceType = null;
 
+// Adicionar variáveis para rastrear alterações pendentes
+let pendingChanges = {
+    addedTensors: [],
+    modifiedTensors: [],
+    deletedMaterializations: [],
+    addedDemandVectors: [],
+    modifiedDemandVectors: [],
+    addedDemandStocks: [],
+    modifiedDemandStocks: []
+};
+
 // Função para carregar as instâncias de comitê no dropdown
 function loadInstances() {
     const instanceSelect = document.getElementById('instanceSelect');
@@ -412,6 +423,21 @@ function updateCoefficientValue(input) {
         if (inputIndex >= 0 && outputIndex >= 0) {
             technologicalMatrix[inputIndex][outputIndex] = value;
         }
+    }
+    
+    // Rastrear a alteração para salvamento diferido
+    const existingChange = pendingChanges.modifiedTensors.find(
+        t => t.inputMaterializationId === inputId && t.outputMaterializationId === outputId
+    );
+    
+    if (existingChange) {
+        existingChange.quantity = value;
+    } else {
+        pendingChanges.modifiedTensors.push({
+            inputMaterializationId: inputId,
+            outputMaterializationId: outputId,
+            quantity: value
+        });
     }
 }
 
@@ -1114,8 +1140,24 @@ function updateStockValue(materializationId, value) {
     // Atualizar o saldo na interface
     updateBalanceCell(materializationId);
     
-    // Aqui você pode implementar uma lógica para salvar automaticamente
-    // ou adicionar o valor a uma fila de alterações pendentes
+    // Rastrear a alteração para salvamento diferido
+    const existingChange = pendingChanges.modifiedDemandStocks.find(item => item.materializationId === materializationId);
+    if (existingChange) {
+        existingChange.stock = stockValue;
+    } else {
+        // Obter o valor atual de demanda da interface
+        const row = document.querySelector(`tr[data-materialization-id="${materializationId}"]`);
+        if (row) {
+            const demandInput = row.querySelector('.demand-input');
+            const demandValue = demandInput ? (parseFloat(demandInput.value) || 0) : 0;
+            
+            pendingChanges.modifiedDemandStocks.push({
+                materializationId: materializationId,
+                stock: stockValue,
+                demand: demandValue
+            });
+        }
+    }
 }
 
 function updateDemandValue(materializationId, value) {
@@ -1127,8 +1169,24 @@ function updateDemandValue(materializationId, value) {
     // Atualizar o saldo na interface
     updateBalanceCell(materializationId);
     
-    // Aqui você pode implementar uma lógica para salvar automaticamente
-    // ou adicionar o valor a uma fila de alterações pendentes
+    // Rastrear a alteração para salvamento diferido
+    const existingChange = pendingChanges.modifiedDemandStocks.find(item => item.materializationId === materializationId);
+    if (existingChange) {
+        existingChange.demand = demandValue;
+    } else {
+        // Obter o valor atual de estoque da interface
+        const row = document.querySelector(`tr[data-materialization-id="${materializationId}"]`);
+        if (row) {
+            const stockInput = row.querySelector('.stock-input');
+            const stockValue = stockInput ? (parseFloat(stockInput.value) || 0) : 0;
+            
+            pendingChanges.modifiedDemandStocks.push({
+                materializationId: materializationId,
+                stock: stockValue,
+                demand: demandValue
+            });
+        }
+    }
 }
 
 function updateBalanceCell(materializationId) {
@@ -1394,6 +1452,7 @@ function savePropostaInputs() {
 
 /**
  * Salva as alterações na matriz e no vetor de demanda, bem como dados específicos para comitês.
+ * Esta função agora processa todas as alterações pendentes (adições, modificações e exclusões).
  */
 function saveChanges() {
     if (!currentInstanceId) {
@@ -1415,207 +1474,171 @@ function saveChanges() {
         console.log("Estado atual antes de salvar:");
         console.log("- productIds:", productIds);
         console.log("- demandVector:", demandVector);
-        console.log("- Removidos:", window.removedMaterializationIds || []);
+        console.log("- Removidos:", pendingChanges.deletedMaterializations);
         console.log("- Tipo de instância:", currentInstanceType);
+        console.log("- Tensores adicionados:", pendingChanges.addedTensors);
+        console.log("- Tensores modificados:", pendingChanges.modifiedTensors);
+        console.log("- Vetores de demanda adicionados:", pendingChanges.addedDemandVectors);
+        console.log("- Vetores de demanda modificados:", pendingChanges.modifiedDemandVectors);
+        console.log("- Estoques/demandas adicionados:", pendingChanges.addedDemandStocks);
+        console.log("- Estoques/demandas modificados:", pendingChanges.modifiedDemandStocks);
         
-        // 3. Create deletion promises for the tracked removed materializations
-        if (window.removedMaterializationIds && window.removedMaterializationIds.length > 0) {
-            console.log("Excluindo materializações removidas:", window.removedMaterializationIds);
-            
-            window.removedMaterializationIds.forEach(materializationId => {
-                // Directly delete other related data first to ensure proper cleanup
-                const deleteOptimizationPromise = fetch(`/api/planification/optimization/${materializationId}/instance/${currentInstanceId}`, {
-                    method: 'DELETE'
-                });
-                allPromises.push(deleteOptimizationPromise);
-                
-                const deleteTensorPromise = fetch(`/api/planification/technological-tensor/by-materialization/${materializationId}/instance/${currentInstanceId}`, {
-                    method: 'DELETE'
-                });
-                allPromises.push(deleteTensorPromise);
-                
-                // Now delete the demand vector which triggers cascading deletion
-                const deleteDemandPromise = fetch(`/api/planification/demand-vector/${materializationId}/instance/${currentInstanceId}`, {
-                    method: 'DELETE'
-                }).then(response => {
-                    console.log(`Status da exclusão do vetor de demanda para materialização ${materializationId}:`, response.status);
-                    
-                    // Mesmo se não encontrar (404), consideramos como "processado" para limpar a lista
-                    if (!response.ok && response.status !== 404) {
-                        return response.text().then(text => {
-                            console.error(`Erro ao excluir vetor de demanda para materialização ${materializationId}:`, text);
-                            throw new Error(`Falha ao excluir vetor de demanda: ${text}`);
-                        });
-                    }
-                    
-                    console.log(`Vetor de demanda para materialização ${materializationId} processado com sucesso`);
-                    return response;
-                });
-                allPromises.push(deleteDemandPromise);
+        // 3. Process deletions first
+        for (const materializationId of pendingChanges.deletedMaterializations) {
+            // Delete optimization config
+            const deleteOptimizationPromise = fetch(`/api/planification/optimization/${materializationId}/instance/${currentInstanceId}`, {
+                method: 'DELETE'
             });
+            allPromises.push(deleteOptimizationPromise);
+            
+            // Delete tensor
+            const deleteTensorPromise = fetch(`/api/planification/technological-tensor/by-materialization/${materializationId}/instance/${currentInstanceId}`, {
+                method: 'DELETE'
+            });
+            allPromises.push(deleteTensorPromise);
+            
+            // Delete demand vector
+            const deleteDemandPromise = fetch(`/api/planification/demand-vector/${materializationId}/instance/${currentInstanceId}`, {
+                method: 'DELETE'
+            });
+            allPromises.push(deleteDemandPromise);
+            
+            // Delete demand stock
+            const deleteDemandStockPromise = fetch(`/api/demand-stock/${materializationId}/instance/${currentInstanceId}`, {
+                method: 'DELETE'
+            }).catch(error => {
+                console.warn(`Warning: Could not delete demand stock for materialization ${materializationId}: ${error.message}`);
+            });
+            allPromises.push(deleteDemandStockPromise);
         }
         
-        // 4. Create promises to save/update each entry in the technological matrix
-        for (let i = 0; i < technologicalMatrix.length; i++) {
-            const rowId = productIds[i];
-            
-            // Para comitês, só salvamos a primeira coluna, que representa o vetor tecnológico
-            if (currentInstanceType === 'COMMITTEE') {
-                const colId = productIds[0]; // ID da materialização do comitê
-                const value = technologicalMatrix[i][0];
-                
-                // Só salvamos se o valor for maior que zero
-                if (value > 0) {
-                    allPromises.push(
-                        fetch('/api/planification/technological-tensor', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                inputMaterializationId: rowId,
-                                outputMaterializationId: colId,
-                                instanceId: currentInstanceId,
-                                quantity: value
-                            })
-                        })
-                    );
-                }
-            } else {
-                // Para conselhos, salvamos a matriz completa
-                for (let j = 0; j < technologicalMatrix[i].length; j++) {
-                    const colId = productIds[j];
-                    const value = technologicalMatrix[i][j];
-                    
-                    allPromises.push(
-                        fetch('/api/planification/technological-tensor', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                inputMaterializationId: rowId,
-                                outputMaterializationId: colId,
-                                instanceId: currentInstanceId,
-                                quantity: value
-                            })
-                        })
-                    );
-                }
-            }
-        }
-        
-        // 5. Create promises to save/update each entry in the demand vector
-        for (let i = 0; i < demandVector.length; i++) {
-            const materializationId = productIds[i];
-            const value = demandVector[i];
-            
-            // Verificar se o ID de materialização e o valor são válidos
-            if (!materializationId || isNaN(materializationId) || materializationId <= 0) {
-                console.error(`ID de materialização inválido no índice ${i}:`, materializationId);
-                continue;
-            }
-            
-            console.log(`Salvando demanda para materialização ${materializationId}: ${value}`);
-            
-            // Criar um payload explícito para depuração mais clara
-            const demandPayload = {
-                materializationId: materializationId,
-                instanceId: currentInstanceId,
-                demand: value  // Importante: use "demand" em vez de "quantity" no payload
-            };
-            
-            console.log(`Payload da demanda:`, demandPayload);
-            
-            const demandPromise = fetch('/api/planification/demand-vector', {
+        // 4. Process added tensors
+        for (const tensor of pendingChanges.addedTensors) {
+            const addTensorPromise = fetch('/api/planification/technological-tensor', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(demandPayload)
-            }).then(response => {
-                if (!response.ok) {
-                    console.error(`Erro ao salvar vetor de demanda para materialização ${materializationId}:`, response.statusText);
-                    // Tenta ler detalhes do erro do corpo da resposta
-                    return response.text().then(text => {
-                        console.error("Detalhes do erro:", text);
-                        return response;
-                    });
-                }
-                console.log(`Vetor de demanda para materialização ${materializationId} salvo com sucesso`);
-                return response;
-            }).catch(error => {
-                console.error(`Erro na requisição para salvar demanda:`, error);
-                throw error;
+                body: JSON.stringify({
+                    inputMaterializationId: tensor.inputMaterializationId,
+                    outputMaterializationId: tensor.outputMaterializationId,
+                    instanceId: currentInstanceId,
+                    quantity: tensor.quantity
+                })
             });
-            
-            allPromises.push(demandPromise);
+            allPromises.push(addTensorPromise);
         }
         
-        // 6. Se for um comitê, adicione promessas para salvar dados específicos de comitê
-        if (currentInstanceType === 'COMMITTEE') {
-            // 6.1. Salvar dados de estoque e demanda
-            const demandStockTable = document.getElementById('demandStockTable');
-            if (demandStockTable) {
-                const rows = demandStockTable.querySelectorAll('tbody tr');
+        // 5. Process modified tensors
+        for (const tensor of pendingChanges.modifiedTensors) {
+            const updateTensorPromise = fetch('/api/planification/technological-tensor', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    inputMaterializationId: tensor.inputMaterializationId,
+                    outputMaterializationId: tensor.outputMaterializationId,
+                    instanceId: currentInstanceId,
+                    quantity: tensor.quantity
+                })
+            });
+            allPromises.push(updateTensorPromise);
+        }
+        
+        // 6. Process added demand vectors
+        for (const vector of pendingChanges.addedDemandVectors) {
+            const addVectorPromise = fetch('/api/planification/demand-vector', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    materializationId: vector.materializationId,
+                    instanceId: currentInstanceId,
+                    demand: vector.demand
+                })
+            });
+            allPromises.push(addVectorPromise);
+        }
+        
+        // 7. Process demand vectors from the UI
+        for (let i = 0; i < demandVector.length; i++) {
+            if (i < productIds.length) {
+                const materializationId = productIds[i];
+                const demandValue = demandVector[i];
                 
-                rows.forEach(row => {
-                    const materializationId = parseInt(row.dataset.materializationId);
-                    if (!materializationId) return;
-                    
-                    const stockInput = row.querySelector('.stock-input');
-                    const demandInput = row.querySelector('.demand-input');
-                    
-                    if (stockInput && demandInput) {
-                        const stock = parseFloat(stockInput.value) || 0;
-                        const demand = parseFloat(demandInput.value) || 0;
-                        
-                        const demandStockPayload = {
-                            instanceId: currentInstanceId,
-                            materializationId: materializationId,
-                            currentStock: stock,
-                            demand: demand
-                        };
-                        
-                        console.log(`Salvando estoque/demanda para materialização ${materializationId}:`, demandStockPayload);
-                        
-                        const demandStockPromise = fetch('/api/demand-stock', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify(demandStockPayload)
-                        });
-                        
-                        allPromises.push(demandStockPromise);
-                    }
+                const updateVectorPromise = fetch('/api/planification/demand-vector', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        materializationId: materializationId,
+                        instanceId: currentInstanceId,
+                        demand: demandValue
+                    })
                 });
+                allPromises.push(updateVectorPromise);
             }
-            
-            // 6.2. Salvar quantidade produzida da instância
+        }
+        
+        // 8. Process added demand stocks
+        for (const stock of pendingChanges.addedDemandStocks) {
+            const addStockPromise = fetch('/api/demand-stock', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    instanceId: currentInstanceId,
+                    materializationId: stock.materializationId,
+                    currentStock: stock.stock,
+                    demand: stock.demand
+                })
+            });
+            allPromises.push(addStockPromise);
+        }
+        
+        // 9. Process modified demand stocks
+        for (const stock of pendingChanges.modifiedDemandStocks) {
+            const updateStockPromise = fetch('/api/demand-stock', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    instanceId: currentInstanceId,
+                    materializationId: stock.materializationId,
+                    currentStock: stock.stock,
+                    demand: stock.demand
+                })
+            });
+            allPromises.push(updateStockPromise);
+        }
+        
+        // 10. For committee-specific data
+        if (currentInstanceType === 'COMMITTEE') {
+            // 10.1. Save produced quantity
             const producedQuantityInput = document.getElementById('producedQuantity');
             if (producedQuantityInput) {
                 const producedQuantity = parseFloat(producedQuantityInput.value) || 0;
-                
-                const instanceUpdatePayload = {
-                    id: currentInstanceId,
-                    producedQuantity: producedQuantity
-                };
-                
-                console.log(`Atualizando quantidade produzida da instância:`, instanceUpdatePayload);
                 
                 const instanceUpdatePromise = fetch(`/api/instances/${currentInstanceId}/produced-quantity`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(instanceUpdatePayload)
+                    body: JSON.stringify({
+                        id: currentInstanceId,
+                        producedQuantity: producedQuantity
+                    })
                 });
                 
                 allPromises.push(instanceUpdatePromise);
             }
             
-            // 6.3. Salvar proposta para trabalhadores (se existir)
+            // 10.2. Save workers proposal if it exists
             if (window.currentWorkersProposal) {
                 const proposalData = {
                     instanceId: currentInstanceId,
@@ -1625,8 +1648,6 @@ function saveChanges() {
                     weeklyScale: window.currentWorkersProposal.weeklyScale,
                     nightShift: window.currentWorkersProposal.nightShift
                 };
-                
-                console.log(`Salvando proposta para trabalhadores:`, proposalData);
                 
                 const proposalPromise = fetch('/api/workers-proposal', {
                     method: 'POST',
@@ -1640,26 +1661,21 @@ function saveChanges() {
             }
         }
         
-        // 7. Execute all promises
+        // 11. Execute all promises
         Promise.all(allPromises)
-            .then(responses => {
-                // Check if all responses were successful
-                const hasErrors = responses.some(res => !res.ok);
-                
-                if (hasErrors) {
-                    throw new Error("Alguns dados não puderam ser salvos");
-                }
-                
-                // Clear the removed materializations list after successful save
-                window.removedMaterializationIds = [];
-                
-                // Update the original IDs reference to match current state
-                window.originalMaterializationIds = [...productIds];
+            .then(() => {
+                // Clear pending changes after successful save
+                pendingChanges = {
+                    addedTensors: [],
+                    modifiedTensors: [],
+                    deletedMaterializations: [],
+                    addedDemandVectors: [],
+                    modifiedDemandVectors: [],
+                    addedDemandStocks: [],
+                    modifiedDemandStocks: []
+                };
                 
                 showSuccess("Dados salvos com sucesso!");
-                
-                // Verificar o estado após salvar
-                setTimeout(logDemandVectorStatus, 500);
             })
             .catch(error => {
                 console.error("Erro ao salvar dados:", error);
@@ -1877,48 +1893,15 @@ function addToStockDemandTable(materialization) {
     
     tbody.appendChild(tr);
     
-    // Salvar no servidor
-    saveStockDemandItem(materialization.id, stock, demand)
-        .catch(error => {
-            console.error('Erro ao salvar estoque/demanda:', error);
-            showError(`Erro ao salvar estoque/demanda: ${error.message}`);
-        });
+    // Armazenar para salvamento diferido em vez de salvar imediatamente
+    pendingChanges.addedDemandStocks.push({
+        materializationId: materialization.id,
+        stock: stock,
+        demand: demand,
+        name: materialization.name
+    });
     
     showSuccess(`Materialização "${materialization.name}" adicionada à tabela de estoque e demanda`);
-}
-
-// Função auxiliar para salvar estoque/demanda no servidor
-function saveStockDemandItem(materializationId, stock, demand) {
-    // Preparar dados para envio
-    const payload = {
-        instanceId: currentInstanceId,
-        materializationId: materializationId,
-        currentStock: stock,
-        demand: demand
-    };
-    
-    console.log('Enviando payload para salvar estoque/demanda:', payload);
-    
-    // Enviar para o servidor
-    return fetch('/api/demand-stock', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.text().then(text => {
-                throw new Error(`Erro HTTP: ${response.status} - ${text}`);
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Estoque/demanda salvo com sucesso:', data);
-        return data;
-    });
 }
 
 // Função para adicionar materialização ao vetor tecnológico
@@ -1967,11 +1950,16 @@ function addToTechnologicalMatrix(materialization) {
         window.technologicalCoefficients = [newCoef];
     }
     
+    // Armazenar para salvamento diferido em vez de salvar imediatamente
+    pendingChanges.addedTensors.push({
+        inputMaterializationId: materialization.id,
+        outputMaterializationId: outputId,
+        quantity: 0,
+        name: materialization.name
+    });
+    
     // Atualizar a tabela visual
     renderTechnologicalMatrix();
-    
-    // Salvar no servidor
-    saveTechnologicalTensor(materialization.id, outputId, 0);
 }
 
 // Função para adicionar materialização ao vetor de demanda
@@ -2015,11 +2003,15 @@ function addToDemandVectorTable(materialization) {
         }
     }
     
+    // Armazenar para salvamento diferido em vez de salvar imediatamente
+    pendingChanges.addedDemandVectors.push({
+        materializationId: materialization.id,
+        demand: 0,
+        name: materialization.name
+    });
+    
     // Atualizar as tabelas
     renderDemandVectorTable();
-    
-    // Salvar a demanda no servidor
-    saveDemandVector(materialization.id, 0);
     
     showSuccess(`Materialização "${materialization.name}" adicionada ao vetor de demanda`);
 }
@@ -2036,14 +2028,9 @@ function removeMaterialization(materializationId, source) {
         return;
     }
     
-    // Se não tivermos uma lista de IDs removidos, criar uma
-    if (!window.removedMaterializationIds) {
-        window.removedMaterializationIds = [];
-    }
-    
-    // Adicionar à lista para exclusão durante salvamento
-    if (!window.removedMaterializationIds.includes(materializationId)) {
-        window.removedMaterializationIds.push(materializationId);
+    // Adicionar o ID da materialização à lista de exclusão, se ainda não estiver lá
+    if (!pendingChanges.deletedMaterializations.includes(materializationId)) {
+        pendingChanges.deletedMaterializations.push(materializationId);
     }
     
     // 1. Remover da tabela de estoque e demanda
@@ -2087,105 +2074,6 @@ function removeMaterialization(materializationId, source) {
     
     // Notificação de sucesso
     showSuccess("Materialização removida com sucesso");
-}
-
-// Função auxiliar para salvar estoque/demanda no servidor
-function saveStockDemandItem(materializationId, stock, demand) {
-    // Preparar dados para envio
-    const payload = {
-        instanceId: currentInstanceId,
-        materializationId: materializationId,
-        currentStock: stock,
-        demand: demand
-    };
-    
-    console.log('Enviando payload para salvar estoque/demanda:', payload);
-    
-    // Enviar para o servidor
-    return fetch('/api/demand-stock', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.text().then(text => {
-                throw new Error(`Erro HTTP: ${response.status} - ${text}`);
-            });
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Estoque/demanda salvo com sucesso:', data);
-        return data;
-    });
-}
-
-// Função auxiliar para salvar tensor tecnológico
-function saveTechnologicalTensor(inputId, outputId, value) {
-    // Preparar dados para envio
-    const payload = {
-        inputMaterializationId: inputId,
-        outputMaterializationId: outputId,
-        instanceId: currentInstanceId,
-        quantity: value
-    };
-    
-    // Enviar para o servidor
-    fetch('/api/planification/technological-tensor', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Erro HTTP: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Tensor tecnológico salvo com sucesso:', data);
-    })
-    .catch(error => {
-        console.error('Erro ao salvar tensor tecnológico:', error);
-        // Não mostrar erro ao usuário, pois isso é uma operação em segundo plano
-    });
-}
-
-// Função auxiliar para salvar vetor de demanda
-function saveDemandVector(materializationId, value) {
-    // Preparar dados para envio
-    const payload = {
-        materializationId: materializationId,
-        instanceId: currentInstanceId,
-        demand: value
-    };
-    
-    // Enviar para o servidor
-    fetch('/api/planification/demand-vector', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(payload)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Erro HTTP: ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Vetor de demanda salvo com sucesso:', data);
-    })
-    .catch(error => {
-        console.error('Erro ao salvar vetor de demanda:', error);
-        // Não mostrar erro ao usuário, pois isso é uma operação em segundo plano
-    });
 }
 
 // Função para abrir modal de nova materialização

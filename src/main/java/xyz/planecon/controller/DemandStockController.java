@@ -163,6 +163,45 @@ public class DemandStockController {
         }
     }
 
+    @DeleteMapping("/{materializationId}/instance/{instanceId}")
+    public ResponseEntity<?> deleteByMaterializationAndInstanceId(
+            @PathVariable Integer materializationId,
+            @PathVariable Integer instanceId) {
+        try {
+            // Create the composite ID
+            DemandStock.DemandStockId id = new DemandStock.DemandStockId(instanceId, materializationId);
+            
+            // Check if it exists
+            Optional<DemandStock> existingOpt = demandStockRepository.findById(id);
+            if (existingOpt.isEmpty()) {
+                // Try alternative ID order for backwards compatibility
+                DemandStock.DemandStockId alternativeId = new DemandStock.DemandStockId(materializationId, instanceId);
+                existingOpt = demandStockRepository.findById(alternativeId);
+                
+                if (existingOpt.isEmpty()) {
+                    Map<String, String> response = new HashMap<>();
+                    response.put("message", "Estoque/demanda não encontrado");
+                    return ResponseEntity.ok(response); // Return OK even if not found
+                } else {
+                    // If found with reverse order, use that ID
+                    id = alternativeId;
+                }
+            }
+            
+            // Delete the demand stock entry
+            demandStockRepository.deleteById(id);
+            
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Estoque/demanda excluído com sucesso");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Erro ao excluir estoque/demanda: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
     // Método auxiliar para converter para BigDecimal
     private BigDecimal convertToBigDecimal(Object value) {
         if (value == null) {
