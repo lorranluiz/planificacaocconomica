@@ -1765,6 +1765,59 @@ function showMaterializationDropdown(materializations, targetTable) {
     });
 }
 
+// Função dispatcher para adicionar materialização à tabela correta
+function addMaterialization(materialization, targetTable) {
+    if (!currentInstanceId) {
+        showError("Selecione uma instância primeiro");
+        return;
+    }
+    
+    console.log(`Adicionando materialização ${materialization.name} (ID: ${materialization.id}) à tabela ${targetTable}`);
+    
+    // Caso especial: Se estamos adicionando ao estoque/demanda, adicionar também ao vetor tecnológico
+    if (targetTable === 'stockDemand') {
+        // Primeiro adicionamos à tabela de estoque/demanda
+        addToStockDemandTable(materialization);
+        
+        // Em seguida, verificamos se já existe no vetor tecnológico
+        if (window.technologicalCoefficients && productIds && productIds.length > 0) {
+            const outputId = productIds[0]; // O produto principal do comitê
+            
+            // Verificar se já existe no vetor tecnológico
+            const existingCoef = window.technologicalCoefficients.find(c => 
+                c.inputMaterializationId === materialization.id && 
+                c.outputMaterializationId === outputId);
+            
+            // Se não existe ainda, adicionar ao vetor tecnológico
+            if (!existingCoef) {
+                console.log(`Adicionando automaticamente ao vetor tecnológico: ${materialization.name}`);
+                addToTechnologicalMatrix(materialization);
+            } else {
+                console.log(`Materialização ${materialization.name} já existe no vetor tecnológico`);
+            }
+        } else {
+            // Se não houver coeficientes ou produtos carregados, adicionar diretamente
+            console.log(`Adicionando ao vetor tecnológico sem verificação: ${materialization.name}`);
+            addToTechnologicalMatrix(materialization);
+        }
+        
+        return; // Já processamos este caso especial
+    }
+    
+    // Para os outros casos, só adicionar à tabela específica
+    switch (targetTable) {
+        case 'demandVector':
+            addToDemandVectorTable(materialization);
+            break;
+        case 'technologicalMatrix':
+            addToTechnologicalMatrix(materialization);
+            break;
+        default:
+            console.error(`Tipo de tabela desconhecido: ${targetTable}`);
+            showError("Erro interno: tipo de tabela inválido");
+    }
+}
+
 // Função para adicionar materialização à tabela de estoque/demanda
 function addToStockDemandTable(materialization) {
     if (!currentInstanceId) {
@@ -1825,9 +1878,47 @@ function addToStockDemandTable(materialization) {
     tbody.appendChild(tr);
     
     // Salvar no servidor
-    saveStockDemandItem(materialization.id, stock, demand);
+    saveStockDemandItem(materialization.id, stock, demand)
+        .catch(error => {
+            console.error('Erro ao salvar estoque/demanda:', error);
+            showError(`Erro ao salvar estoque/demanda: ${error.message}`);
+        });
     
     showSuccess(`Materialização "${materialization.name}" adicionada à tabela de estoque e demanda`);
+}
+
+// Função auxiliar para salvar estoque/demanda no servidor
+function saveStockDemandItem(materializationId, stock, demand) {
+    // Preparar dados para envio
+    const payload = {
+        instanceId: currentInstanceId,
+        materializationId: materializationId,
+        currentStock: stock,
+        demand: demand
+    };
+    
+    console.log('Enviando payload para salvar estoque/demanda:', payload);
+    
+    // Enviar para o servidor
+    return fetch('/api/demand-stock', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(`Erro HTTP: ${response.status} - ${text}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Estoque/demanda salvo com sucesso:', data);
+        return data;
+    });
 }
 
 // Função para adicionar materialização ao vetor tecnológico
@@ -2008,8 +2099,10 @@ function saveStockDemandItem(materializationId, stock, demand) {
         demand: demand
     };
     
+    console.log('Enviando payload para salvar estoque/demanda:', payload);
+    
     // Enviar para o servidor
-    fetch('/api/demand-stock', {
+    return fetch('/api/demand-stock', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
@@ -2018,16 +2111,15 @@ function saveStockDemandItem(materializationId, stock, demand) {
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error(`Erro HTTP: ${response.status}`);
+            return response.text().then(text => {
+                throw new Error(`Erro HTTP: ${response.status} - ${text}`);
+            });
         }
         return response.json();
     })
     .then(data => {
         console.log('Estoque/demanda salvo com sucesso:', data);
-    })
-    .catch(error => {
-        console.error('Erro ao salvar estoque/demanda:', error);
-        // Não mostrar erro ao usuário, pois isso é uma operação em segundo plano
+        return data;
     });
 }
 
@@ -2314,11 +2406,7 @@ function convertArrayToBoxedArray(arr) {
  * Função para remover item do vetor de demanda
  */
 function removeDemandItem(index) {
-    if (index < 0 || index >= productIds.length) {
-        showError("Índice inválido para remoção");
-        return;
-    }
-    
+    // Get the materialization ID from the productIds array at the given index
     const materializationId = productIds[index];
     removeMaterialization(materializationId, 'demandVector');
 }

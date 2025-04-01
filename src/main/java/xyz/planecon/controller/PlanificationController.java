@@ -745,4 +745,109 @@ public class PlanificationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+    /**
+     * Endpoint para obter dados consolidados de uma instância específica
+     * Este endpoint combina informações da matriz tecnológica e do vetor de demanda
+     */
+    @GetMapping("/instances/{instanceId}/data")
+    public ResponseEntity<?> getInstanceData(@PathVariable Integer instanceId) {
+        try {
+            // Verificar se a instância existe
+            Optional<Instance> instanceOpt = instanceRepository.findById(instanceId);
+            if (instanceOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            // Obter a instância
+            Instance instance = instanceOpt.get();
+            
+            // Buscar materializações sociais da instância
+            List<SocialMaterialization> materializations = materializationRepository.findByInstanceId(instanceId);
+            if (materializations.isEmpty()) {
+                // Buscar todas as materializações como fallback
+                materializations = materializationRepository.findAll();
+            }
+            
+            // Organizar por ID
+            Map<Integer, SocialMaterialization> materializationsMap = materializations.stream()
+                .collect(Collectors.toMap(SocialMaterialization::getId, mat -> mat));
+                
+            // Mapear índices
+            Map<Integer, Integer> materializationToIndex = new HashMap<>();
+            for (int i = 0; i < materializations.size(); i++) {
+                materializationToIndex.put(materializations.get(i).getId(), i);
+            }
+            
+            // Nomes e IDs das materializações na ordem
+            String[] productNames = new String[materializations.size()];
+            Integer[] productIds = new Integer[materializations.size()];
+            
+            for (int i = 0; i < materializations.size(); i++) {
+                SocialMaterialization mat = materializations.get(i);
+                int index = materializationToIndex.get(mat.getId());
+                productNames[index] = mat.getName();
+                productIds[index] = mat.getId();
+            }
+            
+            // Buscar tensores tecnológicos
+            List<TechnologicalTensor> tensors = tensorRepository.findByInstanceId(instanceId);
+            
+            // Criar matriz tecnológica
+            int size = materializations.size();
+            BigDecimal[][] technologicalMatrix = new BigDecimal[size][size];
+            
+            // Inicializar com zeros
+            for (int i = 0; i < size; i++) {
+                for (int j = 0; j < size; j++) {
+                    technologicalMatrix[i][j] = BigDecimal.ZERO;
+                }
+            }
+            
+            // Preencher matriz com valores dos tensores
+            for (TechnologicalTensor tensor : tensors) {
+                Integer inputIndex = materializationToIndex.get(tensor.getInputSocialMaterialization().getId());
+                Integer outputIndex = materializationToIndex.get(tensor.getOutputSocialMaterialization().getId());
+                
+                if (inputIndex != null && outputIndex != null) {
+                    technologicalMatrix[inputIndex][outputIndex] = tensor.getTechnicalCoefficientElementValue();
+                }
+            }
+            
+            // Buscar vetores de demanda
+            List<DemandVector> demandVectors = demandVectorRepository.findByInstanceId(instanceId);
+            
+            // Criar vetor de demanda
+            BigDecimal[] demandVector = new BigDecimal[size];
+            
+            // Inicializar com zeros
+            for (int i = 0; i < size; i++) {
+                demandVector[i] = BigDecimal.ZERO;
+            }
+            
+            // Preencher vetor com valores de demanda
+            for (DemandVector demand : demandVectors) {
+                Integer index = materializationToIndex.get(demand.getSocialMaterialization().getId());
+                
+                if (index != null) {
+                    demandVector[index] = demand.getDemand();
+                }
+            }
+            
+            // Retornar resultado consolidado
+            Map<String, Object> result = new HashMap<>();
+            result.put("technologicalMatrix", technologicalMatrix);
+            result.put("demandVector", demandVector);
+            result.put("productNames", productNames);
+            result.put("productIds", productIds);
+            result.put("instanceType", instance.getType().toString());
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            logger.error("Erro ao buscar dados da instância", e);
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Erro ao buscar dados da instância: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
 }

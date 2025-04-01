@@ -12,6 +12,7 @@ import xyz.planecon.repository.InstanceRepository;
 import xyz.planecon.repository.SocialMaterializationRepository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -51,7 +52,7 @@ public class DemandStockController {
             Map<String, Object> item = new HashMap<>();
             item.put("materializationId", stock.getSocialMaterialization().getId());
             item.put("materializationName", stock.getSocialMaterialization().getName());
-            item.put("currentStock", stock.getStock()); // Corrigido: getCurrentStock() → getStock()
+            item.put("currentStock", stock.getStock());
             item.put("demand", stock.getDemand());
             result.add(item);
         }
@@ -62,15 +63,45 @@ public class DemandStockController {
     @PostMapping
     public ResponseEntity<?> createOrUpdate(@RequestBody Map<String, Object> request) {
         try {
-            // Extrair dados da requisição
-            Integer instanceId = (Integer) request.get("instanceId");
-            Integer materializationId = (Integer) request.get("materializationId");
+            // Extrair dados da requisição com conversão segura de tipos
+            Integer instanceId = null;
+            Integer materializationId = null;
+            
+            // Converter instanceId com segurança
+            Object instanceIdObj = request.get("instanceId");
+            if (instanceIdObj instanceof Number) {
+                instanceId = ((Number) instanceIdObj).intValue();
+            } else if (instanceIdObj instanceof String) {
+                try {
+                    instanceId = Integer.parseInt((String) instanceIdObj);
+                } catch (NumberFormatException e) {
+                    return ResponseEntity.badRequest()
+                        .body("instanceId inválido: " + instanceIdObj);
+                }
+            }
+            
+            // Converter materializationId com segurança
+            Object materializationIdObj = request.get("materializationId");
+            if (materializationIdObj instanceof Number) {
+                materializationId = ((Number) materializationIdObj).intValue();
+            } else if (materializationIdObj instanceof String) {
+                try {
+                    materializationId = Integer.parseInt((String) materializationIdObj);
+                } catch (NumberFormatException e) {
+                    return ResponseEntity.badRequest()
+                        .body("materializationId inválido: " + materializationIdObj);
+                }
+            }
             
             // Verificar se os IDs são válidos
             if (instanceId == null || materializationId == null) {
                 return ResponseEntity.badRequest()
                     .body("IDs de instância e materialização são obrigatórios");
             }
+            
+            // Log para debug
+            System.out.println("Valores após conversão: instanceId=" + instanceId + 
+                ", materializationId=" + materializationId);
             
             // Buscar entidades
             Optional<Instance> instanceOpt = instanceRepository.findById(instanceId);
@@ -99,11 +130,18 @@ public class DemandStockController {
                 // Agora configurar manualmente todas as propriedades necessárias
                 demandStock.setInstance(instanceOpt.get());
                 demandStock.setSocialMaterialization(matOpt.get());
+                // SEMPRE definir a data de criação para evitar o erro NOT NULL
+                demandStock.setCreatedAt(LocalDateTime.now());
             }
             
             // Atualizar valores usando os setters corretos
             demandStock.setStock(currentStock);
             demandStock.setDemand(demand);
+            
+            // Verificação final - se created_at for nulo, definir agora
+            if (demandStock.getCreatedAt() == null) {
+                demandStock.setCreatedAt(LocalDateTime.now());
+            }
             
             // Salvar
             DemandStock saved = demandStockRepository.save(demandStock);
@@ -113,11 +151,13 @@ public class DemandStockController {
             result.put("instanceId", saved.getInstance().getId());
             result.put("materializationId", saved.getSocialMaterialization().getId());
             result.put("materializationName", saved.getSocialMaterialization().getName());
-            result.put("currentStock", saved.getStock()); // Corrigido: getCurrentStock() → getStock()
+            result.put("currentStock", saved.getStock());
             result.put("demand", saved.getDemand());
+            result.put("createdAt", saved.getCreatedAt());
             
             return ResponseEntity.ok(result);
         } catch (Exception e) {
+            e.printStackTrace(); // Adicionar stack trace para debug
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Erro ao salvar dados: " + e.getMessage());
         }
