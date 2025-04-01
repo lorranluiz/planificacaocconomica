@@ -317,21 +317,66 @@
             </div>
             
             <div id="matrixSection" style="display: none;">
-                <h2>Matriz Tecnológica</h2>
-                <p>A matriz tecnológica representa quanto do produto de cada linha é necessário para produzir uma unidade do produto de cada coluna.</p>
+                <div id="technologicalTensorSection">
+                    <h2 id="tensorTitle">Matriz Tecnológica</h2>
+                    <p id="tensorDescription">A matriz tecnológica representa quanto do produto de cada linha é necessário para produzir uma unidade do produto de cada coluna.</p>
+                    
+                    <div class="matrix-container">
+                        <table id="technologicalMatrix" class="editable-table">
+                            <thead>
+                                <tr>
+                                    <th></th>
+                                    <!-- Colunas serão adicionadas dinamicamente -->
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Linhas serão adicionadas dinamicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
                 
-                <div class="matrix-container">
-                    <table id="technologicalMatrix" class="editable-table">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <!-- Colunas serão adicionadas dinamicamente -->
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Linhas serão adicionadas dinamicamente -->
-                        </tbody>
-                    </table>
+                <div id="stockDemandSection">
+                    <h2>Estoque e Demanda</h2>
+                    <p>Informações sobre o estoque atual e a demanda para cada materialização social.</p>
+                    
+                    <div class="table-container">
+                        <table id="demandStockTable" class="editable-table">
+                            <thead>
+                                <tr>
+                                    <th>Materialização Social</th>
+                                    <th>Estoque Atual</th>
+                                    <th>Demanda</th>
+                                    <th>Saldo</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Linhas serão adicionadas dinamicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div id="productionTargetSection">
+                    <h2>Produção e Meta</h2>
+                    <p>Informações sobre a quantidade produzida e a meta de produção.</p>
+                    
+                    <div class="table-container">
+                        <table id="productionTargetTable" class="editable-table">
+                            <thead>
+                                <tr>
+                                    <th>Quantidade Produzida</th>
+                                    <th>Quantidade que falta ser produzida</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><input type="number" id="producedQuantity" class="form-control"></td>
+                                    <td id="remainingQuantity">0</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 
                 <h2>Vetor de Demanda Final</h2>
@@ -392,6 +437,10 @@
         </div>
     </div>
     
+    <div class="controls" id="committeeControls" style="display: none;">
+        <button id="openPropostaBtn" class="btn">Proposta</button>
+    </div>
+
     <!-- Modal de Configuração de Otimização -->
     <div id="optimizationConfigModal" class="modal">
         <div class="modal-content">
@@ -500,6 +549,51 @@
                     <button type="button" class="btn btn-secondary" onclick="closeNewMaterializationModal()">Cancelar</button>
                 </div>
             </form>
+        </div>
+    </div>
+    
+    <!-- Modal "Proposta para demais Trabalhadores" -->
+    <div id="propostaModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Proposta para demais Trabalhadores</h3>
+                <span class="close" onclick="closePropostaModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <p><strong>Nome da Unidade de Produção:</strong> <span id="unitName"></span></p>
+                
+                <div class="form-group">
+                    <label for="workerLimitProposta">Limite de Trabalhadores na Unidade de Produção:</label>
+                    <input type="number" id="workerLimitProposta" class="form-control" min="1" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="workerHoursProposta">Carga Horária Diária (h):</label>
+                    <input type="number" id="workerHoursProposta" class="form-control" step="0.1" min="0.1" max="12" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="productionTimeProposta">Tempo para Produzir 1 Unidade (h):</label>
+                    <input type="number" id="productionTimeProposta" class="form-control" step="0.01" min="0.01" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="weeklyScaleProposta">Escala semanal (dias):</label>
+                    <input type="number" id="weeklyScaleProposta" class="form-control" min="1" max="7" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="nightShiftProposta">Turno Noturno:</label>
+                    <input type="checkbox" id="nightShiftProposta">
+                </div>
+                
+                <div id="propostaError" class="error-message" style="display: none;"></div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn" onclick="savePropostaInputs()">Salvar</button>
+                <button type="button" class="btn btn-secondary" onclick="closePropostaModal()">Cancelar</button>
+                <div id="propostaSpinner" class="loading" style="display: none;"></div>
+            </div>
         </div>
     </div>
 

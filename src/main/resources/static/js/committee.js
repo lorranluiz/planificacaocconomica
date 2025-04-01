@@ -9,6 +9,188 @@ let demandVector = [];
 let currentOptimizationProductIndex = -1;
 const optimizationConfigs = {};
 let optimizationResults = [];
+// Adicionar variável para rastrear o tipo da instância atual
+let currentInstanceType = null;
+
+// Função para carregar as instâncias de comitê no dropdown
+function loadInstances() {
+    const instanceSelect = document.getElementById('instanceSelect');
+    
+    if (!instanceSelect) {
+        console.error('Elemento de seleção de instâncias não encontrado');
+        return;
+    }
+    
+    fetch('/api/instances/by-type/COMMITTEE')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao carregar instâncias de comitê');
+            }
+            return response.json();
+        })
+        .then(instances => {
+            console.log('Instâncias de comitê carregadas:', instances);
+            
+            // Limpar opções existentes, mantendo apenas a opção padrão
+            instanceSelect.innerHTML = '<option value="">Selecione uma instância...</option>';
+            
+            // Adicionar opções ao select
+            instances.forEach(instance => {
+                const option = document.createElement('option');
+                option.value = instance.id;
+                option.textContent = instance.committeeName || `Comitê #${instance.id}`;
+                instanceSelect.appendChild(option);
+            });
+            
+            // Verificar se há um ID de instância na URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const instanceIdFromUrl = urlParams.get('instanceId');
+            
+            if (instanceIdFromUrl) {
+                instanceSelect.value = instanceIdFromUrl;
+                // Disparar evento para carregar os dados desta instância
+                instanceSelect.dispatchEvent(new Event('change'));
+            }
+        })
+        .catch(error => {
+            console.error('Erro ao carregar instâncias:', error);
+            showError('Erro ao carregar instâncias de comitê. Por favor, tente novamente mais tarde.');
+        });
+}
+
+// Configurar event listeners quando o documento estiver carregado
+document.addEventListener('DOMContentLoaded', function() {
+    // Inserir o cabeçalho comum
+    ensureHeader();
+    
+    // Carregar instâncias
+    loadInstances();
+    
+    // Event listener para quando uma instância for selecionada
+    const instanceSelect = document.getElementById('instanceSelect');
+    instanceSelect.addEventListener('change', function() {
+        const instanceId = this.value;
+        
+        // Limpar dados anteriores
+        document.getElementById('matrixSection').style.display = 'none';
+        document.getElementById('results').style.display = 'none';
+        
+        if (!instanceId) {
+            return; // Nenhuma instância selecionada
+        }
+        
+        // Armazenar o ID da instância selecionada
+        currentInstanceId = instanceId;
+        
+        // Guardar o tipo da instância como COMMITTEE para renderização específica
+        currentInstanceType = 'COMMITTEE';
+        
+        // Mostrar spinner de carregamento
+        document.getElementById('loadingSpinner').style.display = 'inline-block';
+        
+        // Carregar dados desta instância
+        Promise.all([
+            fetch(`/api/planification/instances/${instanceId}/data`).then(res => res.json()),
+            loadDemandStock(instanceId),
+            loadWorkersProposal(instanceId),
+            loadProductionTarget(instanceId),
+            loadPreviousResults(instanceId)
+        ])
+        .then(([instanceData]) => {
+            // Armazenar dados
+            productNames = instanceData.productNames || [];
+            productIds = instanceData.productIds || [];
+            technologicalMatrix = instanceData.technologicalMatrix || [];
+            demandVector = instanceData.demandVector || [];
+            
+            // Renderizar interface
+            renderTechnologicalMatrix();
+            renderDemandVectorTable();
+            
+            // Mostrar seções
+            document.getElementById('matrixSection').style.display = 'block';
+            document.getElementById('committeeControls').style.display = 'flex';
+            
+            // Configurar botão para abrir modal de proposta
+            document.getElementById('openPropostaBtn').addEventListener('click', function() {
+                openPropostaModal();
+            });
+        })
+        .catch(error => {
+            console.error('Erro ao carregar dados da instância:', error);
+            showError('Erro ao carregar dados da instância');
+        })
+        .finally(() => {
+            // Esconder spinner de carregamento
+            document.getElementById('loadingSpinner').style.display = 'none';
+        });
+    });
+    
+    // Event listener para botão de planificar
+    document.getElementById('planifyButton').addEventListener('click', function() {
+        planify();
+    });
+    
+    // Event listener para botão de salvar
+    document.getElementById('saveButton').addEventListener('click', function() {
+        saveChanges();
+    });
+});
+
+// Renderizar a tabela do vetor de demanda
+function renderDemandVectorTable() {
+    const demandTable = document.getElementById('demandVector');
+    if (!demandTable) return;
+    
+    const tbody = demandTable.querySelector('tbody');
+    tbody.innerHTML = '';
+    
+    productNames.forEach((name, index) => {
+        const value = index < demandVector.length ? demandVector[index] : 0;
+        
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td>${name}</td>
+            <td>
+                <input type="number" step="0.01" min="0" value="${value}" 
+                       data-index="${index}"
+                       onchange="updateDemandVector(${index}, this)" />
+            </td>
+            <td>
+                <div class="action-buttons">
+                    <button class="btn remove-btn" onclick="removeDemandItem(${index})"><i class="fas fa-trash-alt"></i></button>
+                </div>
+            </td>
+        `;
+        
+        tbody.appendChild(tr);
+    });
+}
+
+// Função auxiliar para atualizar o vetor de demanda quando os valores mudam
+function updateDemandVector(index, input) {
+    if (index >= 0 && index < demandVector.length) {
+        const value = parseFloat(input.value) || 0;
+        demandVector[index] = value;
+    }
+}
+
+// Funções para modais
+function openPropostaModal() {
+    document.getElementById('unitName').textContent = 
+        document.getElementById('instanceSelect').options[document.getElementById('instanceSelect').selectedIndex].text;
+    
+    // Carregar dados
+    loadPropostaData(currentInstanceId);
+    
+    // Mostrar modal
+    document.getElementById('propostaModal').style.display = 'flex';
+}
+
+function closePropostaModal() {
+    document.getElementById('propostaModal').style.display = 'none';
+    document.getElementById('propostaError').style.display = 'none';
+}
 
 // Adicione esta função após a declaração de variáveis no início do arquivo
 function loadPreviousResults(instanceId) {
@@ -583,577 +765,551 @@ function renderTechnologicalMatrix() {
     }
     
     // Limpar tabela
-    technologicalMatrixTable.querySelector('thead tr').innerHTML = '<th></th>';
-    technologicalMatrixTable.querySelector('tbody').innerHTML = '';
-    
-    // Adicionar cabeçalhos de colunas
-    productNames.forEach(name => {
-        const th = document.createElement('th');
-        th.textContent = name;
-        technologicalMatrixTable.querySelector('thead tr').appendChild(th);
-    });
-    
-    // Adicionar linhas com valores
-    technologicalMatrix.forEach((row, rowIndex) => {
-        const tr = document.createElement('tr');
-        
-        // Adicionar nome do produto como primeira célula
-        const headerCell = document.createElement('th');
-        headerCell.textContent = productNames[rowIndex];
-        tr.appendChild(headerCell);
-        
-        // Adicionar valores da matriz
-        row.forEach((value, colIndex) => {
-            const td = document.createElement('td');
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.step = '0.01';
-            input.value = value;
-            input.dataset.row = rowIndex;
-            input.dataset.col = colIndex;
-            input.addEventListener('change', function() {
-                technologicalMatrix[rowIndex][colIndex] = parseFloat(this.value) || 0;
-            });
-            td.appendChild(input);
-            tr.appendChild(td);
-        });
-        
-        technologicalMatrixTable.querySelector('tbody').appendChild(tr);
-    });
-}
-
-// Function to render optimization results - moved to global scope
-function renderOptimizationResults(optimizationResults) {
-    // This is a simplified version - just logging the results
-    console.log("Optimization results:", optimizationResults);
-    
-    // In a complete implementation, you would:
-    // 1. Find or create a container for the optimization results
-    // 2. Render a table or cards showing the optimization details
-    // 3. Add visualizations like charts if needed
-    
-    // Since we're now using the more complete renderProductionVector function,
-    // which already includes the optimization results, this function can be minimal
-}
-
-// Function to render demand vector - moved to global scope
-function renderDemandVector() {
-    if (!demandVector || !productNames) return;
-    
-    const demandVectorTable = document.getElementById('demandVector');
-    if (!demandVectorTable) {
-        console.error("Table element for demand vector not found");
-        return;
-    }
-    
-    // Limpar tabela
-    const tbody = demandVectorTable.querySelector('tbody');
-    if (!tbody) {
-        console.error("Tbody element not found in demand vector table");
-        return;
-    }
+    const thead = technologicalMatrixTable.querySelector('thead tr');
+    const tbody = technologicalMatrixTable.querySelector('tbody');
+    thead.innerHTML = '';
     tbody.innerHTML = '';
     
-    // Modificar cabeçalhos para incluir a coluna de ação
-    const thead = demandVectorTable.querySelector('thead tr');
-    if (thead) {
+    // Verificar se estamos lidando com um comitê (vetor tecnológico) ou conselho (matriz tecnológica)
+    if (currentInstanceType === 'COMMITTEE') {
+        // Para comitê, renderizamos uma tabela com duas colunas apenas (insumo e coeficiente)
         thead.innerHTML = `
-            <th>Materialização Social</th>
-            <th>Demanda Final</th>
-            <th>Ação</th>
+            <th>Insumo</th>
+            <th>Coeficiente Técnico</th>
         `;
+        
+        // Para comitês, só nos interessa a primeira coluna da matriz, que contém os coeficientes
+        // de todos os insumos necessários para produzir uma unidade do produto do comitê
+        // Verifica se temos pelo menos uma coluna na matriz
+        if (technologicalMatrix.length > 0 && technologicalMatrix[0].length > 0) {
+            productNames.forEach((name, rowIndex) => {
+                if (rowIndex < technologicalMatrix.length) {
+                    // Para cada insumo, mostramos seu coeficiente na coluna 0
+                    const coeff = technologicalMatrix[rowIndex][0];
+                    
+                    // Só mostra se o valor for maior que zero
+                    if (coeff > 0) {
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${name}</td>
+                            <td>
+                                <input type="number" step="0.01" min="0" value="${coeff}" 
+                                      data-row="${rowIndex}" data-col="0" 
+                                      onchange="technologicalMatrix[${rowIndex}][0] = parseFloat(this.value) || 0" />
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    }
+                }
+            });
+        } else {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td colspan="2" class="text-center">Não há dados de insumos disponíveis</td>`;
+            tbody.appendChild(tr);
+        }
+    } else {
+        // Para conselho, renderizamos a matriz completa como antes
+        thead.innerHTML = '<th></th>';
+        
+        // Adicionar cabeçalhos de colunas
+        productNames.forEach(name => {
+            const th = document.createElement('th');
+            th.textContent = name;
+            thead.appendChild(th);
+        });
+        
+        // Adicionar linhas com valores
+        technologicalMatrix.forEach((row, rowIndex) => {
+            const tr = document.createElement('tr');
+            
+            // Adicionar nome do produto como primeira célula
+            const headerCell = document.createElement('th');
+            headerCell.textContent = productNames[rowIndex];
+            tr.appendChild(headerCell);
+            
+            // Adicionar valores da matriz
+            row.forEach((value, colIndex) => {
+                const td = document.createElement('td');
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.step = '0.01';
+                input.value = value;
+                input.dataset.row = rowIndex;
+                input.dataset.col = colIndex;
+                input.addEventListener('change', function() {
+                    technologicalMatrix[rowIndex][colIndex] = parseFloat(this.value) || 0;
+                });
+                td.appendChild(input);
+                tr.appendChild(td);
+            });
+            
+            tbody.appendChild(tr);
+        });
+    }
+}
+
+// Implementação das funções para carregar dados de comitê
+function loadDemandStock(instanceId) {
+    console.log(`Carregando dados de estoque e demanda para o comitê ${instanceId}...`);
+    
+    return fetch(`/api/demand-stock/instance/${instanceId}`)
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 404) {
+                    console.log('Nenhum dado de estoque encontrado para esta instância');
+                    return [];
+                }
+                throw new Error('Erro ao carregar dados de estoque');
+            }
+            return response.json();
+        })
+        .then(stockData => {
+            console.log('Dados de estoque carregados:', stockData);
+            renderDemandStockTable(stockData);
+            return stockData;
+        })
+        .catch(error => {
+            console.error('Erro ao carregar dados de estoque:', error);
+            showError('Não foi possível carregar dados de estoque');
+            return [];
+        });
+}
+
+function renderDemandStockTable(stockData) {
+    const table = document.getElementById('demandStockTable');
+    if (!table) {
+        console.error('Tabela de estoque/demanda não encontrada');
+        return;
     }
     
-    // Logging para depuração
-    console.log("productNames:", productNames);
-    console.log("productIds:", productIds);
-    console.log("demandVector:", demandVector);
+    const tbody = table.querySelector('tbody');
+    tbody.innerHTML = '';
     
-    // Adicionar linhas com valores
-    demandVector.forEach((value, index) => {
-        const row = document.createElement('tr');
-        // Add data attribute for the materialization ID
-        row.dataset.materializationId = productIds[index];
+    if (stockData.length === 0) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="4" class="text-center">Não há dados de estoque/demanda disponíveis</td>';
+        tbody.appendChild(tr);
+        return;
+    }
+    
+    stockData.forEach(item => {
+        const tr = document.createElement('tr');
+        tr.dataset.materializationId = item.materializationId;
         
-        const hasConfig = optimizationConfigs[index] !== undefined;
-        const displayName = productNames[index] || `Materialização #${productIds[index] || index+1}`;
+        // Calcula o saldo (estoque - demanda)
+        const stock = parseFloat(item.currentStock) || 0;
+        const demand = parseFloat(item.demand) || 0;
+        const balance = stock - demand;
         
-        row.innerHTML = `
-            <td>${displayName}</td>
+        tr.innerHTML = `
+            <td>${item.materializationName || 'Não especificado'}</td>
             <td>
-                <input type="number" step="0.01" min="0" value="${value}" 
-                      onchange="updateDemandVector(${index}, this.value)" />
+                <input type="number" class="form-control stock-input" 
+                    value="${stock}" 
+                    data-id="${item.materializationId}"
+                    onchange="updateStockValue(${item.materializationId}, this.value)">
             </td>
-            <td class="action-buttons">
-                <button class="btn btn-sm ${hasConfig ? 'btn-success' : ''}" onclick="openOptimizationConfigModal(${index})">
-                    <i class="fas fa-cogs"></i>
-                </button>
-                <button class="btn btn-sm remove-btn" onclick="removeMaterialization(${productIds[index]})">
-                    <i class="fas fa-trash"></i>
-                </button>
+            <td>
+                <input type="number" class="form-control demand-input" 
+                    value="${demand}" 
+                    data-id="${item.materializationId}"
+                    onchange="updateDemandValue(${item.materializationId}, this.value)">
             </td>
+            <td class="balance-cell ${balance < 0 ? 'negative' : ''}">${balance.toFixed(2)}</td>
         `;
         
-        tbody.appendChild(row);
+        tbody.appendChild(tr);
+    });
+    
+    // Adicionar estilos para células de saldo negativo
+    const style = document.createElement('style');
+    style.textContent = `
+        .balance-cell.negative {
+            color: #dc3545;
+            font-weight: bold;
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+function updateStockValue(materializationId, value) {
+    if (!currentInstanceId) return;
+    
+    const stockValue = parseFloat(value) || 0;
+    console.log(`Atualizando estoque para materialização ${materializationId}: ${stockValue}`);
+    
+    // Atualizar o saldo na interface
+    updateBalanceCell(materializationId);
+    
+    // Aqui você pode implementar uma lógica para salvar automaticamente
+    // ou adicionar o valor a uma fila de alterações pendentes
+}
+
+function updateDemandValue(materializationId, value) {
+    if (!currentInstanceId) return;
+    
+    const demandValue = parseFloat(value) || 0;
+    console.log(`Atualizando demanda para materialização ${materializationId}: ${demandValue}`);
+    
+    // Atualizar o saldo na interface
+    updateBalanceCell(materializationId);
+    
+    // Aqui você pode implementar uma lógica para salvar automaticamente
+    // ou adicionar o valor a uma fila de alterações pendentes
+}
+
+function updateBalanceCell(materializationId) {
+    const row = document.querySelector(`tr[data-materialization-id="${materializationId}"]`);
+    if (!row) return;
+    
+    const stockInput = row.querySelector('.stock-input');
+    const demandInput = row.querySelector('.demand-input');
+    const balanceCell = row.querySelector('.balance-cell');
+    
+    if (!stockInput || !demandInput || !balanceCell) return;
+    
+    const stock = parseFloat(stockInput.value) || 0;
+    const demand = parseFloat(demandInput.value) || 0;
+    const balance = stock - demand;
+    
+    balanceCell.textContent = balance.toFixed(2);
+    balanceCell.classList.toggle('negative', balance < 0);
+}
+
+function loadWorkersProposal(instanceId) {
+    console.log(`Carregando proposta de trabalhadores para o comitê ${instanceId}...`);
+    
+    return fetch(`/api/workers-proposal/instance/${instanceId}`)
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 404) {
+                    console.log('Nenhuma proposta de trabalhadores encontrada para esta instância');
+                    return null;
+                }
+                throw new Error('Erro ao carregar proposta de trabalhadores');
+            }
+            return response.json();
+        })
+        .then(proposalData => {
+            console.log('Proposta de trabalhadores carregada:', proposalData);
+            // Armazenar dados para uso posterior na modal
+            window.currentWorkersProposal = proposalData;
+            return proposalData;
+        })
+        .catch(error => {
+            console.error('Erro ao carregar proposta de trabalhadores:', error);
+            // Não mostrar erro ao usuário, apenas criar um objeto vazio para usar depois
+            window.currentWorkersProposal = null;
+            return null;
+        });
+}
+
+function loadProductionTarget(instanceId) {
+    console.log(`Carregando metas de produção para o comitê ${instanceId}...`);
+    
+    return fetch(`/api/instances/${instanceId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao carregar dados da instância');
+            }
+            return response.json();
+        })
+        .then(instanceData => {
+            console.log('Dados da instância carregados:', instanceData);
+            
+            // Preencher a tabela de produção e meta
+            const producedQuantityInput = document.getElementById('producedQuantity');
+            const remainingQuantityCell = document.getElementById('remainingQuantity');
+            
+            if (producedQuantityInput && remainingQuantityCell) {
+                const producedQuantity = instanceData.producedQuantity || 0;
+                const targetQuantity = instanceData.targetQuantity || 0;
+                const remainingQuantity = targetQuantity - producedQuantity;
+                
+                producedQuantityInput.value = producedQuantity;
+                remainingQuantityCell.textContent = remainingQuantity.toFixed(2);
+                
+                // Destacar se falta produzir
+                if (remainingQuantity > 0) {
+                    remainingQuantityCell.classList.add('remaining-positive');
+                } else {
+                    remainingQuantityCell.classList.remove('remaining-positive');
+                }
+                
+                // Adicionar evento para atualizar a quantidade restante quando a produção mudar
+                producedQuantityInput.addEventListener('input', function() {
+                    const newProducedQuantity = parseFloat(this.value) || 0;
+                    const newRemainingQuantity = targetQuantity - newProducedQuantity;
+                    remainingQuantityCell.textContent = newRemainingQuantity.toFixed(2);
+                    
+                    // Destacar se falta produzir
+                    if (newRemainingQuantity > 0) {
+                        remainingQuantityCell.classList.add('remaining-positive');
+                    } else {
+                        remainingQuantityCell.classList.remove('remaining-positive');
+                    }
+                });
+                
+                // Adicionar estilo para quantidade restante
+                const style = document.createElement('style');
+                style.textContent = `
+                    .remaining-positive {
+                        font-weight: bold;
+                        color: var(--warning-color, #fd7e14);
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            return instanceData;
+        })
+        .catch(error => {
+            console.error('Erro ao carregar metas de produção:', error);
+            return null;
+        });
+}
+
+// Funções para a modal de proposta
+function loadPropostaData(instanceId) {
+    console.log(`Carregando dados de proposta para a instância ${instanceId}...`);
+    
+    // Se já carregamos os dados antes, usar esses
+    if (window.currentWorkersProposal) {
+        fillPropostaModal(window.currentWorkersProposal);
+        return Promise.resolve(window.currentWorkersProposal);
+    }
+    
+    // Se não, buscar do servidor
+    document.getElementById('propostaSpinner').style.display = 'inline-block';
+    
+    return fetch(`/api/workers-proposal/instance/${instanceId}`)
+        .then(response => {
+            if (!response.ok) {
+                if (response.status === 404) {
+                    // Não encontrou, vamos mostrar valores padrão
+                    return null;
+                }
+                throw new Error('Erro ao carregar proposta de trabalhadores');
+            }
+            return response.json();
+        })
+        .then(data => {
+            fillPropostaModal(data || createEmptyProposal());
+            return data;
+        })
+        .catch(error => {
+            console.error('Erro ao carregar proposta:', error);
+            fillPropostaModal(createEmptyProposal());
+            return null;
+        })
+        .finally(() => {
+            document.getElementById('propostaSpinner').style.display = 'none';
+        });
+}
+
+function fillPropostaModal(proposalData) {
+    // Se não há dados, criar um objeto vazio com valores padrão
+    const data = proposalData || createEmptyProposal();
+    
+    // Preencher os campos da modal
+    document.getElementById('workerLimitProposta').value = data.workerLimit || '';
+    document.getElementById('workerHoursProposta').value = data.workerHours || '';
+    document.getElementById('productionTimeProposta').value = data.productionTime || '';
+    document.getElementById('weeklyScaleProposta').value = data.weeklyScale || '';
+    document.getElementById('nightShiftProposta').checked = data.nightShift || false;
+}
+
+function createEmptyProposal() {
+    return {
+        workerLimit: 100,
+        workerHours: 8,
+        productionTime: 1,
+        weeklyScale: 5,
+        nightShift: false
+    };
+}
+
+function savePropostaInputs() {
+    if (!currentInstanceId) {
+        showError('É necessário selecionar uma instância primeiro');
+        return;
+    }
+    
+    const propostaError = document.getElementById('propostaError');
+    propostaError.style.display = 'none';
+    
+    // Capturar valores dos campos
+    const workerLimit = parseInt(document.getElementById('workerLimitProposta').value);
+    const workerHours = parseFloat(document.getElementById('workerHoursProposta').value);
+    const productionTime = parseFloat(document.getElementById('productionTimeProposta').value);
+    const weeklyScale = parseInt(document.getElementById('weeklyScaleProposta').value);
+    const nightShift = document.getElementById('nightShiftProposta').checked;
+    
+    // Validar valores
+    if (isNaN(workerLimit) || workerLimit <= 0) {
+        propostaError.textContent = 'Limite de trabalhadores deve ser um número maior que zero';
+        propostaError.style.display = 'block';
+        return;
+    }
+    
+    if (isNaN(workerHours) || workerHours <= 0) {
+        propostaError.textContent = 'Carga horária diária deve ser um número maior que zero';
+        propostaError.style.display = 'block';
+        return;
+    }
+    
+    if (isNaN(productionTime) || productionTime <= 0) {
+        propostaError.textContent = 'Tempo de produção deve ser um número maior que zero';
+        propostaError.style.display = 'block';
+        return;
+    }
+    
+    if (isNaN(weeklyScale) || weeklyScale < 1 || weeklyScale > 7) {
+        propostaError.textContent = 'Escala semanal deve ser um número entre 1 e 7';
+        propostaError.style.display = 'block';
+        return;
+    }
+    
+    // Mostrar spinner durante o salvamento
+    document.getElementById('propostaSpinner').style.display = 'inline-block';
+    
+    // Preparar dados para envio
+    const proposalData = {
+        instanceId: currentInstanceId,
+        workerLimit: workerLimit,
+        workerHours: workerHours,
+        productionTime: productionTime,
+        weeklyScale: weeklyScale,
+        nightShift: nightShift
+    };
+    
+    // Enviar para o servidor
+    fetch('/api/workers-proposal', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(proposalData)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(text || `Erro HTTP: ${response.status}`);
+            });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Atualizar dados em cache
+        window.currentWorkersProposal = data;
+        
+        // Fechar modal
+        closePropostaModal();
+        
+        // Mostrar mensagem de sucesso
+        showSuccess('Proposta para trabalhadores salva com sucesso');
+    })
+    .catch(error => {
+        console.error('Erro ao salvar proposta:', error);
+        propostaError.textContent = 'Erro ao salvar: ' + error.message;
+        propostaError.style.display = 'block';
+    })
+    .finally(() => {
+        document.getElementById('propostaSpinner').style.display = 'none';
     });
 }
 
-// Mantém o restante do código dentro do evento DOMContentLoaded
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar cabeçalho comum - APENAS UMA VEZ
-    ensureHeader();
+/**
+ * Salva as alterações na matriz e no vetor de demanda, bem como dados específicos para comitês.
+ */
+function saveChanges() {
+    if (!currentInstanceId) {
+        showError("Selecione uma instância primeiro");
+        return;
+    }
     
-    // Elementos principais da interface
-    const instanceSelect = document.getElementById('instanceSelect');
-    const matrixSection = document.getElementById('matrixSection');
-    const technologicalMatrixTable = document.getElementById('technologicalMatrix');
-    const demandVectorTable = document.getElementById('demandVector');
-    const planifyButton = document.getElementById('planifyButton');
-    const saveButton = document.getElementById('saveButton');
-    const loadingSpinner = document.getElementById('loadingSpinner');
-    const resultsContainer = document.getElementById('results');
-    const productionVectorTable = document.getElementById('productionVector');
-    const optimizationResultsTable = document.getElementById('optimizationResults');
+    // Mostrar spinner de carregamento
+    document.getElementById('loadingSpinner').style.display = 'inline-block';
     
-    // Carregar lista de instâncias
-    loadInstances();
-    
-    // Configurar eventos
-    instanceSelect.addEventListener('change', handleInstanceChange);
-    planifyButton.addEventListener('click', performPlanification);
-    saveButton.addEventListener('click', saveChanges);
-    
-    /**
-     * Carrega a lista de instâncias disponíveis
-     */
-    function loadInstances() {
-        fetch('/api/planification/instances')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erro ao carregar instâncias');
-                }
-                return response.json();
-            })
-            .then(instances => {
-                // Limpar opções existentes
-                while (instanceSelect.options.length > 1) {
-                    instanceSelect.remove(1);
-                }
-                
-                // Adicionar novas opções
-                instances.forEach(instance => {
-                    const option = document.createElement('option');
-                    option.value = instance.id;
-                    option.textContent = instance.name;
-                    instanceSelect.appendChild(option);
+    try {
+        // 1. Atualizar variáveis com os dados atuais da interface
+        updateMatrixAndVectorData();
+        
+        // 2. Prepare all promises that will be executed
+        const allPromises = [];
+        
+        // Debug log para ajudar a identificar problemas
+        console.log("Estado atual antes de salvar:");
+        console.log("- productIds:", productIds);
+        console.log("- demandVector:", demandVector);
+        console.log("- Removidos:", window.removedMaterializationIds || []);
+        console.log("- Tipo de instância:", currentInstanceType);
+        
+        // 3. Create deletion promises for the tracked removed materializations
+        if (window.removedMaterializationIds && window.removedMaterializationIds.length > 0) {
+            console.log("Excluindo materializações removidas:", window.removedMaterializationIds);
+            
+            window.removedMaterializationIds.forEach(materializationId => {
+                // Directly delete other related data first to ensure proper cleanup
+                const deleteOptimizationPromise = fetch(`/api/planification/optimization/${materializationId}/instance/${currentInstanceId}`, {
+                    method: 'DELETE'
                 });
-            })
-            .catch(error => {
-                showError('Erro ao carregar instâncias: ' + error.message);
-            });
-    }
-    
-    /**
-     * Manipula a mudança de instância selecionada
-     */
-    function handleInstanceChange() {
-        const instanceId = instanceSelect.value;
-        
-        if (!instanceId) {
-            matrixSection.style.display = 'none';
-            resultsContainer.style.display = 'none';
-            return;
-        }
-        
-        // IMPORTANTE: Em vez de chamar loadTechnologicalMatrix e loadDemandVector,
-        // chamar a função loadInstanceData que executa a planificação automática
-        loadInstanceData(instanceId);
-    }
-    
-    /**
-     * Carrega a matriz tecnológica da instância selecionada
-     */
-    function loadTechnologicalMatrix(instanceId) {
-        return fetch(`/api/planification/instances/${instanceId}/technological-matrix`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erro ao carregar matriz tecnológica');
-                }
-                return response.json();
-            })
-            .then(data => {
-                technologicalMatrix = data.matrix;
-                productNames = data.productNames;
-                productIds = data.productIds;
+                allPromises.push(deleteOptimizationPromise);
                 
-                // Renderizar a matriz na tabela - now uses global function
-                renderTechnologicalMatrix();
-            });
-    }
-    
-    /**
-     * Carrega o vetor de demanda da instância selecionada
-     */
-    function loadDemandVector(instanceId) {
-        return fetch(`/api/planification/instances/${instanceId}/demand-vector`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erro ao carregar vetor de demanda');
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log("Raw demand vector data:", data); // Debug the raw data
+                const deleteTensorPromise = fetch(`/api/planification/technological-tensor/by-materialization/${materializationId}/instance/${currentInstanceId}`, {
+                    method: 'DELETE'
+                });
+                allPromises.push(deleteTensorPromise);
                 
-                // Ensure vector data exists
-                if (!data.vector || !Array.isArray(data.vector)) {
-                    console.error("Vector data is missing or not an array");
-                    demandVector = [];
-                    return;
-                }
-                
-                // Ensure productNames and productIds arrays exist
-                if (!data.productNames || !Array.isArray(data.productNames)) {
-                    console.error("Product names data is missing or not an array");
-                    productNames = [];
-                } else {
-                    productNames = data.productNames;
-                }
-                
-                if (!data.productIds || !Array.isArray(data.productIds)) {
-                    console.error("Product IDs data is missing or not an array");
-                    productIds = [];
-                } else {
-                    productIds = data.productIds;
-                }
-                
-                // Clear existing demand vector
-                demandVector = [];
-                
-                // Process each value carefully
-                data.vector.forEach((val, index) => {
-                    let numValue = 0;
+                // Now delete the demand vector which triggers cascading deletion
+                const deleteDemandPromise = fetch(`/api/planification/demand-vector/${materializationId}/instance/${currentInstanceId}`, {
+                    method: 'DELETE'
+                }).then(response => {
+                    console.log(`Status da exclusão do vetor de demanda para materialização ${materializationId}:`, response.status);
                     
-                    try {
-                        if (typeof val === 'number') {
-                            numValue = val;
-                        } else if (typeof val === 'string') {
-                            numValue = parseFloat(val);
-                        } else if (val && typeof val === 'object') {
-                            // Handle BigDecimal JSON structure
-                            if (val.scale !== undefined && val.value !== undefined) {
-                                // This is likely a Jackson serialized BigDecimal
-                                numValue = parseFloat(val.value) / Math.pow(10, val.scale);
-                            } else {
-                                // Try to convert using toString()
-                                numValue = parseFloat(val.toString());
-                            }
-                        }
-                    } catch (e) {
-                        console.warn(`Error converting demand value at index ${index}:`, e);
+                    // Mesmo se não encontrar (404), consideramos como "processado" para limpar a lista
+                    if (!response.ok && response.status !== 404) {
+                        return response.text().then(text => {
+                            console.error(`Erro ao excluir vetor de demanda para materialização ${materializationId}:`, text);
+                            throw new Error(`Falha ao excluir vetor de demanda: ${text}`);
+                        });
                     }
                     
-                    // Ensure we have a valid number (default to 0 if NaN)
-                    numValue = isNaN(numValue) ? 0 : numValue;
-                    demandVector.push(numValue);
+                    console.log(`Vetor de demanda para materialização ${materializationId} processado com sucesso`);
+                    return response;
                 });
-                
-                console.log("Processed demand vector:", demandVector);
-                console.log("Product names:", productNames);
-                console.log("Product IDs:", productIds);
-                
-                // Renderizar o vetor na tabela
-                renderDemandVector();
+                allPromises.push(deleteDemandPromise);
             });
-    }
-    
-    /**
-     * Carrega configurações de otimização existentes para a instância atual
-     */
-    function loadOptimizationConfigs() {
-        if (!currentInstanceId) {
-            return Promise.resolve();
         }
         
-        return fetch(`/api/planification/optimization-config/by-instance/${currentInstanceId}`)
-            .then(response => {
-                if (!response.ok) {
-                    return [];
+        // 4. Create promises to save/update each entry in the technological matrix
+        for (let i = 0; i < technologicalMatrix.length; i++) {
+            const rowId = productIds[i];
+            
+            // Para comitês, só salvamos a primeira coluna, que representa o vetor tecnológico
+            if (currentInstanceType === 'COMMITTEE') {
+                const colId = productIds[0]; // ID da materialização do comitê
+                const value = technologicalMatrix[i][0];
+                
+                // Só salvamos se o valor for maior que zero
+                if (value > 0) {
+                    allPromises.push(
+                        fetch('/api/planification/technological-tensor', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                inputMaterializationId: rowId,
+                                outputMaterializationId: colId,
+                                instanceId: currentInstanceId,
+                                quantity: value
+                            })
+                        })
+                    );
                 }
-                return response.json();
-            })
-            .then(configs => {
-                // Mapear configurações por ID de materialização
-                configs.forEach(config => {
-                    const productIndex = productIds.findIndex(id => id === config.materializationId);
-                    if (productIndex >= 0) {
-                        optimizationConfigs[productIndex] = config;
-                    }
-                });
-            })
-            .catch(error => {
-                console.error('Erro ao carregar configurações de otimização:', error);
-                return [];
-            });
-    }
-
-    /**
-     * Verifica se existe configuração de otimização para o produto
-     */
-    function hasOptimizationConfig(productIndex) {
-        return optimizationConfigs[productIndex] !== undefined;
-    }
-    
-    /**
-     * Executa o processo de planificação
-     */
-    function performPlanification() {
-        const planifyButton = document.getElementById('planifyButton');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        
-        console.log("Iniciando planificação...");
-        
-        // Desabilitar o botão e mostrar spinner
-        planifyButton.disabled = true;
-        loadingSpinner.style.display = 'inline-block';
-        
-        try {
-            // Atualizar dados a partir da interface
-            updateMatrixAndVectorData();
-            
-            // Verificar se há dados para planificar
-            if (!productIds || productIds.length === 0) {
-                console.error("IDs de materialização inválidos ou vazios:", productIds);
-                showError("Não há materializações válidas para planificar. Adicione pelo menos uma materialização.");
-                planifyButton.disabled = false;
-                loadingSpinner.style.display = 'none';
-                return;
-            }
-            
-            console.log("Dados para planificação:");
-            console.log("Matriz tecnológica:", technologicalMatrix);
-            console.log("Vetor de demanda:", demandVector);
-            console.log("Produtos:", productNames);
-            console.log("IDs dos produtos:", productIds);
-            
-            // Verificar e ajustar dimensões da matriz e vetor
-            ensureMatrixDimensions();
-            
-            // Preparar o objeto com os dados da planificação
-            const planificationRequest = {
-                instanceId: currentInstanceId,
-                technologicalMatrix: technologicalMatrix,
-                demandVector: demandVector,
-                productNames: productNames,
-                materializationIds: productIds
-            };
-            
-            console.log("Enviando requisição de planificação:", planificationRequest);
-            
-            // Enviar a requisição para o servidor
-            fetch('/api/planification/planify', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(planificationRequest)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(errorData => {
-                        throw new Error(errorData.message || 'Erro ao executar a planificação');
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log("Resposta da planificação:", data);
-                
-                // Exibir resultados
-                const results = document.getElementById('results');
-                results.style.display = 'block';
-                
-                // Renderizar o vetor de produção
-                renderProductionVector(data.productionVector);
-                
-                // Renderizar resultados de otimização
-                if (data.optimizationResults) {
-                    optimizationResults = data.optimizationResults;
-                    renderOptimizationResults(data.optimizationResults);
-                }
-                
-                // Rolar para os resultados
-                results.scrollIntoView({ behavior: 'smooth' });
-                
-                showSuccess("Planificação concluída com sucesso!");
-            })
-            .catch(error => {
-                console.error("Erro durante a planificação:", error);
-                showError("Erro durante a planificação: " + error.message);
-            })
-            .finally(() => {
-                // Habilitar o botão e esconder spinner
-                planifyButton.disabled = false;
-                loadingSpinner.style.display = 'none';
-            });
-        } catch (error) {
-            console.error("Erro ao preparar dados para planificação:", error);
-            showError("Erro ao preparar dados: " + error.message);
-            planifyButton.disabled = false;
-            loadingSpinner.style.display = 'none';
-        }
-    }
-    
-    /**
-     * Renderiza os resultados da planificação
-     */
-    function renderResults(data) {
-        console.log("Renderizando resultados da planificação:", data);
-        
-        if (!data || !data.productionVector || data.productionVector.length === 0) {
-            showError("Não há resultados de planificação para exibir");
-            return;
-        }
-        
-        // Exibir resultados
-        const results = document.getElementById('results');
-        if (!results) {
-            console.error("Elemento de resultados não encontrado");
-            return;
-        }
-        
-        results.style.display = 'block';
-        
-        // Armazenar resultados globalmente para uso nas modais
-        optimizationResults = data.optimizationResults;
-        
-        // Renderizar o vetor de produção na tabela principal
-        const productionResultsBody = document.getElementById('productionResults');
-        if (!productionResultsBody) {
-            console.error("Tabela de resultados de produção não encontrada");
-            return;
-        }
-        
-        // Limpar conteúdo anterior
-        productionResultsBody.innerHTML = '';
-        
-        // Função para formatar números
-        const formatNumber = (value) => {
-            if (value === undefined || value === null) return 'N/A';
-            return typeof value === 'number' ? value.toFixed(2) : value;
-        };
-        
-        // Adicionar linhas à tabela de produção - AGORA COM BOTÃO DE DETALHES
-        data.productionVector.forEach((production, index) => {
-            // Verificar se temos o nome e ID correspondentes
-            if (index < productNames.length) {
-                const row = document.createElement('tr');
-                
-                // Obter o ID da materialização correspondente a este índice
-                const materializationId = productIds[index];
-                
-                // Encontrar os dados de otimização correspondentes
-                const optimizationData = optimizationResults ? 
-                    optimizationResults.find(r => r.materializationId === materializationId) : null;
-                
-                row.innerHTML = `
-                    <td>${productNames[index]}</td>
-                    <td>${formatNumber(production)}</td>
-                    <td>
-                        <button class="btn details-btn" onclick="openOptimizationResultModal(${index})">
-                            Detalhes
-                        </button>
-                    </td>
-                `;
-                
-                productionResultsBody.appendChild(row);
             } else {
-                console.warn("Índice fora dos limites para vetor de produção:", index);
-            }
-        });
-        
-        // Rolar para os resultados
-        results.scrollIntoView({ behavior: 'smooth' });
-        
-        // Atualizar as linhas do vetor de demanda para adicionar o botão de configuração
-        updateDemandVectorWithConfigButton();
-        
-        // Não chamar mais a função de renderização de resultados de otimização
-        // renderOptimizationResults(optimizationResults);
-        
-        // Esconder a seção de resultados de otimização
-        const optimizationResultsContainer = document.getElementById('optimizationResultsContainer');
-        if (optimizationResultsContainer) {
-            optimizationResultsContainer.style.display = 'none';
-        }
-    }
-    
-    /**
-     * Salva as alterações na matriz e no vetor de demanda
-     */
-    function saveChanges() {
-        if (!currentInstanceId) {
-            showError("Selecione uma instância primeiro");
-            return;
-        }
-        
-        // Mostrar spinner de carregamento
-        document.getElementById('loadingSpinner').style.display = 'inline-block';
-        
-        try {
-            // 1. Atualizar variáveis com os dados atuais da interface
-            updateMatrixAndVectorData();
-            
-            // 2. Prepare all promises that will be executed
-            const allPromises = [];
-            
-            // Debug log para ajudar a identificar problemas
-            console.log("Estado atual antes de salvar:");
-            console.log("- productIds:", productIds);
-            console.log("- demandVector:", demandVector);
-            console.log("- Removidos:", window.removedMaterializationIds || []);
-            
-            // 3. Create deletion promises for the tracked removed materializations
-            if (window.removedMaterializationIds && window.removedMaterializationIds.length > 0) {
-                console.log("Excluindo materializações removidas:", window.removedMaterializationIds);
-                
-                window.removedMaterializationIds.forEach(materializationId => {
-                    // Directly delete other related data first to ensure proper cleanup
-                    const deleteOptimizationPromise = fetch(`/api/planification/optimization/${materializationId}/instance/${currentInstanceId}`, {
-                        method: 'DELETE'
-                    });
-                    allPromises.push(deleteOptimizationPromise);
-                    
-                    const deleteTensorPromise = fetch(`/api/planification/technological-tensor/by-materialization/${materializationId}/instance/${currentInstanceId}`, {
-                        method: 'DELETE'
-                    });
-                    allPromises.push(deleteTensorPromise);
-                    
-                    // Now delete the demand vector which triggers cascading deletion
-                    const deleteDemandPromise = fetch(`/api/planification/demand-vector/${materializationId}/instance/${currentInstanceId}`, {
-                        method: 'DELETE'
-                    }).then(response => {
-                        console.log(`Status da exclusão do vetor de demanda para materialização ${materializationId}:`, response.status);
-                        
-                        // Mesmo se não encontrar (404), consideramos como "processado" para limpar a lista
-                        if (!response.ok && response.status !== 404) {
-                            return response.text().then(text => {
-                                console.error(`Erro ao excluir vetor de demanda para materialização ${materializationId}:`, text);
-                                throw new Error(`Falha ao excluir vetor de demanda: ${text}`);
-                            });
-                        }
-                        
-                        console.log(`Vetor de demanda para materialização ${materializationId} processado com sucesso`);
-                        return response;
-                    });
-                    allPromises.push(deleteDemandPromise);
-                });
-            }
-            
-            // 4. Create promises to save/update each entry in the technological matrix
-            for (let i = 0; i < technologicalMatrix.length; i++) {
-                const rowId = productIds[i];
-                
+                // Para conselhos, salvamos a matriz completa
                 for (let j = 0; j < technologicalMatrix[i].length; j++) {
                     const colId = productIds[j];
                     const value = technologicalMatrix[i][j];
@@ -1174,592 +1330,175 @@ document.addEventListener('DOMContentLoaded', function() {
                     );
                 }
             }
+        }
+        
+        // 5. Create promises to save/update each entry in the demand vector
+        for (let i = 0; i < demandVector.length; i++) {
+            const materializationId = productIds[i];
+            const value = demandVector[i];
             
-            // 5. Create promises to save/update each entry in the demand vector
-            for (let i = 0; i < demandVector.length; i++) {
-                const materializationId = productIds[i];
-                const value = demandVector[i];
-                
-                // Verificar se o ID de materialização e o valor são válidos
-                if (!materializationId || isNaN(materializationId) || materializationId <= 0) {
-                    console.error(`ID de materialização inválido no índice ${i}:`, materializationId);
-                    continue;
+            // Verificar se o ID de materialização e o valor são válidos
+            if (!materializationId || isNaN(materializationId) || materializationId <= 0) {
+                console.error(`ID de materialização inválido no índice ${i}:`, materializationId);
+                continue;
+            }
+            
+            console.log(`Salvando demanda para materialização ${materializationId}: ${value}`);
+            
+            // Criar um payload explícito para depuração mais clara
+            const demandPayload = {
+                materializationId: materializationId,
+                instanceId: currentInstanceId,
+                demand: value  // Importante: use "demand" em vez de "quantity" no payload
+            };
+            
+            console.log(`Payload da demanda:`, demandPayload);
+            
+            const demandPromise = fetch('/api/planification/demand-vector', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(demandPayload)
+            }).then(response => {
+                if (!response.ok) {
+                    console.error(`Erro ao salvar vetor de demanda para materialização ${materializationId}:`, response.statusText);
+                    // Tenta ler detalhes do erro do corpo da resposta
+                    return response.text().then(text => {
+                        console.error("Detalhes do erro:", text);
+                        return response;
+                    });
                 }
+                console.log(`Vetor de demanda para materialização ${materializationId} salvo com sucesso`);
+                return response;
+            }).catch(error => {
+                console.error(`Erro na requisição para salvar demanda:`, error);
+                throw error;
+            });
+            
+            allPromises.push(demandPromise);
+        }
+        
+        // 6. Se for um comitê, adicione promessas para salvar dados específicos de comitê
+        if (currentInstanceType === 'COMMITTEE') {
+            // 6.1. Salvar dados de estoque e demanda
+            const demandStockTable = document.getElementById('demandStockTable');
+            if (demandStockTable) {
+                const rows = demandStockTable.querySelectorAll('tbody tr');
                 
-                console.log(`Salvando demanda para materialização ${materializationId}: ${value}`);
+                rows.forEach(row => {
+                    const materializationId = parseInt(row.dataset.materializationId);
+                    if (!materializationId) return;
+                    
+                    const stockInput = row.querySelector('.stock-input');
+                    const demandInput = row.querySelector('.demand-input');
+                    
+                    if (stockInput && demandInput) {
+                        const stock = parseFloat(stockInput.value) || 0;
+                        const demand = parseFloat(demandInput.value) || 0;
+                        
+                        const demandStockPayload = {
+                            instanceId: currentInstanceId,
+                            materializationId: materializationId,
+                            currentStock: stock,
+                            demand: demand
+                        };
+                        
+                        console.log(`Salvando estoque/demanda para materialização ${materializationId}:`, demandStockPayload);
+                        
+                        const demandStockPromise = fetch('/api/demand-stock', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(demandStockPayload)
+                        });
+                        
+                        allPromises.push(demandStockPromise);
+                    }
+                });
+            }
+            
+            // 6.2. Salvar quantidade produzida da instância
+            const producedQuantityInput = document.getElementById('producedQuantity');
+            if (producedQuantityInput) {
+                const producedQuantity = parseFloat(producedQuantityInput.value) || 0;
                 
-                // Criar um payload explícito para depuração mais clara
-                const demandPayload = {
-                    materializationId: materializationId,
-                    instanceId: currentInstanceId,
-                    demand: value  // Importante: use "demand" em vez de "quantity" no payload
+                const instanceUpdatePayload = {
+                    id: currentInstanceId,
+                    producedQuantity: producedQuantity
                 };
                 
-                console.log(`Payload da demanda:`, demandPayload);
+                console.log(`Atualizando quantidade produzida da instância:`, instanceUpdatePayload);
                 
-                const demandPromise = fetch('/api/planification/demand-vector', {
+                const instanceUpdatePromise = fetch(`/api/instances/${currentInstanceId}/produced-quantity`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(demandPayload)
-                }).then(response => {
-                    if (!response.ok) {
-                        console.error(`Erro ao salvar vetor de demanda para materialização ${materializationId}:`, response.statusText);
-                        // Tenta ler detalhes do erro do corpo da resposta
-                        return response.text().then(text => {
-                            console.error("Detalhes do erro:", text);
-                            return response;
-                        });
-                    }
-                    console.log(`Vetor de demanda para materialização ${materializationId} salvo com sucesso`);
-                    return response;
-                }).catch(error => {
-                    console.error(`Erro na requisição para salvar demanda:`, error);
-                    throw error;
+                    body: JSON.stringify(instanceUpdatePayload)
                 });
                 
-                allPromises.push(demandPromise);
+                allPromises.push(instanceUpdatePromise);
             }
             
-            // 6. Execute all promises
-            Promise.all(allPromises)
-                .then(responses => {
-                    // Check if all responses were successful
-                    const hasErrors = responses.some(res => !res.ok);
-                    
-                    if (hasErrors) {
-                        throw new Error("Alguns dados não puderam ser salvos");
-                    }
-                    
-                    // Clear the removed materializations list after successful save
-                    window.removedMaterializationIds = [];
-                    
-                    // Update the original IDs reference to match current state
-                    window.originalMaterializationIds = [...productIds];
-                    
-                    showSuccess("Dados salvos com sucesso!");
-                    
-                    // Verificar o estado após salvar
-                    setTimeout(logDemandVectorStatus, 500);
-                })
-                .catch(error => {
-                    console.error("Erro ao salvar dados:", error);
-                    showError("Erro ao salvar dados: " + error.message);
-                })
-                .finally(() => {
-                    // Hide loading spinner
-                    document.getElementById('loadingSpinner').style.display = 'none';
+            // 6.3. Salvar proposta para trabalhadores (se existir)
+            if (window.currentWorkersProposal) {
+                const proposalData = {
+                    instanceId: currentInstanceId,
+                    workerLimit: window.currentWorkersProposal.workerLimit,
+                    workerHours: window.currentWorkersProposal.workerHours,
+                    productionTime: window.currentWorkersProposal.productionTime,
+                    weeklyScale: window.currentWorkersProposal.weeklyScale,
+                    nightShift: window.currentWorkersProposal.nightShift
+                };
+                
+                console.log(`Salvando proposta para trabalhadores:`, proposalData);
+                
+                const proposalPromise = fetch('/api/workers-proposal', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(proposalData)
                 });
-        } catch (error) {
-            console.error("Erro ao preparar dados para salvar:", error);
-            showError("Erro ao preparar dados: " + error.message);
-            document.getElementById('loadingSpinner').style.display = 'none';
-        }
-    }
-
-    // Function to ensure we have valid indices before accessing elements
-    function validateProductIndex(index) {
-        if (index === undefined || index === null || isNaN(index) || 
-            index < 0 || index >= productIds.length) {
-            console.error(`Índice de produto inválido: ${index}`);
-            console.log("productIds.length =", productIds.length);
-            console.log("productIds =", productIds);
-            return false;
-        }
-        return true;
-    }
-
-    /**
-     * Carrega todos os dados da instância selecionada
-     */
-    function loadInstanceData(instanceId) {
-        currentInstanceId = instanceId;
-        
-        // Mostrar spinner de carregamento
-        document.getElementById('loadingSpinner').style.display = 'inline-block';
-        
-        // Limpar resultados anteriores
-        document.getElementById('results').style.display = 'none';
-        
-        // Limpar configurações de otimização existentes
-        Object.keys(optimizationConfigs).forEach(key => delete optimizationConfigs[key]);
-        
-        // Carregar matriz tecnológica e vetor de demanda em paralelo
-        Promise.all([
-            loadTechnologicalMatrix(instanceId),
-            loadDemandVector(instanceId)
-        ])
-        .then(() => {
-            // Carregar configurações de otimização existentes
-            return loadOptimizationConfigs();
-        })
-        .then(() => {
-            // Tentar carregar resultados anteriores, se existirem
-            return loadPreviousResults(instanceId);
-        })
-        .catch(error => {
-            console.error('Erro ao carregar dados da instância:', error);
-            showError(`Erro ao carregar dados: ${error.message}`);
-        })
-        .finally(() => {
-            // Mostrar a seção da matriz
-            document.getElementById('matrixSection').style.display = 'block';
-            document.getElementById('loadingSpinner').style.display = 'none';
-            
-            // Garantir que o botão de adicionar materialização esteja inicializado
-            initAddMaterializationButton();
-        });
-    }
-});
-
-// Add this function to initialize the "+ Add Materialization" button
-function initAddMaterializationButton() {
-    const addButton = document.getElementById('addMaterializationBtn');
-    if (!addButton) return;
-    
-    // Clear previous content and event listeners
-    addButton.innerHTML = '';
-    const newIcon = document.createElement('i');
-    newIcon.className = 'fas fa-plus';
-    addButton.appendChild(newIcon);
-    
-    // Remove old event listeners by cloning and replacing
-    const newButton = addButton.cloneNode(true);
-    addButton.parentNode.replaceChild(newButton, addButton);
-    
-    // Add event listener to the new button
-    newButton.addEventListener('click', showMaterializationSelector);
-}
-
-// Function to show the materialization selector dropdown
-function showMaterializationSelector() {
-    if (!currentInstanceId) {
-        showError('Por favor, selecione uma instância primeiro');
-        return;
-    }
-    
-    const addButton = document.getElementById('addMaterializationBtn');
-    // Check if dropdown already exists
-    let dropdown = document.querySelector('.materialization-dropdown');
-    if (dropdown) {
-        dropdown.remove();
-        return;
-    }
-    
-    // Create dropdown
-    dropdown = document.createElement('div');
-    dropdown.className = 'materialization-dropdown';
-    
-    // Position dropdown under the button
-    const buttonRect = addButton.getBoundingClientRect();
-    dropdown.style.top = `${buttonRect.bottom + window.scrollY}px`;
-    dropdown.style.left = `${buttonRect.left + window.scrollX}px`;
-    
-    // Create loading message
-    const loadingItem = document.createElement('div');
-    loadingItem.className = 'dropdown-item';
-    loadingItem.textContent = 'Carregando materializações...';
-    dropdown.appendChild(loadingItem);
-    
-    // Append dropdown to body
-    document.body.appendChild(dropdown);
-    
-    // Load available materializations
-    loadAvailableMaterializations(currentInstanceId, dropdown);
-}
-
-// Function to load available materializations for the dropdown
-function loadAvailableMaterializations(instanceId, dropdown) {
-    fetch('/api/social-materializations')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao carregar materializações sociais');
+                
+                allPromises.push(proposalPromise);
             }
-            return response.json();
-        })
-        .then(allMaterializations => {
-            // Clear dropdown
-            dropdown.innerHTML = '';
-            
-            // Filter out materializations already in the table
-            const existingIds = productIds || [];
-            const availableMaterializations = allMaterializations.filter(
-                mat => !existingIds.includes(mat.id)
-            );
-            
-            if (availableMaterializations.length === 0) {
-                const emptyMessage = document.createElement('div');
-                emptyMessage.className = 'empty-message';
-                emptyMessage.textContent = 'Não há materializações sociais disponíveis';
-                dropdown.appendChild(emptyMessage);
-                return;
-            }
-            
-            // Add materializations to dropdown
-            availableMaterializations.forEach(mat => {
-                const item = document.createElement('div');
-                item.className = 'dropdown-item';
-                item.textContent = `${mat.name} (${mat.type})`;
-                item.onclick = () => addMaterializationToTable(mat, instanceId);
-                dropdown.appendChild(item);
-            });
-            
-            // Add option to create new materialization
-            const newItem = document.createElement('div');
-            newItem.className = 'dropdown-item add-new-item';
-            newItem.textContent = '+ Criar Nova Materialização';
-            newItem.onclick = showNewMaterializationModal;
-            dropdown.appendChild(newItem);
-        })
-        .catch(error => {
-            console.error('Erro ao carregar materializações:', error);
-            dropdown.innerHTML = '';
-            const errorMessage = document.createElement('div');
-            errorMessage.className = 'empty-message';
-            errorMessage.textContent = 'Erro ao carregar materializações';
-            dropdown.appendChild(errorMessage);
-        });
-}
-
-// Function to add selected materialization to the table
-function addMaterializationToTable(materialization, instanceId) {
-    // Close dropdown
-    const dropdown = document.querySelector('.materialization-dropdown');
-    if (dropdown) dropdown.remove();
-    
-    // Add materialization to arrays
-    productIds.push(materialization.id);
-    productNames.push(materialization.name);
-    
-    // Add empty row to technological matrix
-    const matrixRow = new Array(technologicalMatrix[0]?.length || 0).fill(0);
-    technologicalMatrix.push(matrixRow);
-    
-    // Add column to each existing row
-    technologicalMatrix.forEach(row => {
-        row.push(0);
-    });
-    
-    // Add to demand vector
-    demandVector.push(0);
-    
-    // Re-render tables
-    renderTechnologicalMatrix();
-    renderDemandVector();
-    
-    showSuccess(`Materialização "${materialization.name}" adicionada com sucesso`);
-}
-
-// Function to update demand vector value
-function updateDemandVector(index, value) {
-    if (index >= 0 && index < demandVector.length) {
-        demandVector[index] = parseFloat(value) || 0;
-    }
-}
-
-// Function to ensure matrix dimensions match
-function ensureMatrixDimensions() {
-    const size = productIds.length;
-    
-    // Ensure each dimension of technologicalMatrix is correct
-    if (technologicalMatrix.length !== size) {
-        // Add or remove rows as needed
-        while (technologicalMatrix.length < size) {
-            technologicalMatrix.push(new Array(size).fill(0));
         }
-        while (technologicalMatrix.length > size) {
-            technologicalMatrix.pop();
-        }
-    }
-    
-    // Ensure each row has the correct number of columns
-    technologicalMatrix.forEach((row, i) => {
-        while (row.length < size) {
-            row.push(0);
-        }
-        while (row.length > size) {
-            row.pop();
-        }
-    });
-    
-    // Ensure demandVector has correct size
-    while (demandVector.length < size) {
-        demandVector.push(0);
-    }
-    while (demandVector.length > size) {
-        demandVector.pop();
-    }
-}
-
-// Function to update matrix and vector data from UI
-function updateMatrixAndVectorData() {
-    // Update matrix values from UI
-    const matrixTable = document.getElementById('technologicalMatrix');
-    const matrixInputs = matrixTable.querySelectorAll('input');
-    
-    matrixInputs.forEach(input => {
-        const row = parseInt(input.dataset.row);
-        const col = parseInt(input.dataset.col);
-        if (!isNaN(row) && !isNaN(col)) {
-            technologicalMatrix[row][col] = parseFloat(input.value) || 0;
-        }
-    });
-    
-    // Update demand vector from UI
-    updateDemandVectorFromUI();
-}
-
-// Function to remove a materialization from the tables
-function removeMaterialization(materializationId) {
-    // Confirmar antes de remover
-    if (!confirm('Tem certeza que deseja remover esta materialização? Isso também removerá a linha e coluna correspondente na matriz tecnológica.')) {
-        return;
-    }
-    
-    console.log(`Removendo materialização com ID: ${materializationId}`);
-    
-    // Track removed materials globally if the tracking array doesn't exist yet
-    if (!window.removedMaterializationIds) {
-        window.removedMaterializationIds = [];
-    }
-    
-    // Add this ID to our tracking array of removed materializations
-    if (!window.removedMaterializationIds.includes(materializationId)) {
-        window.removedMaterializationIds.push(materializationId);
-    }
-    
-    // Find the index of this materialization in our global arrays
-    const matIndex = productIds.indexOf(materializationId);
-    if (matIndex === -1) {
-        console.error(`Materialização com ID ${materializationId} não encontrada nos arrays globais`);
-        return;
-    }
-    
-    // Registrar estado antes da remoção para depuração
-    console.log("Estado antes da remoção:");
-    console.log("- productIds:", [...productIds]);
-    console.log("- demandVector:", [...demandVector]);
-    console.log("- Índice a remover:", matIndex);
-    
-    // Update global arrays before updating the UI
-    // Remove the materialization from productIds and productNames
-    productIds.splice(matIndex, 1);
-    productNames.splice(matIndex, 1);
-    
-    // Remove the row and column from the technologicalMatrix
-    technologicalMatrix.splice(matIndex, 1); // Remove row
-    for (let i = 0; i < technologicalMatrix.length; i++) {
-        if (technologicalMatrix[i]) {
-            technologicalMatrix[i].splice(matIndex, 1); // Remove column from each remaining row
-        }
-    }
-    
-    // Remove from the demandVector
-    demandVector.splice(matIndex, 1);
-    
-    // Re-render both tables completely
-    renderTechnologicalMatrix();
-    renderDemandVector();
-    
-    // Also update optimizationConfigs to prevent accessing invalid indices
-    const newOptimizationConfigs = {};
-    Object.keys(optimizationConfigs).forEach(key => {
-        const numIndex = parseInt(key);
-        if (numIndex < matIndex) {
-            // Indices before the removed one stay the same
-            newOptimizationConfigs[numIndex] = optimizationConfigs[numIndex];
-        } else if (numIndex > matIndex) {
-            // Indices after the removed one are decremented
-            newOptimizationConfigs[numIndex - 1] = optimizationConfigs[numIndex];
-        }
-        // The removed index itself is skipped
-    });
-    
-    // Replace the old configs with the updated ones
-    Object.assign(optimizationConfigs, newOptimizationConfigs);
-    
-    // Registrar estado após a remoção para depuração
-    console.log("Estado após a remoção:");
-    console.log("- productIds:", productIds);
-    console.log("- demandVector:", demandVector);
-    console.log("- A remover:", window.removedMaterializationIds);
-    
-    // Show success message
-    showSuccess('Materialização removida. Clique em "Salvar Alterações" para confirmar a exclusão no banco de dados.');
-}
-
-// Function to show the modal for creating a new materialization
-function showNewMaterializationModal() {
-    // Close the materialization dropdown if it's open
-    const dropdown = document.querySelector('.materialization-dropdown');
-    if (dropdown) dropdown.remove();
-    
-    // Get modal element
-    const modal = document.getElementById('newMaterializationModal');
-    if (!modal) {
-        console.error("Modal for new materialization not found");
-        showError("Erro: Modal para nova materialização não encontrada");
-        return;
-    }
-    
-    // Clear previous content
-    const modalContent = modal.querySelector('.modal-content');
-    modalContent.innerHTML = `
-        <div class="modal-header">
-            <h3>Criar Nova Materialização Social</h3>
-            <span class="close" onclick="closeNewMaterializationModal()">&times;</span>
-        </div>
-        <div class="modal-body">
-            <form id="newMaterializationForm">
-                <div class="form-group">
-                    <label for="newMaterializationName">Nome:</label>
-                    <input type="text" id="newMaterializationName" required>
-                </div>
-                <div class="form-group">
-                    <label for="newMaterializationType">Tipo:</label>
-                    <select id="newMaterializationType" required>
-                        <option value="">Selecione um tipo</option>
-                        <option value="SERVICE">Serviço</option>
-                        <option value="GOOD">Bem</option>
-                        <option value="INFRASTRUCTURE">Infraestrutura</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="newMaterializationSector">Setor:</label>
-                    <select id="newMaterializationSector" required>
-                        <option value="">Carregando setores...</option>
-                    </select>
-                </div>
-                <div id="newMaterializationError" class="error-message" style="display: none;"></div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeNewMaterializationModal()">Cancelar</button>
-            <button type="button" class="btn btn-primary" onclick="saveNewMaterialization()">Salvar</button>
-            <div id="newMaterializationSpinner" class="loading" style="display: none;"></div>
-        </div>
-    `;
-    
-    // Show modal
-    modal.style.display = 'block';
-    
-    // Load sectors for dropdown
-    loadSectorsForDropdown();
-}
-
-// Function to close the new materialization modal
-function closeNewMaterializationModal() {
-    const modal = document.getElementById('newMaterializationModal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-// Function to load sectors for dropdown
-function loadSectorsForDropdown() {
-    const sectorSelect = document.getElementById('newMaterializationSector');
-    if (!sectorSelect) return;
-    
-    fetch('/api/sectors')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao carregar setores');
-            }
-            return response.json();
-        })
-        .then(sectors => {
-            // Clear loading option
-            sectorSelect.innerHTML = '<option value="">Selecione um setor</option>';
-            
-            // Add sectors to dropdown
-            sectors.forEach(sector => {
-                const option = document.createElement('option');
-                option.value = sector.id;
-                option.textContent = sector.name;
-                sectorSelect.appendChild(option);
-            });
-        })
-        .catch(error => {
-            console.error('Erro ao carregar setores:', error);
-            sectorSelect.innerHTML = '<option value="">Erro ao carregar setores</option>';
-        });
-}
-
-// Function to save new materialization
-function saveNewMaterialization() {
-    // Get form values
-    const name = document.getElementById('newMaterializationName').value.trim();
-    const type = document.getElementById('newMaterializationType').value;
-    const sectorId = document.getElementById('newMaterializationSector').value;
-    
-    // Validate form
-    if (!name || !type || !sectorId) {
-        const errorElement = document.getElementById('newMaterializationError');
-        errorElement.textContent = 'Todos os campos são obrigatórios';
-        errorElement.style.display = 'block';
-        return;
-    }
-    
-    // Show spinner
-    const spinner = document.getElementById('newMaterializationSpinner');
-    spinner.style.display = 'inline-block';
-    
-    // Prepare data
-    const data = {
-        name: name,
-        type: type,
-        sectorId: parseInt(sectorId)
-    };
-    
-    // Send request
-    fetch('/api/social-materializations', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(errorData => {
-                throw new Error(errorData.message || 'Erro ao criar materialização');
-            });
-        }
-        return response.json();
-    })
-    .then(result => {
-        // Close modal
-        closeNewMaterializationModal();
         
-        // Show success message
-        showSuccess(`Materialização "${result.name}" criada com sucesso`);
-        
-        // Add to table if we're in a planification context
-        if (currentInstanceId) {
-            addMaterializationToTable(result, currentInstanceId);
-        }
-    })
-    .catch(error => {
-        console.error('Erro ao criar materialização:', error);
-        const errorElement = document.getElementById('newMaterializationError');
-        errorElement.textContent = error.message || 'Erro ao criar materialização';
-        errorElement.style.display = 'block';
-    })
-    .finally(() => {
-        // Hide spinner
-        spinner.style.display = 'none';
-    });
-}
-
-// Adicione esta função de log para ajudar no diagnóstico
-function logDemandVectorStatus() {
-    if (!currentInstanceId) return;
-    
-    fetch(`/api/planification/instances/${currentInstanceId}/demand-vector`)
-        .then(response => response.json())
-        .then(data => {
-            console.log("Estado atual do vetor de demanda no servidor:", data);
-        })
-        .catch(err => console.error("Erro ao verificar vetor de demanda:", err));
+        // 7. Execute all promises
+        Promise.all(allPromises)
+            .then(responses => {
+                // Check if all responses were successful
+                const hasErrors = responses.some(res => !res.ok);
+                
+                if (hasErrors) {
+                    throw new Error("Alguns dados não puderam ser salvos");
+                }
+                
+                // Clear the removed materializations list after successful save
+                window.removedMaterializationIds = [];
+                
+                // Update the original IDs reference to match current state
+                window.originalMaterializationIds = [...productIds];
+                
+                showSuccess("Dados salvos com sucesso!");
+                
+                // Verificar o estado após salvar
+                setTimeout(logDemandVectorStatus, 500);
+            })
+            .catch(error => {
+                console.error("Erro ao salvar dados:", error);
+                showError("Erro ao salvar dados: " + error.message);
+            })
+            .finally(() => {
+                // Hide loading spinner
+                document.getElementById('loadingSpinner').style.display = 'none';
+            });
+    } catch (error) {
+        console.error("Erro ao preparar dados para salvar:", error);
+        showError("Erro ao preparar dados: " + error.message);
+        document.getElementById('loadingSpinner').style.display = 'none';
+    }
 }
