@@ -1048,6 +1048,14 @@ ALTER TABLE ONLY public.technological_tensor
 
 
 --
+-- Name: technological_tensor fk_technological_tensor_production_input; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.technological_tensor
+    ADD CONSTRAINT fk_technological_tensor_production_input FOREIGN KEY (id_production_input) REFERENCES public.social_materialization(id);
+
+
+--
 -- Name: technological_tensor fk_technological_tensor_social_materialization; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 

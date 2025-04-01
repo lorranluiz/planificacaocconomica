@@ -22,14 +22,15 @@ import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Controller
-@RequestMapping("/technological-tensors")
+@RestController
+@RequestMapping("/api/planification/technological-tensor")
 public class TechnologicalTensorController {
 
     private static final Logger logger = LoggerFactory.getLogger(TechnologicalTensorController.class);
@@ -339,5 +340,40 @@ public class TechnologicalTensorController {
         }
         
         return "redirect:/technological-tensors";
+    }
+
+    /**
+     * Retorna todos os tensores tecnológicos para uma instância específica
+     * Formato otimizado para consumo no frontend
+     */
+    @GetMapping("/by-instance/{instanceId}")
+    public ResponseEntity<?> getTensorsByInstance(@PathVariable Integer instanceId) {
+        try {
+            List<TechnologicalTensor> tensors = tensorService.findByInstanceId(instanceId);
+            
+            if (tensors.isEmpty()) {
+                return ResponseEntity.ok(Collections.emptyList());
+            }
+            
+            // Converter para formato mais amigável para o frontend
+            List<Map<String, Object>> result = new ArrayList<>();
+            
+            for (TechnologicalTensor tensor : tensors) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("instanceId", instanceId);
+                item.put("inputMaterializationId", tensor.getInputSocialMaterialization().getId());
+                item.put("inputMaterializationName", tensor.getInputSocialMaterialization().getName());
+                item.put("outputMaterializationId", tensor.getOutputSocialMaterialization().getId());
+                item.put("outputMaterializationName", tensor.getOutputSocialMaterialization().getName());
+                item.put("quantity", tensor.getTechnicalCoefficientElementValue());
+                
+                result.add(item);
+            }
+            
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Erro ao buscar tensores tecnológicos: " + e.getMessage());
+        }
     }
 }

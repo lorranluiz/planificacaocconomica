@@ -94,7 +94,8 @@ document.addEventListener('DOMContentLoaded', function() {
             loadDemandStock(instanceId),
             loadWorkersProposal(instanceId),
             loadProductionTarget(instanceId),
-            loadPreviousResults(instanceId)
+            loadPreviousResults(instanceId),
+            loadTechnologicalCoefficients(instanceId)
         ])
         .then(([instanceData]) => {
             // Armazenar dados
@@ -137,6 +138,29 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Função específica para carregar os coeficientes do vetor tecnológico
+function loadTechnologicalCoefficients(instanceId) {
+    console.log(`Carregando coeficientes tecnológicos para a instância ${instanceId}...`);
+    
+    return fetch(`/api/planification/technological-tensor/by-instance/${instanceId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erro ${response.status}: ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Dados de coeficientes tecnológicos carregados:', data);
+            // Armazenar os dados em uma variável global para uso posterior
+            window.technologicalCoefficients = data;
+            return data;
+        })
+        .catch(error => {
+            console.error('Erro ao carregar coeficientes tecnológicos:', error);
+            return [];
+        });
+}
+
 // Renderizar a tabela do vetor de demanda
 function renderDemandVectorTable() {
     const demandTable = document.getElementById('demandVector');
@@ -172,6 +196,205 @@ function updateDemandVector(index, input) {
     if (index >= 0 && index < demandVector.length) {
         const value = parseFloat(input.value) || 0;
         demandVector[index] = value;
+    }
+}
+
+// Function to render the technological matrix/vector
+function renderTechnologicalMatrix() {
+    if (!technologicalMatrix || !productNames) {
+        console.error("Matriz tecnológica ou nomes de produtos não definidos");
+        return;
+    }
+    
+    const technologicalMatrixTable = document.getElementById('technologicalMatrix');
+    if (!technologicalMatrixTable) {
+        console.error("Tabela de matriz tecnológica não encontrada");
+        return;
+    }
+    
+    // Limpar tabela
+    const thead = technologicalMatrixTable.querySelector('thead tr');
+    const tbody = technologicalMatrixTable.querySelector('tbody');
+    tbody.innerHTML = '';
+    
+    // Debug: Verificar os dados da matriz
+    console.log("Renderizando matriz tecnológica:", {
+        tipo: currentInstanceType,
+        matriz: technologicalMatrix,
+        tamanho: technologicalMatrix.length,
+        produtos: productNames,
+        coeficientesCarregados: window.technologicalCoefficients ? true : false
+    });
+    
+    // Usar os coeficientes carregados diretamente do backend, se disponíveis
+    const coefficients = window.technologicalCoefficients || [];
+    
+    // Verificar se estamos lidando com um comitê (vetor tecnológico) ou conselho (matriz tecnológica)
+    if (currentInstanceType === 'COMMITTEE') {
+        // Para comitês, mostrar o vetor de insumos (o que entra na produção)
+        
+        // Mapear os IDs das materializações para seus nomes para exibição
+        const materializationIdToName = {};
+        productNames.forEach((name, index) => {
+            if (index < productIds.length) {
+                materializationIdToName[productIds[index]] = name;
+            }
+        });
+        
+        // Se temos coeficientes carregados do backend, usá-los
+        if (coefficients && coefficients.length > 0) {
+            // Determinar qual é a materialização de saída (produto do comitê)
+            // Em geral, para um comitê, haverá apenas uma materialização de saída
+            const uniqueOutputIds = [...new Set(coefficients.map(c => c.outputMaterializationId))];
+            console.log("IDs de materializações de saída:", uniqueOutputIds);
+            
+            if (uniqueOutputIds.length > 0) {
+                // Filtrar coeficientes apenas para a primeira materialização de saída
+                const outputId = uniqueOutputIds[0];
+                const relevantCoefficients = coefficients.filter(c => 
+                    c.outputMaterializationId === outputId);
+                
+                console.log(`Encontrados ${relevantCoefficients.length} coeficientes para a materialização de saída ${outputId}`);
+                
+                // Se temos coeficientes, renderizar cada um
+                if (relevantCoefficients.length > 0) {
+                    relevantCoefficients.forEach(coef => {
+                        const inputName = materializationIdToName[coef.inputMaterializationId] || 
+                                         `Insumo #${coef.inputMaterializationId}`;
+                        
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${inputName}</td>
+                            <td>
+                                <input type="number" step="0.01" min="0" value="${coef.quantity}" 
+                                      data-input-id="${coef.inputMaterializationId}" 
+                                      data-output-id="${coef.outputMaterializationId}" 
+                                      onchange="updateCoefficientValue(this)" />
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                    });
+                } else {
+                    // Nenhum coeficiente encontrado
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td colspan="2" class="text-center">Não há dados de coeficientes disponíveis</td>`;
+                    tbody.appendChild(tr);
+                }
+            } else {
+                // Nenhuma materialização de saída encontrada
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="2" class="text-center">Não há dados de coeficientes disponíveis</td>`;
+                tbody.appendChild(tr);
+            }
+        } else {
+            // Fallback: usar a primeira coluna da matriz tecnológica como antes
+            // Este caso ocorre quando os coeficientes não puderam ser carregados diretamente
+            
+            // Verificar se temos dados na matriz
+            if (technologicalMatrix.length > 0 && technologicalMatrix[0].length > 0) {
+                let hasAnyRows = false;
+                
+                productNames.forEach((name, rowIndex) => {
+                    if (rowIndex < technologicalMatrix.length) {
+                        // Para cada insumo, mostramos seu coeficiente na coluna 0
+                        const coeff = technologicalMatrix[rowIndex][0] || 0;
+                        
+                        const tr = document.createElement('tr');
+                        tr.innerHTML = `
+                            <td>${name}</td>
+                            <td>
+                                <input type="number" step="0.01" min="0" value="${coeff}" 
+                                      data-row="${rowIndex}" data-col="0" 
+                                      onchange="technologicalMatrix[${rowIndex}][0] = parseFloat(this.value) || 0" />
+                            </td>
+                        `;
+                        tbody.appendChild(tr);
+                        hasAnyRows = true;
+                    }
+                });
+                
+                if (!hasAnyRows) {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td colspan="2" class="text-center">Não há dados de insumos disponíveis</td>`;
+                    tbody.appendChild(tr);
+                }
+            } else {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td colspan="2" class="text-center">Não há dados de insumos disponíveis</td>`;
+                tbody.appendChild(tr);
+            }
+        }
+    } else {
+        // Para conselho, renderizamos a matriz completa como antes
+        const headerRow = document.createElement('tr');
+        headerRow.innerHTML = '<th></th>';
+        
+        // Adicionar cabeçalhos de colunas
+        productNames.forEach(name => {
+            const th = document.createElement('th');
+            th.textContent = name;
+            headerRow.appendChild(th);
+        });
+        thead.appendChild(headerRow);
+        
+        // Adicionar linhas com valores
+        technologicalMatrix.forEach((row, rowIndex) => {
+            const tr = document.createElement('tr');
+            
+            // Adicionar nome do produto como primeira célula
+            const headerCell = document.createElement('th');
+            headerCell.textContent = productNames[rowIndex];
+            tr.appendChild(headerCell);
+            
+            // Adicionar valores da matriz
+            row.forEach((value, colIndex) => {
+                const td = document.createElement('td');
+                const input = document.createElement('input');
+                input.type = 'number';
+                input.step = '0.01';
+                input.value = value;
+                input.dataset.row = rowIndex;
+                input.dataset.col = colIndex;
+                input.addEventListener('change', function() {
+                    technologicalMatrix[rowIndex][colIndex] = parseFloat(this.value) || 0;
+                });
+                td.appendChild(input);
+                tr.appendChild(td);
+            });
+            
+            tbody.appendChild(tr);
+        });
+    }
+}
+
+// Função para atualizar um coeficiente quando o usuário alterar o valor
+function updateCoefficientValue(input) {
+    const inputId = parseInt(input.dataset.inputId);
+    const outputId = parseInt(input.dataset.outputId);
+    const value = parseFloat(input.value) || 0;
+    
+    console.log(`Atualizando coeficiente: insumo=${inputId}, produto=${outputId}, valor=${value}`);
+    
+    // Atualizar no cache local
+    if (window.technologicalCoefficients) {
+        const coefficient = window.technologicalCoefficients.find(
+            c => c.inputMaterializationId === inputId && c.outputMaterializationId === outputId
+        );
+        
+        if (coefficient) {
+            coefficient.quantity = value;
+        }
+    }
+    
+    // Também atualizar na matriz tecnológica para compatibilidade com o código existente
+    if (technologicalMatrix && technologicalMatrix.length > 0) {
+        // Encontrar o índice do insumo e do produto na matriz
+        const inputIndex = productIds.indexOf(inputId);
+        const outputIndex = productIds.indexOf(outputId);
+        
+        if (inputIndex >= 0 && outputIndex >= 0) {
+            technologicalMatrix[inputIndex][outputIndex] = value;
+        }
     }
 }
 
@@ -754,97 +977,30 @@ function validateProductIndex(index) {
     return true;
 }
 
-// Function to render the technological matrix
-function renderTechnologicalMatrix() {
-    if (!technologicalMatrix || !productNames) return;
+// Adicionar esta função para atualizar valores da matriz a partir da interface
+function updateMatrixAndVectorData() {
+    // Atualizar vetor de demanda
+    updateDemandVectorFromUI();
     
-    const technologicalMatrixTable = document.getElementById('technologicalMatrix');
-    if (!technologicalMatrixTable) {
-        console.error("Tabela de matriz tecnológica não encontrada");
-        return;
-    }
-    
-    // Limpar tabela
-    const thead = technologicalMatrixTable.querySelector('thead tr');
-    const tbody = technologicalMatrixTable.querySelector('tbody');
-    thead.innerHTML = '';
-    tbody.innerHTML = '';
-    
-    // Verificar se estamos lidando com um comitê (vetor tecnológico) ou conselho (matriz tecnológica)
+    // Atualizar matriz tecnológica para COMMITTEE
     if (currentInstanceType === 'COMMITTEE') {
-        // Para comitê, renderizamos uma tabela com duas colunas apenas (insumo e coeficiente)
-        thead.innerHTML = `
-            <th>Insumo</th>
-            <th>Coeficiente Técnico</th>
-        `;
+        const technologicalMatrixTable = document.getElementById('technologicalMatrix');
+        const rows = technologicalMatrixTable.querySelectorAll('tbody tr');
         
-        // Para comitês, só nos interessa a primeira coluna da matriz, que contém os coeficientes
-        // de todos os insumos necessários para produzir uma unidade do produto do comitê
-        // Verifica se temos pelo menos uma coluna na matriz
-        if (technologicalMatrix.length > 0 && technologicalMatrix[0].length > 0) {
-            productNames.forEach((name, rowIndex) => {
-                if (rowIndex < technologicalMatrix.length) {
-                    // Para cada insumo, mostramos seu coeficiente na coluna 0
-                    const coeff = technologicalMatrix[rowIndex][0];
-                    
-                    // Só mostra se o valor for maior que zero
-                    if (coeff > 0) {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>${name}</td>
-                            <td>
-                                <input type="number" step="0.01" min="0" value="${coeff}" 
-                                      data-row="${rowIndex}" data-col="0" 
-                                      onchange="technologicalMatrix[${rowIndex}][0] = parseFloat(this.value) || 0" />
-                            </td>
-                        `;
-                        tbody.appendChild(tr);
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 2) {
+                const input = cells[1].querySelector('input');
+                if (input) {
+                    const rowIndex = parseInt(input.dataset.row);
+                    if (!isNaN(rowIndex) && rowIndex >= 0 && rowIndex < technologicalMatrix.length) {
+                        technologicalMatrix[rowIndex][0] = parseFloat(input.value) || 0;
                     }
                 }
-            });
-        } else {
-            const tr = document.createElement('tr');
-            tr.innerHTML = `<td colspan="2" class="text-center">Não há dados de insumos disponíveis</td>`;
-            tbody.appendChild(tr);
-        }
-    } else {
-        // Para conselho, renderizamos a matriz completa como antes
-        thead.innerHTML = '<th></th>';
-        
-        // Adicionar cabeçalhos de colunas
-        productNames.forEach(name => {
-            const th = document.createElement('th');
-            th.textContent = name;
-            thead.appendChild(th);
+            }
         });
         
-        // Adicionar linhas com valores
-        technologicalMatrix.forEach((row, rowIndex) => {
-            const tr = document.createElement('tr');
-            
-            // Adicionar nome do produto como primeira célula
-            const headerCell = document.createElement('th');
-            headerCell.textContent = productNames[rowIndex];
-            tr.appendChild(headerCell);
-            
-            // Adicionar valores da matriz
-            row.forEach((value, colIndex) => {
-                const td = document.createElement('td');
-                const input = document.createElement('input');
-                input.type = 'number';
-                input.step = '0.01';
-                input.value = value;
-                input.dataset.row = rowIndex;
-                input.dataset.col = colIndex;
-                input.addEventListener('change', function() {
-                    technologicalMatrix[rowIndex][colIndex] = parseFloat(this.value) || 0;
-                });
-                td.appendChild(input);
-                tr.appendChild(td);
-            });
-            
-            tbody.appendChild(tr);
-        });
+        console.log("Matriz atualizada:", technologicalMatrix);
     }
 }
 
