@@ -1,129 +1,112 @@
 package xyz.planecon.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import xyz.planecon.dto.SocialMaterializationDto;
 import xyz.planecon.model.entity.SocialMaterialization;
-import xyz.planecon.model.entity.Sector;
+import xyz.planecon.service.SocialMaterializationService;
 import xyz.planecon.model.enums.SocialMaterializationType;
-import xyz.planecon.repository.SocialMaterializationRepository;
-import xyz.planecon.repository.SectorRepository;
 
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/social-materializations")
+@RequestMapping("/api/planification")
 public class SocialMaterializationController {
 
-    @Autowired
-    private SocialMaterializationRepository socialMaterializationRepository;
-    
-    @Autowired
-    private SectorRepository sectorRepository;
+    private final SocialMaterializationService materializationService;
 
-    @GetMapping
-    public ResponseEntity<?> getAllSocialMaterializations() {
+    @Autowired
+    public SocialMaterializationController(SocialMaterializationService materializationService) {
+        this.materializationService = materializationService;
+    }
+
+    /**
+     * Endpoint para listar todas as materializações sociais disponíveis
+     */
+    @GetMapping("/available-materializations")
+    public ResponseEntity<?> getAllMaterializations() {
         try {
-            List<SocialMaterialization> materializations = socialMaterializationRepository.findAll();
+            List<SocialMaterialization> materializations = materializationService.findAll();
             
-            // Usar uma estrutura de dados simples para evitar problemas de serialização
-            List<Map<String, Object>> result = new ArrayList<>();
-            
-            for (SocialMaterialization mat : materializations) {
-                Map<String, Object> item = new HashMap<>();
-                item.put("id", mat.getId());
-                item.put("name", mat.getName());
-                item.put("type", mat.getType() != null ? mat.getType().toString() : null);
-                item.put("createdAt", mat.getCreatedAt());
-                
-                // Adicionar informações do setor de forma segura
-                if (mat.getSector() != null) {
-                    Map<String, Object> sectorInfo = new HashMap<>();
-                    sectorInfo.put("id", mat.getSector().getId());
-                    sectorInfo.put("name", mat.getSector().getName());
-                    item.put("sector", sectorInfo);
-                } else {
-                    item.put("sector", null);
-                }
-                
-                result.add(item);
-            }
+            // Converter para DTOs para evitar problemas de serialização
+            List<Map<String, Object>> result = materializations.stream()
+                .map(this::convertToSimpleMap)
+                .collect(Collectors.toList());
             
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            e.printStackTrace();
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("message", "Erro ao buscar materializações sociais: " + e.getMessage());
-            return ResponseEntity.status(500).body(errorResponse);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Erro ao listar materializações sociais: " + e.getMessage());
         }
     }
     
-    @PostMapping
-    public ResponseEntity<?> createSocialMaterialization(@RequestBody Map<String, Object> payload) {
+    /**
+     * Endpoint para criar uma nova materialização social
+     */
+    @PostMapping("/social-materializations")
+    public ResponseEntity<?> createMaterialization(@RequestBody Map<String, Object> payload) {
         try {
-            // Extrair e validar dados
+            // Extrair dados da requisição
             String name = (String) payload.get("name");
             String typeStr = (String) payload.get("type");
-            Integer sectorId = (Integer) payload.get("sectorId");
+            String description = (String) payload.get("description");
             
-            if (name == null || typeStr == null || sectorId == null) {
-                Map<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("message", "Nome, tipo e setor são obrigatórios");
-                return ResponseEntity.badRequest().body(errorResponse);
+            if (name == null || typeStr == null) {
+                return ResponseEntity.badRequest()
+                    .body("Nome e tipo são campos obrigatórios");
             }
             
-            // Validar tipo
+            // Validar o tipo
             SocialMaterializationType type;
             try {
-                type = SocialMaterializationType.valueOf(typeStr);
+                type = SocialMaterializationType.valueOf(typeStr.toUpperCase());
             } catch (IllegalArgumentException e) {
-                Map<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("message", "Tipo inválido: " + typeStr);
-                return ResponseEntity.badRequest().body(errorResponse);
+                return ResponseEntity.badRequest()
+                    .body("Tipo de materialização inválido: " + typeStr);
             }
             
-            // Buscar setor
-            Optional<Sector> sectorOpt = sectorRepository.findById(sectorId);
-            if (!sectorOpt.isPresent()) {
-                Map<String, String> errorResponse = new HashMap<>();
-                errorResponse.put("message", "Setor não encontrado com ID: " + sectorId);
-                return ResponseEntity.badRequest().body(errorResponse);
+            // Criar nova materialização social
+            SocialMaterialization newMaterialization = new SocialMaterialization();
+            newMaterialization.setName(name);
+            newMaterialization.setType(type);
+            
+            if (description != null) {
+                newMaterialization.setDescription(description);
             }
             
-            // Criar e salvar materialização
-            SocialMaterialization materialization = new SocialMaterialization();
-            materialization.setName(name);
-            materialization.setType(type);
-            materialization.setSector(sectorOpt.get());
-            materialization.setCreatedAt(LocalDateTime.now());
+            // Salvar a materialização
+            SocialMaterialization saved = materializationService.save(newMaterialization);
             
-            SocialMaterialization saved = socialMaterializationRepository.save(materialization);
-            
-            // Retornar DTO
-            Map<String, Object> result = new HashMap<>();
-            result.put("id", saved.getId());
-            result.put("name", saved.getName());
-            result.put("type", saved.getType().toString());
-            result.put("createdAt", saved.getCreatedAt());
-            
-            Map<String, Object> sectorInfo = new HashMap<>();
-            sectorInfo.put("id", saved.getSector().getId());
-            sectorInfo.put("name", saved.getSector().getName());
-            result.put("sector", sectorInfo);
-            
-            return ResponseEntity.ok(result);
+            return ResponseEntity.status(HttpStatus.CREATED).body(convertToSimpleMap(saved));
         } catch (Exception e) {
-            e.printStackTrace();
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("message", "Erro ao cadastrar materialização social: " + e.getMessage());
-            return ResponseEntity.status(500).body(errorResponse);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Erro ao criar materialização social: " + e.getMessage());
         }
     }
+    
+    // Método auxiliar para converter a entidade para um mapa simples
+    private Map<String, Object> convertToSimpleMap(SocialMaterialization materialization) {
+        Map<String, Object> map = new HashMap<>();
+        map.put("id", materialization.getId());
+        map.put("name", materialization.getName());
+        map.put("type", materialization.getType().toString());
+        
+        if (materialization.getDescription() != null) {
+            map.put("description", materialization.getDescription());
+        }
+        
+        if (materialization.getSector() != null) {
+            Map<String, Object> sector = new HashMap<>();
+            sector.put("id", materialization.getSector().getId());
+            sector.put("name", materialization.getSector().getName());
+            map.put("sector", sector);
+        }
+        
+        return map;
+    }
+
+    // Outros métodos existentes...
 }

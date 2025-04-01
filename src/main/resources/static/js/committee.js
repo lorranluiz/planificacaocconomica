@@ -136,6 +136,16 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('saveButton').addEventListener('click', function() {
         saveChanges();
     });
+    
+    // Adicionar event listener para o botão de adicionar materialização em Estoque e Demanda
+    document.getElementById('addStockDemandBtn').addEventListener('click', function() {
+        openMaterializationSelector('stockDemand');
+    });
+    
+    // Adicionar event listener para o botão de adicionar materialização no vetor de demanda
+    document.getElementById('addMaterializationBtn').addEventListener('click', function() {
+        openMaterializationSelector('demandVector');
+    });
 });
 
 // Função específica para carregar os coeficientes do vetor tecnológico
@@ -256,6 +266,8 @@ function renderTechnologicalMatrix() {
                         const inputName = coef.inputMaterializationName || `Insumo #${coef.inputMaterializationId}`;
                         
                         const tr = document.createElement('tr');
+                        tr.dataset.materializationId = coef.inputMaterializationId;
+                        
                         tr.innerHTML = `
                             <td>${inputName}</td>
                             <td>
@@ -264,19 +276,24 @@ function renderTechnologicalMatrix() {
                                       data-output-id="${coef.outputMaterializationId}" 
                                       onchange="updateCoefficientValue(this)" />
                             </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn remove-btn" onclick="removeMaterialization(${coef.inputMaterializationId}, 'technologicalMatrix')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
                         `;
                         tbody.appendChild(tr);
                     });
                 } else {
-                    // Nenhum coeficiente encontrado
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td colspan="2" class="text-center">Não há dados de coeficientes disponíveis</td>`;
+                    tr.innerHTML = `<td colspan="3" class="text-center">Não há dados de coeficientes disponíveis</td>`;
                     tbody.appendChild(tr);
                 }
             } else {
-                // Nenhuma materialização de saída encontrada
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="2" class="text-center">Não há dados de coeficientes disponíveis</td>`;
+                tr.innerHTML = `<td colspan="3" class="text-center">Não há dados de coeficientes disponíveis</td>`;
                 tbody.appendChild(tr);
             }
         } else {
@@ -300,6 +317,13 @@ function renderTechnologicalMatrix() {
                                       data-row="${rowIndex}" data-col="0" 
                                       onchange="technologicalMatrix[${rowIndex}][0] = parseFloat(this.value) || 0" />
                             </td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn remove-btn" onclick="removeMaterialization(${productIds[rowIndex]}, 'technologicalMatrix')">
+                                        <i class="fas fa-trash-alt"></i>
+                                    </button>
+                                </div>
+                            </td>
                         `;
                         tbody.appendChild(tr);
                         hasAnyRows = true;
@@ -308,12 +332,12 @@ function renderTechnologicalMatrix() {
                 
                 if (!hasAnyRows) {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td colspan="2" class="text-center">Não há dados de insumos disponíveis</td>`;
+                    tr.innerHTML = `<td colspan="3" class="text-center">Não há dados de insumos disponíveis</td>`;
                     tbody.appendChild(tr);
                 }
             } else {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="2" class="text-center">Não há dados de insumos disponíveis</td>`;
+                tr.innerHTML = `<td colspan="3" class="text-center">Não há dados de insumos disponíveis</td>`;
                 tbody.appendChild(tr);
             }
         }
@@ -491,7 +515,7 @@ function openOptimizationConfigModal(productIndex) {
     // Carregar dados existentes para esta materialização específica
     const materializationId = productIds[productIndex];
     
-    // Verificar se o ID da materialização é válido
+    // Verificar se o ID de materialização é válido
     if (!materializationId) {
         console.error(`ID de materialização indefinido para índice: ${productIndex}`);
         showError('ID de materialização não disponível para este produto.');
@@ -1650,4 +1674,651 @@ function saveChanges() {
         showError("Erro ao preparar dados: " + error.message);
         document.getElementById('loadingSpinner').style.display = 'none';
     }
+}
+
+// Função para abrir seletor de materialização
+function openMaterializationSelector(targetTable) {
+    if (!currentInstanceId) {
+        showError("Selecione uma instância primeiro");
+        return;
+    }
+    
+    // Carregar lista de materializações sociais disponíveis
+    fetch('/api/planification/available-materializations')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Erro ao carregar materializações sociais');
+            }
+            return response.json();
+        })
+        .then(materializations => {
+            // Criar dropdown para seleção
+            showMaterializationDropdown(materializations, targetTable);
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            showError("Erro ao carregar lista de materializações sociais");
+        });
+}
+
+// Função para mostrar dropdown de seleção de materialização
+function showMaterializationDropdown(materializations, targetTable) {
+    // Salvar o alvo do dropdown para uso posterior
+    window.lastSelectedTargetTable = targetTable;
+    
+    // Remover dropdown existente se houver
+    const existingDropdown = document.querySelector('.materialization-dropdown');
+    if (existingDropdown) {
+        existingDropdown.remove();
+    }
+    
+    // Criar elemento de dropdown
+    const dropdown = document.createElement('div');
+    dropdown.className = 'materialization-dropdown';
+    
+    // Posicionar dropdown adequadamente baseado no botão clicado
+    const buttonId = targetTable === 'stockDemand' ? 'addStockDemandBtn' : 'addMaterializationBtn';
+    const button = document.getElementById(buttonId);
+    const buttonRect = button.getBoundingClientRect();
+    
+    dropdown.style.top = `${buttonRect.bottom + window.scrollY}px`;
+    dropdown.style.left = `${buttonRect.left + window.scrollX}px`;
+    
+    // Adicionar itens ao dropdown
+    if (materializations.length === 0) {
+        const emptyMessage = document.createElement('div');
+        emptyMessage.className = 'empty-message';
+        emptyMessage.textContent = 'Nenhuma materialização disponível';
+        dropdown.appendChild(emptyMessage);
+    } else {
+        materializations.forEach(mat => {
+            const item = document.createElement('div');
+            item.className = 'dropdown-item';
+            item.textContent = mat.name;
+            item.addEventListener('click', () => {
+                addMaterialization(mat, targetTable);
+                dropdown.remove();
+            });
+            dropdown.appendChild(item);
+        });
+    }
+    
+    // Adicionar opção para criar nova materialização
+    const newItem = document.createElement('div');
+    newItem.className = 'dropdown-item add-new-item';
+    newItem.textContent = '+ Nova Materialização Social';
+    newItem.addEventListener('click', () => {
+        openNewMaterializationModal();
+        dropdown.remove();
+    });
+    dropdown.appendChild(newItem);
+    
+    // Adicionar ao documento
+    document.body.appendChild(dropdown);
+    
+    // Fechar dropdown quando clicar fora dele
+    document.addEventListener('click', function closeDropdown(e) {
+        if (!dropdown.contains(e.target) && e.target !== button) {
+            dropdown.remove();
+            document.removeEventListener('click', closeDropdown);
+        }
+    });
+}
+
+// Função para adicionar materialização à tabela de estoque/demanda
+function addToStockDemandTable(materialization) {
+    if (!currentInstanceId) {
+        showError("Selecione uma instância primeiro");
+        return;
+    }
+
+    // Verificar se essa materialização já existe na tabela
+    const table = document.getElementById('demandStockTable');
+    const existingRow = table.querySelector(`tbody tr[data-materialization-id="${materialization.id}"]`);
+    
+    if (existingRow) {
+        showError(`A materialização "${materialization.name}" já existe na tabela`);
+        return;
+    }
+    
+    const tbody = table.querySelector('tbody');
+    
+    // Remover mensagem de "não há dados" se existir
+    const emptyMessage = tbody.querySelector('tr td[colspan]');
+    if (emptyMessage) {
+        tbody.innerHTML = '';
+    }
+    
+    // Criar nova linha com valores padrão
+    const tr = document.createElement('tr');
+    tr.dataset.materializationId = materialization.id;
+    
+    // Valores iniciais para estoque e demanda
+    const stock = 0;
+    const demand = 0;
+    const balance = stock - demand;
+    
+    tr.innerHTML = `
+        <td>${materialization.name}</td>
+        <td>
+            <input type="number" class="form-control stock-input" 
+                value="${stock}" 
+                data-id="${materialization.id}"
+                onchange="updateStockValue(${materialization.id}, this.value)">
+        </td>
+        <td>
+            <input type="number" class="form-control demand-input" 
+                value="${demand}" 
+                data-id="${materialization.id}"
+                onchange="updateDemandValue(${materialization.id}, this.value)">
+        </td>
+        <td class="balance-cell">${balance.toFixed(2)}</td>
+        <td>
+            <div class="action-buttons">
+                <button class="action-btn remove-btn" onclick="removeMaterialization(${materialization.id}, 'stockDemand')">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
+            </div>
+        </td>
+    `;
+    
+    tbody.appendChild(tr);
+    
+    // Salvar no servidor
+    saveStockDemandItem(materialization.id, stock, demand);
+    
+    showSuccess(`Materialização "${materialization.name}" adicionada à tabela de estoque e demanda`);
+}
+
+// Função para adicionar materialização ao vetor tecnológico
+function addToTechnologicalMatrix(materialization) {
+    if (!currentInstanceId) {
+        showError("Selecione uma instância primeiro");
+        return;
+    }
+    
+    // Verificar se os coeficientes já foram carregados
+    const coefficients = window.technologicalCoefficients || [];
+    
+    // Determinar a materialização de saída (produto do comitê)
+    // Para um comitê, normalmente é o primeiro produto na lista
+    let outputId = null;
+    if (productIds && productIds.length > 0) {
+        outputId = productIds[0];
+    } else {
+        showError("Não foi possível identificar o produto principal do comitê");
+        return;
+    }
+    
+    // Verificar se essa materialização já existe como entrada no vetor tecnológico
+    const existingCoef = coefficients.find(c => 
+        c.inputMaterializationId === materialization.id && 
+        c.outputMaterializationId === outputId
+    );
+    
+    if (existingCoef) {
+        showError(`A materialização "${materialization.name}" já existe no vetor tecnológico`);
+        return;
+    }
+    
+    // Adicionar ao array de coeficientes (cache local)
+    const newCoef = {
+        instanceId: currentInstanceId,
+        inputMaterializationId: materialization.id,
+        inputMaterializationName: materialization.name,
+        outputMaterializationId: outputId,
+        quantity: 0 // valor inicial
+    };
+    
+    if (window.technologicalCoefficients) {
+        window.technologicalCoefficients.push(newCoef);
+    } else {
+        window.technologicalCoefficients = [newCoef];
+    }
+    
+    // Atualizar a tabela visual
+    renderTechnologicalMatrix();
+    
+    // Salvar no servidor
+    saveTechnologicalTensor(materialization.id, outputId, 0);
+}
+
+// Função para adicionar materialização ao vetor de demanda
+function addToDemandVectorTable(materialization) {
+    if (!currentInstanceId) {
+        showError("Selecione uma instância primeiro");
+        return;
+    }
+    
+    // Verificar se já existe essa materialização no vetor de demanda
+    if (productIds.includes(materialization.id)) {
+        showError(`A materialização "${materialization.name}" já existe no vetor de demanda`);
+        return;
+    }
+    
+    // Adicionar ao array de dados
+    productNames.push(materialization.name);
+    productIds.push(materialization.id);
+    demandVector.push(0); // valor inicial
+    
+    // Se necessário, atualizar a matriz tecnológica para incluir a nova linha/coluna
+    if (technologicalMatrix.length > 0) {
+        // Adicionar nova linha de zeros
+        const newRow = Array(technologicalMatrix[0].length).fill(0);
+        technologicalMatrix.push(newRow);
+        
+        // Para o formato matricial (conselho), adicionar nova coluna de zeros em cada linha existente
+        if (currentInstanceType !== 'COMMITTEE') {
+            for (let i = 0; i < technologicalMatrix.length - 1; i++) {
+                technologicalMatrix[i].push(0);
+            }
+        }
+    } else {
+        // Matriz vazia, criar com tamanho adequado
+        if (currentInstanceType === 'COMMITTEE') {
+            // Para comitê, apenas uma coluna
+            technologicalMatrix = productNames.map(() => [0]);
+        } else {
+            // Para conselho, matriz quadrada
+            technologicalMatrix = productNames.map(() => Array(productNames.length).fill(0));
+        }
+    }
+    
+    // Atualizar as tabelas
+    renderDemandVectorTable();
+    
+    // Salvar a demanda no servidor
+    saveDemandVector(materialization.id, 0);
+    
+    showSuccess(`Materialização "${materialization.name}" adicionada ao vetor de demanda`);
+}
+
+// Função para remover uma materialização de qualquer tabela
+function removeMaterialization(materializationId, source) {
+    if (!currentInstanceId || !materializationId) {
+        showError("ID inválido");
+        return;
+    }
+    
+    // Confirmação antes de excluir
+    if (!confirm("Tem certeza que deseja excluir esta materialização? Ela será removida de todas as tabelas.")) {
+        return;
+    }
+    
+    // Se não tivermos uma lista de IDs removidos, criar uma
+    if (!window.removedMaterializationIds) {
+        window.removedMaterializationIds = [];
+    }
+    
+    // Adicionar à lista para exclusão durante salvamento
+    if (!window.removedMaterializationIds.includes(materializationId)) {
+        window.removedMaterializationIds.push(materializationId);
+    }
+    
+    // 1. Remover da tabela de estoque e demanda
+    const stockDemandTable = document.getElementById('demandStockTable');
+    const stockDemandRow = stockDemandTable.querySelector(`tbody tr[data-materialization-id="${materializationId}"]`);
+    if (stockDemandRow) {
+        stockDemandRow.remove();
+    }
+    
+    // 2. Remover do vetor tecnológico (atualizar os coeficientes)
+    if (window.technologicalCoefficients) {
+        window.technologicalCoefficients = window.technologicalCoefficients.filter(
+            c => c.inputMaterializationId !== materializationId
+        );
+        // Re-renderizar o vetor tecnológico
+        renderTechnologicalMatrix();
+    }
+    
+    // 3. Remover do vetor de demanda
+    const index = productIds.indexOf(materializationId);
+    if (index >= 0) {
+        productIds.splice(index, 1);
+        productNames.splice(index, 1);
+        demandVector.splice(index, 1);
+        
+        // Também remover da matriz tecnológica
+        if (technologicalMatrix.length > 0) {
+            technologicalMatrix.splice(index, 1); // Remover linha
+            
+            // Para conselho (matriz completa), também remover coluna
+            if (currentInstanceType !== 'COMMITTEE') {
+                for (let i = 0; i < technologicalMatrix.length; i++) {
+                    technologicalMatrix[i].splice(index, 1);
+                }
+            }
+        }
+        
+        // Re-renderizar o vetor de demanda
+        renderDemandVectorTable();
+    }
+    
+    // Notificação de sucesso
+    showSuccess("Materialização removida com sucesso");
+}
+
+// Função auxiliar para salvar estoque/demanda no servidor
+function saveStockDemandItem(materializationId, stock, demand) {
+    // Preparar dados para envio
+    const payload = {
+        instanceId: currentInstanceId,
+        materializationId: materializationId,
+        currentStock: stock,
+        demand: demand
+    };
+    
+    // Enviar para o servidor
+    fetch('/api/demand-stock', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Estoque/demanda salvo com sucesso:', data);
+    })
+    .catch(error => {
+        console.error('Erro ao salvar estoque/demanda:', error);
+        // Não mostrar erro ao usuário, pois isso é uma operação em segundo plano
+    });
+}
+
+// Função auxiliar para salvar tensor tecnológico
+function saveTechnologicalTensor(inputId, outputId, value) {
+    // Preparar dados para envio
+    const payload = {
+        inputMaterializationId: inputId,
+        outputMaterializationId: outputId,
+        instanceId: currentInstanceId,
+        quantity: value
+    };
+    
+    // Enviar para o servidor
+    fetch('/api/planification/technological-tensor', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Tensor tecnológico salvo com sucesso:', data);
+    })
+    .catch(error => {
+        console.error('Erro ao salvar tensor tecnológico:', error);
+        // Não mostrar erro ao usuário, pois isso é uma operação em segundo plano
+    });
+}
+
+// Função auxiliar para salvar vetor de demanda
+function saveDemandVector(materializationId, value) {
+    // Preparar dados para envio
+    const payload = {
+        materializationId: materializationId,
+        instanceId: currentInstanceId,
+        demand: value
+    };
+    
+    // Enviar para o servidor
+    fetch('/api/planification/demand-vector', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Erro HTTP: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Vetor de demanda salvo com sucesso:', data);
+    })
+    .catch(error => {
+        console.error('Erro ao salvar vetor de demanda:', error);
+        // Não mostrar erro ao usuário, pois isso é uma operação em segundo plano
+    });
+}
+
+// Função para abrir modal de nova materialização
+function openNewMaterializationModal() {
+    const modal = document.getElementById('newMaterializationModal');
+    const form = document.getElementById('newMaterializationForm');
+    const errorMessage = document.getElementById('newMaterializationFormError');
+    const successMessage = document.getElementById('newMaterializationFormSuccess');
+    
+    // Limpar mensagens e formulário
+    errorMessage.style.display = 'none';
+    successMessage.style.display = 'none';
+    form.reset();
+    
+    // Mostrar o modal
+    modal.style.display = 'flex';
+    
+    // Configurar o evento de submit do formulário
+    form.onsubmit = function(e) {
+        e.preventDefault();
+        createNewMaterialization();
+    };
+}
+
+// Função para fechar modal de nova materialização
+function closeNewMaterializationModal() {
+    document.getElementById('newMaterializationModal').style.display = 'none';
+}
+
+// Função para criar nova materialização social
+function createNewMaterialization() {
+    const nameInput = document.getElementById('materialName');
+    const typeSelect = document.getElementById('materialType');
+    const descriptionInput = document.getElementById('materialDescription');
+    const spinner = document.getElementById('newMaterializationModalSpinner');
+    const errorMessage = document.getElementById('newMaterializationFormError');
+    const successMessage = document.getElementById('newMaterializationFormSuccess');
+    
+    // Validar campos
+    if (!nameInput.value.trim()) {
+        errorMessage.textContent = 'O nome da materialização é obrigatório';
+        errorMessage.style.display = 'block';
+        return;
+    }
+    
+    // Preparar dados
+    const payload = {
+        name: nameInput.value.trim(),
+        type: typeSelect.value,
+        description: descriptionInput.value.trim()
+    };
+    
+    // Mostrar spinner
+    spinner.style.display = 'inline-block';
+    errorMessage.style.display = 'none';
+    
+    // Enviar para o servidor
+    fetch('/api/planification/social-materializations', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.text().then(text => {
+                throw new Error(text || `Erro HTTP: ${response.status}`);
+            });
+        }
+        return response.json();
+    })
+    .then(newMaterialization => {
+        // Mostrar mensagem de sucesso
+        successMessage.textContent = `Materialização "${newMaterialization.name}" criada com sucesso!`;
+        successMessage.style.display = 'block';
+        
+        // Adicionar a nova materialização às tabelas
+        const targetTable = window.lastSelectedTargetTable || 'stockDemand';
+        
+        // Adicionar à tabela selecionada e também ao vetor tecnológico se for estoque/demanda
+        addMaterialization(newMaterialization, targetTable);
+        
+        // Limpar o formulário
+        document.getElementById('newMaterializationForm').reset();
+        
+        // Fechar o modal após um curto atraso
+        setTimeout(() => {
+            closeNewMaterializationModal();
+        }, 2000);
+    })
+    .catch(error => {
+        console.error('Erro ao criar materialização:', error);
+        errorMessage.textContent = `Erro ao criar materialização: ${error.message}`;
+        errorMessage.style.display = 'block';
+    })
+    .finally(() => {
+        spinner.style.display = 'none';
+    });
+}
+
+// Atualizar o logDemandVectorStatus para depuração
+function logDemandVectorStatus() {
+    console.log("===== STATUS DO VETOR DE DEMANDA =====");
+    console.log("- demandVector:", demandVector);
+    console.log("- productIds:", productIds);
+    console.log("- productNames:", productNames);
+    console.log("- materializations nos arrays:", productIds.length);
+    
+    // Verificar tabelas
+    const demandRows = document.querySelectorAll('#demandVector tbody tr').length;
+    const stockRows = document.querySelectorAll('#demandStockTable tbody tr').length;
+    const techRows = document.querySelectorAll('#technologicalMatrix tbody tr').length;
+    
+    console.log("- Linhas na tabela Vetor de Demanda:", demandRows);
+    console.log("- Linhas na tabela Estoque/Demanda:", stockRows);
+    console.log("- Linhas na tabela Vetor Tecnológico:", techRows);
+    console.log("=======================================");
+}
+
+/**
+ * Realiza o processo de planificação econômica.
+ * Coleta os dados das tabelas, envia ao servidor, e exibe os resultados.
+ */
+function planify() {
+    if (!currentInstanceId) {
+        showError("Selecione uma instância primeiro");
+        return;
+    }
+    
+    // Mostrar spinner de carregamento
+    document.getElementById('loadingSpinner').style.display = 'inline-block';
+    
+    try {
+        // 1. Atualizar variáveis com os dados atuais da interface
+        updateMatrixAndVectorData();
+        
+        // 2. Preparar dados para envio (modelo de Leontief)
+        const request = {
+            instanceId: currentInstanceId,
+            technologicalMatrix: convertArrayToBoxedArray(technologicalMatrix),
+            demandVector: convertArrayToBoxedArray(demandVector),
+            productNames: productNames,
+            materializationIds: productIds
+        };
+        
+        // 3. Enviar requisição para o servidor
+        fetch('/api/planification/planify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(request)
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.text().then(text => {
+                    throw new Error(text || `Erro HTTP: ${response.status}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Resultados da planificação:', data);
+            
+            // 4. Processar e exibir resultados
+            if (!data.productionVector) {
+                throw new Error('Resposta do servidor não contém vetor de produção');
+            }
+            
+            // Armazenar resultados para uso posterior
+            optimizationResults = data.optimizationResults || [];
+            
+            // Renderizar o vetor de produção na tabela
+            renderProductionVector(data.productionVector);
+            
+            // Mostrar a seção de resultados
+            document.getElementById('results').style.display = 'block';
+            
+            // Mostrar mensagem de sucesso ao usuário
+            showSuccess('Planificação concluída com sucesso!');
+            
+            // Aplicar scroll suave para a seção de resultados
+            document.getElementById('results').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        })
+        .catch(error => {
+            console.error('Erro ao planificar:', error);
+            showError(`Erro ao realizar planificação: ${error.message}`);
+        })
+        .finally(() => {
+            // Esconder spinner de carregamento
+            document.getElementById('loadingSpinner').style.display = 'none';
+        });
+    } catch (error) {
+        // Tratar erros na preparação de dados
+        console.error('Erro ao preparar dados:', error);
+        showError(`Erro ao preparar dados: ${error.message}`);
+        document.getElementById('loadingSpinner').style.display = 'none';
+    }
+}
+
+/**
+ * Converte array normal para array de objetos Array (boxed values)
+ * Necessário para o JSON não perder zeros à direita
+ */
+function convertArrayToBoxedArray(arr) {
+    // Se é um array unidimensional
+    if (!Array.isArray(arr[0])) {
+        return arr.map(val => Number(val));
+    }
+    
+    // Se é uma matriz
+    return arr.map(row => row.map(val => Number(val)));
+}
+
+/**
+ * Função para remover item do vetor de demanda
+ */
+function removeDemandItem(index) {
+    if (index < 0 || index >= productIds.length) {
+        showError("Índice inválido para remoção");
+        return;
+    }
+    
+    const materializationId = productIds[index];
+    removeMaterialization(materializationId, 'demandVector');
 }
