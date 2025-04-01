@@ -233,14 +233,6 @@ function renderTechnologicalMatrix() {
     if (currentInstanceType === 'COMMITTEE') {
         // Para comitês, mostrar o vetor de insumos (o que entra na produção)
         
-        // Mapear os IDs das materializações para seus nomes para exibição
-        const materializationIdToName = {};
-        productNames.forEach((name, index) => {
-            if (index < productIds.length) {
-                materializationIdToName[productIds[index]] = name;
-            }
-        });
-        
         // Se temos coeficientes carregados do backend, usá-los
         if (coefficients && coefficients.length > 0) {
             // Determinar qual é a materialização de saída (produto do comitê)
@@ -259,8 +251,9 @@ function renderTechnologicalMatrix() {
                 // Se temos coeficientes, renderizar cada um
                 if (relevantCoefficients.length > 0) {
                     relevantCoefficients.forEach(coef => {
-                        const inputName = materializationIdToName[coef.inputMaterializationId] || 
-                                         `Insumo #${coef.inputMaterializationId}`;
+                        // Usar diretamente o nome do insumo que vem do backend
+                        // Este é o nome da materialização social usada como insumo
+                        const inputName = coef.inputMaterializationName || `Insumo #${coef.inputMaterializationId}`;
                         
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
