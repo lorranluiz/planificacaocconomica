@@ -247,7 +247,8 @@ function renderTechnologicalMatrix() {
         matriz: technologicalMatrix,
         tamanho: technologicalMatrix.length,
         produtos: productNames,
-        coeficientesCarregados: window.technologicalCoefficients ? true : false
+        coeficientesCarregados: window.technologicalCoefficients ? true : false,
+        numeroDeCoeficientes: window.technologicalCoefficients ? window.technologicalCoefficients.length : 0
     });
     
     // Usar os coeficientes carregados diretamente do backend, se disponíveis
@@ -256,6 +257,14 @@ function renderTechnologicalMatrix() {
     // Verificar se estamos lidando com um comitê (vetor tecnológico) ou conselho (matriz tecnológica)
     if (currentInstanceType === 'COMMITTEE') {
         // Para comitês, mostrar o vetor de insumos (o que entra na produção)
+        
+        // Verificação explícita para o caso de array vazio
+        if (!coefficients || coefficients.length === 0) {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td colspan="3" class="text-center">Não há dados de coeficientes disponíveis</td>`;
+            tbody.appendChild(tr);
+            return; // Sair da função para evitar processamento adicional
+        }
         
         // Se temos coeficientes carregados do backend, usá-los
         if (coefficients && coefficients.length > 0) {
@@ -442,6 +451,95 @@ function updateCoefficientValue(input) {
             quantity: value
         });
     }
+}
+
+// Função para remover uma materialização de qualquer tabela
+function removeMaterialization(materializationId, source) {
+    if (!currentInstanceId || !materializationId) {
+        showError("ID inválido");
+        return;
+    }
+    
+    // Confirmação antes de excluir
+    if (!confirm("Tem certeza que deseja excluir esta materialização? Ela será removida de todas as tabelas.")) {
+        return;
+    }
+    
+    // Adicionar o ID da materialização à lista de exclusão, se ainda não estiver lá
+    if (!pendingChanges.deletedMaterializations.includes(materializationId)) {
+        pendingChanges.deletedMaterializations.push(materializationId);
+    }
+    
+    // 1. Remover da tabela de estoque e demanda
+    const stockDemandTable = document.getElementById('demandStockTable');
+    const stockDemandRow = stockDemandTable.querySelector(`tbody tr[data-materialization-id="${materializationId}"]`);
+    if (stockDemandRow) {
+        stockDemandRow.remove();
+    }
+    
+    // 2. Remover do vetor tecnológico (atualizar os coeficientes)
+    if (window.technologicalCoefficients) {
+        // Verificar se estamos removendo o último coeficiente (antes de filtrar)
+        const totalCoefficients = window.technologicalCoefficients.length;
+        const remainingCoefficients = window.technologicalCoefficients.filter(
+            c => c.inputMaterializationId !== materializationId
+        ).length;
+        
+        const isLastCoefficient = remainingCoefficients === 0 || 
+            (totalCoefficients === 1 && window.technologicalCoefficients[0].inputMaterializationId === materializationId);
+        
+        // Filtrar os coeficientes
+        window.technologicalCoefficients = window.technologicalCoefficients.filter(
+            c => c.inputMaterializationId !== materializationId
+        );
+        
+        // Se era o último coeficiente, precisamos de uma limpeza mais completa
+        if (isLastCoefficient) {
+            // Limpar explicitamente a tabela
+            const technologicalMatrixTable = document.getElementById('technologicalMatrix');
+            if (technologicalMatrixTable) {
+                const tbody = technologicalMatrixTable.querySelector('tbody');
+                if (tbody) {
+                    tbody.innerHTML = '<tr><td colspan="3" class="text-center">Não há dados de coeficientes disponíveis</td></tr>';
+                }
+            }
+            
+            // Garantir que as estruturas de dados estejam vazias
+            window.technologicalCoefficients = [];
+            
+            // Não chamar renderTechnologicalMatrix para o último item
+            // pois a tabela já foi limpa manualmente
+        } else {
+            // Re-renderizar o vetor tecnológico apenas se não era o último item
+            renderTechnologicalMatrix();
+        }
+    }
+    
+    // 3. Remover do vetor de demanda
+    const index = productIds.indexOf(materializationId);
+    if (index >= 0) {
+        productIds.splice(index, 1);
+        productNames.splice(index, 1);
+        demandVector.splice(index, 1);
+        
+        // Também remover da matriz tecnológica
+        if (technologicalMatrix.length > 0) {
+            technologicalMatrix.splice(index, 1); // Remover linha
+            
+            // Para conselho (matriz completa), também remover coluna
+            if (currentInstanceType !== 'COMMITTEE') {
+                for (let i = 0; i < technologicalMatrix.length; i++) {
+                    technologicalMatrix[i].splice(index, 1);
+                }
+            }
+        }
+        
+        // Re-renderizar o vetor de demanda
+        renderDemandVectorTable();
+    }
+    
+    // Notificação de sucesso
+    showSuccess("Materialização removida com sucesso");
 }
 
 // Funções para modais
@@ -975,15 +1073,52 @@ function updateMatrixAndVectorData() {
             if (cells.length >= 2) {
                 const input = cells[1].querySelector('input');
                 if (input) {
-                    const rowIndex = parseInt(input.dataset.row);
-                    if (!isNaN(rowIndex) && rowIndex >= 0 && rowIndex < technologicalMatrix.length) {
-                        technologicalMatrix[rowIndex][0] = parseFloat(input.value) || 0;
+                    // Verificar se estamos usando o novo formato com data-input-id e data-output-id
+                    if (input.dataset.inputId && input.dataset.outputId) {
+                        const inputId = parseInt(input.dataset.inputId);
+                        const outputId = parseInt(input.dataset.outputId);
+                        const value = parseFloat(input.value) || 0;
+                        
+                        // Atualizar no cache de coeficientes
+                        if (window.technologicalCoefficients) {
+                            const coefficient = window.technologicalCoefficients.find(
+                                c => c.inputMaterializationId === inputId && c.outputMaterializationId === outputId
+                            );
+                            
+                            if (coefficient) {
+                                coefficient.quantity = value;
+                            }
+                        }
+                        
+                        // Adicionar às alterações pendentes se não estiver lá
+                        const existingChange = pendingChanges.modifiedTensors.find(
+                            t => t.inputMaterializationId === inputId && t.outputMaterializationId === outputId
+                        );
+                        
+                        if (existingChange) {
+                            existingChange.quantity = value;
+                        } else {
+                            pendingChanges.modifiedTensors.push({
+                                inputMaterializationId: inputId,
+                                outputMaterializationId: outputId,
+                                quantity: value
+                            });
+                        }
+                        
+                        console.log(`Atualizado coeficiente: input=${inputId}, output=${outputId}, valor=${value}`);
+                    }
+                    // Para compatibilidade com código antigo baseado em índices de linha/coluna
+                    else if (input.dataset.row !== undefined) {
+                        const rowIndex = parseInt(input.dataset.row);
+                        if (!isNaN(rowIndex) && rowIndex >= 0 && rowIndex < technologicalMatrix.length) {
+                            technologicalMatrix[rowIndex][0] = parseFloat(input.value) || 0;
+                        }
                     }
                 }
             }
         });
         
-        console.log("Matriz atualizada:", technologicalMatrix);
+        console.log("Matriz tecnológica atualizada");
     }
 }
 
@@ -2075,64 +2210,11 @@ function addToDemandVectorTable(materialization) {
     showSuccess(`Materialização "${materialization.name}" adicionada ao vetor de demanda`);
 }
 
-// Função para remover uma materialização de qualquer tabela
-function removeMaterialization(materializationId, source) {
-    if (!currentInstanceId || !materializationId) {
-        showError("ID inválido");
-        return;
-    }
-    
-    // Confirmação antes de excluir
-    if (!confirm("Tem certeza que deseja excluir esta materialização? Ela será removida de todas as tabelas.")) {
-        return;
-    }
-    
-    // Adicionar o ID da materialização à lista de exclusão, se ainda não estiver lá
-    if (!pendingChanges.deletedMaterializations.includes(materializationId)) {
-        pendingChanges.deletedMaterializations.push(materializationId);
-    }
-    
-    // 1. Remover da tabela de estoque e demanda
-    const stockDemandTable = document.getElementById('demandStockTable');
-    const stockDemandRow = stockDemandTable.querySelector(`tbody tr[data-materialization-id="${materializationId}"]`);
-    if (stockDemandRow) {
-        stockDemandRow.remove();
-    }
-    
-    // 2. Remover do vetor tecnológico (atualizar os coeficientes)
-    if (window.technologicalCoefficients) {
-        window.technologicalCoefficients = window.technologicalCoefficients.filter(
-            c => c.inputMaterializationId !== materializationId
-        );
-        // Re-renderizar o vetor tecnológico
-        renderTechnologicalMatrix();
-    }
-    
-    // 3. Remover do vetor de demanda
-    const index = productIds.indexOf(materializationId);
-    if (index >= 0) {
-        productIds.splice(index, 1);
-        productNames.splice(index, 1);
-        demandVector.splice(index, 1);
-        
-        // Também remover da matriz tecnológica
-        if (technologicalMatrix.length > 0) {
-            technologicalMatrix.splice(index, 1); // Remover linha
-            
-            // Para conselho (matriz completa), também remover coluna
-            if (currentInstanceType !== 'COMMITTEE') {
-                for (let i = 0; i < technologicalMatrix.length; i++) {
-                    technologicalMatrix[i].splice(index, 1);
-                }
-            }
-        }
-        
-        // Re-renderizar o vetor de demanda
-        renderDemandVectorTable();
-    }
-    
-    // Notificação de sucesso
-    showSuccess("Materialização removida com sucesso");
+// Função para remover item do vetor de demanda
+function removeDemandItem(index) {
+    // Get the materialization ID from the productIds array at the given index
+    const materializationId = productIds[index];
+    removeMaterialization(materializationId, 'demandVector');
 }
 
 // Função para abrir modal de nova materialização
@@ -2347,15 +2429,6 @@ function convertArrayToBoxedArray(arr) {
     
     // Se é uma matriz
     return arr.map(row => row.map(val => Number(val)));
-}
-
-/**
- * Função para remover item do vetor de demanda
- */
-function removeDemandItem(index) {
-    // Get the materialization ID from the productIds array at the given index
-    const materializationId = productIds[index];
-    removeMaterialization(materializationId, 'demandVector');
 }
 
 // Função para formatar coeficientes técnicos adequadamente
