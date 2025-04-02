@@ -23,6 +23,19 @@ let pendingChanges = {
     modifiedDemandStocks: []
 };
 
+// Funções auxiliares para manipulação de números com diferentes separadores decimais
+function formatNumberForDisplay(value) {
+    if (value === null || value === undefined || isNaN(parseFloat(value))) return "0";
+    return parseFloat(value).toString().replace('.', ',');
+}
+
+function parseDecimalInput(value) {
+    if (!value) return 0;
+    // Substituir vírgula por ponto para garantir interpretação correta
+    const normalizedValue = value.toString().replace(',', '.');
+    return parseFloat(normalizedValue) || 0;
+}
+
 // Função para carregar as instâncias de comitê no dropdown
 function loadInstances() {
     const instanceSelect = document.getElementById('instanceSelect');
@@ -200,7 +213,7 @@ function renderDemandVectorTable() {
         tr.innerHTML = `
             <td>${name}</td>
             <td>
-                <input type="number" step="0.01" min="0" value="${value}" 
+                <input type="text" inputmode="decimal" step="0.01" min="0" value="${formatNumberForDisplay(value)}" 
                        data-index="${index}"
                        onchange="updateDemandVector(${index}, this)" />
             </td>
@@ -218,7 +231,7 @@ function renderDemandVectorTable() {
 // Função auxiliar para atualizar o vetor de demanda quando os valores mudam
 function updateDemandVector(index, input) {
     if (index >= 0 && index < demandVector.length) {
-        const value = parseFloat(input.value) || 0;
+        const value = parseDecimalInput(input.value);
         demandVector[index] = value;
     }
 }
@@ -294,7 +307,7 @@ function renderTechnologicalMatrix() {
                         tr.innerHTML = `
                             <td>${inputName}</td>
                             <td>
-                                <input type="number" step="0.01" min="0" value="${coef.quantity}" 
+                                <input type="text" inputmode="decimal" step="0.01" min="0" value="${formatNumberForDisplay(coef.quantity)}" 
                                       data-input-id="${coef.inputMaterializationId}" 
                                       data-output-id="${coef.outputMaterializationId}" 
                                       onchange="updateCoefficientValue(this)" />
@@ -336,9 +349,9 @@ function renderTechnologicalMatrix() {
                         tr.innerHTML = `
                             <td>${name}</td>
                             <td>
-                                <input type="number" step="0.01" min="0" value="${coeff}" 
+                                <input type="text" inputmode="decimal" step="0.01" min="0" value="${formatNumberForDisplay(coeff)}" 
                                       data-row="${rowIndex}" data-col="0" 
-                                      onchange="technologicalMatrix[${rowIndex}][0] = parseFloat(this.value) || 0" />
+                                      onchange="updateMatrixCellValue(this, ${rowIndex}, 0)" />
                             </td>
                             <td>
                                 <div class="action-buttons">
@@ -390,13 +403,14 @@ function renderTechnologicalMatrix() {
             row.forEach((value, colIndex) => {
                 const td = document.createElement('td');
                 const input = document.createElement('input');
-                input.type = 'number';
+                input.type = 'text';
+                input.inputMode = 'decimal';
                 input.step = '0.01';
-                input.value = value;
+                input.value = formatNumberForDisplay(value);
                 input.dataset.row = rowIndex;
                 input.dataset.col = colIndex;
                 input.addEventListener('change', function() {
-                    technologicalMatrix[rowIndex][colIndex] = parseFloat(this.value) || 0;
+                    technologicalMatrix[rowIndex][colIndex] = parseDecimalInput(this.value);
                 });
                 td.appendChild(input);
                 tr.appendChild(td);
@@ -407,11 +421,16 @@ function renderTechnologicalMatrix() {
     }
 }
 
+// Nova função auxiliar para atualizar células da matriz com suporte a vírgulas
+function updateMatrixCellValue(input, rowIndex, colIndex) {
+    technologicalMatrix[rowIndex][colIndex] = parseDecimalInput(input.value);
+}
+
 // Função para atualizar um coeficiente quando o usuário alterar o valor
 function updateCoefficientValue(input) {
     const inputId = parseInt(input.dataset.inputId);
     const outputId = parseInt(input.dataset.outputId);
-    const value = parseFloat(input.value) || 0;
+    const value = parseDecimalInput(input.value);
     
     console.log(`Atualizando coeficiente: insumo=${inputId}, produto=${outputId}, valor=${value}`);
     
@@ -1015,8 +1034,8 @@ function updateDemandVectorFromUI() {
     rows.forEach((row, index) => {
         const inputElement = row.querySelector('input');
         if (inputElement) {
-            // Converter para número, garantindo que seja um valor válido
-            const value = parseFloat(inputElement.value) || 0;
+            // Converter para número usando nossa função de parsing personalizada
+            const value = parseDecimalInput(inputElement.value);
             demandVector.push(value);
             
             // Verificar se o ID de materialização correspondente existe
@@ -1077,7 +1096,7 @@ function updateMatrixAndVectorData() {
                     if (input.dataset.inputId && input.dataset.outputId) {
                         const inputId = parseInt(input.dataset.inputId);
                         const outputId = parseInt(input.dataset.outputId);
-                        const value = parseFloat(input.value) || 0;
+                        const value = parseDecimalInput(input.value);
                         
                         // Atualizar no cache de coeficientes
                         if (window.technologicalCoefficients) {
@@ -1111,7 +1130,7 @@ function updateMatrixAndVectorData() {
                     else if (input.dataset.row !== undefined) {
                         const rowIndex = parseInt(input.dataset.row);
                         if (!isNaN(rowIndex) && rowIndex >= 0 && rowIndex < technologicalMatrix.length) {
-                            technologicalMatrix[rowIndex][0] = parseFloat(input.value) || 0;
+                            technologicalMatrix[rowIndex][0] = parseDecimalInput(input.value);
                         }
                     }
                 }
@@ -1171,25 +1190,25 @@ function renderDemandStockTable(stockData) {
         tr.dataset.materializationId = item.materializationId;
         
         // Calcula o saldo (estoque - demanda)
-        const stock = parseFloat(item.currentStock) || 0;
-        const demand = parseFloat(item.demand) || 0;
+        const stock = parseDecimalInput(item.currentStock) || 0;
+        const demand = parseDecimalInput(item.demand) || 0;
         const balance = stock - demand;
         
         tr.innerHTML = `
             <td>${item.materializationName || 'Não especificado'}</td>
             <td>
-                <input type="number" class="form-control stock-input" 
-                    value="${stock}" 
+                <input type="text" class="form-control stock-input" 
+                    value="${formatNumberForDisplay(stock)}" 
                     data-id="${item.materializationId}"
                     onchange="updateStockValue(${item.materializationId}, this.value)">
             </td>
             <td>
-                <input type="number" class="form-control demand-input" 
-                    value="${demand}" 
+                <input type="text" class="form-control demand-input" 
+                    value="${formatNumberForDisplay(demand)}" 
                     data-id="${item.materializationId}"
                     onchange="updateDemandValue(${item.materializationId}, this.value)">
             </td>
-            <td class="balance-cell ${balance < 0 ? 'negative' : ''}">${balance.toFixed(2)}</td>
+            <td class="balance-cell ${balance < 0 ? 'negative' : ''}">${formatNumberForDisplay(balance)}</td>
         `;
         
         tbody.appendChild(tr);
@@ -1209,7 +1228,7 @@ function renderDemandStockTable(stockData) {
 function updateStockValue(materializationId, value) {
     if (!currentInstanceId) return;
     
-    const stockValue = parseFloat(value) || 0;
+    const stockValue = parseDecimalInput(value);
     console.log(`Atualizando estoque para materialização ${materializationId}: ${stockValue}`);
     
     // Atualizar o saldo na interface
@@ -1232,7 +1251,7 @@ function updateStockValue(materializationId, value) {
         const row = document.querySelector(`tr[data-materialization-id="${materializationId}"]`);
         if (row) {
             const demandInput = row.querySelector('.demand-input');
-            const demandValue = demandInput ? (parseFloat(demandInput.value) || 0) : 0;
+            const demandValue = demandInput ? parseDecimalInput(demandInput.value) : 0;
             
             pendingChanges.modifiedDemandStocks.push({
                 materializationId: materializationId,
@@ -1248,7 +1267,7 @@ function updateStockValue(materializationId, value) {
 function updateDemandValue(materializationId, value) {
     if (!currentInstanceId) return;
     
-    const demandValue = parseFloat(value) || 0;
+    const demandValue = parseDecimalInput(value);
     console.log(`Atualizando demanda para materialização ${materializationId}: ${demandValue}`);
     
     // Atualizar o saldo na interface
@@ -1271,7 +1290,7 @@ function updateDemandValue(materializationId, value) {
         const row = document.querySelector(`tr[data-materialization-id="${materializationId}"]`);
         if (row) {
             const stockInput = row.querySelector('.stock-input');
-            const stockValue = stockInput ? (parseFloat(stockInput.value) || 0) : 0;
+            const stockValue = stockInput ? parseDecimalInput(stockInput.value) : 0;
             
             pendingChanges.modifiedDemandStocks.push({
                 materializationId: materializationId,
@@ -1294,11 +1313,11 @@ function updateBalanceCell(materializationId) {
     
     if (!stockInput || !demandInput || !balanceCell) return;
     
-    const stock = parseFloat(stockInput.value) || 0;
-    const demand = parseFloat(demandInput.value) || 0;
+    const stock = parseDecimalInput(stockInput.value);
+    const demand = parseDecimalInput(demandInput.value);
     const balance = stock - demand;
     
-    balanceCell.textContent = balance.toFixed(2);
+    balanceCell.textContent = formatNumberForDisplay(balance);
     balanceCell.classList.toggle('negative', balance < 0);
 }
 
@@ -1348,12 +1367,12 @@ function loadProductionTarget(instanceId) {
             const remainingQuantityCell = document.getElementById('remainingQuantity');
             
             if (producedQuantityInput && remainingQuantityCell) {
-                const producedQuantity = instanceData.producedQuantity || 0;
-                const targetQuantity = instanceData.targetQuantity || 0;
+                const producedQuantity = parseDecimalInput(instanceData.producedQuantity) || 0;
+                const targetQuantity = parseDecimalInput(instanceData.targetQuantity) || 0;
                 const remainingQuantity = targetQuantity - producedQuantity;
                 
-                producedQuantityInput.value = producedQuantity;
-                remainingQuantityCell.textContent = remainingQuantity.toFixed(2);
+                producedQuantityInput.value = formatNumberForDisplay(producedQuantity);
+                remainingQuantityCell.textContent = formatNumberForDisplay(remainingQuantity);
                 
                 // Destacar se falta produzir
                 if (remainingQuantity > 0) {
@@ -1364,9 +1383,9 @@ function loadProductionTarget(instanceId) {
                 
                 // Adicionar evento para atualizar a quantidade restante quando a produção mudar
                 producedQuantityInput.addEventListener('input', function() {
-                    const newProducedQuantity = parseFloat(this.value) || 0;
+                    const newProducedQuantity = parseDecimalInput(this.value) || 0;
                     const newRemainingQuantity = targetQuantity - newProducedQuantity;
-                    remainingQuantityCell.textContent = newRemainingQuantity.toFixed(2);
+                    remainingQuantityCell.textContent = formatNumberForDisplay(newRemainingQuantity);
                     
                     // Destacar se falta produzir
                     if (newRemainingQuantity > 0) {
@@ -1466,8 +1485,8 @@ function savePropostaInputs() {
     
     // Capturar valores dos campos
     const workerLimit = parseInt(document.getElementById('workerLimitProposta').value);
-    const workerHours = parseFloat(document.getElementById('workerHoursProposta').value);
-    const productionTime = parseFloat(document.getElementById('productionTimeProposta').value);
+    const workerHours = parseDecimalInput(document.getElementById('workerHoursProposta').value);
+    const productionTime = parseDecimalInput(document.getElementById('productionTimeProposta').value);
     const weeklyScale = parseInt(document.getElementById('weeklyScaleProposta').value);
     const nightShift = document.getElementById('nightShiftProposta').checked;
     
@@ -1682,172 +1701,175 @@ function saveChanges() {
             }
         }
         
-        // 8. Process added demand stocks - CORREÇÃO: Transformar em promises independentes com retry
+        // 8. Process added demand stocks
         for (const stock of pendingChanges.addedDemandStocks) {
             console.log(`Salvando novo estoque/demanda: materialização=${stock.materializationId}, estoque=${stock.stock}, demanda=${stock.demand}`);
-            
-            const payload = {
-                instanceId: currentInstanceId,
-                materializationId: stock.materializationId,
-                currentStock: String(stock.stock),
-                demand: String(stock.demand)
-            };
-            
-            // Log do payload completo para debug
-            console.log(`Payload de estoque/demanda: ${JSON.stringify(payload)}`);
             
             const addStockPromise = fetch('/api/demand-stock', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    instanceId: currentInstanceId,
+                    materializationId: stock.materializationId,
+                    currentStock: String(stock.stock),
+                    demand: String(stock.demand)
+                })
             })
             .then(response => {
                 if (!response.ok) {
                     return response.text().then(text => {
-                        console.error(`Erro ao salvar estoque/demanda para materialização ${stock.materializationId}:`, text);
-                        // Ainda vamos continuar com as outras operações mesmo com erro
-                        return {
-                            success: false,
-                            error: `Status ${response.status}: ${text}`,
-                            materializationId: stock.materializationId
-                        };
+                        console.error("Erro ao salvar estoque/demanda:", text);
+                        throw new Error(`Erro ao salvar estoque/demanda: ${response.status}`);
                     });
                 }
-                return response.json().then(data => {
-                    console.log(`Estoque/demanda salvo com sucesso para materialização ${stock.materializationId}:`, data);
-                    return {
-                        success: true,
-                        data: data,
-                        materializationId: stock.materializationId
-                    };
-                });
+                return response.json();
+            })
+            .then(data => {
+                console.log("Estoque/demanda salvo com sucesso:", data);
+                return data;
             })
             .catch(error => {
-                console.error(`Exceção ao salvar estoque/demanda para materialização ${stock.materializationId}:`, error);
-                // Ainda vamos continuar com as outras operações mesmo com erro
-                return {
-                    success: false,
-                    error: error.message,
-                    materializationId: stock.materializationId
-                };
+                console.error("Exceção ao salvar estoque/demanda:", error);
+                throw error;
             });
             
             allPromises.push(addStockPromise);
         }
         
-        // 9. Process modified demand stocks - CORREÇÃO: Mesmo tratamento melhorado
+        // 9. Process modified demand stocks
         for (const stock of pendingChanges.modifiedDemandStocks) {
             console.log(`Salvando estoque/demanda modificado: materialização=${stock.materializationId}, estoque=${stock.stock}, demanda=${stock.demand}`);
-            
-            const payload = {
-                instanceId: currentInstanceId,
-                materializationId: stock.materializationId,
-                currentStock: String(stock.stock),
-                demand: String(stock.demand)
-            };
-            
-            // Log do payload completo para debug
-            console.log(`Payload de estoque/demanda modificado: ${JSON.stringify(payload)}`);
             
             const updateStockPromise = fetch('/api/demand-stock', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify(payload)
+                body: JSON.stringify({
+                    instanceId: currentInstanceId,
+                    materializationId: stock.materializationId,
+                    currentStock: String(stock.stock),
+                    demand: String(stock.demand)
+                })
             })
             .then(response => {
                 if (!response.ok) {
                     return response.text().then(text => {
-                        console.error(`Erro ao salvar estoque/demanda modificado para materialização ${stock.materializationId}:`, text);
-                        // Ainda vamos continuar com as outras operações mesmo com erro
-                        return {
-                            success: false,
-                            error: `Status ${response.status}: ${text}`,
-                            materializationId: stock.materializationId
-                        };
+                        console.error("Erro ao salvar estoque/demanda modificado:", text);
+                        throw new Error(`Erro ao salvar estoque/demanda: ${response.status}`);
                     });
                 }
-                return response.json().then(data => {
-                    console.log(`Estoque/demanda modificado salvo com sucesso para materialização ${stock.materializationId}:`, data);
-                    return {
-                        success: true,
-                        data: data,
-                        materializationId: stock.materializationId
-                    };
-                });
+                return response.json();
+            })
+            .then(data => {
+                console.log("Estoque/demanda modificado salvo com sucesso:", data);
+                return data;
             })
             .catch(error => {
-                console.error(`Exceção ao salvar estoque/demanda modificado para materialização ${stock.materializationId}:`, error);
-                // Ainda vamos continuar com as outras operações mesmo com erro
-                return {
-                    success: false,
-                    error: error.message,
-                    materializationId: stock.materializationId
-                };
+                console.error("Exceção ao salvar estoque/demanda modificado:", error);
+                throw error;
             });
             
             allPromises.push(updateStockPromise);
         }
         
         // 10. For committee-specific data
-        // ...existing code for committee data...
+        if (currentInstanceType === 'COMMITTEE') {
+            // 10.1. Save produced quantity
+            const producedQuantityInput = document.getElementById('producedQuantity');
+            if (producedQuantityInput) {
+                const producedQuantity = parseDecimalInput(producedQuantityInput.value) || 0;
+                
+                // Log data before sending
+                console.log("Salvando quantidade produzida:", {
+                    instanceId: currentInstanceId,
+                    producedQuantity: producedQuantity
+                });
+                
+                // IMPORTANTE: Passar producedQuantity como string para garantir conversão correta no servidor
+                const instanceUpdatePromise = fetch(`/api/instances/${currentInstanceId}/produced-quantity`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        producedQuantity: String(producedQuantity)
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            console.error("Erro ao salvar quantidade produzida:", text);
+                            throw new Error(`Erro ao salvar quantidade produzida: ${response.status}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .catch(error => {
+                    console.error("Exceção ao salvar quantidade produzida:", error);
+                    throw error; // Re-throw to be caught by the Promise.all
+                });
+                
+                allPromises.push(instanceUpdatePromise);
+            }
+            
+            // 10.2. Save workers proposal if it exists
+            if (window.currentWorkersProposal) {
+                // Log data before sending
+                console.log("Salvando proposta de trabalhadores:", window.currentWorkersProposal);
+                
+                // Verificar se todos os campos necessários existem
+                if (!window.currentWorkersProposal.workerLimit || 
+                    !window.currentWorkersProposal.workerHours || 
+                    !window.currentWorkersProposal.productionTime || 
+                    !window.currentWorkersProposal.weeklyScale) {
+                    console.warn("Proposta de trabalhadores incompleta, não será salva");
+                } else {
+                    // IMPORTANTE: Converter todos os valores para strings para garantir conversão correta no servidor
+                    const proposalData = {
+                        instanceId: String(currentInstanceId),
+                        workerLimit: String(window.currentWorkersProposal.workerLimit),
+                        workerHours: String(window.currentWorkersProposal.workerHours),
+                        productionTime: String(window.currentWorkersProposal.productionTime),
+                        weeklyScale: String(window.currentWorkersProposal.weeklyScale),
+                        nightShift: Boolean(window.currentWorkersProposal.nightShift)
+                    };
+                    
+                    // Log final payload
+                    console.log("Payload final da proposta:", JSON.stringify(proposalData));
+                    
+                    const proposalPromise = fetch('/api/workers-proposal', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(proposalData)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                console.error("Erro ao salvar proposta de trabalhadores:", text);
+                                throw new Error(`Erro ao salvar proposta de trabalhadores: ${response.status}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .catch(error => {
+                        console.error("Exceção ao salvar proposta de trabalhadores:", error);
+                        throw error; // Re-throw to be caught by the Promise.all
+                    });
+                    
+                    allPromises.push(proposalPromise);
+                }
+            }
+        }
         
-        // 11. Execute all promises - CORREÇÃO: Usar Promise.allSettled em vez de Promise.all
-        Promise.allSettled(allPromises)
-            .then(results => {
-                // Analisar os resultados
-                const failed = results.filter(result => result.status === 'rejected');
-                const succeeded = results.filter(result => result.status === 'fulfilled');
-                
-                // Log do resultado geral
-                console.log(`Resultado do salvamento: ${succeeded.length} operações bem-sucedidas, ${failed.length} falhas`);
-                
-                if (failed.length > 0) {
-                    console.warn("Algumas operações falharam:", failed);
-                    
-                    // Verificar falhas específicas em estoque/demanda
-                    const stockResults = succeeded
-                        .map(r => r.value)
-                        .filter(r => r && r.materializationId)
-                        .filter(r => !r.success);
-                    
-                    if (stockResults.length > 0) {
-                        console.warn("Falhas específicas em estoque/demanda:", stockResults);
-                    }
-                }
-                
-                // Verificar se há algum estoque/demanda que não foi salvo e tentar novamente
-                // Este é um mecanismo simples de retry apenas para os estoques/demandas
-                const retryPromises = [];
-                const retryMaterializationIds = new Set();
-                
-                // Identificar materializações que falharam para retry
-                for (const result of failed) {
-                    if (result.reason && result.reason.materializationId) {
-                        retryMaterializationIds.add(result.reason.materializationId);
-                    }
-                }
-                
-                // Adicionar também os resultados fulfilled que representam falhas de estoque/demanda
-                for (const result of succeeded) {
-                    if (result.value && result.value.materializationId && !result.value.success) {
-                        retryMaterializationIds.add(result.value.materializationId);
-                    }
-                }
-                
-                // Se houver falhas, tentar novamente para os estoques
-                if (retryMaterializationIds.size > 0) {
-                    console.log(`Tentando novamente para ${retryMaterializationIds.size} materializações:`, 
-                                Array.from(retryMaterializationIds));
-                    
-                    // TODO: Implementar lógica de retry se necessário
-                    // Por ora, apenas logar as falhas
-                }
-                
-                // Clear pending changes after save attempt (successful or not)
+        // 11. Execute all promises
+        Promise.all(allPromises)
+            .then(() => {
+                // Clear pending changes after successful save
                 pendingChanges = {
                     addedTensors: [],
                     modifiedTensors: [],
@@ -1858,13 +1880,10 @@ function saveChanges() {
                     modifiedDemandStocks: []
                 };
                 
-                // Mostrar mensagem de sucesso mesmo com falhas parciais
                 showSuccess("Dados salvos com sucesso!");
             })
             .catch(error => {
-                // Este catch só será acionado se houver erro no próprio Promise.allSettled,
-                // o que é muito improvável
-                console.error("Erro crítico ao processar resultados:", error);
+                console.error("Erro ao salvar dados:", error);
                 showError("Erro ao salvar dados: " + error.message);
             })
             .finally(() => {
@@ -2122,18 +2141,18 @@ function addToStockDemandTable(materialization) {
     tr.innerHTML = `
         <td>${materialization.name}</td>
         <td>
-            <input type="number" class="form-control stock-input" 
-                value="${stock}" 
+            <input type="text" class="form-control stock-input" 
+                value="${formatNumberForDisplay(stock)}" 
                 data-id="${materialization.id}"
                 onchange="updateStockValue(${materialization.id}, this.value)">
         </td>
         <td>
-            <input type="number" class="form-control demand-input" 
-                value="${demand}" 
+            <input type="text" class="form-control demand-input" 
+                value="${formatNumberForDisplay(demand)}" 
                 data-id="${materialization.id}"
                 onchange="updateDemandValue(${materialization.id}, this.value)">
         </td>
-        <td class="balance-cell">${balance.toFixed(2)}</td>
+        <td class="balance-cell">${formatNumberForDisplay(balance)}</td>
         <td>
             <div class="action-buttons">
                 <button class="action-btn remove-btn" onclick="removeMaterialization(${materialization.id}, 'stockDemand')">
@@ -2472,8 +2491,8 @@ function populateTechnologicalTensorTable(data) {
         outputCell.setAttribute('data-id', item.outputMaterializationId);
         
         const quantityCell = row.insertCell(2);
-        // Use a função de formatação para exibir corretamente o coeficiente
-        quantityCell.textContent = formatTechnicalCoefficient(item.quantity);
+        // Usar formatação com vírgula para exibição
+        quantityCell.textContent = formatNumberForDisplay(item.quantity);
         
         const actionsCell = row.insertCell(3);
         // ... conteúdo das ações ...
