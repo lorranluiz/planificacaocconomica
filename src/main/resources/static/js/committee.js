@@ -227,6 +227,7 @@ function renderDemandVectorTable() {
                        data-index="${index}"
                        onchange="updateDemandVector(${index}, this)" />
             </td>
+            <td></td>
         `;
         
         tbody.appendChild(tr);
@@ -317,6 +318,7 @@ function renderTechnologicalMatrix() {
                                       data-output-id="${coef.outputMaterializationId}" 
                                       onchange="updateCoefficientValue(this)" />
                             </td>
+                            <td></td>
                         `;
                         tbody.appendChild(tr);
                     });
@@ -351,6 +353,7 @@ function renderTechnologicalMatrix() {
                                       data-row="${rowIndex}" data-col="0" 
                                       onchange="updateMatrixCellValue(this, ${rowIndex}, 0)" />
                             </td>
+                            <td></td>
                         `;
                         tbody.appendChild(tr);
                         hasAnyRows = true;
