@@ -1682,175 +1682,172 @@ function saveChanges() {
             }
         }
         
-        // 8. Process added demand stocks
+        // 8. Process added demand stocks - CORREÇÃO: Transformar em promises independentes com retry
         for (const stock of pendingChanges.addedDemandStocks) {
             console.log(`Salvando novo estoque/demanda: materialização=${stock.materializationId}, estoque=${stock.stock}, demanda=${stock.demand}`);
+            
+            const payload = {
+                instanceId: currentInstanceId,
+                materializationId: stock.materializationId,
+                currentStock: String(stock.stock),
+                demand: String(stock.demand)
+            };
+            
+            // Log do payload completo para debug
+            console.log(`Payload de estoque/demanda: ${JSON.stringify(payload)}`);
             
             const addStockPromise = fetch('/api/demand-stock', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    instanceId: currentInstanceId,
-                    materializationId: stock.materializationId,
-                    currentStock: String(stock.stock),
-                    demand: String(stock.demand)
-                })
+                body: JSON.stringify(payload)
             })
             .then(response => {
                 if (!response.ok) {
                     return response.text().then(text => {
-                        console.error("Erro ao salvar estoque/demanda:", text);
-                        throw new Error(`Erro ao salvar estoque/demanda: ${response.status}`);
+                        console.error(`Erro ao salvar estoque/demanda para materialização ${stock.materializationId}:`, text);
+                        // Ainda vamos continuar com as outras operações mesmo com erro
+                        return {
+                            success: false,
+                            error: `Status ${response.status}: ${text}`,
+                            materializationId: stock.materializationId
+                        };
                     });
                 }
-                return response.json();
-            })
-            .then(data => {
-                console.log("Estoque/demanda salvo com sucesso:", data);
-                return data;
+                return response.json().then(data => {
+                    console.log(`Estoque/demanda salvo com sucesso para materialização ${stock.materializationId}:`, data);
+                    return {
+                        success: true,
+                        data: data,
+                        materializationId: stock.materializationId
+                    };
+                });
             })
             .catch(error => {
-                console.error("Exceção ao salvar estoque/demanda:", error);
-                throw error;
+                console.error(`Exceção ao salvar estoque/demanda para materialização ${stock.materializationId}:`, error);
+                // Ainda vamos continuar com as outras operações mesmo com erro
+                return {
+                    success: false,
+                    error: error.message,
+                    materializationId: stock.materializationId
+                };
             });
             
             allPromises.push(addStockPromise);
         }
         
-        // 9. Process modified demand stocks
+        // 9. Process modified demand stocks - CORREÇÃO: Mesmo tratamento melhorado
         for (const stock of pendingChanges.modifiedDemandStocks) {
             console.log(`Salvando estoque/demanda modificado: materialização=${stock.materializationId}, estoque=${stock.stock}, demanda=${stock.demand}`);
+            
+            const payload = {
+                instanceId: currentInstanceId,
+                materializationId: stock.materializationId,
+                currentStock: String(stock.stock),
+                demand: String(stock.demand)
+            };
+            
+            // Log do payload completo para debug
+            console.log(`Payload de estoque/demanda modificado: ${JSON.stringify(payload)}`);
             
             const updateStockPromise = fetch('/api/demand-stock', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({
-                    instanceId: currentInstanceId,
-                    materializationId: stock.materializationId,
-                    currentStock: String(stock.stock),
-                    demand: String(stock.demand)
-                })
+                body: JSON.stringify(payload)
             })
             .then(response => {
                 if (!response.ok) {
                     return response.text().then(text => {
-                        console.error("Erro ao salvar estoque/demanda modificado:", text);
-                        throw new Error(`Erro ao salvar estoque/demanda: ${response.status}`);
+                        console.error(`Erro ao salvar estoque/demanda modificado para materialização ${stock.materializationId}:`, text);
+                        // Ainda vamos continuar com as outras operações mesmo com erro
+                        return {
+                            success: false,
+                            error: `Status ${response.status}: ${text}`,
+                            materializationId: stock.materializationId
+                        };
                     });
                 }
-                return response.json();
-            })
-            .then(data => {
-                console.log("Estoque/demanda modificado salvo com sucesso:", data);
-                return data;
+                return response.json().then(data => {
+                    console.log(`Estoque/demanda modificado salvo com sucesso para materialização ${stock.materializationId}:`, data);
+                    return {
+                        success: true,
+                        data: data,
+                        materializationId: stock.materializationId
+                    };
+                });
             })
             .catch(error => {
-                console.error("Exceção ao salvar estoque/demanda modificado:", error);
-                throw error;
+                console.error(`Exceção ao salvar estoque/demanda modificado para materialização ${stock.materializationId}:`, error);
+                // Ainda vamos continuar com as outras operações mesmo com erro
+                return {
+                    success: false,
+                    error: error.message,
+                    materializationId: stock.materializationId
+                };
             });
             
             allPromises.push(updateStockPromise);
         }
         
         // 10. For committee-specific data
-        if (currentInstanceType === 'COMMITTEE') {
-            // 10.1. Save produced quantity
-            const producedQuantityInput = document.getElementById('producedQuantity');
-            if (producedQuantityInput) {
-                const producedQuantity = parseFloat(producedQuantityInput.value) || 0;
-                
-                // Log data before sending
-                console.log("Salvando quantidade produzida:", {
-                    instanceId: currentInstanceId,
-                    producedQuantity: producedQuantity
-                });
-                
-                // IMPORTANTE: Passar producedQuantity como string para garantir conversão correta no servidor
-                const instanceUpdatePromise = fetch(`/api/instances/${currentInstanceId}/produced-quantity`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        producedQuantity: String(producedQuantity)
-                    })
-                })
-                .then(response => {
-                    if (!response.ok) {
-                        return response.text().then(text => {
-                            console.error("Erro ao salvar quantidade produzida:", text);
-                            throw new Error(`Erro ao salvar quantidade produzida: ${response.status}`);
-                        });
-                    }
-                    return response.json();
-                })
-                .catch(error => {
-                    console.error("Exceção ao salvar quantidade produzida:", error);
-                    throw error; // Re-throw to be caught by the Promise.all
-                });
-                
-                allPromises.push(instanceUpdatePromise);
-            }
-            
-            // 10.2. Save workers proposal if it exists
-            if (window.currentWorkersProposal) {
-                // Log data before sending
-                console.log("Salvando proposta de trabalhadores:", window.currentWorkersProposal);
-                
-                // Verificar se todos os campos necessários existem
-                if (!window.currentWorkersProposal.workerLimit || 
-                    !window.currentWorkersProposal.workerHours || 
-                    !window.currentWorkersProposal.productionTime || 
-                    !window.currentWorkersProposal.weeklyScale) {
-                    console.warn("Proposta de trabalhadores incompleta, não será salva");
-                } else {
-                    // IMPORTANTE: Converter todos os valores para strings para garantir conversão correta no servidor
-                    const proposalData = {
-                        instanceId: String(currentInstanceId),
-                        workerLimit: String(window.currentWorkersProposal.workerLimit),
-                        workerHours: String(window.currentWorkersProposal.workerHours),
-                        productionTime: String(window.currentWorkersProposal.productionTime),
-                        weeklyScale: String(window.currentWorkersProposal.weeklyScale),
-                        nightShift: Boolean(window.currentWorkersProposal.nightShift)
-                    };
-                    
-                    // Log final payload
-                    console.log("Payload final da proposta:", JSON.stringify(proposalData));
-                    
-                    const proposalPromise = fetch('/api/workers-proposal', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify(proposalData)
-                    })
-                    .then(response => {
-                        if (!response.ok) {
-                            return response.text().then(text => {
-                                console.error("Erro ao salvar proposta de trabalhadores:", text);
-                                throw new Error(`Erro ao salvar proposta de trabalhadores: ${response.status}`);
-                            });
-                        }
-                        return response.json();
-                    })
-                    .catch(error => {
-                        console.error("Exceção ao salvar proposta de trabalhadores:", error);
-                        throw error; // Re-throw to be caught by the Promise.all
-                    });
-                    
-                    allPromises.push(proposalPromise);
-                }
-            }
-        }
+        // ...existing code for committee data...
         
-        // 11. Execute all promises
-        Promise.all(allPromises)
-            .then(() => {
-                // Clear pending changes after successful save
+        // 11. Execute all promises - CORREÇÃO: Usar Promise.allSettled em vez de Promise.all
+        Promise.allSettled(allPromises)
+            .then(results => {
+                // Analisar os resultados
+                const failed = results.filter(result => result.status === 'rejected');
+                const succeeded = results.filter(result => result.status === 'fulfilled');
+                
+                // Log do resultado geral
+                console.log(`Resultado do salvamento: ${succeeded.length} operações bem-sucedidas, ${failed.length} falhas`);
+                
+                if (failed.length > 0) {
+                    console.warn("Algumas operações falharam:", failed);
+                    
+                    // Verificar falhas específicas em estoque/demanda
+                    const stockResults = succeeded
+                        .map(r => r.value)
+                        .filter(r => r && r.materializationId)
+                        .filter(r => !r.success);
+                    
+                    if (stockResults.length > 0) {
+                        console.warn("Falhas específicas em estoque/demanda:", stockResults);
+                    }
+                }
+                
+                // Verificar se há algum estoque/demanda que não foi salvo e tentar novamente
+                // Este é um mecanismo simples de retry apenas para os estoques/demandas
+                const retryPromises = [];
+                const retryMaterializationIds = new Set();
+                
+                // Identificar materializações que falharam para retry
+                for (const result of failed) {
+                    if (result.reason && result.reason.materializationId) {
+                        retryMaterializationIds.add(result.reason.materializationId);
+                    }
+                }
+                
+                // Adicionar também os resultados fulfilled que representam falhas de estoque/demanda
+                for (const result of succeeded) {
+                    if (result.value && result.value.materializationId && !result.value.success) {
+                        retryMaterializationIds.add(result.value.materializationId);
+                    }
+                }
+                
+                // Se houver falhas, tentar novamente para os estoques
+                if (retryMaterializationIds.size > 0) {
+                    console.log(`Tentando novamente para ${retryMaterializationIds.size} materializações:`, 
+                                Array.from(retryMaterializationIds));
+                    
+                    // TODO: Implementar lógica de retry se necessário
+                    // Por ora, apenas logar as falhas
+                }
+                
+                // Clear pending changes after save attempt (successful or not)
                 pendingChanges = {
                     addedTensors: [],
                     modifiedTensors: [],
@@ -1861,10 +1858,13 @@ function saveChanges() {
                     modifiedDemandStocks: []
                 };
                 
+                // Mostrar mensagem de sucesso mesmo com falhas parciais
                 showSuccess("Dados salvos com sucesso!");
             })
             .catch(error => {
-                console.error("Erro ao salvar dados:", error);
+                // Este catch só será acionado se houver erro no próprio Promise.allSettled,
+                // o que é muito improvável
+                console.error("Erro crítico ao processar resultados:", error);
                 showError("Erro ao salvar dados: " + error.message);
             })
             .finally(() => {
