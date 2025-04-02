@@ -453,14 +453,17 @@
                 <input type="number" id="weeklyScale" class="form-control" min="1" max="7" step="1">
             </div>
             
-            <div class="form-check">
-                <input type="checkbox" id="nightShift" class="form-check-input">
-                <label for="nightShift" class="form-check-label">Turno Noturno</label>
+            <div class="form-group">
+                <label for="nightShift">Trabalho Noturno:</label>
+                <div class="toggle-switch">
+                    <input type="checkbox" id="nightShift" class="toggle-switch-checkbox">
+                    <label class="toggle-switch-label" for="nightShift"></label>
+                </div>
             </div>
             
-            <div class="modal-footer">
-                <button class="btn" onclick="saveOptimizationConfig()">Salvar</button>
-                <button class="btn btn-secondary" onclick="closeOptimizationConfigModal()">Cancelar</button>
+            <div class="form-actions">
+                <button id="saveOptimizationConfig" class="btn btn-primary">Salvar</button>
+                <button id="closeOptimizationModal" class="btn btn-secondary">Cancelar</button>
             </div>
         </div>
     </div>

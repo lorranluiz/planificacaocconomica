@@ -157,6 +157,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('addMaterializationBtn').addEventListener('click', function() {
         openMaterializationSelector('demandVector');
     });
+    
+    // Carrega os tensores tecnológicos
+    loadTechnologicalTensors();
 });
 
 // Função específica para carregar os coeficientes do vetor tecnológico
@@ -2353,4 +2356,78 @@ function removeDemandItem(index) {
     // Get the materialization ID from the productIds array at the given index
     const materializationId = productIds[index];
     removeMaterialization(materializationId, 'demandVector');
+}
+
+// Função para formatar coeficientes técnicos adequadamente
+function formatTechnicalCoefficient(value) {
+    // Verifica se é um número
+    if (value === null || value === undefined || isNaN(parseFloat(value))) {
+        return "0";
+    }
+    
+    // Converte para número
+    const num = parseFloat(value);
+    
+    // Para valores muito pequenos, use notação científica
+    if (num !== 0 && Math.abs(num) < 0.001) {
+        return num.toExponential(6);
+    }
+    
+    // Para valores normais, use até 6 casas decimais
+    return num.toFixed(6).replace(/\.?0+$/, '');
+}
+
+// Modifique a função que preenche a tabela do vetor tecnológico
+function populateTechnologicalTensorTable(data) {
+    const table = document.getElementById('technologicalTensorTable').getElementsByTagName('tbody')[0];
+    table.innerHTML = '';
+    
+    if (!data || !Array.isArray(data)) {
+        console.error("Dados inválidos para o vetor tecnológico:", data);
+        return;
+    }
+    
+    data.forEach(item => {
+        const row = table.insertRow();
+        
+        const inputCell = row.insertCell(0);
+        inputCell.textContent = item.inputMaterializationName;
+        inputCell.setAttribute('data-id', item.inputMaterializationId);
+        
+        const outputCell = row.insertCell(1);
+        outputCell.textContent = item.outputMaterializationName;
+        outputCell.setAttribute('data-id', item.outputMaterializationId);
+        
+        const quantityCell = row.insertCell(2);
+        // Use a função de formatação para exibir corretamente o coeficiente
+        quantityCell.textContent = formatTechnicalCoefficient(item.quantity);
+        
+        const actionsCell = row.insertCell(3);
+        // ... conteúdo das ações ...
+    });
+}
+
+// Função para carregar os tensores tecnológicos para a instância atual
+function loadTechnologicalTensors() {
+    const instanceId = getCurrentInstanceId();
+    if (!instanceId) {
+        console.error("ID da instância não encontrado");
+        return;
+    }
+    
+    fetch(`/api/planification/technological-tensor/by-instance/${instanceId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erro HTTP: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            // Registra os dados recebidos para depuração
+            console.log("Dados do tensor tecnológico recebidos:", data);
+            populateTechnologicalTensorTable(data);
+        })
+        .catch(error => {
+            console.error("Erro ao carregar tensores tecnológicos:", error);
+        });
 }
