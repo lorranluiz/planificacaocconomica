@@ -92,13 +92,24 @@ public class TechnologicalTensorController {
 
     @PostMapping("/api")
     @ResponseBody
-    public ResponseEntity<?> createTensor(
-            @RequestParam("inputSocMatId") Integer inputSocMatId,
-            @RequestParam("outputSocMatId") Integer outputSocMatId,
-            @RequestParam("coefficient") BigDecimal coefficient,
-            @RequestParam("instanceId") Integer instanceId) {
-        
+    public ResponseEntity<?> createTensor(@RequestBody Map<String, Object> payload) {
         try {
+            Integer inputSocMatId = (Integer) payload.get("inputSocMatId");
+            Integer outputSocMatId = (Integer) payload.get("outputSocMatId");
+            Integer instanceId = (Integer) payload.get("instanceId");
+
+            BigDecimal coefficient = null;
+            if (payload.get("coefficient") != null) {
+                String coefficientStr = payload.get("coefficient").toString().replace(',', '.');
+                try {
+                    coefficient = new BigDecimal(coefficientStr);
+                } catch (NumberFormatException e) {
+                    return ResponseEntity.badRequest().body(Map.of(
+                        "message", "Formato inválido para coeficiente: " + payload.get("coefficient")
+                    ));
+                }
+            }
+
             TechnologicalTensor tensor = tensorService.create(
                     inputSocMatId, outputSocMatId, coefficient, instanceId);
             tensorService.save(tensor);

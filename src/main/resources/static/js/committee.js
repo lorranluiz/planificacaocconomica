@@ -29,11 +29,21 @@ function formatNumberForDisplay(value) {
     return parseFloat(value).toString().replace('.', ',');
 }
 
+// Improved function for parsing decimal input to ensure proper conversion
 function parseDecimalInput(value) {
     if (!value) return 0;
-    // Substituir vírgula por ponto para garantir interpretação correta
+    
+    // Normalize the input: replace comma with period for proper numeric conversion
     const normalizedValue = value.toString().replace(',', '.');
-    return parseFloat(normalizedValue) || 0;
+    const parsed = parseFloat(normalizedValue);
+    
+    // Additional validation to ensure we get a proper number
+    if (isNaN(parsed)) {
+        console.warn("Input value could not be parsed as a number:", value);
+        return 0;
+    }
+    
+    return parsed;
 }
 
 // Função para carregar as instâncias de comitê no dropdown
@@ -406,13 +416,16 @@ function updateMatrixCellValue(input, rowIndex, colIndex) {
     technologicalMatrix[rowIndex][colIndex] = parseDecimalInput(input.value);
 }
 
-// Função para atualizar um coeficiente quando o usuário alterar o valor
+// Enhanced function to update a coefficient when the user changes the value
 function updateCoefficientValue(input) {
     const inputId = parseInt(input.dataset.inputId);
     const outputId = parseInt(input.dataset.outputId);
-    const value = parseDecimalInput(input.value);
     
-    console.log(`Atualizando coeficiente: insumo=${inputId}, produto=${outputId}, valor=${value}`);
+    // Parse the input value, ensuring comma -> period conversion
+    const rawValue = input.value;
+    const value = parseDecimalInput(rawValue);
+    
+    console.log(`Updating coefficient: input=${inputId}, output=${outputId}, raw value="${rawValue}", parsed value=${value}`);
     
     // Atualizar no cache local
     if (window.technologicalCoefficients) {
@@ -421,13 +434,13 @@ function updateCoefficientValue(input) {
         );
         
         if (coefficient) {
-            coefficient.quantity = value;
+            coefficient.quantity = value; // Store as number with period decimal
         }
     }
     
-    // Também atualizar na matriz tecnológica para compatibilidade com o código existente
+    // Also update in technological matrix for compatibility with existing code
     if (technologicalMatrix && technologicalMatrix.length > 0) {
-        // Encontrar o índice do insumo e do produto na matriz
+        // Find indices in the matrix
         const inputIndex = productIds.indexOf(inputId);
         const outputIndex = productIds.indexOf(outputId);
         
@@ -436,7 +449,7 @@ function updateCoefficientValue(input) {
         }
     }
     
-    // Rastrear a alteração para salvamento diferido
+    // Track the change for deferred saving - ensure we store with period decimal
     const existingChange = pendingChanges.modifiedTensors.find(
         t => t.inputMaterializationId === inputId && t.outputMaterializationId === outputId
     );
@@ -447,7 +460,7 @@ function updateCoefficientValue(input) {
         pendingChanges.modifiedTensors.push({
             inputMaterializationId: inputId,
             outputMaterializationId: outputId,
-            quantity: value
+            quantity: value // Ensure we store with period decimal
         });
     }
 }
@@ -1609,7 +1622,18 @@ function saveChanges() {
         // 1. Atualizar variáveis com os dados atuais da interface
         updateMatrixAndVectorData();
         
-        // 2. Prepare all promises that will be executed
+        // 2. Ensure all tensor quantities are properly formatted with period decimals
+        pendingChanges.addedTensors = pendingChanges.addedTensors.map(tensor => ({
+            ...tensor,
+            quantity: parseFloat(parseDecimalInput(tensor.quantity)) // Ensure it's a number with period decimal
+        }));
+        
+        pendingChanges.modifiedTensors = pendingChanges.modifiedTensors.map(tensor => ({
+            ...tensor,
+            quantity: parseFloat(parseDecimalInput(tensor.quantity)) // Ensure it's a number with period decimal
+        }));
+        
+        // 3. Prepare all promises that will be executed
         const allPromises = [];
         
         // Debug log para ajudar a identificar problemas
@@ -1625,7 +1649,7 @@ function saveChanges() {
         console.log("- Estoques/demandas adicionados:", pendingChanges.addedDemandStocks);
         console.log("- Estoques/demandas modificados:", pendingChanges.modifiedDemandStocks);
         
-        // 3. Process deletions first
+        // 4. Process deletions first
         for (const materializationId of pendingChanges.deletedMaterializations) {
             // Delete optimization config
             const deleteOptimizationPromise = fetch(`/api/planification/optimization/${materializationId}/instance/${currentInstanceId}`, {
@@ -1654,7 +1678,7 @@ function saveChanges() {
             allPromises.push(deleteDemandStockPromise);
         }
         
-        // 4. Process added tensors
+        // 5. Process added tensors
         for (const tensor of pendingChanges.addedTensors) {
             const addTensorPromise = fetch('/api/planification/technological-tensor', {
                 method: 'POST',
@@ -1671,7 +1695,7 @@ function saveChanges() {
             allPromises.push(addTensorPromise);
         }
         
-        // 5. Process modified tensors
+        // 6. Process modified tensors
         for (const tensor of pendingChanges.modifiedTensors) {
             const updateTensorPromise = fetch('/api/planification/technological-tensor', {
                 method: 'POST',
@@ -1688,7 +1712,7 @@ function saveChanges() {
             allPromises.push(updateTensorPromise);
         }
         
-        // 6. Process added demand vectors
+        // 7. Process added demand vectors
         for (const vector of pendingChanges.addedDemandVectors) {
             const addVectorPromise = fetch('/api/planification/demand-vector', {
                 method: 'POST',
@@ -1704,7 +1728,7 @@ function saveChanges() {
             allPromises.push(addVectorPromise);
         }
         
-        // 7. Process demand vectors from the UI
+        // 8. Process demand vectors from the UI
         for (let i = 0; i < demandVector.length; i++) {
             if (i < productIds.length) {
                 const materializationId = productIds[i];
@@ -1725,7 +1749,7 @@ function saveChanges() {
             }
         }
         
-        // 8. Process added demand stocks
+        // 9. Process added demand stocks
         for (const stock of pendingChanges.addedDemandStocks) {
             console.log(`Salvando novo estoque/demanda: materialização=${stock.materializationId}, estoque=${stock.stock}, demanda=${stock.demand}`);
             
@@ -1762,7 +1786,7 @@ function saveChanges() {
             allPromises.push(addStockPromise);
         }
         
-        // 9. Process modified demand stocks
+        // 10. Process modified demand stocks
         for (const stock of pendingChanges.modifiedDemandStocks) {
             console.log(`Salvando estoque/demanda modificado: materialização=${stock.materializationId}, estoque=${stock.stock}, demanda=${stock.demand}`);
             
@@ -1799,9 +1823,9 @@ function saveChanges() {
             allPromises.push(updateStockPromise);
         }
         
-        // 10. For committee-specific data
+        // 11. For committee-specific data
         if (currentInstanceType === 'COMMITTEE') {
-            // 10.1. Save produced quantity
+            // 11.1. Save produced quantity
             const producedQuantityInput = document.getElementById('producedQuantity');
             if (producedQuantityInput) {
                 const producedQuantity = parseDecimalInput(producedQuantityInput.value) || 0;
@@ -1839,7 +1863,7 @@ function saveChanges() {
                 allPromises.push(instanceUpdatePromise);
             }
             
-            // 10.2. Save workers proposal if it exists
+            // 11.2. Save workers proposal if it exists
             if (window.currentWorkersProposal) {
                 // Log data before sending
                 console.log("Salvando proposta de trabalhadores:", window.currentWorkersProposal);
@@ -1890,7 +1914,7 @@ function saveChanges() {
             }
         }
         
-        // 11. Execute all promises
+        // 12. Execute all promises
         Promise.all(allPromises)
             .then(() => {
                 // Clear pending changes after successful save
