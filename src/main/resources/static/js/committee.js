@@ -1077,7 +1077,15 @@ function updateStockValue(materializationId, value) {
     // Atualizar o saldo na interface
     updateBalanceCell(materializationId);
     
-    // Rastrear a alteração para salvamento diferido
+    // Verificar primeiro se está entre os itens adicionados
+    const addedItem = pendingChanges.addedDemandStocks.find(item => item.materializationId === materializationId);
+    if (addedItem) {
+        addedItem.stock = stockValue;
+        console.log("Atualizado valor de estoque em item adicionado:", addedItem);
+        return;
+    }
+    
+    // Se não for um item adicionado, verificar entre os modificados
     const existingChange = pendingChanges.modifiedDemandStocks.find(item => item.materializationId === materializationId);
     if (existingChange) {
         existingChange.stock = stockValue;
@@ -1093,6 +1101,8 @@ function updateStockValue(materializationId, value) {
                 stock: stockValue,
                 demand: demandValue
             });
+            
+            console.log("Novo item modificado adicionado:", pendingChanges.modifiedDemandStocks[pendingChanges.modifiedDemandStocks.length-1]);
         }
     }
 }
@@ -1106,7 +1116,15 @@ function updateDemandValue(materializationId, value) {
     // Atualizar o saldo na interface
     updateBalanceCell(materializationId);
     
-    // Rastrear a alteração para salvamento diferido
+    // Verificar primeiro se está entre os itens adicionados
+    const addedItem = pendingChanges.addedDemandStocks.find(item => item.materializationId === materializationId);
+    if (addedItem) {
+        addedItem.demand = demandValue;
+        console.log("Atualizado valor de demanda em item adicionado:", addedItem);
+        return;
+    }
+    
+    // Se não for um item adicionado, verificar entre os modificados
     const existingChange = pendingChanges.modifiedDemandStocks.find(item => item.materializationId === materializationId);
     if (existingChange) {
         existingChange.demand = demandValue;
@@ -1122,6 +1140,8 @@ function updateDemandValue(materializationId, value) {
                 stock: stockValue,
                 demand: demandValue
             });
+            
+            console.log("Novo item modificado adicionado:", pendingChanges.modifiedDemandStocks[pendingChanges.modifiedDemandStocks.length-1]);
         }
     }
 }
@@ -1526,6 +1546,8 @@ function saveChanges() {
         
         // 8. Process added demand stocks
         for (const stock of pendingChanges.addedDemandStocks) {
+            console.log(`Salvando novo estoque/demanda: materialização=${stock.materializationId}, estoque=${stock.stock}, demanda=${stock.demand}`);
+            
             const addStockPromise = fetch('/api/demand-stock', {
                 method: 'POST',
                 headers: {
@@ -1534,15 +1556,35 @@ function saveChanges() {
                 body: JSON.stringify({
                     instanceId: currentInstanceId,
                     materializationId: stock.materializationId,
-                    currentStock: stock.stock,
-                    demand: stock.demand
+                    currentStock: String(stock.stock),
+                    demand: String(stock.demand)
                 })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.error("Erro ao salvar estoque/demanda:", text);
+                        throw new Error(`Erro ao salvar estoque/demanda: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Estoque/demanda salvo com sucesso:", data);
+                return data;
+            })
+            .catch(error => {
+                console.error("Exceção ao salvar estoque/demanda:", error);
+                throw error;
             });
+            
             allPromises.push(addStockPromise);
         }
         
         // 9. Process modified demand stocks
         for (const stock of pendingChanges.modifiedDemandStocks) {
+            console.log(`Salvando estoque/demanda modificado: materialização=${stock.materializationId}, estoque=${stock.stock}, demanda=${stock.demand}`);
+            
             const updateStockPromise = fetch('/api/demand-stock', {
                 method: 'POST',
                 headers: {
@@ -1551,10 +1593,28 @@ function saveChanges() {
                 body: JSON.stringify({
                     instanceId: currentInstanceId,
                     materializationId: stock.materializationId,
-                    currentStock: stock.stock,
-                    demand: stock.demand
+                    currentStock: String(stock.stock),
+                    demand: String(stock.demand)
                 })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        console.error("Erro ao salvar estoque/demanda modificado:", text);
+                        throw new Error(`Erro ao salvar estoque/demanda: ${response.status}`);
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Estoque/demanda modificado salvo com sucesso:", data);
+                return data;
+            })
+            .catch(error => {
+                console.error("Exceção ao salvar estoque/demanda modificado:", error);
+                throw error;
             });
+            
             allPromises.push(updateStockPromise);
         }
         

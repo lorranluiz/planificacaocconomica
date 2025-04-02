@@ -63,6 +63,9 @@ public class DemandStockController {
     @PostMapping
     public ResponseEntity<?> createOrUpdate(@RequestBody Map<String, Object> request) {
         try {
+            // Logging de entrada para depuração
+            System.out.println("DemandStockController.createOrUpdate - Payload recebido: " + request);
+            
             // Extrair dados da requisição com conversão segura de tipos
             Integer instanceId = null;
             Integer materializationId = null;
@@ -116,6 +119,9 @@ public class DemandStockController {
             BigDecimal currentStock = convertToBigDecimal(request.get("currentStock"));
             BigDecimal demand = convertToBigDecimal(request.get("demand"));
             
+            // Debug log para os valores que serão salvos
+            System.out.println("Valores a serem salvos: stock=" + currentStock + ", demand=" + demand);
+            
             // Criar ou atualizar registro
             DemandStock demandStock;
             DemandStock.DemandStockId id = new DemandStock.DemandStockId(instanceId, materializationId);
@@ -124,14 +130,23 @@ public class DemandStockController {
             Optional<DemandStock> existingOpt = demandStockRepository.findById(id);
             if (existingOpt.isPresent()) {
                 demandStock = existingOpt.get();
+                System.out.println("Atualizando registro existente: " + id);
             } else {
-                // Criar um novo objeto DemandStock usando o construtor sem argumentos
-                demandStock = new DemandStock();
-                // Agora configurar manualmente todas as propriedades necessárias
-                demandStock.setInstance(instanceOpt.get());
-                demandStock.setSocialMaterialization(matOpt.get());
-                // SEMPRE definir a data de criação para evitar o erro NOT NULL
-                demandStock.setCreatedAt(LocalDateTime.now());
+                // Tentar com a ordem inversa para compatibilidade com versões anteriores
+                DemandStock.DemandStockId alternativeId = new DemandStock.DemandStockId(materializationId, instanceId);
+                existingOpt = demandStockRepository.findById(alternativeId);
+                
+                if (existingOpt.isPresent()) {
+                    demandStock = existingOpt.get();
+                    System.out.println("Atualizando registro existente com ID alternativo: " + alternativeId);
+                } else {
+                    // Criar um novo objeto DemandStock
+                    System.out.println("Criando novo registro de DemandStock");
+                    demandStock = new DemandStock();
+                    demandStock.setInstance(instanceOpt.get());
+                    demandStock.setSocialMaterialization(matOpt.get());
+                    demandStock.setCreatedAt(LocalDateTime.now());
+                }
             }
             
             // Atualizar valores usando os setters corretos
@@ -145,6 +160,10 @@ public class DemandStockController {
             
             // Salvar
             DemandStock saved = demandStockRepository.save(demandStock);
+            // Fixed: Use the composite parts of the ID instead of calling getId() directly
+            System.out.println("DemandStock salvo com sucesso para instância " + 
+                saved.getInstance().getId() + " e materialização " + 
+                saved.getSocialMaterialization().getId());
             
             // Retornar resultado com os getters corretos
             Map<String, Object> result = new HashMap<>();
@@ -157,7 +176,7 @@ public class DemandStockController {
             
             return ResponseEntity.ok(result);
         } catch (Exception e) {
-            e.printStackTrace(); // Adicionar stack trace para debug
+            e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Erro ao salvar dados: " + e.getMessage());
         }
