@@ -1838,32 +1838,14 @@ function addMaterialization(materialization, targetTable) {
     
     console.log(`Adicionando materialização ${materialization.name} (ID: ${materialization.id}) à tabela ${targetTable}`);
     
-    // Caso especial: Se estamos adicionando ao estoque/demanda, adicionar também ao vetor tecnológico
+    // Caso especial: Se estamos adicionando ao estoque/demanda
     if (targetTable === 'stockDemand') {
         // Primeiro adicionamos à tabela de estoque/demanda
         addToStockDemandTable(materialization);
         
-        // Em seguida, verificamos se já existe no vetor tecnológico
-        if (window.technologicalCoefficients && productIds && productIds.length > 0) {
-            const outputId = productIds[0]; // O produto principal do comitê
-            
-            // Verificar se já existe no vetor tecnológico
-            const existingCoef = window.technologicalCoefficients.find(c => 
-                c.inputMaterializationId === materialization.id && 
-                c.outputMaterializationId === outputId);
-            
-            // Se não existe ainda, adicionar ao vetor tecnológico
-            if (!existingCoef) {
-                console.log(`Adicionando automaticamente ao vetor tecnológico: ${materialization.name}`);
-                addToTechnologicalMatrix(materialization);
-            } else {
-                console.log(`Materialização ${materialization.name} já existe no vetor tecnológico`);
-            }
-        } else {
-            // Se não houver coeficientes ou produtos carregados, adicionar diretamente
-            console.log(`Adicionando ao vetor tecnológico sem verificação: ${materialization.name}`);
-            addToTechnologicalMatrix(materialization);
-        }
+        // Simplificação: Sempre tente adicionar ao vetor tecnológico
+        // Lógica de verificação movida para dentro de addToTechnologicalMatrix
+        addToTechnologicalMatrix(materialization);
         
         return; // Já processamos este caso especial
     }
@@ -1880,6 +1862,90 @@ function addMaterialization(materialization, targetTable) {
             console.error(`Tipo de tabela desconhecido: ${targetTable}`);
             showError("Erro interno: tipo de tabela inválido");
     }
+}
+
+// Função para adicionar materialização ao vetor tecnológico
+function addToTechnologicalMatrix(materialization) {
+    if (!currentInstanceId) {
+        showError("Selecione uma instância primeiro");
+        return;
+    }
+    
+    // Verificar se os coeficientes já foram carregados
+    const coefficients = window.technologicalCoefficients || [];
+    
+    // Determinar a materialização de saída (produto do comitê)
+    let outputId = null;
+    
+    // Se não há produtos ainda, usar a materialização atual como produto principal
+    if (!productIds || productIds.length === 0) {
+        console.log(`Nenhum produto encontrado. Usando a materialização ${materialization.name} como produto principal do comitê`);
+        
+        // Adicionar a materialização atual como primeiro produto (produto de saída)
+        productIds = [materialization.id];
+        productNames = [materialization.name];
+        
+        // Se a matriz estiver vazia, inicializá-la
+        if (!technologicalMatrix || technologicalMatrix.length === 0) {
+            technologicalMatrix = [[0]]; // Matriz 1x1 com o valor 0
+        }
+        
+        // Usar esta materialização como produto de saída
+        outputId = materialization.id;
+        
+        // Adicionar também ao vetor de demanda
+        demandVector = [0]; // Inicializar com demanda zero
+        
+        // Adicionar à lista de vetores adicionados para ser salvo depois
+        pendingChanges.addedDemandVectors.push({
+            materializationId: materialization.id,
+            demand: 0,
+            name: materialization.name
+        });
+        
+        // Atualizar a interface do vetor de demanda
+        renderDemandVectorTable();
+    } else {
+        // Se já existem produtos, usar o primeiro como produto principal
+        outputId = productIds[0];
+    }
+    
+    // Verificar se essa materialização já existe como entrada no vetor tecnológico
+    const existingCoef = coefficients.find(c => 
+        c.inputMaterializationId === materialization.id && 
+        c.outputMaterializationId === outputId
+    );
+    
+    if (existingCoef) {
+        showError(`A materialização "${materialization.name}" já existe no vetor tecnológico`);
+        return;
+    }
+    
+    // Adicionar ao array de coeficientes (cache local)
+    const newCoef = {
+        instanceId: currentInstanceId,
+        inputMaterializationId: materialization.id,
+        inputMaterializationName: materialization.name,
+        outputMaterializationId: outputId,
+        quantity: 0 // valor inicial
+    };
+    
+    if (window.technologicalCoefficients) {
+        window.technologicalCoefficients.push(newCoef);
+    } else {
+        window.technologicalCoefficients = [newCoef];
+    }
+    
+    // Armazenar para salvamento diferido em vez de salvar imediatamente
+    pendingChanges.addedTensors.push({
+        inputMaterializationId: materialization.id,
+        outputMaterializationId: outputId,
+        quantity: 0,
+        name: materialization.name
+    });
+    
+    // Atualizar a tabela visual
+    renderTechnologicalMatrix();
 }
 
 // Função para adicionar materialização à tabela de estoque/demanda
@@ -1950,64 +2016,6 @@ function addToStockDemandTable(materialization) {
     });
     
     showSuccess(`Materialização "${materialization.name}" adicionada à tabela de estoque e demanda`);
-}
-
-// Função para adicionar materialização ao vetor tecnológico
-function addToTechnologicalMatrix(materialization) {
-    if (!currentInstanceId) {
-        showError("Selecione uma instância primeiro");
-        return;
-    }
-    
-    // Verificar se os coeficientes já foram carregados
-    const coefficients = window.technologicalCoefficients || [];
-    
-    // Determinar a materialização de saída (produto do comitê)
-    // Para um comitê, normalmente é o primeiro produto na lista
-    let outputId = null;
-    if (productIds && productIds.length > 0) {
-        outputId = productIds[0];
-    } else {
-        showError("Não foi possível identificar o produto principal do comitê");
-        return;
-    }
-    
-    // Verificar se essa materialização já existe como entrada no vetor tecnológico
-    const existingCoef = coefficients.find(c => 
-        c.inputMaterializationId === materialization.id && 
-        c.outputMaterializationId === outputId
-    );
-    
-    if (existingCoef) {
-        showError(`A materialização "${materialization.name}" já existe no vetor tecnológico`);
-        return;
-    }
-    
-    // Adicionar ao array de coeficientes (cache local)
-    const newCoef = {
-        instanceId: currentInstanceId,
-        inputMaterializationId: materialization.id,
-        inputMaterializationName: materialization.name,
-        outputMaterializationId: outputId,
-        quantity: 0 // valor inicial
-    };
-    
-    if (window.technologicalCoefficients) {
-        window.technologicalCoefficients.push(newCoef);
-    } else {
-        window.technologicalCoefficients = [newCoef];
-    }
-    
-    // Armazenar para salvamento diferido em vez de salvar imediatamente
-    pendingChanges.addedTensors.push({
-        inputMaterializationId: materialization.id,
-        outputMaterializationId: outputId,
-        quantity: 0,
-        name: materialization.name
-    });
-    
-    // Atualizar a tabela visual
-    renderTechnologicalMatrix();
 }
 
 // Função para adicionar materialização ao vetor de demanda
