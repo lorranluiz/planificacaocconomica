@@ -896,6 +896,13 @@ function ensureHeader() {
 // Adicione esta função para atualizar valores do vetor demanda a partir da interface
 function updateDemandVectorFromUI() {
     const demandTable = document.getElementById('demandVector');
+    
+    // Check if the element exists
+    if (!demandTable) {
+        console.log("Elemento demandVector não encontrado, pulando atualização do vetor de demanda");
+        return demandVector; // Return the existing demand vector without changes
+    }
+    
     const tbody = demandTable.querySelector('tbody');
     const rows = tbody.querySelectorAll('tr');
     
@@ -942,92 +949,22 @@ function updateDemandVectorFromUI() {
     return demandVector;
 }
 
-// Função corrigida para renderizar o vetor de produção
-function renderProductionVector(productionVector) {
-    const resultsContainer = document.getElementById('results');
-    if (!resultsContainer) {
-        console.error("Container de resultados não encontrado");
-        return;
-    }
-    
-    // 1. Limpar o container de resultados
-    resultsContainer.innerHTML = '';
-    
-    // 2. Criar elementos HTML para a tabela de produção
-    const header = document.createElement('h2');
-    header.textContent = 'Resultados da Planificação';
-    resultsContainer.appendChild(header);
-    
-    const table = document.createElement('table');
-    table.className = 'data-table';
-    
-    // 3. Criar cabeçalho da tabela
-    const thead = document.createElement('thead');
-    thead.innerHTML = `
-        <tr>
-            <th>Produto</th>
-            <th>Produção Necessária</th>
-            <th>Ações</th>
-        </tr>
-    `;
-    table.appendChild(thead);
-    
-    // 4. Criar corpo da tabela
-    const tbody = document.createElement('tbody');
-    tbody.id = 'productionResults';
-    
-    // Função para formatar números
-    const formatNumber = (value) => {
-        if (value === undefined || value === null) return 'N/A';
-        return typeof value === 'number' ? value.toFixed(2) : value;
-    };
-    
-    // Adicionar linhas para cada produto - IMPORTANTE: Com botão "Detalhes" em vez de "Configurar Otimização"
-    productionVector.forEach((production, index) => {
-        if (index < productNames.length) {
-            const tr = document.createElement('tr');
-            
-            tr.innerHTML = `
-                <td>${productNames[index]}</td>
-                <td>${formatNumber(production)}</td>
-                <td>
-                    <button class="btn details-btn" onclick="openOptimizationResultModal(${index})">
-                        Detalhes
-                    </button>
-                </td>
-            `;
-            
-            tbody.appendChild(tr);
-        }
-    });
-    
-    table.appendChild(tbody);
-    resultsContainer.appendChild(table);
-    
-    // 5. Garantir que o container de resultados esteja visível
-    resultsContainer.style.display = 'block';
-}
-
-// Function to validate product indices
-function validateProductIndex(index) {
-    if (index === undefined || index === null || isNaN(index) || 
-        index < 0 || index >= productIds.length) {
-        console.error(`Índice de produto inválido: ${index}`);
-        console.log("productIds.length =", productIds.length);
-        console.log("productIds =", productIds);
-        return false;
-    }
-    return true;
-}
-
 // Adicionar esta função para atualizar valores da matriz a partir da interface
 function updateMatrixAndVectorData() {
-    // Atualizar vetor de demanda
-    updateDemandVectorFromUI();
+    // Only update demand vector if the element exists
+    const demandTable = document.getElementById('demandVector');
+    if (demandTable) {
+        updateDemandVectorFromUI();
+    }
     
     // Atualizar matriz tecnológica para COMMITTEE
     if (currentInstanceType === 'COMMITTEE') {
         const technologicalMatrixTable = document.getElementById('technologicalMatrix');
+        if (!technologicalMatrixTable) {
+            console.warn("Elemento technologicalMatrix não encontrado, pulando atualização da matriz tecnológica");
+            return;
+        }
+        
         const rows = technologicalMatrixTable.querySelectorAll('tbody tr');
         
         rows.forEach(row => {
@@ -1404,15 +1341,18 @@ function savePropostaInputs() {
     // Mostrar spinner durante o salvamento
     document.getElementById('propostaSpinner').style.display = 'inline-block';
     
-    // Preparar dados para envio
+    // Preparar dados para envio - IMPORTANTE: converter todos os valores para strings
     const proposalData = {
-        instanceId: currentInstanceId,
-        workerLimit: workerLimit,
-        workerHours: workerHours,
-        productionTime: productionTime,
-        weeklyScale: weeklyScale,
-        nightShift: nightShift
+        instanceId: String(currentInstanceId),
+        workerLimit: String(workerLimit),
+        workerHours: String(workerHours),
+        productionTime: String(productionTime),
+        weeklyScale: String(weeklyScale),
+        nightShift: Boolean(nightShift)
     };
+    
+    // Log para debug
+    console.log("Enviando proposta:", JSON.stringify(proposalData));
     
     // Enviar para o servidor
     fetch('/api/workers-proposal', {
@@ -1425,6 +1365,7 @@ function savePropostaInputs() {
     .then(response => {
         if (!response.ok) {
             return response.text().then(text => {
+                console.error("Resposta de erro completa:", text);
                 throw new Error(text || `Erro HTTP: ${response.status}`);
             });
         }
@@ -1624,15 +1565,34 @@ function saveChanges() {
             if (producedQuantityInput) {
                 const producedQuantity = parseFloat(producedQuantityInput.value) || 0;
                 
+                // Log data before sending
+                console.log("Salvando quantidade produzida:", {
+                    instanceId: currentInstanceId,
+                    producedQuantity: producedQuantity
+                });
+                
+                // IMPORTANTE: Passar producedQuantity como string para garantir conversão correta no servidor
                 const instanceUpdatePromise = fetch(`/api/instances/${currentInstanceId}/produced-quantity`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify({
-                        id: currentInstanceId,
-                        producedQuantity: producedQuantity
+                        producedQuantity: String(producedQuantity)
                     })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            console.error("Erro ao salvar quantidade produzida:", text);
+                            throw new Error(`Erro ao salvar quantidade produzida: ${response.status}`);
+                        });
+                    }
+                    return response.json();
+                })
+                .catch(error => {
+                    console.error("Exceção ao salvar quantidade produzida:", error);
+                    throw error; // Re-throw to be caught by the Promise.all
                 });
                 
                 allPromises.push(instanceUpdatePromise);
@@ -1640,24 +1600,52 @@ function saveChanges() {
             
             // 10.2. Save workers proposal if it exists
             if (window.currentWorkersProposal) {
-                const proposalData = {
-                    instanceId: currentInstanceId,
-                    workerLimit: window.currentWorkersProposal.workerLimit,
-                    workerHours: window.currentWorkersProposal.workerHours,
-                    productionTime: window.currentWorkersProposal.productionTime,
-                    weeklyScale: window.currentWorkersProposal.weeklyScale,
-                    nightShift: window.currentWorkersProposal.nightShift
-                };
+                // Log data before sending
+                console.log("Salvando proposta de trabalhadores:", window.currentWorkersProposal);
                 
-                const proposalPromise = fetch('/api/workers-proposal', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(proposalData)
-                });
-                
-                allPromises.push(proposalPromise);
+                // Verificar se todos os campos necessários existem
+                if (!window.currentWorkersProposal.workerLimit || 
+                    !window.currentWorkersProposal.workerHours || 
+                    !window.currentWorkersProposal.productionTime || 
+                    !window.currentWorkersProposal.weeklyScale) {
+                    console.warn("Proposta de trabalhadores incompleta, não será salva");
+                } else {
+                    // IMPORTANTE: Converter todos os valores para strings para garantir conversão correta no servidor
+                    const proposalData = {
+                        instanceId: String(currentInstanceId),
+                        workerLimit: String(window.currentWorkersProposal.workerLimit),
+                        workerHours: String(window.currentWorkersProposal.workerHours),
+                        productionTime: String(window.currentWorkersProposal.productionTime),
+                        weeklyScale: String(window.currentWorkersProposal.weeklyScale),
+                        nightShift: Boolean(window.currentWorkersProposal.nightShift)
+                    };
+                    
+                    // Log final payload
+                    console.log("Payload final da proposta:", JSON.stringify(proposalData));
+                    
+                    const proposalPromise = fetch('/api/workers-proposal', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(proposalData)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            return response.text().then(text => {
+                                console.error("Erro ao salvar proposta de trabalhadores:", text);
+                                throw new Error(`Erro ao salvar proposta de trabalhadores: ${response.status}`);
+                            });
+                        }
+                        return response.json();
+                    })
+                    .catch(error => {
+                        console.error("Exceção ao salvar proposta de trabalhadores:", error);
+                        throw error; // Re-throw to be caught by the Promise.all
+                    });
+                    
+                    allPromises.push(proposalPromise);
+                }
             }
         }
         

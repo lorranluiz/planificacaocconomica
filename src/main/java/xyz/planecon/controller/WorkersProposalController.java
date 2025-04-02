@@ -21,15 +21,11 @@ import java.util.Optional;
 @RequestMapping("/api/workers-proposal")
 public class WorkersProposalController {
 
-    private final WorkersProposalRepository proposalRepository;
-    private final InstanceRepository instanceRepository;
+    @Autowired
+    private WorkersProposalRepository workersProposalRepository;
 
     @Autowired
-    public WorkersProposalController(WorkersProposalRepository proposalRepository,
-                                    InstanceRepository instanceRepository) {
-        this.proposalRepository = proposalRepository;
-        this.instanceRepository = instanceRepository;
-    }
+    private InstanceRepository instanceRepository;
 
     @GetMapping("/instance/{instanceId}")
     public ResponseEntity<?> getByInstance(@PathVariable Integer instanceId) {
@@ -39,132 +35,139 @@ public class WorkersProposalController {
                 return ResponseEntity.notFound().build();
             }
 
-            List<WorkersProposal> proposals = proposalRepository.findByInstanceId(instanceId);
-            if (proposals.isEmpty()) {
+            WorkersProposalId id = new WorkersProposalId();
+            id.setInstanceId(instanceId);
+
+            Optional<WorkersProposal> proposal = workersProposalRepository.findById(id);
+            if (proposal.isEmpty()) {
                 return ResponseEntity.notFound().build();
             }
 
-            // Retorna a primeira proposta encontrada (normalmente só existe uma por comitê)
-            WorkersProposal proposal = proposals.get(0);
-            
-            Map<String, Object> result = new HashMap<>();
-            result.put("instanceId", proposal.getInstance().getId());
-            result.put("workerLimit", proposal.getWorkerLimit());
-            result.put("workerHours", proposal.getWorkerHours());
-            result.put("productionTime", proposal.getProductionTime());
-            result.put("weeklyScale", proposal.getWeeklyScale());
-            result.put("nightShift", proposal.getNightShift());
-            result.put("createdAt", proposal.getCreatedAt());
+            Map<String, Object> response = new HashMap<>();
+            WorkersProposal prop = proposal.get();
+            response.put("instanceId", prop.getInstance().getId());
+            response.put("workerLimit", prop.getWorkerLimit());
+            response.put("workerHours", prop.getWorkerHours());
+            response.put("productionTime", prop.getProductionTime());
+            response.put("weeklyScale", prop.getWeeklyScale());
+            response.put("nightShift", prop.getNightShift());
+            response.put("createdAt", prop.getCreatedAt());
 
-            return ResponseEntity.ok(result);
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Erro ao buscar proposta: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "Erro ao buscar proposta: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
 
     @PostMapping
-    public ResponseEntity<?> createOrUpdate(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> createOrUpdate(@RequestBody Map<String, Object> payload) {
         try {
-            // Extrair dados da requisição
-            Integer instanceId = (Integer) request.get("instanceId");
-            Integer workerLimit = (Integer) request.get("workerLimit");
-            Object workerHoursObj = request.get("workerHours");
-            Object productionTimeObj = request.get("productionTime");
-            Integer weeklyScale = (Integer) request.get("weeklyScale");
-            Boolean nightShift = (Boolean) request.get("nightShift");
-            
-            // Validações básicas
-            if (instanceId == null || workerLimit == null || 
-                workerHoursObj == null || productionTimeObj == null || 
-                weeklyScale == null || nightShift == null) {
-                return ResponseEntity.badRequest()
-                    .body("Todos os campos são obrigatórios");
+            Integer instanceId = null;
+            Integer workerLimit = null;
+            BigDecimal workerHours = null;
+            BigDecimal productionTime = null;
+            Integer weeklyScale = null;
+            Boolean nightShift = false;
+
+            if (payload.get("instanceId") instanceof Number) {
+                instanceId = ((Number) payload.get("instanceId")).intValue();
+            } else if (payload.get("instanceId") instanceof String) {
+                instanceId = Integer.parseInt((String) payload.get("instanceId"));
             }
-            
-            // Conversão para BigDecimal
-            BigDecimal workerHours = convertToBigDecimal(workerHoursObj);
-            BigDecimal productionTime = convertToBigDecimal(productionTimeObj);
-            
-            // Validações adicionais
-            if (workerLimit <= 0) {
-                return ResponseEntity.badRequest()
-                    .body("O limite de trabalhadores deve ser maior que zero");
+
+            if (payload.get("workerLimit") instanceof Number) {
+                workerLimit = ((Number) payload.get("workerLimit")).intValue();
+            } else if (payload.get("workerLimit") instanceof String) {
+                workerLimit = Integer.parseInt((String) payload.get("workerLimit"));
             }
-            
-            if (workerHours.compareTo(BigDecimal.ZERO) <= 0) {
-                return ResponseEntity.badRequest()
-                    .body("As horas de trabalho devem ser maiores que zero");
+
+            if (payload.get("workerHours") instanceof Number) {
+                workerHours = new BigDecimal(payload.get("workerHours").toString());
+            } else if (payload.get("workerHours") instanceof String) {
+                workerHours = new BigDecimal((String) payload.get("workerHours"));
             }
-            
-            if (productionTime.compareTo(BigDecimal.ZERO) <= 0) {
-                return ResponseEntity.badRequest()
-                    .body("O tempo de produção deve ser maior que zero");
+
+            if (payload.get("productionTime") instanceof Number) {
+                productionTime = new BigDecimal(payload.get("productionTime").toString());
+            } else if (payload.get("productionTime") instanceof String) {
+                productionTime = new BigDecimal((String) payload.get("productionTime"));
             }
-            
-            if (weeklyScale < 1 || weeklyScale > 7) {
-                return ResponseEntity.badRequest()
-                    .body("A escala semanal deve estar entre 1 e 7 dias");
+
+            if (payload.get("weeklyScale") instanceof Number) {
+                weeklyScale = ((Number) payload.get("weeklyScale")).intValue();
+            } else if (payload.get("weeklyScale") instanceof String) {
+                weeklyScale = Integer.parseInt((String) payload.get("weeklyScale"));
             }
-            
-            // Buscar instância
+
+            if (payload.get("nightShift") != null) {
+                nightShift = Boolean.valueOf(payload.get("nightShift").toString());
+            }
+
+            if (instanceId == null || workerLimit == null || workerHours == null || productionTime == null || weeklyScale == null) {
+                Map<String, String> error = new HashMap<>();
+                error.put("message", "Todos os campos são obrigatórios");
+                return ResponseEntity.badRequest().body(error);
+            }
+
             Optional<Instance> instanceOpt = instanceRepository.findById(instanceId);
             if (instanceOpt.isEmpty()) {
-                return ResponseEntity.badRequest()
-                    .body("Instância não encontrada: " + instanceId);
+                Map<String, String> error = new HashMap<>();
+                error.put("message", "Instância não encontrada");
+                return ResponseEntity.badRequest().body(error);
             }
-            
-            // Criar ID composto
-            WorkersProposalId id = new WorkersProposalId(instanceId);
-            
-            // Verificar se já existe proposta para esta instância
+
+            Instance instance = instanceOpt.get();
+
+            WorkersProposalId id = new WorkersProposalId();
+            id.setInstanceId(instanceId);
+
             WorkersProposal proposal;
-            Optional<WorkersProposal> existingProposal = proposalRepository.findById(id);
-            
+            Optional<WorkersProposal> existingProposal = workersProposalRepository.findById(id);
+
             if (existingProposal.isPresent()) {
-                // Atualizar existente
                 proposal = existingProposal.get();
             } else {
-                // Criar nova proposta
                 proposal = new WorkersProposal();
                 proposal.setId(id);
-                proposal.setInstance(instanceOpt.get());
+                proposal.setInstance(instance);
                 proposal.setCreatedAt(LocalDateTime.now());
             }
-            
-            // Atualizar dados
+
             proposal.setWorkerLimit(workerLimit);
             proposal.setWorkerHours(workerHours);
             proposal.setProductionTime(productionTime);
             proposal.setWeeklyScale(weeklyScale);
             proposal.setNightShift(nightShift);
-            
-            // Salvar
-            WorkersProposal saved = proposalRepository.save(proposal);
-            
-            // Preparar resposta
-            Map<String, Object> result = new HashMap<>();
-            result.put("instanceId", saved.getInstance().getId());
-            result.put("workerLimit", saved.getWorkerLimit());
-            result.put("workerHours", saved.getWorkerHours());
-            result.put("productionTime", saved.getProductionTime());
-            result.put("weeklyScale", saved.getWeeklyScale());
-            result.put("nightShift", saved.getNightShift());
-            result.put("createdAt", saved.getCreatedAt());
-            
-            return ResponseEntity.ok(result);
+
+            WorkersProposal saved = workersProposalRepository.save(proposal);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("instanceId", saved.getInstance().getId());
+            response.put("workerLimit", saved.getWorkerLimit());
+            response.put("workerHours", saved.getWorkerHours());
+            response.put("productionTime", saved.getProductionTime());
+            response.put("weeklyScale", saved.getWeeklyScale());
+            response.put("nightShift", saved.getNightShift());
+            response.put("createdAt", saved.getCreatedAt());
+
+            return ResponseEntity.ok(response);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Erro ao salvar proposta: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, String> error = new HashMap<>();
+            error.put("message", "Erro ao salvar proposta: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
         }
     }
-    
+
     @DeleteMapping("/{instanceId}")
     public ResponseEntity<?> delete(@PathVariable Integer instanceId) {
         try {
             WorkersProposalId id = new WorkersProposalId(instanceId);
-            if (proposalRepository.existsById(id)) {
-                proposalRepository.deleteById(id);
+            if (workersProposalRepository.existsById(id)) {
+                workersProposalRepository.deleteById(id);
                 return ResponseEntity.ok().build();
             } else {
                 return ResponseEntity.notFound().build();
@@ -173,30 +176,5 @@ public class WorkersProposalController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Erro ao excluir proposta: " + e.getMessage());
         }
-    }
-    
-    // Método auxiliar para converter para BigDecimal
-    private BigDecimal convertToBigDecimal(Object value) {
-        if (value == null) {
-            return BigDecimal.ZERO;
-        }
-        
-        if (value instanceof BigDecimal) {
-            return (BigDecimal) value;
-        }
-        
-        if (value instanceof Number) {
-            return new BigDecimal(((Number) value).toString());
-        }
-        
-        if (value instanceof String) {
-            try {
-                return new BigDecimal((String) value);
-            } catch (NumberFormatException e) {
-                return BigDecimal.ZERO;
-            }
-        }
-        
-        return BigDecimal.ZERO;
     }
 }

@@ -377,52 +377,49 @@ public class InstanceController {
 	 * Atualiza a quantidade produzida de uma instância específica
 	 * Este endpoint é utilizado especialmente para comitês
 	 */
-	@PostMapping("/{instanceId}/produced-quantity")
-	public ResponseEntity<?> updateProducedQuantity(
-			@PathVariable Integer instanceId,
-			@RequestBody Map<String, Object> requestBody) {
-		
+	@PostMapping("/{id}/produced-quantity")
+	public ResponseEntity<?> updateProducedQuantity(@PathVariable Integer id, @RequestBody Map<String, Object> payload) {
 		try {
-			// Verificar se a instância existe
-			Optional<Instance> instanceOpt = instanceRepository.findById(instanceId);
-			if (instanceOpt.isEmpty()) {
-				return ResponseEntity.notFound().build();
+			Optional<Instance> instanceOpt = instanceRepository.findById(id);
+			if (!instanceOpt.isPresent()) {
+				Map<String, String> response = new HashMap<>();
+				response.put("message", "Instância não encontrada");
+				return ResponseEntity.status(404).body(response);
 			}
 			
 			Instance instance = instanceOpt.get();
 			
-			// Extrair quantidade produzida do corpo da requisição
-			Object producedQuantityObj = requestBody.get("producedQuantity");
-			if (producedQuantityObj == null) {
-				return ResponseEntity.badRequest()
-					.body("Campo 'producedQuantity' é obrigatório");
+			// Extract producedQuantity from payload
+			BigDecimal producedQuantity = null;
+			
+			if (payload.get("producedQuantity") instanceof Number) {
+				producedQuantity = new BigDecimal(payload.get("producedQuantity").toString());
+			} else if (payload.get("producedQuantity") instanceof String) {
+				producedQuantity = new BigDecimal((String) payload.get("producedQuantity"));
+			} else {
+				Map<String, String> response = new HashMap<>();
+				response.put("message", "Quantidade produzida inválida");
+				return ResponseEntity.badRequest().body(response);
 			}
 			
-			// Converter para BigDecimal
-			BigDecimal producedQuantity;
-			try {
-				if (producedQuantityObj instanceof Number) {
-					producedQuantity = new BigDecimal(((Number) producedQuantityObj).toString());
-				} else if (producedQuantityObj instanceof String) {
-					producedQuantity = new BigDecimal((String) producedQuantityObj);
-				} else {
-					return ResponseEntity.badRequest()
-						.body("Valor inválido para 'producedQuantity'");
-				}
-			} catch (NumberFormatException e) {
-				return ResponseEntity.badRequest()
-					.body("Valor inválido para 'producedQuantity'");
-			}
-			
-			// Atualizar a instância
+			// Update instance
 			instance.setProducedQuantity(producedQuantity);
-			instance = instanceRepository.save(instance);
+			Instance saved = instanceRepository.save(instance);
 			
-			// Retornar a instância atualizada
-			return ResponseEntity.ok(instance);
+			Map<String, Object> response = new HashMap<>();
+			response.put("id", saved.getId());
+			response.put("producedQuantity", saved.getProducedQuantity());
+			if (saved.getTargetQuantity() != null) {
+				response.put("targetQuantity", saved.getTargetQuantity());
+				response.put("remainingQuantity", saved.getTargetQuantity().subtract(saved.getProducedQuantity()));
+			}
+			
+			return ResponseEntity.ok(response);
 		} catch (Exception e) {
-			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-				.body("Erro ao atualizar quantidade produzida: " + e.getMessage());
+			e.printStackTrace();
+			Map<String, String> response = new HashMap<>();
+			response.put("message", "Erro ao atualizar quantidade produzida: " + e.getMessage());
+			return ResponseEntity.status(500).body(response);
 		}
 	}
 
