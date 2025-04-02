@@ -217,11 +217,6 @@ function renderDemandVectorTable() {
                        data-index="${index}"
                        onchange="updateDemandVector(${index}, this)" />
             </td>
-            <td>
-                <div class="action-buttons">
-                    <button class="btn remove-btn" onclick="removeDemandItem(${index})"><i class="fas fa-trash-alt"></i></button>
-                </div>
-            </td>
         `;
         
         tbody.appendChild(tr);
@@ -274,7 +269,7 @@ function renderTechnologicalMatrix() {
         // Verificação explícita para o caso de array vazio
         if (!coefficients || coefficients.length === 0) {
             const tr = document.createElement('tr');
-            tr.innerHTML = `<td colspan="3" class="text-center">Não há dados de coeficientes disponíveis</td>`;
+            tr.innerHTML = `<td colspan="2" class="text-center">Não há dados de coeficientes disponíveis</td>`;
             tbody.appendChild(tr);
             return; // Sair da função para evitar processamento adicional
         }
@@ -312,24 +307,17 @@ function renderTechnologicalMatrix() {
                                       data-output-id="${coef.outputMaterializationId}" 
                                       onchange="updateCoefficientValue(this)" />
                             </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="action-btn remove-btn" onclick="removeMaterialization(${coef.inputMaterializationId}, 'technologicalMatrix')">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </div>
-                            </td>
                         `;
                         tbody.appendChild(tr);
                     });
                 } else {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td colspan="3" class="text-center">Não há dados de coeficientes disponíveis</td>`;
+                    tr.innerHTML = `<td colspan="2" class="text-center">Não há dados de coeficientes disponíveis</td>`;
                     tbody.appendChild(tr);
                 }
             } else {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="3" class="text-center">Não há dados de coeficientes disponíveis</td>`;
+                tr.innerHTML = `<td colspan="2" class="text-center">Não há dados de coeficientes disponíveis</td>`;
                 tbody.appendChild(tr);
             }
         } else {
@@ -353,13 +341,6 @@ function renderTechnologicalMatrix() {
                                       data-row="${rowIndex}" data-col="0" 
                                       onchange="updateMatrixCellValue(this, ${rowIndex}, 0)" />
                             </td>
-                            <td>
-                                <div class="action-buttons">
-                                    <button class="action-btn remove-btn" onclick="removeMaterialization(${productIds[rowIndex]}, 'technologicalMatrix')">
-                                        <i class="fas fa-trash-alt"></i>
-                                    </button>
-                                </div>
-                            </td>
                         `;
                         tbody.appendChild(tr);
                         hasAnyRows = true;
@@ -368,17 +349,16 @@ function renderTechnologicalMatrix() {
                 
                 if (!hasAnyRows) {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td colspan="3" class="text-center">Não há dados de insumos disponíveis</td>`;
+                    tr.innerHTML = `<td colspan="2" class="text-center">Não há dados de insumos disponíveis</td>`;
                     tbody.appendChild(tr);
                 }
             } else {
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td colspan="3" class="text-center">Não há dados de insumos disponíveis</td>`;
+                tr.innerHTML = `<td colspan="2" class="text-center">Não há dados de insumos disponíveis</td>`;
                 tbody.appendChild(tr);
             }
         }
     } else {
-        // Para conselho, renderizamos a matriz completa como antes
         const headerRow = document.createElement('tr');
         headerRow.innerHTML = '<th></th>';
         
@@ -473,7 +453,7 @@ function updateCoefficientValue(input) {
 }
 
 // Função para remover uma materialização de qualquer tabela
-function removeMaterialization(materializationId, source) {
+function removeMaterialization(materializationId) {
     if (!currentInstanceId || !materializationId) {
         showError("ID inválido");
         return;
@@ -519,15 +499,12 @@ function removeMaterialization(materializationId, source) {
             if (technologicalMatrixTable) {
                 const tbody = technologicalMatrixTable.querySelector('tbody');
                 if (tbody) {
-                    tbody.innerHTML = '<tr><td colspan="3" class="text-center">Não há dados de coeficientes disponíveis</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="2" class="text-center">Não há dados de coeficientes disponíveis</td></tr>';
                 }
             }
             
             // Garantir que as estruturas de dados estejam vazias
             window.technologicalCoefficients = [];
-            
-            // Não chamar renderTechnologicalMatrix para o último item
-            // pois a tabela já foi limpa manualmente
         } else {
             // Re-renderizar o vetor tecnológico apenas se não era o último item
             renderTechnologicalMatrix();
@@ -1180,12 +1157,48 @@ function renderDemandStockTable(stockData) {
     
     if (stockData.length === 0) {
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="4" class="text-center">Não há dados de estoque/demanda disponíveis</td>';
+        tr.innerHTML = '<td colspan="5" class="text-center">Não há dados de estoque/demanda disponíveis</td>';
         tbody.appendChild(tr);
         return;
     }
     
-    stockData.forEach(item => {
+    // Get a list of materializations from technological vector that aren't in stockData
+    let coefficients = window.technologicalCoefficients || [];
+    let techMaterializationIds = [];
+    
+    if (coefficients && coefficients.length > 0) {
+        // Get unique input materialization IDs
+        techMaterializationIds = [...new Set(coefficients.map(c => c.inputMaterializationId))];
+    }
+    
+    // Get existing stock materialization IDs
+    const stockMaterializationIds = stockData.map(item => item.materializationId);
+    
+    // Find tech materializations not in stock table
+    const missingMaterializations = coefficients.filter(c => 
+        !stockMaterializationIds.includes(c.inputMaterializationId) &&
+        techMaterializationIds.includes(c.inputMaterializationId)
+    );
+    
+    // Create a combined dataset
+    const allData = [...stockData];
+    
+    // Add missing tech materializations to the dataset
+    const uniqueAdded = new Set();
+    missingMaterializations.forEach(coef => {
+        if (!uniqueAdded.has(coef.inputMaterializationId)) {
+            allData.push({
+                materializationId: coef.inputMaterializationId,
+                materializationName: coef.inputMaterializationName || `Insumo #${coef.inputMaterializationId}`,
+                currentStock: 0,
+                demand: 0
+            });
+            uniqueAdded.add(coef.inputMaterializationId);
+        }
+    });
+    
+    // Render all data
+    allData.forEach(item => {
         const tr = document.createElement('tr');
         tr.dataset.materializationId = item.materializationId;
         
@@ -1209,6 +1222,13 @@ function renderDemandStockTable(stockData) {
                     onchange="updateDemandValue(${item.materializationId}, this.value)">
             </td>
             <td class="balance-cell ${balance < 0 ? 'negative' : ''}">${formatNumberForDisplay(balance)}</td>
+            <td>
+                <div class="action-buttons">
+                    <button class="action-btn remove-btn" onclick="removeMaterialization(${item.materializationId})">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            </td>
         `;
         
         tbody.appendChild(tr);
@@ -2159,7 +2179,7 @@ function addToStockDemandTable(materialization) {
         <td class="balance-cell">${formatNumberForDisplay(balance)}</td>
         <td>
             <div class="action-buttons">
-                <button class="action-btn remove-btn" onclick="removeMaterialization(${materialization.id}, 'stockDemand')">
+                <button class="action-btn remove-btn" onclick="removeMaterialization(${materialization.id})">
                     <i class="fas fa-trash-alt"></i>
                 </button>
             </div>
@@ -2237,7 +2257,7 @@ function addToDemandVectorTable(materialization) {
 function removeDemandItem(index) {
     // Get the materialization ID from the productIds array at the given index
     const materializationId = productIds[index];
-    removeMaterialization(materializationId, 'demandVector');
+    removeMaterialization(materializationId);
 }
 
 // Função para abrir modal de nova materialização
