@@ -107,7 +107,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Limpar dados anteriores
         document.getElementById('matrixSection').style.display = 'none';
-        document.getElementById('results').style.display = 'none';
         
         if (!instanceId) {
             return; // Nenhuma instância selecionada
@@ -159,11 +158,6 @@ document.addEventListener('DOMContentLoaded', function() {
             // Esconder spinner de carregamento
             document.getElementById('loadingSpinner').style.display = 'none';
         });
-    });
-    
-    // Event listener para botão de planificar
-    document.getElementById('planifyButton').addEventListener('click', function() {
-        planify();
     });
     
     // Event listener para botão de salvar
@@ -2403,151 +2397,6 @@ function logDemandVectorStatus() {
     console.log("- Linhas na tabela Estoque/Demanda:", stockRows);
     console.log("- Linhas na tabela Vetor Tecnológico:", techRows);
     console.log("=======================================");
-}
-
-/**
- * Realiza o processo de planificação econômica.
- * Coleta os dados das tabelas, envia ao servidor, e exibe os resultados.
- */
-function planify() {
-    if (!currentInstanceId) {
-        showError("Selecione uma instância primeiro");
-        return;
-    }
-    
-    // Mostrar spinner de carregamento
-    document.getElementById('loadingSpinner').style.display = 'inline-block';
-    
-    try {
-        // 1. Atualizar variáveis com os dados atuais da interface
-        updateMatrixAndVectorData();
-        
-        // 2. Preparar dados para envio (modelo de Leontief)
-        const request = {
-            instanceId: currentInstanceId,
-            technologicalMatrix: convertArrayToBoxedArray(technologicalMatrix),
-            demandVector: convertArrayToBoxedArray(demandVector),
-            productNames: productNames,
-            materializationIds: productIds
-        };
-        
-        // 3. Enviar requisição para o servidor
-        fetch('/api/planification/planify', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(request)
-        })
-        .then(response => {
-            if (!response.ok) {
-                return response.text().then(text => {
-                    throw new Error(text || `Erro HTTP: ${response.status}`);
-                });
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Resultados da planificação:', data);
-            
-            // 4. Processar e exibir resultados
-            if (!data.productionVector) {
-                throw new Error('Resposta do servidor não contém vetor de produção');
-            }
-            
-            // Armazenar resultados para uso posterior
-            optimizationResults = data.optimizationResults || [];
-            
-            // Renderizar o vetor de produção na tabela
-            renderProductionVector(data.productionVector);
-            
-            // Mostrar a seção de resultados
-            document.getElementById('results').style.display = 'block';
-            
-            // Mostrar mensagem de sucesso ao usuário
-            showSuccess('Planificação concluída com sucesso!');
-            
-            // Aplicar scroll suave para a seção de resultados
-            document.getElementById('results').scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        })
-        .catch(error => {
-            console.error('Erro ao planificar:', error);
-            showError(`Erro ao realizar planificação: ${error.message}`);
-        })
-        .finally(() => {
-            // Esconder spinner de carregamento
-            document.getElementById('loadingSpinner').style.display = 'none';
-        });
-    } catch (error) {
-        // Tratar erros na preparação de dados
-        console.error('Erro ao preparar dados:', error);
-        showError(`Erro ao preparar dados: ${error.message}`);
-        document.getElementById('loadingSpinner').style.display = 'none';
-    }
-}
-
-/**
- * Converte array normal para array de objetos Array (boxed values)
- * Necessário para o JSON não perder zeros à direita
- */
-function convertArrayToBoxedArray(arr) {
-    // Se é um array unidimensional
-    if (!Array.isArray(arr[0])) {
-        return arr.map(val => Number(val));
-    }
-    
-    // Se é uma matriz
-    return arr.map(row => row.map(val => Number(val)));
-}
-
-// Função para formatar coeficientes técnicos adequadamente
-function formatTechnicalCoefficient(value) {
-    // Verifica se é um número
-    if (value === null || value === undefined || isNaN(parseFloat(value))) {
-        return "0";
-    }
-    
-    // Converte para número
-    const num = parseFloat(value);
-    
-    // Para valores muito pequenos, use notação científica
-    if (num !== 0 && Math.abs(num) < 0.001) {
-        return num.toExponential(6);
-    }
-    
-    // Para valores normais, use até 6 casas decimais
-    return num.toFixed(6).replace(/\.?0+$/, '');
-}
-
-// Modifique a função que preenche a tabela do vetor tecnológico
-function populateTechnologicalTensorTable(data) {
-    const table = document.getElementById('technologicalTensorTable').getElementsByTagName('tbody')[0];
-    table.innerHTML = '';
-    
-    if (!data || !Array.isArray(data)) {
-        console.error("Dados inválidos para o vetor tecnológico:", data);
-        return;
-    }
-    
-    data.forEach(item => {
-        const row = table.insertRow();
-        
-        const inputCell = row.insertCell(0);
-        inputCell.textContent = item.inputMaterializationName;
-        inputCell.setAttribute('data-id', item.inputMaterializationId);
-        
-        const outputCell = row.insertCell(1);
-        outputCell.textContent = item.outputMaterializationName;
-        outputCell.setAttribute('data-id', item.outputMaterializationId);
-        
-        const quantityCell = row.insertCell(2);
-        // Usar formatação com vírgula para exibição
-        quantityCell.textContent = formatNumberForDisplay(item.quantity);
-        
-        const actionsCell = row.insertCell(3);
-        // ... conteúdo das ações ...
-    });
 }
 
 // Função para carregar os tensores tecnológicos para a instância atual
