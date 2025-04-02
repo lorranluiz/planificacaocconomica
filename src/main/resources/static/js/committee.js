@@ -1365,15 +1365,19 @@ function loadProductionTarget(instanceId) {
             // Preencher a tabela de produção e meta
             const producedQuantityInput = document.getElementById('producedQuantity');
             const remainingQuantityCell = document.getElementById('remainingQuantity');
+            const productNameTargetSection = document.getElementById('productNameTargetSection');
+            const productNameTechnologicalVector = document.getElementById('productNameTechnologicalVector');
             
-            if (producedQuantityInput && remainingQuantityCell) {
+            if (producedQuantityInput && remainingQuantityCell && productNameTargetSection) {
                 const producedQuantity = parseDecimalInput(instanceData.producedQuantity) || 0;
                 const targetQuantity = parseDecimalInput(instanceData.targetQuantity) || 0;
                 const remainingQuantity = targetQuantity - producedQuantity;
                 
                 producedQuantityInput.value = formatNumberForDisplay(producedQuantity);
                 remainingQuantityCell.textContent = formatNumberForDisplay(remainingQuantity);
-                
+                productNameTargetSection.textContent = instanceData.socialMaterialization.name;
+                productNameTechnologicalVector.textContent = instanceData.socialMaterialization.name;
+
                 // Destacar se falta produzir
                 if (remainingQuantity > 0) {
                     remainingQuantityCell.classList.add('remaining-positive');

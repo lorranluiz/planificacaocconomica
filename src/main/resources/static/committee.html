@@ -325,8 +325,8 @@
                         <table id="technologicalMatrix" class="editable-table">
                             <thead>
                                 <tr>
-                                    <th>Insumo</th>
-                                    <th>Coeficiente Técnico</th>
+                                    <th>Insumo/Materialização</th>
+                                    <th id="productNameTechnologicalVector">---</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -372,12 +372,14 @@
                         <table id="productionTargetTable" class="editable-table">
                             <thead>
                                 <tr>
+                                    <th>Produto</th>
                                     <th>Quantidade Produzida</th>
                                     <th>Quantidade que falta ser produzida</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr>
+                                    <td id="productNameTargetSection">---</td>
                                     <td><input type="number" id="producedQuantity" class="form-control"></td>
                                     <td id="remainingQuantity">0</td>
                                 </tr>
