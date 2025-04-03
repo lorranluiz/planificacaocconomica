@@ -458,8 +458,12 @@ function updateDemandStockTable() {
     // Determinar qual é a materialização de saída (produto do comitê)
     const outputMaterializationId = pageState.socialMaterializationId;
     
-    // Filtrar materializações da mesma forma que a tabela Vetor Tecnológico
+    // Filtrar materializações da mesma forma que a tabela Vetor Tecnológico,
+    // excluindo as materializações marcadas como excluídas
     const filteredMaterializations = pageState.materializations.filter(mat => {
+        // Pular materializações excluídas
+        if (mat.isDeleted === true) return false;
+        
         // Pular a própria materialização do comitê
         if (mat.id === outputMaterializationId) return false;
         
@@ -563,7 +567,11 @@ function updateTechnologicalMatrixTable() {
     
     // Filtrar materializações que têm coeficientes como insumos
     // ou seja, aquelas que têm tensores tecnológicos onde o produto do comitê é a saída
+    // E também excluir as materializações marcadas como excluídas
     const inputMaterializations = pageState.materializations.filter(mat => {
+        // Pular materializações excluídas
+        if (mat.isDeleted === true) return false;
+        
         // Pular a própria materialização do comitê
         if (mat.id === outputMaterializationId) return false;
         
@@ -893,8 +901,52 @@ function removeMaterialization(materializationId) {
     
     // Marcar que há alterações pendentes
     pageState.isDirty = true;
+}
+
+/**
+ * Adiciona uma materialização à tabela de estoque/demanda e matriz tecnológica
+ */
+function addMaterialization(materialization) {
+    if (!pageState.id) {
+        showErrorMessage("Selecione um comitê primeiro");
+        return;
+    }
     
-    showSuccessMessage("Materialização removida com sucesso");
+    // Verificar se já existe no estado
+    const exists = pageState.materializations.some(
+        m => m.id === materialization.id && !m.isDeleted
+    );
+    
+    if (exists) {
+        showErrorMessage(`A materialização "${materialization.name}" já existe`);
+        return;
+    }
+    
+    // Criar objeto para nova materialização
+    const newMatState = {
+        id: materialization.id,
+        name: materialization.name,
+        type: materialization.type || "PRODUCT",
+        demand: 0,
+        stock: 0,
+        isNew: true,
+        isDeleted: false,
+        technologicalTensors: {}
+    };
+    
+    // Se temos um produto definido para o comitê, adicionar relação de insumo
+    if (pageState.socialMaterializationId) {
+        newMatState.technologicalTensors[pageState.socialMaterializationId] = 0;
+    }
+    
+    // Adicionar ao estado
+    pageState.materializations.push(newMatState);
+    
+    // Atualizar interface
+    updateMaterializationsUI();
+    
+    // Marcar que há alterações pendentes
+    pageState.isDirty = true;
 }
 
 /**
@@ -1040,8 +1092,6 @@ function addMaterialization(materialization) {
     
     // Marcar que há alterações pendentes
     pageState.isDirty = true;
-    
-    showSuccessMessage(`Materialização "${materialization.name}" adicionada com sucesso`);
 }
 
 /**
