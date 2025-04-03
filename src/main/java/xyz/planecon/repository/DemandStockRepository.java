@@ -1,16 +1,33 @@
 package xyz.planecon.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.cache.annotation.Cacheable;
+
 import xyz.planecon.model.entity.DemandStock;
 import xyz.planecon.model.entity.Instance;
-import xyz.planecon.model.entity.SocialMaterialization;
+import xyz.planecon.model.entity.DemandStock.DemandStockId;
 
 import java.util.List;
 
 @Repository
-public interface DemandStockRepository extends JpaRepository<DemandStock, DemandStock.DemandStockId> {
+public interface DemandStockRepository extends JpaRepository<DemandStock, DemandStockId> {
+
+    @Cacheable("demandStocks")
     List<DemandStock> findByInstance(Instance instance);
     
-    List<DemandStock> findBySocialMaterialization(SocialMaterialization socialMaterialization);
+    @Cacheable("demandStocks")
+    @Query("SELECT ds FROM DemandStock ds JOIN FETCH ds.socialMaterialization WHERE ds.instance = :instance")
+    List<DemandStock> findByInstanceWithMaterialization(@Param("instance") Instance instance);
+    
+    @Query(value = "SELECT ds.id_social_materialization, ds.stock, ds.demand " +
+                  "FROM demand_stock ds WHERE ds.id_instance = :instanceId", 
+           nativeQuery = true)
+    List<Object[]> findStockValuesForInstance(@Param("instanceId") Integer instanceId);
+    
+    @Cacheable("demandStocks")
+    @Query("SELECT ds FROM DemandStock ds WHERE ds.instance.id = :instanceId")
+    List<DemandStock> findByInstanceId(@Param("instanceId") Integer instanceId);
 }

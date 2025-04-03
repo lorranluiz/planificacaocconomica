@@ -92,4 +92,38 @@ public class Instance {
     
     @OneToMany(mappedBy = "instance")
     private List<User> users;
+
+    /**
+     * Override hashCode to avoid infinite recursion due to circular references
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((id == null) ? 0 : id.hashCode());
+        // Don't include fields that create circular references:
+        // popularCouncilAssociatedWithCommitteeOrWorker
+        // popularCouncilAssociatedWithPopularCouncil
+        // associatedWorkerCommittee
+        return result;
+    }
+
+    /**
+     * Override equals to avoid infinite recursion due to circular references
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Instance other = (Instance) obj;
+        if (id == null) {
+            return other.id == null;
+        } else {
+            return id.equals(other.id);
+        }
+    }
 }

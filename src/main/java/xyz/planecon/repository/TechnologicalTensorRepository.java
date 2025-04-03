@@ -29,6 +29,18 @@ public interface TechnologicalTensorRepository extends JpaRepository<Technologic
             @Param("instanceId") Integer instanceId,
             @Param("materializationId") Integer materializationId);
 
+    @Query("SELECT t FROM TechnologicalTensor t WHERE t.id.instanceId = :instanceId AND t.id.inputSocialMaterializationId = :materializationId")
+    List<TechnologicalTensor> findByInstanceIdAndInputMaterializationId(
+        @Param("instanceId") Integer instanceId, 
+        @Param("materializationId") Integer materializationId
+    );
+
+    @Query("SELECT t FROM TechnologicalTensor t WHERE t.id.instanceId = :instanceId AND t.id.outputSocialMaterializationId = :materializationId")
+    List<TechnologicalTensor> findByInstanceIdAndOutputMaterializationId(
+        @Param("instanceId") Integer instanceId, 
+        @Param("materializationId") Integer materializationId
+    );
+
     @Query(value = "SELECT tt.id_instance, tt.id_production_input, tt.id_social_materialization, " +
            "tt.technical_coefficient_element_value, tt.created_at FROM technological_tensor tt " +
            "WHERE tt.id_instance = :instanceId", nativeQuery = true)
