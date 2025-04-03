@@ -663,7 +663,7 @@ function saveCommitteeState() {
     const saveButton = document.getElementById('saveButton');
     if (saveButton) saveButton.disabled = true;
     
-    // Preparar os dados para envio
+    // Preparar os dados para envio - Não filtrar materializações marcadas como excluídas
     const committeeData = {
         id: pageState.id,
         committeeName: pageState.committeeName,
@@ -674,6 +674,7 @@ function saveCommitteeState() {
         councilId: pageState.councilId,
         workerProposal: pageState.workerProposal,
         members: pageState.members,
+        // Certifique-se de que TODAS as materializações são enviadas, incluindo as com isDeleted: true
         materializations: pageState.materializations
     };
     
@@ -744,7 +745,45 @@ function updateStateFromUI() {
         pageState.producedQuantity = parseFloat(producedQuantityInput.value) || 0;
     }
     
-    // Nota: Os outros campos já são atualizados por event listeners
+    // Explicitamente atualizar valores de estoque e demanda de todas as materializações visíveis na tabela
+    const stockInputs = document.querySelectorAll('.stock-input');
+    const demandInputs = document.querySelectorAll('.demand-input');
+    
+    stockInputs.forEach(input => {
+        const materializationId = parseInt(input.dataset.id);
+        if (materializationId) {
+            const materialization = pageState.materializations.find(m => m.id === materializationId);
+            if (materialization) {
+                materialization.stock = parseDecimalInput(input.value);
+            }
+        }
+    });
+    
+    demandInputs.forEach(input => {
+        const materializationId = parseInt(input.dataset.id);
+        if (materializationId) {
+            const materialization = pageState.materializations.find(m => m.id === materializationId);
+            if (materialization) {
+                materialization.demand = parseDecimalInput(input.value);
+            }
+        }
+    });
+    
+    // Verificar se há entradas com coeficientes que precisam ser atualizadas
+    const coefficientInputs = document.querySelectorAll('.coefficient-input');
+    coefficientInputs.forEach(input => {
+        const inputId = parseInt(input.dataset.inputId);
+        const outputId = parseInt(input.dataset.outputId);
+        if (inputId && outputId) {
+            const inputMat = pageState.materializations.find(m => m.id === inputId);
+            if (inputMat) {
+                if (!inputMat.technologicalTensors) {
+                    inputMat.technologicalTensors = {};
+                }
+                inputMat.technologicalTensors[outputId] = parseDecimalInput(input.value);
+            }
+        }
+    });
 }
 
 /**

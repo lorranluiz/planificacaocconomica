@@ -56,7 +56,12 @@ public class CommitteeController {
      */
     @PostMapping("/save-state")
     @Transactional
-    @CacheEvict(value = {"materializations", "instances", "technologicalMatrix", "demandVector", "planificationResults"}, allEntries = true)
+    @CacheEvict(value = {
+        "materializations", "instances", "technologicalMatrix", 
+        "demandVectors", // Corrigido: era demandVector (singular)
+        "demandStocks",  // Adicionado: estava faltando
+        "planificationResults", "committeeState"
+    }, allEntries = true)
     public ResponseEntity<?> saveCommitteeState(@RequestBody CommitteeStateDTO committeeStateDTO) {
         try {
             logger.info("Iniciando salvamento em lote para comitê ID: {}", committeeStateDTO.getId());
@@ -287,18 +292,22 @@ public class CommitteeController {
             // Pular materializações marcadas para exclusão
             if (Boolean.TRUE.equals(matDTO.getIsDeleted())) {
                 deleteAllMaterializationData(committee.getId(), matDTO.getId());
+                logger.info("Materialização excluída: {} para comitê {}", matDTO.getId(), committee.getId());
                 continue;
             }
             
-            // Processar demanda
-            if (matDTO.getDemand() != null) {
-                saveDemandVector(committee, matDTO.getId(), matDTO.getDemand());
-            }
+            // Sempre processa estoque e demanda, mesmo se valores forem null
+            // Usar valores padrão zero para evitar problemas de null
+            BigDecimal stockValue = matDTO.getStock() != null ? matDTO.getStock() : BigDecimal.ZERO;
+            BigDecimal demandValue = matDTO.getDemand() != null ? matDTO.getDemand() : BigDecimal.ZERO;
             
-            // Processar estoque
-            if (matDTO.getStock() != null) {
-                saveDemandStock(committee, matDTO.getId(), matDTO.getStock(), matDTO.getDemand());
-            }
+            // Salvar estoque e demanda sempre para todas as materializações
+            saveDemandStock(committee, matDTO.getId(), stockValue, demandValue);
+            logger.info("Estoque/demanda salvo para materialização {}: estoque={}, demanda={}", 
+                       matDTO.getId(), stockValue, demandValue);
+            
+            // Também criar/atualizar vetor de demanda
+            saveDemandVector(committee, matDTO.getId(), demandValue);
             
             // Processar tensores tecnológicos
             if (matDTO.getTechnologicalTensors() != null && !matDTO.getTechnologicalTensors().isEmpty()) {
@@ -588,93 +597,100 @@ public class CommitteeController {
      * Busca e monta os DTOs de materializações associadas ao comitê.
      */
     private List<CommitteeStateDTO.MaterializationStateDTO> getMaterializationsForCommittee(Instance committee) {
-        List<CommitteeStateDTO.MaterializationStateDTO> materializationDTOs = new ArrayList<>();
-        
-        // Buscar todas as materializações que têm relação com este comitê
-        
-        // 1. Primeiro, buscar as materializações na matriz tecnológica (tensores)
-        List<TechnologicalTensor> tensors = technologicalTensorRepository.findByInstanceId(committee.getId());
-        
         // Mapa para deduplição
         Map<Integer, CommitteeStateDTO.MaterializationStateDTO> matMap = new HashMap<>();
         
-        // Processar materializações de entrada dos tensores
-        for (TechnologicalTensor tensor : tensors) {
-            SocialMaterialization inputMat = tensor.getInputSocialMaterialization();
-            SocialMaterialization outputMat = tensor.getOutputSocialMaterialization();
-            
-            // Processar materialização de entrada
-            CommitteeStateDTO.MaterializationStateDTO inputMatDTO = matMap.get(inputMat.getId());
-            if (inputMatDTO == null) {
-                inputMatDTO = new CommitteeStateDTO.MaterializationStateDTO();
-                inputMatDTO.setId(inputMat.getId());
-                inputMatDTO.setName(inputMat.getName());
-                inputMatDTO.setType(inputMat.getType().name());
-                inputMatDTO.setTechnologicalTensors(new HashMap<>());
-                matMap.put(inputMat.getId(), inputMatDTO);
-            }
-            
-            // Adicionar tensor ao mapa de tensores da materialização
-            inputMatDTO.getTechnologicalTensors().put(
-                String.valueOf(outputMat.getId()),
-                tensor.getTechnicalCoefficientElementValue()
-            );
-            
-            // Também adicionar materialização de saída se ainda não foi processada
-            if (!matMap.containsKey(outputMat.getId())) {
-                CommitteeStateDTO.MaterializationStateDTO outputMatDTO = new CommitteeStateDTO.MaterializationStateDTO();
-                outputMatDTO.setId(outputMat.getId());
-                outputMatDTO.setName(outputMat.getName());
-                outputMatDTO.setType(outputMat.getType().name());
-                outputMatDTO.setTechnologicalTensors(new HashMap<>());
-                matMap.put(outputMat.getId(), outputMatDTO);
-            }
-        }
-        
-        // 2. Agora, buscar os estoques e demandas
+        // 1. Primeiro, buscar os estoques e demandas para garantir que toda materialização tenha valores
         List<DemandStock> stocks = demandStockRepository.findByInstance(committee);
         
         for (DemandStock stock : stocks) {
             SocialMaterialization mat = stock.getSocialMaterialization();
             
-            // Buscar no mapa ou criar novo
-            CommitteeStateDTO.MaterializationStateDTO matDTO = matMap.get(mat.getId());
-            if (matDTO == null) {
-                matDTO = new CommitteeStateDTO.MaterializationStateDTO();
-                matDTO.setId(mat.getId());
-                matDTO.setName(mat.getName());
-                matDTO.setType(mat.getType().name());
-                matDTO.setTechnologicalTensors(new HashMap<>());
-                matMap.put(mat.getId(), matDTO);
-            }
+            // Criar ou reutilizar DTO
+            CommitteeStateDTO.MaterializationStateDTO matDTO = matMap.computeIfAbsent(mat.getId(), id -> {
+                CommitteeStateDTO.MaterializationStateDTO dto = new CommitteeStateDTO.MaterializationStateDTO();
+                dto.setId(id);
+                dto.setName(mat.getName());
+                dto.setType(mat.getType().name());
+                dto.setTechnologicalTensors(new HashMap<>());
+                return dto;
+            });
             
-            // Adicionar dados de estoque e demanda
-            matDTO.setStock(stock.getStock());
-            matDTO.setDemand(stock.getDemand());
+            // Definir valores de estoque e demanda - Garantindo que nunca sejam nulos
+            matDTO.setStock(stock.getStock() != null ? stock.getStock() : BigDecimal.ZERO);
+            matDTO.setDemand(stock.getDemand() != null ? stock.getDemand() : BigDecimal.ZERO);
+            
+            // Log para depuração
+            logger.debug("Carregados valores de materialização {}: estoque={}, demanda={}", 
+                       mat.getId(), matDTO.getStock(), matDTO.getDemand());
         }
         
-        // 3. Buscar vetores de demanda (para o caso de materializações que têm só demanda sem estoque)
+        // 2. Buscar as materializações na matriz tecnológica
+        List<TechnologicalTensor> tensors = technologicalTensorRepository.findByInstanceId(committee.getId());
+        
+        // Processar tensores
+        for (TechnologicalTensor tensor : tensors) {
+            SocialMaterialization inputMat = tensor.getInputSocialMaterialization();
+            SocialMaterialization outputMat = tensor.getOutputSocialMaterialization();
+            
+            // Processar materialização de entrada
+            CommitteeStateDTO.MaterializationStateDTO inputMatDTO = matMap.computeIfAbsent(inputMat.getId(), id -> {
+                CommitteeStateDTO.MaterializationStateDTO dto = new CommitteeStateDTO.MaterializationStateDTO();
+                dto.setId(id);
+                dto.setName(inputMat.getName());
+                dto.setType(inputMat.getType().name());
+                dto.setTechnologicalTensors(new HashMap<>());
+                dto.setStock(BigDecimal.ZERO);  // Valores default para garantir não-nulos
+                dto.setDemand(BigDecimal.ZERO);
+                return dto;
+            });
+            
+            // Adicionar tensor ao mapa
+            inputMatDTO.getTechnologicalTensors().put(
+                String.valueOf(outputMat.getId()),
+                tensor.getTechnicalCoefficientElementValue()
+            );
+            
+            // Também adicionar materialização de saída
+            CommitteeStateDTO.MaterializationStateDTO outputMatDTO = matMap.computeIfAbsent(outputMat.getId(), id -> {
+                CommitteeStateDTO.MaterializationStateDTO dto = new CommitteeStateDTO.MaterializationStateDTO();
+                dto.setId(id);
+                dto.setName(outputMat.getName());
+                dto.setType(outputMat.getType().name());
+                dto.setTechnologicalTensors(new HashMap<>());
+                dto.setStock(BigDecimal.ZERO);  // Valores default para garantir não-nulos
+                dto.setDemand(BigDecimal.ZERO);
+                return dto;
+            });
+        }
+        
+        // 3. Buscar vetores de demanda para completar quaisquer valores faltantes
         List<DemandVector> demands = demandVectorRepository.findByInstanceId(committee.getId());
         
         for (DemandVector demand : demands) {
             SocialMaterialization mat = demand.getSocialMaterialization();
             
             // Buscar no mapa ou criar novo
-            CommitteeStateDTO.MaterializationStateDTO matDTO = matMap.get(mat.getId());
-            if (matDTO == null) {
-                matDTO = new CommitteeStateDTO.MaterializationStateDTO();
-                matDTO.setId(mat.getId());
-                matDTO.setName(mat.getName());
-                matDTO.setType(mat.getType().name());
-                matDTO.setTechnologicalTensors(new HashMap<>());
-                matMap.put(mat.getId(), matDTO);
-            }
+            CommitteeStateDTO.MaterializationStateDTO matDTO = matMap.computeIfAbsent(mat.getId(), id -> {
+                CommitteeStateDTO.MaterializationStateDTO dto = new CommitteeStateDTO.MaterializationStateDTO();
+                dto.setId(id);
+                dto.setName(mat.getName());
+                dto.setType(mat.getType().name());
+                dto.setTechnologicalTensors(new HashMap<>());
+                dto.setStock(BigDecimal.ZERO);  // Valor padrão para garantir não-nulos
+                return dto;
+            });
             
-            // Adicionar dados de demanda (se ainda não foi definido pelo DemandStock)
-            if (matDTO.getDemand() == null) {
-                matDTO.setDemand(demand.getDemand() != null ? 
-                    demand.getDemand() : BigDecimal.ZERO);
+            // Definir demanda apenas se ainda não foi definida pelo DemandStock
+            if (matDTO.getDemand() == null || matDTO.getDemand().compareTo(BigDecimal.ZERO) == 0) {
+                matDTO.setDemand(demand.getDemand() != null ? demand.getDemand() : BigDecimal.ZERO);
             }
+        }
+        
+        // Verificação final para garantir que nenhum valor é nulo
+        for (CommitteeStateDTO.MaterializationStateDTO dto : matMap.values()) {
+            if (dto.getStock() == null) dto.setStock(BigDecimal.ZERO);
+            if (dto.getDemand() == null) dto.setDemand(BigDecimal.ZERO);
         }
         
         // Converter mapa em lista
