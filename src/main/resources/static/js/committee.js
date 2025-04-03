@@ -338,18 +338,35 @@ function updateAllUI() {
  * Atualiza a interface com os dados básicos do comitê
  */
 function updateBasicDataUI() {
-    // Verificar se os dados foram inicializados
-    if (!pageState.initialized) return;
+    // Em vez de retornar imediatamente, vamos fazer um log e continuar
+    // tentando processar o que for possível com os dados disponíveis
+    if (!pageState.initialized) {
+        console.log("Aviso: Tentativa de atualizar UI com dados não inicializados");
+        // Continuamos a execução mesmo sem inicialização completa
+    }
     
-    // Atualizar nome do comitê
-    document.title = pageState.committeeName ? `Comitê: ${pageState.committeeName}` : "Comitê";
+    // Atualizar nome do comitê se disponível
+    if (pageState.committeeName) {
+        document.title = `Comitê: ${pageState.committeeName}`;
+    } else {
+        document.title = "Comitê";
+    }
     
-    // Preencher campos da tabela de produção e meta
+    // Preencher campos da tabela de produção e meta com verificação de existência
     const producedQuantityInput = document.getElementById('producedQuantity');
     const remainingQuantityCell = document.getElementById('remainingQuantity');
     const productNameTargetSection = document.getElementById('productNameTargetSection');
     const productNameTechnologicalVector = document.getElementById('productNameTechnologicalVector');
     
+    // Verificar se os elementos foram encontrados e registrar no console
+    console.log('Elementos da UI encontrados:', {
+        producedQuantityInput: !!producedQuantityInput,
+        remainingQuantityCell: !!remainingQuantityCell,
+        productNameTargetSection: !!productNameTargetSection,
+        productNameTechnologicalVector: !!productNameTechnologicalVector
+    });
+    
+    // Continuar com atualizações seguras, validando a existência dos elementos
     if (producedQuantityInput) {
         producedQuantityInput.value = formatNumberForDisplay(pageState.producedQuantity);
         
@@ -376,6 +393,7 @@ function updateBasicDataUI() {
     
     // Atualizar nome do produto nas seções correspondentes
     if (pageState.socialMaterializationId && pageState.materializations) {
+        // Buscar a materialização social associada ao comitê
         const socialMaterialization = pageState.materializations.find(
             m => m.id === pageState.socialMaterializationId
         );
@@ -383,6 +401,7 @@ function updateBasicDataUI() {
         if (socialMaterialization) {
             const name = socialMaterialization.name || `Materialização #${socialMaterialization.id}`;
             
+            // Atualizar os elementos com o nome do produto
             if (productNameTargetSection) {
                 productNameTargetSection.textContent = name;
             }
@@ -390,7 +409,21 @@ function updateBasicDataUI() {
             if (productNameTechnologicalVector) {
                 productNameTechnologicalVector.textContent = name;
             }
+            
+            // Log para depuração
+            console.log(`Nome do produto atualizado para: ${name}`);
+        } else {
+            console.warn(`Materialização com ID ${pageState.socialMaterializationId} não encontrada no array de materializações`);
         }
+    } else {
+        console.info("Não foi possível atualizar o nome do produto: ID de materialização ou array de materializações não definidos");
+    }
+    
+    // Exibir o botão de proposta se o elemento existe
+    const committeeControls = document.getElementById('committeeControls');
+    if (committeeControls) {
+        committeeControls.style.display = 'flex';
+        console.log("Controles do comitê configurados para display: flex");
     }
     
     // Adicionar estilo para quantidade restante se não existir
@@ -607,12 +640,7 @@ function updateTechnologicalMatrixTable() {
                        data-output-id="${outputMaterializationId}" 
                        onchange="updateTensorCoefficient(${mat.id}, ${outputMaterializationId}, this)">
             </td>
-            <td>
-                <div class="action-buttons">
-                    <button class="action-btn remove-btn" onclick="removeMaterialization(${mat.id})">
-                        <i class="fas fa-trash-alt"></i>
-                    </button>
-                </div>
+            <td><!-- Aqui poderia ter uma lixeira usando mat.id,  mas tirei pra ficar mais clean -->
             </td>
         `;
         
