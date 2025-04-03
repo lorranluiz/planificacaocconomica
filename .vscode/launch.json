@@ -1,24 +1,13 @@
 {
-    "configurations": [
+  "version": "0.2.0",
+  "configurations": [
       {
-        "type": "node",
-        "request": "launch",
-        "name": "Launch Program",
-        "program": "${workspaceFolder}/${input:programPath}",
-        "args": [],
-        "envFile": "${workspaceFolder}/.env"
+          "type": "java",
+          "name": "Debug (Attach)",
+          "request": "attach",
+          "hostName": "192.168.243.190",  // IP do WSL
+          "port": 5005,
+            "projectName": "planificacao-economica"
       }
-    ],
-    "inputs": [
-      {
-        "type": "pickString",
-        "id": "programPath",
-        "description": "Select the program to launch",
-        "options": [
-          "server.js",
-          "build.js",
-          "public/js/app.js"
-        ]
-      }
-    ]
-  }
+  ]
+}

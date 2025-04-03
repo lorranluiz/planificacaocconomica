@@ -1675,26 +1675,29 @@ function saveChanges() {
             allPromises.push(deleteDemandStockPromise);
         }
         
-        // 5. Process added tensors
-        for (const tensor of pendingChanges.addedTensors) {
-            const addTensorPromise = fetch('/api/planification/technological-tensor', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    inputMaterializationId: tensor.inputMaterializationId,
-                    outputMaterializationId: tensor.outputMaterializationId,
-                    instanceId: currentInstanceId,
-                    quantity: tensor.quantity
-                })
-            });
-            allPromises.push(addTensorPromise);
-        }
-        
-        // 6. Process modified tensors
+        // 5. Process tensors - IMPLEMENTAÇÃO UNIFICADA
+        // Consolidar todas as alterações de tensores em uma única coleção
+        const processedTensorKeys = new Set();
+        const consolidatedTensors = [];
+
+        // Primeiro, adicionar os tensores modificados (têm prioridade sobre os recém-adicionados)
         for (const tensor of pendingChanges.modifiedTensors) {
-            const updateTensorPromise = fetch('/api/planification/technological-tensor', {
+            const tensorKey = `${tensor.inputMaterializationId}-${tensor.outputMaterializationId}`;
+            processedTensorKeys.add(tensorKey);
+            consolidatedTensors.push(tensor);
+        }
+
+        // Depois, adicionar os tensores novos (apenas se não estiverem já na lista de modificados)
+        for (const tensor of pendingChanges.addedTensors) {
+            const tensorKey = `${tensor.inputMaterializationId}-${tensor.outputMaterializationId}`;
+            if (!processedTensorKeys.has(tensorKey)) {
+                consolidatedTensors.push(tensor);
+            }
+        }
+
+        // Agora fazer uma única chamada para cada tensor consolidado
+        for (const tensor of consolidatedTensors) {
+            const saveTensorPromise = fetch('/api/planification/technological-tensor', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -1706,10 +1709,10 @@ function saveChanges() {
                     quantity: tensor.quantity
                 })
             });
-            allPromises.push(updateTensorPromise);
+            allPromises.push(saveTensorPromise);
         }
         
-        // 7. Process added demand vectors
+        // 6. Process added demand vectors
         for (const vector of pendingChanges.addedDemandVectors) {
             const addVectorPromise = fetch('/api/planification/demand-vector', {
                 method: 'POST',
@@ -1725,7 +1728,7 @@ function saveChanges() {
             allPromises.push(addVectorPromise);
         }
         
-        // 8. Process demand vectors from the UI
+        // 7. Process demand vectors from the UI
         for (let i = 0; i < demandVector.length; i++) {
             if (i < productIds.length) {
                 const materializationId = productIds[i];
@@ -1746,7 +1749,7 @@ function saveChanges() {
             }
         }
         
-        // 9. Process added demand stocks
+        // 8. Process added demand stocks
         for (const stock of pendingChanges.addedDemandStocks) {
             console.log(`Salvando novo estoque/demanda: materialização=${stock.materializationId}, estoque=${stock.stock}, demanda=${stock.demand}`);
             
@@ -1783,7 +1786,7 @@ function saveChanges() {
             allPromises.push(addStockPromise);
         }
         
-        // 10. Process modified demand stocks
+        // 9. Process modified demand stocks
         for (const stock of pendingChanges.modifiedDemandStocks) {
             console.log(`Salvando estoque/demanda modificado: materialização=${stock.materializationId}, estoque=${stock.stock}, demanda=${stock.demand}`);
             
@@ -1820,9 +1823,9 @@ function saveChanges() {
             allPromises.push(updateStockPromise);
         }
         
-        // 11. For committee-specific data
+        // 10. For committee-specific data
         if (currentInstanceType === 'COMMITTEE') {
-            // 11.1. Save produced quantity
+            // 10.1. Save produced quantity
             const producedQuantityInput = document.getElementById('producedQuantity');
             if (producedQuantityInput) {
                 const producedQuantity = parseDecimalInput(producedQuantityInput.value) || 0;
@@ -1860,7 +1863,7 @@ function saveChanges() {
                 allPromises.push(instanceUpdatePromise);
             }
             
-            // 11.2. Save workers proposal if it exists
+            // 10.2. Save workers proposal if it exists
             if (window.currentWorkersProposal) {
                 // Log data before sending
                 console.log("Salvando proposta de trabalhadores:", window.currentWorkersProposal);
@@ -1911,7 +1914,7 @@ function saveChanges() {
             }
         }
         
-        // 12. Execute all promises
+        // 11. Execute all promises
         Promise.all(allPromises)
             .then(() => {
                 // Clear pending changes after successful save
