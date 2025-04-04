@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="css/common-styles.css">
     <link rel="stylesheet" href="css/theme-variables.css">
     <link rel="stylesheet" href="css/theme-elements.css">
-    <script src="common-header.js"></script>
+    <script src="/common-header.js"></script>
     <!-- CSS específico para planificação -->
     <style>
         .matrix-container {
@@ -561,5 +561,14 @@
     </div>
 
     <script src="js/committee.js"></script>
+    <script>
+        // Inicializar cabeçalho comum quando o documento estiver carregado
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inserir o cabeçalho comum
+            if (typeof insertCommonHeader === 'function') {
+                insertCommonHeader();
+            }
+        });
+    </script>
 </body>
 </html>
