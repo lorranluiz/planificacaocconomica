@@ -32,6 +32,7 @@ public class CacheConfig {
         // Cache baseado em Caffeine para dados frequentemente utilizados mas com expiração curta
         CaffeineCacheManager shortLivedCacheManager = new CaffeineCacheManager(
             "materializations", 
+            "availableMaterializations",  // Adicionado o cache faltante
             "instances", 
             "technologicalMatrix", 
             "demandVector"

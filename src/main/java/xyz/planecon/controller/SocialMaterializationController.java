@@ -6,8 +6,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import xyz.planecon.dto.SocialMaterializationDto;
 import xyz.planecon.model.entity.SocialMaterialization;
+import xyz.planecon.model.entity.Sector;
 import xyz.planecon.service.SocialMaterializationService;
 import xyz.planecon.model.enums.SocialMaterializationType;
+import xyz.planecon.repository.SocialMaterializationRepository;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -15,8 +20,13 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/planification")
 public class SocialMaterializationController {
+    
+    private static final Logger logger = LoggerFactory.getLogger(SocialMaterializationController.class);
 
     private final SocialMaterializationService materializationService;
+    
+    @Autowired
+    private SocialMaterializationRepository socialMaterializationRepository;
 
     @Autowired
     public SocialMaterializationController(SocialMaterializationService materializationService) {
@@ -27,22 +37,17 @@ public class SocialMaterializationController {
      * Endpoint para listar todas as materializações sociais disponíveis
      */
     @GetMapping("/available-materializations")
-    public ResponseEntity<?> getAllMaterializations() {
-        try {
-            List<SocialMaterialization> materializations = materializationService.findAll();
-            
-            // Converter para DTOs para evitar problemas de serialização
-            List<Map<String, Object>> result = materializations.stream()
-                .map(this::convertToSimpleMap)
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    // Remover anotação de cache para sempre buscar dados frescos do banco de dados
+    public List<SocialMaterializationDto> getAvailableMaterializations() {
+        logger.debug("Obtendo lista de materializações disponíveis");
+        List<SocialMaterialization> materializations = socialMaterializationRepository.findAll();
+        return materializations.stream()
+                .map(this::convertToDto)
                 .collect(Collectors.toList());
-            
-            return ResponseEntity.ok(result);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Erro ao listar materializações sociais: " + e.getMessage());
-        }
     }
-    
+
     /**
      * Endpoint para criar uma nova materialização social
      */
@@ -73,8 +78,10 @@ public class SocialMaterializationController {
             newMaterialization.setName(name);
             newMaterialization.setType(type);
             
-            // Remover a chamada ao método setDescription que não existe
-            // O campo description é armazenado apenas no DTO ou no frontend
+            // Setor padrão, se necessário - ajuste conforme sua lógica de negócios
+            Sector defaultSector = new Sector();
+            defaultSector.setId(1); // ID do setor padrão, ajuste conforme necessário
+            newMaterialization.setSector(defaultSector);
             
             // Salvar a materialização
             SocialMaterialization saved = materializationService.save(newMaterialization);
@@ -88,6 +95,7 @@ public class SocialMaterializationController {
             
             return ResponseEntity.status(HttpStatus.CREATED).body(result);
         } catch (Exception e) {
+            logger.error("Erro ao criar materialização social", e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body("Erro ao criar materialização social: " + e.getMessage());
         }
@@ -100,8 +108,6 @@ public class SocialMaterializationController {
         map.put("name", materialization.getName());
         map.put("type", materialization.getType().toString());
         
-        // Remover a verificação do campo description que não existe na entidade
-        
         if (materialization.getSector() != null) {
             Map<String, Object> sector = new HashMap<>();
             sector.put("id", materialization.getSector().getId());
@@ -111,6 +117,12 @@ public class SocialMaterializationController {
         
         return map;
     }
-
-    // Outros métodos existentes...
+    
+    /**
+     * Converte uma entidade SocialMaterialization para DTO
+     */
+    private SocialMaterializationDto convertToDto(SocialMaterialization materialization) {
+        // Usar o construtor que aceita uma SocialMaterialization
+        return new SocialMaterializationDto(materialization);
+    }
 }

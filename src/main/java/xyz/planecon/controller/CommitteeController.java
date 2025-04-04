@@ -320,22 +320,26 @@ public class CommitteeController {
      * Exclui todos os dados relacionados a uma materialização.
      */
     private void deleteAllMaterializationData(Integer committeeId, Integer materializationId) {
-        // Excluir vetores de demanda
-        DemandVectorId demandVectorId = new DemandVectorId(committeeId, materializationId);
-        if (demandVectorRepository.existsById(demandVectorId)) {
-            demandVectorRepository.deleteById(demandVectorId);
+        try {
+            // Excluir vetores de demanda usando o método específico em vez de deleteById
+            demandVectorRepository.deleteByIdSocialMaterializationIdAndIdInstanceId(materializationId, committeeId);
+            logger.info("Vetor de demanda excluído para comitê={}, materialização={}", committeeId, materializationId);
+            
+            // Excluir estoques de demanda
+            demandStockRepository.deleteByIdSocialMaterializationIdAndIdInstanceId(materializationId, committeeId);
+            logger.info("Estoque de demanda excluído para comitê={}, materialização={}", committeeId, materializationId);
+            
+            // Excluir tensores tecnológicos relacionados
+            int deletedTensors = technologicalTensorRepository.deleteByInstanceIdAndMaterializationId(committeeId, materializationId);
+            logger.info("{} tensores tecnológicos excluídos para comitê={}, materialização={}", 
+                      deletedTensors, committeeId, materializationId);
+            
+            logger.info("Dados da materialização {} excluídos com sucesso para comitê {}", materializationId, committeeId);
+        } catch (Exception e) {
+            logger.error("Erro ao excluir dados da materialização {} para comitê {}: {}", 
+                       materializationId, committeeId, e.getMessage(), e);
+            throw e; // Relançar exceção para ser tratada pelo método chamador
         }
-        
-        // Excluir estoques de demanda
-        DemandStockId demandStockId = new DemandStockId(committeeId, materializationId);
-        if (demandStockRepository.existsById(demandStockId)) {
-            demandStockRepository.deleteById(demandStockId);
-        }
-        
-        // Excluir tensores tecnológicos relacionados
-        technologicalTensorRepository.deleteByInstanceIdAndMaterializationId(committeeId, materializationId);
-        
-        logger.info("Dados da materialização {} excluídos para comitê {}", materializationId, committeeId);
     }
     
     /**

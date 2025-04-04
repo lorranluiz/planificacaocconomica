@@ -229,29 +229,38 @@ function loadAllMaterializations() {
     const loadingSpinner = document.getElementById('loadingSpinner');
     if (loadingSpinner) loadingSpinner.style.display = 'inline-block';
     
-    return fetch('/api/planification/available-materializations')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao carregar materializações sociais');
-            }
-            return response.json();
-        })
-        .then(materializations => {
-            globalState.allMaterializations = materializations;
-            globalState.materializationsLoaded = true;
-            console.log(`Carregadas ${materializations.length} materializações sociais do servidor`);
-            return materializations;
-        })
-        .catch(error => {
-            console.error('Erro ao carregar lista de materializações:', error);
-            showErrorMessage('Erro ao carregar materializações. Por favor, tente novamente.');
-            return [];
-        })
-        .finally(() => {
-            globalState.loadingMaterializations = false;
-            // Ocultar indicador de carregamento
-            if (loadingSpinner) loadingSpinner.style.display = 'none';
-        });
+    // Adicionar um timestamp para evitar cache do navegador
+    const timestamp = new Date().getTime();
+    
+    return fetch(`/api/planification/available-materializations?_t=${timestamp}`, {
+        headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro ao carregar materializações sociais');
+        }
+        return response.json();
+    })
+    .then(materializations => {
+        globalState.allMaterializations = materializations;
+        globalState.materializationsLoaded = true;
+        console.log(`Carregadas ${materializations.length} materializações sociais do servidor`);
+        return materializations;
+    })
+    .catch(error => {
+        console.error('Erro ao carregar lista de materializações:', error);
+        showErrorMessage('Erro ao carregar materializações. Por favor, tente novamente.');
+        return [];
+    })
+    .finally(() => {
+        globalState.loadingMaterializations = false;
+        // Ocultar indicador de carregamento
+        if (loadingSpinner) loadingSpinner.style.display = 'none';
+    });
 }
 
 /**
@@ -282,6 +291,11 @@ function openMaterializationSelect(event) {
     // Remover dropdown existente para garantir que não haja duplicatas
     removeExistingDropdown();
     
+    // Forçar recarregamento da lista de materializações disponíveis
+    // para evitar problemas com materializações recentemente excluídas
+    globalState.materializationsLoaded = false;
+    globalState.allMaterializations = [];
+    
     // Função para mostrar o dropdown com as materializações filtradas
     const showDropdownWithMaterializations = (allMaterializations) => {
         // Se não temos materializações ou o array está vazio, mostrar mensagem
@@ -291,7 +305,7 @@ function openMaterializationSelect(event) {
             return;
         }
         
-        // Obter IDs das materializações já adicionadas e não excluídas
+        // Obter IDs das materializações atuais (não deletadas)
         const existingIds = pageState.materializations
             .filter(m => !m.isDeleted) // Considerar apenas as não excluídas
             .map(m => m.id);
@@ -307,17 +321,13 @@ function openMaterializationSelect(event) {
         showMaterializationDropdown(availableMaterializations);
     };
     
-    // Se já temos as materializações carregadas, apenas filtrar e exibir
-    if (globalState.materializationsLoaded && globalState.allMaterializations && 
-        globalState.allMaterializations.length > 0) {
-        showDropdownWithMaterializations(globalState.allMaterializations);
-    } else {
-        // Se ainda não carregamos, fazer a chamada ao servidor
-        loadAllMaterializations()
-            .then(materializations => {
-                showDropdownWithMaterializations(materializations);
-            });
-    }
+    // Sempre carregar uma nova lista fresca de materializações sociais
+    // Adicionando um timestamp para evitar cache
+    const timestamp = new Date().getTime();
+    loadAllMaterializations()
+        .then(materializations => {
+            showDropdownWithMaterializations(materializations);
+        });
 }
 
 /**
@@ -896,6 +906,13 @@ function saveCommitteeState() {
         materializations: pageState.materializations
     };
     
+    // Salvar IDs de materializações que serão excluídas para atualizarmos a UI depois
+    const deletedMaterializationIds = pageState.materializations
+        .filter(m => m.isDeleted === true)
+        .map(m => m.id);
+    
+    console.log(`Salvando ${pageState.materializations.length} materializações, ${deletedMaterializationIds.length} marcadas para exclusão`);
+    
     // Enviar a requisição
     fetch('/api/committees/save-state', {
         method: 'POST',
@@ -937,6 +954,30 @@ function saveCommitteeState() {
         // pois os dados no servidor foram alterados
         if (pageState.id) {
             localCache.remove(`committee_state_${pageState.id}`);
+        }
+        
+        // Importante: Limpar os dados de materializações marcadas para exclusão
+        // após serem removidas do banco de dados
+        if (deletedMaterializationIds.length > 0) {
+            console.log(`Removendo ${deletedMaterializationIds.length} materializações excluídas do estado local`);
+            
+            // Remover materializações excluídas do array atual
+            pageState.materializations = pageState.materializations.filter(m => !m.isDeleted);
+            
+            // Limpar completamente o cache global de materializações para forçar recarregamento
+            globalState.materializationsLoaded = false;
+            globalState.allMaterializations = [];
+            
+            // Recarregar a lista de materializações disponíveis para atualizar o dropdown
+            // com um pequeno atraso para garantir que o servidor concluiu a exclusão
+            setTimeout(() => {
+                loadAllMaterializations().then(() => {
+                    console.log("Lista de materializações recarregada após exclusão");
+                });
+            }, 500);
+            
+            // Atualizar interface para refletir as exclusões
+            updateMaterializationsUI();
         }
     })
     .catch(error => {
@@ -1186,151 +1227,6 @@ function removeMaterialization(materializationId) {
     
     // Marcar que há alterações pendentes
     pageState.isDirty = true;
-}
-
-/**
- * Adiciona uma materialização à tabela de estoque/demanda e matriz tecnológica
- */
-function addMaterialization(materialization) {
-    if (!pageState.id) {
-        showErrorMessage("Selecione um comitê primeiro");
-        return;
-    }
-    
-    // Verificar se já existe no estado
-    const exists = pageState.materializations.some(
-        m => m.id === materialization.id && !m.isDeleted
-    );
-    
-    if (exists) {
-        showErrorMessage(`A materialização "${materialization.name}" já existe`);
-        return;
-    }
-    
-    // Criar objeto para nova materialização
-    const newMatState = {
-        id: materialization.id,
-        name: materialization.name,
-        type: materialization.type || "PRODUCT",
-        demand: 0,
-        stock: 0,
-        isNew: true,
-        isDeleted: false,
-        technologicalTensors: {}
-    };
-    
-    // Se temos um produto definido para o comitê, adicionar relação de insumo
-    if (pageState.socialMaterializationId) {
-        newMatState.technologicalTensors[pageState.socialMaterializationId] = 0;
-    }
-    
-    // Adicionar ao estado
-    pageState.materializations.push(newMatState);
-    
-    // Atualizar interface
-    updateMaterializationsUI();
-    
-    // Marcar que há alterações pendentes
-    pageState.isDirty = true;
-}
-
-/**
- * Abre o modal de seleção de materialização para adicionar
- * à matriz tecnológica ou tabela de estoque/demanda
- */
-function openMaterializationSelect() {
-    if (!pageState.id) {
-        showErrorMessage("Selecione um comitê primeiro");
-        return;
-    }
-    
-    // Carregar lista de materializações sociais disponíveis
-    fetch('/api/planification/available-materializations')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao carregar materializações sociais');
-            }
-            return response.json();
-        })
-        .then(materializations => {
-            // Filtrar materializações que já existem no comitê
-            const existingIds = pageState.materializations
-                .filter(m => !m.isDeleted)
-                .map(m => m.id);
-            
-            const availableMaterializations = materializations.filter(
-                m => !existingIds.includes(m.id) && m.id !== pageState.socialMaterializationId
-            );
-            
-            // Criar dropdown para seleção
-            showMaterializationDropdown(availableMaterializations);
-        })
-        .catch(error => {
-            console.error('Erro:', error);
-            showErrorMessage("Erro ao carregar lista de materializações sociais");
-        });
-}
-
-/**
- * Exibe o dropdown de seleção de materializações
- */
-function showMaterializationDropdown(materializations) {
-    // Remover dropdown existente se houver
-    const existingDropdown = document.querySelector('.materialization-dropdown');
-    if (existingDropdown) {
-        existingDropdown.remove();
-    }
-    
-    // Criar elemento de dropdown
-    const dropdown = document.createElement('div');
-    dropdown.className = 'materialization-dropdown';
-    
-    // Posicionar dropdown adequadamente baseado no botão clicado
-    const button = document.getElementById('addStockDemandBtn');
-    const buttonRect = button.getBoundingClientRect();
-    
-    dropdown.style.top = `${buttonRect.bottom + window.scrollY}px`;
-    dropdown.style.left = `${buttonRect.left + window.scrollX}px`;
-    
-    // Adicionar itens ao dropdown
-    if (materializations.length === 0) {
-        const emptyMessage = document.createElement('div');
-        emptyMessage.className = 'empty-message';
-        emptyMessage.textContent = 'Nenhuma materialização disponível';
-        dropdown.appendChild(emptyMessage);
-    } else {
-        materializations.forEach(mat => {
-            const item = document.createElement('div');
-            item.className = 'dropdown-item';
-            item.textContent = mat.name;
-            item.addEventListener('click', () => {
-                addMaterialization(mat);
-                dropdown.remove();
-            });
-            dropdown.appendChild(item);
-        });
-    }
-    
-    // Adicionar opção para criar nova materialização
-    const newItem = document.createElement('div');
-    newItem.className = 'dropdown-item add-new-item';
-    newItem.textContent = '+ Nova Materialização Social';
-    newItem.addEventListener('click', () => {
-        openNewMaterializationModal();
-        dropdown.remove();
-    });
-    dropdown.appendChild(newItem);
-    
-    // Adicionar ao documento
-    document.body.appendChild(dropdown);
-    
-    // Fechar dropdown quando clicar fora dele
-    document.addEventListener('click', function closeDropdown(e) {
-        if (!dropdown.contains(e.target) && e.target !== button) {
-            dropdown.remove();
-            document.removeEventListener('click', closeDropdown);
-        }
-    });
 }
 
 /**

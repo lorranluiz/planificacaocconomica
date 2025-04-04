@@ -1,56 +1,70 @@
 package xyz.planecon.dto;
 
-import java.time.LocalDateTime;
-
 import xyz.planecon.model.entity.SocialMaterialization;
 import xyz.planecon.model.enums.SocialMaterializationType;
 
 public class SocialMaterializationDto {
     private Integer id;
     private String name;
-    private SocialMaterializationType type;
-    private LocalDateTime createdAt;
+    private String type;
     private Integer sectorId;
     private String sectorName;
-    
-    public SocialMaterializationDto(SocialMaterialization sm) {
-        this.id = sm.getId();
-        this.name = sm.getName();
-        this.type = sm.getType();
-        this.createdAt = sm.getCreatedAt();
+
+    // Default constructor
+    public SocialMaterializationDto() {
+    }
+
+    // Constructor that takes a SocialMaterialization entity
+    public SocialMaterializationDto(SocialMaterialization materialization) {
+        this.id = materialization.getId();
+        this.name = materialization.getName();
+        this.type = materialization.getType().toString();
         
-        // Remover a parte que tenta acessar Instance
-        
-        if (sm.getSector() != null) {
-            this.sectorId = sm.getSector().getId();
-            this.sectorName = sm.getSector().getName();
+        if (materialization.getSector() != null) {
+            this.sectorId = materialization.getSector().getId();
+            this.sectorName = materialization.getSector().getName();
         }
     }
-    
-    // Remover o getter de instanceId
-    
-    // Outros getters permanecem iguais
+
+    // Getters
     public Integer getId() {
         return id;
     }
-    
+
     public String getName() {
         return name;
     }
-    
-    public SocialMaterializationType getType() {
+
+    public String getType() {
         return type;
     }
-    
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-    
+
     public Integer getSectorId() {
         return sectorId;
     }
-    
+
     public String getSectorName() {
         return sectorName;
+    }
+
+    // Setters - adding these for completeness and future flexibility
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public void setSectorId(Integer sectorId) {
+        this.sectorId = sectorId;
+    }
+
+    public void setSectorName(String sectorName) {
+        this.sectorName = sectorName;
     }
 }
