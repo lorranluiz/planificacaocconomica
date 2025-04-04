@@ -755,7 +755,12 @@ function updateDemandStockTable() {
         
         // Construir o HTML da linha
         let rowHTML = `
-            <td>${isMainProduct ? `<strong>${item.name || 'Não especificado'}</strong> <span class="badge main-product-badge">Produto Principal</span>` : item.name || 'Não especificado'}</td>
+            <td>${isMainProduct ? 
+                `<strong>${item.name || 'Não especificado'}</strong> 
+                <span class="badge main-product-badge" title="Materialização social da unidade produtiva gerida por esse comitê">
+                  <i class="fas fa-industry"></i>
+                </span>` 
+                : item.name || 'Não especificado'}</td>
             <td>
                 <input type="text" class="form-control stock-input" 
                     value="${formatNumberForDisplay(stock)}" 
@@ -808,11 +813,21 @@ function updateDemandStockTable() {
             .main-product-badge {
                 background-color: var(--primary-color, #2196f3);
                 color: white !important;
-                padding: 2px 6px;
-                border-radius: 4px;
+                padding: 5px 6px;
+                border-radius: 50%;
                 font-size: 0.8em;
-                font-weight: normal;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                width: 22px;
+                height: 22px;
                 margin-left: 8px;
+                cursor: help;
+                transition: transform 0.2s ease;
+            }
+
+            .main-product-badge:hover {
+                transform: scale(1.15);
             }
             
             /* Garantir texto branco para todos os temas escuros */
@@ -913,7 +928,10 @@ function updateTechnologicalMatrixTable() {
         // e usar o valor padrão de 0 em vez de fixar em 1,0
         if (isMainProduct) {
             tr.innerHTML = `
-                <td><strong>${mat.name || `Produto #${mat.id}`}</strong> <span class="badge main-product-badge">Produto Principal</span></td>
+                <td><strong>${mat.name || `Produto #${mat.id}`}</strong> 
+                <span class="badge main-product-badge" title="Materialização social da unidade produtiva gerida por esse comitê">
+                  <i class="fas fa-industry"></i>
+                </span></td>
                 <td>
                     <input type="text" class="form-control coefficient-input" 
                            value="${formatNumberForDisplay(coeff)}" 
