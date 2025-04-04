@@ -1313,7 +1313,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Add this function to initialize the "+ Add Materialization" button
+// Função para inicializar o botão de adicionar materialização
 function initAddMaterializationButton() {
     const addButton = document.getElementById('addMaterializationBtn');
     if (!addButton) return;
@@ -1329,49 +1329,123 @@ function initAddMaterializationButton() {
     addButton.parentNode.replaceChild(newButton, addButton);
     
     // Add event listener to the new button
-    newButton.addEventListener('click', showMaterializationSelector);
+    newButton.addEventListener('click', function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleMaterializationSelector(this);
+    });
+}
+
+// Nova função para alternar a visibilidade do dropdown
+function toggleMaterializationSelector(button) {
+    // Verificar se já existe um dropdown
+    const existingDropdown = document.getElementById('materializationDropdownContainer');
+    
+    // Se existir, removê-lo
+    if (existingDropdown) {
+        existingDropdown.remove();
+        return;
+    }
+
+    // Se não existir, criar e mostrar o dropdown
+    showMaterializationSelector(button);
 }
 
 // Function to show the materialization selector dropdown
-function showMaterializationSelector() {
+function showMaterializationSelector(button) {
     if (!currentInstanceId) {
         showError('Por favor, selecione uma instância primeiro');
         return;
     }
     
-    const addButton = document.getElementById('addMaterializationBtn');
-    // Check if dropdown already exists
-    let dropdown = document.querySelector('.materialization-dropdown');
-    if (dropdown) {
-        dropdown.remove();
-        return;
-    }
+    // Criar o container do dropdown
+    const dropdownContainer = document.createElement('div');
+    dropdownContainer.id = 'materializationDropdownContainer';
+    dropdownContainer.className = 'dropdown-container';
+    dropdownContainer.style.position = 'absolute';
+    dropdownContainer.style.display = 'block';
+    dropdownContainer.style.zIndex = '1000';
     
-    // Create dropdown
-    dropdown = document.createElement('div');
-    dropdown.className = 'materialization-dropdown';
+    // Obter a posição do botão
+    const buttonRect = button.getBoundingClientRect();
     
-    // Position dropdown under the button
-    const buttonRect = addButton.getBoundingClientRect();
-    dropdown.style.top = `${buttonRect.bottom + window.scrollY}px`;
-    dropdown.style.left = `${buttonRect.left + window.scrollX}px`;
+    // Posicionar o dropdown abaixo do botão
+    dropdownContainer.style.top = `${buttonRect.bottom + window.scrollY}px`;
+    dropdownContainer.style.left = `${buttonRect.left + window.scrollX}px`;
     
-    // Create loading message
+    // Verificar se estamos usando o tema "night"
+    const isNightTheme = document.documentElement.getAttribute('data-theme') === 'night';
+    
+    // Aplicar cores com alta especificidade
+    const textColor = isNightTheme ? 'white' : '#333';
+    const textMutedColor = isNightTheme ? 'rgba(255, 255, 255, 0.7)' : '#6c757d';
+    const hoverBgColor = isNightTheme ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
+    
+    // Adicionar estilo global para garantir que as cores sejam respeitadas
+    const styleEl = document.createElement('style');
+    styleEl.id = 'dropdown-text-color-fix';
+    styleEl.textContent = `
+        #materializationDropdownContainer #materializationDropdown .dropdown-item {
+            color: ${textColor} !important;
+            transition: background-color 0.2s !important;
+        }
+        
+        #materializationDropdownContainer #materializationDropdown .dropdown-item:hover {
+            background-color: ${hoverBgColor} !important;
+            color: ${textColor} !important;
+        }
+        
+        #materializationDropdownContainer #materializationDropdown .empty-message {
+            color: ${textMutedColor} !important;
+        }
+        
+        /* Modificado para usar a mesma cor de texto que os outros itens */
+        #materializationDropdownContainer #materializationDropdown .add-new-item {
+            color: ${textColor} !important;
+            font-weight: bold !important;
+        }
+        
+        #materializationDropdownContainer #materializationDropdown .add-new-item:hover {
+            color: ${textColor} !important;
+        }
+        
+        #materializationDropdownContainer #materializationDropdown .error-message {
+            color: var(--danger-color, #dc3545) !important;
+        }
+    `;
+    document.head.appendChild(styleEl);
+    
+    // Criar o elemento dropdown
+    const dropdown = document.createElement('div');
+    dropdown.id = 'materializationDropdown';
+    dropdown.className = 'dropdown-menu materialization-dropdown';
+    dropdown.style.display = 'block';
+    dropdown.style.minWidth = '250px';
+    dropdown.style.maxHeight = '300px';
+    dropdown.style.overflowY = 'auto';
+    dropdown.style.backgroundColor = 'var(--card-bg)';
+    dropdown.style.border = '1px solid var(--border-color)';
+    dropdown.style.borderRadius = '4px';
+    dropdown.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
+    dropdown.style.padding = '8px 0';
+    
+    // Adicionar mensagem de carregamento com estilo consistente
     const loadingItem = document.createElement('div');
     loadingItem.className = 'dropdown-item';
     loadingItem.textContent = 'Carregando materializações...';
+    loadingItem.style.padding = '8px 16px';
+    loadingItem.style.fontSize = '14px';
+    loadingItem.style.color = textColor; // Aplicar cor diretamente
+    loadingItem.style.cursor = 'default';
+    
     dropdown.appendChild(loadingItem);
+    dropdownContainer.appendChild(dropdown);
     
-    // Append dropdown to body
-    document.body.appendChild(dropdown);
+    // Adicionar container ao body
+    document.body.appendChild(dropdownContainer);
     
-    // Load available materializations
-    loadAvailableMaterializations(currentInstanceId, dropdown);
-}
-
-// Function to load available materializations for the dropdown
-function loadAvailableMaterializations(instanceId, dropdown) {
-    fetch('/api/social-materializations')
+    // Carregar materializações disponíveis
+    fetch('/api/planification/available-materializations')
         .then(response => {
             if (!response.ok) {
                 throw new Error('Erro ao carregar materializações sociais');
@@ -1379,54 +1453,149 @@ function loadAvailableMaterializations(instanceId, dropdown) {
             return response.json();
         })
         .then(allMaterializations => {
-            // Clear dropdown
+            // Limpar dropdown
             dropdown.innerHTML = '';
             
-            // Filter out materializations already in the table
+            // Filtrar materializações já existentes
             const existingIds = productIds || [];
             const availableMaterializations = allMaterializations.filter(
                 mat => !existingIds.includes(mat.id)
             );
             
+            // Se não houver materializações disponíveis
             if (availableMaterializations.length === 0) {
-                const emptyMessage = document.createElement('div');
-                emptyMessage.className = 'empty-message';
-                emptyMessage.textContent = 'Não há materializações sociais disponíveis';
-                dropdown.appendChild(emptyMessage);
+                const emptyItem = document.createElement('div');
+                emptyItem.className = 'dropdown-item empty-message';
+                emptyItem.textContent = 'Não há materializações sociais disponíveis';
+                emptyItem.style.padding = '12px 16px';
+                emptyItem.style.fontSize = '14px';
+                emptyItem.style.color = textMutedColor + ' !important'; // Aplicar cor diretamente com !important
+                emptyItem.style.fontStyle = 'italic';
+                emptyItem.style.textAlign = 'center';
+                dropdown.appendChild(emptyItem);
                 return;
             }
             
-            // Add materializations to dropdown
+            // Adicionar materializações ao dropdown
             availableMaterializations.forEach(mat => {
-                const item = document.createElement('div');
+                const item = document.createElement('a');
+                item.href = "#";
                 item.className = 'dropdown-item';
+                item.dataset.id = mat.id;
+                item.dataset.name = mat.name;
                 item.textContent = `${mat.name} (${mat.type})`;
-                item.onclick = () => addMaterializationToTable(mat, instanceId);
+                item.style.padding = '8px 16px';
+                item.style.fontSize = '14px';
+                item.style.color = `${textColor} !important`; // Aplicar cor com !important
+                item.style.textDecoration = 'none';
+                item.style.display = 'block';
+                item.style.cursor = 'pointer';
+                
+                // Adicionar estilo inline de !important não funciona diretamente, então usamos setAttribute
+                item.setAttribute('style', `
+                    padding: 8px 16px;
+                    font-size: 14px;
+                    color: ${textColor} !important;
+                    text-decoration: none;
+                    display: block;
+                    cursor: pointer;
+                    background-color: transparent;
+                `);
+                
+                // Em vez de usar eventos hover com JS, confiamos no CSS que definimos acima
+                // que tem alta especificidade
+                
+                item.onclick = function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    addMaterializationToTable(mat, currentInstanceId);
+                };
+                
                 dropdown.appendChild(item);
             });
             
-            // Add option to create new materialization
-            const newItem = document.createElement('div');
+            // Adicionar opção para criar nova materialização
+            const newItem = document.createElement('a');
+            newItem.href = "#";
             newItem.className = 'dropdown-item add-new-item';
-            newItem.textContent = '+ Criar Nova Materialização';
-            newItem.onclick = showNewMaterializationModal;
+            newItem.innerHTML = '<i class="fas fa-plus-circle"></i> Nova Materialização Social';
+            
+            // Aplicar estilos com alta especificidade, agora usando a mesma cor de texto
+            newItem.setAttribute('style', `
+                padding: 8px 16px;
+                font-size: 14px;
+                color: ${textColor} !important; /* Usa a mesma cor definida para todos os itens */
+                text-decoration: none;
+                display: block;
+                cursor: pointer;
+                font-weight: bold;
+                border-top: 1px solid var(--border-color);
+                margin-top: 4px;
+                padding-top: 10px;
+                background-color: transparent;
+            `);
+            
+            newItem.onclick = function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                showNewMaterializationModal();
+            };
+            
             dropdown.appendChild(newItem);
         })
         .catch(error => {
             console.error('Erro ao carregar materializações:', error);
+            
+            const errorItem = document.createElement('div');
+            errorItem.className = 'dropdown-item error-message';
+            errorItem.textContent = 'Erro ao carregar materializações';
+            errorItem.style.padding = '8px 16px';
+            errorItem.style.fontSize = '14px';
+            errorItem.style.color = 'var(--danger-color, #dc3545) !important';
+            errorItem.style.fontWeight = 'bold';
+            
             dropdown.innerHTML = '';
-            const errorMessage = document.createElement('div');
-            errorMessage.className = 'empty-message';
-            errorMessage.textContent = 'Erro ao carregar materializações';
-            dropdown.appendChild(errorMessage);
+            dropdown.appendChild(errorItem);
+            
+            showError("Erro ao carregar materializações sociais");
         });
+    
+    // Adicionar evento para remover os estilos quando o dropdown for fechado
+    const removeDropdownStyles = function() {
+        const styleElement = document.getElementById('dropdown-text-color-fix');
+        if (styleElement) {
+            styleElement.remove();
+        }
+    };
+    
+    // Adicionar evento global para fechar ao clicar fora
+    const documentClickHandler = function closeDropdownOnClickOutside(e) {
+        if (dropdownContainer && 
+            !dropdownContainer.contains(e.target) && 
+            e.target !== button && 
+            !button.contains(e.target)) {
+            
+            if (document.body.contains(dropdownContainer)) {
+                dropdownContainer.remove();
+                removeDropdownStyles();
+            }
+            document.removeEventListener('click', documentClickHandler);
+        }
+    };
+    
+    // Adicionar evento com delay para evitar fechamento imediato
+    setTimeout(() => {
+        document.addEventListener('click', documentClickHandler);
+    }, 100);
 }
 
 // Function to add selected materialization to the table
 function addMaterializationToTable(materialization, instanceId) {
-    // Close dropdown
-    const dropdown = document.querySelector('.materialization-dropdown');
-    if (dropdown) dropdown.remove();
+    // Fechar o dropdown
+    const dropdownContainer = document.getElementById('materializationDropdownContainer');
+    if (dropdownContainer) {
+        dropdownContainer.remove();
+    }
     
     // Add materialization to arrays
     productIds.push(materialization.id);
