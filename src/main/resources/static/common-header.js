@@ -10,12 +10,12 @@
     try {
         // Verificar se o DOM já está carregado
         if (document.readyState === 'complete' || document.readyState === 'interactive') {
-            const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+            const savedTheme = localStorage.getItem('preferredTheme') || 'night';
             applyThemeToEntirePage(savedTheme);
         } else {
             // Se não estiver, aguardar o evento DOMContentLoaded
             document.addEventListener('DOMContentLoaded', function() {
-                const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+                const savedTheme = localStorage.getItem('preferredTheme') || 'night';
                 applyThemeToEntirePage(savedTheme);
             });
         }
@@ -113,7 +113,7 @@ function applyThemeToEntirePage(theme) {
  */
 function insertCommonHeader() {
     // Primeiro aplicar o tema
-    const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+    const savedTheme = localStorage.getItem('preferredTheme') || 'night';
     applyThemeToEntirePage(savedTheme);
     
     // Verificar se o cabeçalho já existe para evitar duplicação
@@ -951,7 +951,7 @@ function ensureHeaderStyles() {
     void document.documentElement.offsetHeight;
     
     // Verificar se o tema atual tem suas regras específicas aplicadas
-    const currentTheme = document.documentElement.getAttribute('data-theme') || 'ocean';
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'night';
     console.log(`Estilos de cabeçalho aplicados/atualizados para tema: ${currentTheme}`);
 }
 
@@ -1007,7 +1007,7 @@ function ensureThemeMenuStyles() {
 // Verificação de integridade do tema
 function verifyTheme() {
     const currentTheme = document.documentElement.getAttribute('data-theme');
-    const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+    const savedTheme = localStorage.getItem('preferredTheme') || 'night';
     
     console.log(`Verificando tema: atual=${currentTheme}, salvo=${savedTheme}`);
     
@@ -1032,7 +1032,7 @@ window.applyThemeToEntirePage = applyThemeToEntirePage;
 
 // Auto-execução para garantir que o tema seja aplicado imediatamente
 (function() {
-    const savedTheme = localStorage.getItem('preferredTheme') || 'ocean';
+    const savedTheme = localStorage.getItem('preferredTheme') || 'night';
     applyThemeToEntirePage(savedTheme);
 })();
 
