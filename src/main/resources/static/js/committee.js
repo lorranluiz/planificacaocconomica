@@ -719,19 +719,12 @@ function updateDemandStockTable() {
     // Determinar qual é a materialização de saída (produto do comitê)
     const outputMaterializationId = pageState.socialMaterializationId;
     
-    // Filtrar materializações da mesma forma que a tabela Vetor Tecnológico,
-    // excluindo as materializações marcadas como excluídas
+    // Filtrar materializações - incluir todas exceto as excluídas
     const filteredMaterializations = pageState.materializations.filter(mat => {
         // Pular materializações excluídas
         if (mat.isDeleted === true) return false;
         
-        // Pular a própria materialização do comitê
-        if (mat.id === outputMaterializationId) return false;
-        
-        // Verificar se esta materialização tem coeficientes tecnológicos
-        const tensors = mat.technologicalTensors || {};
-        return tensors[outputMaterializationId] !== undefined || 
-               Object.keys(tensors).length > 0;
+        return true;
     });
     
     // Se não há materializações filtradas, mostrar mensagem
@@ -747,13 +740,22 @@ function updateDemandStockTable() {
         const tr = document.createElement('tr');
         tr.dataset.materializationId = item.id;
         
+        // Verificar se é a materialização principal do comitê
+        const isMainProduct = (item.id === outputMaterializationId);
+        
+        // Adicionar classe especial se for o produto principal
+        if (isMainProduct) {
+            tr.classList.add('main-product-row');
+        }
+        
         // Calcular o saldo (estoque - demanda)
         const stock = parseDecimalInput(item.stock) || 0;
         const demand = parseDecimalInput(item.demand) || 0;
         const balance = stock - demand;
         
-        tr.innerHTML = `
-            <td>${item.name || 'Não especificado'}</td>
+        // Construir o HTML da linha
+        let rowHTML = `
+            <td>${isMainProduct ? `<strong>${item.name || 'Não especificado'}</strong> <span class="badge main-product-badge">Produto Principal</span>` : item.name || 'Não especificado'}</td>
             <td>
                 <input type="text" class="form-control stock-input" 
                     value="${formatNumberForDisplay(stock)}" 
@@ -769,24 +771,56 @@ function updateDemandStockTable() {
             <td class="balance-cell ${balance < 0 ? 'negative' : ''}">${formatNumberForDisplay(balance)}</td>
             <td>
                 <div class="action-buttons">
+        `;
+        
+        // Adicionar botão de remoção apenas se não for o produto principal
+        if (!isMainProduct) {
+            rowHTML += `
                     <button class="action-btn remove-btn" onclick="removeMaterialization(${item.id})">
                         <i class="fas fa-trash-alt"></i>
                     </button>
+            `;
+        }
+        
+        rowHTML += `
                 </div>
             </td>
         `;
         
+        tr.innerHTML = rowHTML;
         tbody.appendChild(tr);
     });
     
-    // Adicionar estilos para células de saldo negativo se não existirem
-    if (!document.querySelector('style#balance-style')) {
+    // Adicionar estilos para células de saldo negativo e produto principal
+    if (!document.querySelector('style#balance-and-product-style')) {
         const style = document.createElement('style');
-        style.id = 'balance-style';
+        style.id = 'balance-and-product-style';
         style.textContent = `
             .balance-cell.negative {
                 color: var(--danger-color, #dc3545);
                 font-weight: bold;
+            }
+            
+            .main-product-row {
+                background-color: rgba(var(--primary-rgb, 33, 150, 243), 0.1);
+            }
+            
+            .main-product-badge {
+                background-color: var(--primary-color, #2196f3);
+                color: white;
+                padding: 2px 6px;
+                border-radius: 4px;
+                font-size: 0.8em;
+                font-weight: normal;
+                margin-left: 8px;
+            }
+            
+            [data-theme="night"] .main-product-badge {
+                background-color: var(--primary-color, #c62828);
+            }
+            
+            [data-theme="night"] .main-product-row {
+                background-color: rgba(198, 40, 40, 0.1);
             }
         `;
         document.head.appendChild(style);
@@ -815,7 +849,6 @@ function updateTechnologicalMatrixTable() {
     }
     
     // Determinar qual é a materialização de saída (produto do comitê)
-    // Esta é a materialização associada diretamente ao comitê
     const outputMaterializationId = pageState.socialMaterializationId;
     
     // Se não temos um produto definido, mostrar mensagem
@@ -826,20 +859,12 @@ function updateTechnologicalMatrixTable() {
         return;
     }
     
-    // Filtrar materializações que têm coeficientes como insumos
-    // ou seja, aquelas que têm tensores tecnológicos onde o produto do comitê é a saída
-    // E também excluir as materializações marcadas como excluídas
+    // Filtrar materializações que não estão excluídas
     const inputMaterializations = pageState.materializations.filter(mat => {
         // Pular materializações excluídas
         if (mat.isDeleted === true) return false;
         
-        // Pular a própria materialização do comitê
-        if (mat.id === outputMaterializationId) return false;
-        
-        // Verificar se esta materialização tem coeficientes para o produto do comitê
-        const tensors = mat.technologicalTensors || {};
-        return tensors[outputMaterializationId] !== undefined || 
-               Object.keys(tensors).length > 0;
+        return true;
     });
     
     // Se não há insumos, mostrar mensagem
@@ -855,22 +880,45 @@ function updateTechnologicalMatrixTable() {
         const tr = document.createElement('tr');
         tr.dataset.materializationId = mat.id;
         
+        // Verificar se é o produto próprio do comitê
+        const isMainProduct = (mat.id === outputMaterializationId);
+        
+        // Adicionar classe especial se for o produto principal
+        if (isMainProduct) {
+            tr.classList.add('main-product-row');
+        }
+        
         // Obter coeficiente deste insumo para o produto do comitê
         const tensors = mat.technologicalTensors || {};
         const coeff = tensors[outputMaterializationId] || 0;
         
-        tr.innerHTML = `
-            <td>${mat.name || `Insumo #${mat.id}`}</td>
-            <td>
-                <input type="text" class="form-control coefficient-input" 
-                       value="${formatNumberForDisplay(coeff)}" 
-                       data-input-id="${mat.id}" 
-                       data-output-id="${outputMaterializationId}" 
-                       onchange="updateTensorCoefficient(${mat.id}, ${outputMaterializationId}, this)">
-            </td>
-            <td><!-- Aqui poderia ter uma lixeira usando mat.id,  mas tirei pra ficar mais clean -->
-            </td>
-        `;
+        // Modificado: tornar o coeficiente editável mesmo para o produto principal
+        // e usar o valor padrão de 0 em vez de fixar em 1,0
+        if (isMainProduct) {
+            tr.innerHTML = `
+                <td><strong>${mat.name || `Produto #${mat.id}`}</strong> <span class="badge main-product-badge">Produto Principal</span></td>
+                <td>
+                    <input type="text" class="form-control coefficient-input" 
+                           value="${formatNumberForDisplay(coeff)}" 
+                           data-input-id="${mat.id}" 
+                           data-output-id="${outputMaterializationId}" 
+                           onchange="updateTensorCoefficient(${mat.id}, ${outputMaterializationId}, this)">
+                </td>
+                <td><!-- Espaço para ações (vazio para o produto principal) --></td>
+            `;
+        } else {
+            tr.innerHTML = `
+                <td>${mat.name || `Insumo #${mat.id}`}</td>
+                <td>
+                    <input type="text" class="form-control coefficient-input" 
+                           value="${formatNumberForDisplay(coeff)}" 
+                           data-input-id="${mat.id}" 
+                           data-output-id="${outputMaterializationId}" 
+                           onchange="updateTensorCoefficient(${mat.id}, ${outputMaterializationId}, this)">
+                </td>
+                <td><!-- Aqui poderia ter uma lixeira usando mat.id, mas foi removida para ficar mais clean --></td>
+            `;
+        }
         
         tbody.appendChild(tr);
     });
@@ -1204,6 +1252,12 @@ function updateTensorCoefficient(inputId, outputId, input) {
  * Remove uma materialização do comitê
  */
 function removeMaterialization(materializationId) {
+    // Verificar se é a materialização principal do comitê
+    if (materializationId === pageState.socialMaterializationId) {
+        showErrorMessage("Não é possível remover o produto principal do comitê.");
+        return;
+    }
+    
     if (!confirm("Tem certeza que deseja remover esta materialização?")) {
         return;
     }
