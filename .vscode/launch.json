@@ -7,7 +7,7 @@
           "request": "attach",
           "hostName": "192.168.243.190",  // IP do WSL
           "port": 5005,
-            "projectName": "planificacao-economica"
+            "projectName": "planecon"
       }
   ]
 }

@@ -10,10 +10,10 @@
     </parent>
     
     <groupId>xyz.planecon</groupId>
-    <artifactId>planificacao-economica</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-    <name>planificacao-economica</name>
-    <description>Planificação Econômica Application</description>
+    <artifactId>planecon</artifactId>
+    <version>0.2.4.1-alpha-SNAPSHOT</version>
+    <name>planecon</name>
+    <description>Economic Planning System Application</description>
     
     <properties>
         <java.version>17</java.version>
