@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.cache.annotation.CacheEvict;
 
 import xyz.planecon.dto.InstanceDto;
 import xyz.planecon.dto.PlanificationRequest;
@@ -359,6 +360,7 @@ public class PlanificationController {
      * Endpoint para salvar um valor no vetor de demanda
      */
     @PostMapping("/demand-vector")
+    @CacheEvict(value = {"demandVector", "demandVectors"}, allEntries = true)
     public ResponseEntity<?> saveDemandVector(@RequestBody Map<String, Object> payload) {
         try {
             // Log para debug dos dados recebidos
@@ -573,6 +575,7 @@ public class PlanificationController {
      * Endpoint para excluir um valor do vetor de demanda
      */
     @DeleteMapping("/demand-vector/{materializationId}/instance/{instanceId}")
+    @CacheEvict(value = {"demandVector", "demandVectors"}, allEntries = true)
     public ResponseEntity<?> deleteDemandVector(
             @PathVariable Integer materializationId,
             @PathVariable Integer instanceId) {
