@@ -807,12 +807,19 @@ function updateDemandStockTable() {
             
             .main-product-badge {
                 background-color: var(--primary-color, #2196f3);
-                color: white;
+                color: white !important;
                 padding: 2px 6px;
                 border-radius: 4px;
                 font-size: 0.8em;
                 font-weight: normal;
                 margin-left: 8px;
+            }
+            
+            /* Garantir texto branco para todos os temas escuros */
+            [data-theme="night"] .main-product-badge,
+            [data-theme="ocean"] .main-product-badge,
+            [data-theme="bolchevick"] .main-product-badge {
+                color: white !important;
             }
             
             [data-theme="night"] .main-product-badge {
@@ -821,6 +828,16 @@ function updateDemandStockTable() {
             
             [data-theme="night"] .main-product-row {
                 background-color: rgba(198, 40, 40, 0.1);
+            }
+            
+            /* Estilos específicos para tema Ocean */
+            [data-theme="ocean"] .main-product-badge {
+                background-color: var(--primary-color, #2196f3);
+            }
+            
+            /* Estilos específicos para tema Bolchevick */
+            [data-theme="bolchevick"] .main-product-badge {
+                background-color: var(--primary-color, #c62828);
             }
         `;
         document.head.appendChild(style);
