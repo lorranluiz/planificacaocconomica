@@ -55,7 +55,7 @@ public class TechnologicalTensorController {
     public ResponseEntity<List<TechnologicalTensorDto>> getAllTensors() {
         try {
             List<TechnologicalTensorDto> tensors = tensorService.findAll().stream()
-                    .map(TechnologicalTensorDto::new)
+                    .map(tensor -> new TechnologicalTensorDto(tensor))
                     .collect(Collectors.toList());
             
             logger.info("Retornando {} tensores", tensors.size());

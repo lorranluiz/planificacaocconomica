@@ -26,6 +26,11 @@ public interface InstanceRepository extends JpaRepository<Instance, Integer> {
         return findByType(InstanceType.COMMITTEE);
     }
     
+    /**
+     * Busca instâncias por tipo
+     * @param type Tipo de instância a ser filtrado
+     * @return Lista de instâncias do tipo especificado
+     */
     List<Instance> findByType(InstanceType type);
     
     // Corrigir as consultas para usar os nomes corretos dos atributos

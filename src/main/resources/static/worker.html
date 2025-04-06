@@ -178,6 +178,201 @@
         .config-btn:hover {
             background-color: var(--secondary-light, #7d868e);
         }
+
+        /* Estilos para o certificado de trabalho */
+        .certificate-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            display: flex;
+            flex-wrap: wrap;
+        }
+        
+        .qrcode-area {
+            width: 200px;
+            height: 200px;
+            border: 2px dashed var(--border-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 20px;
+            background-color: var(--bg-light);
+        }
+        
+        .qrcode-area i {
+            font-size: 48px;
+            color: var(--text-muted);
+        }
+        
+        .worker-info {
+            flex: 1;
+            min-width: 300px;
+        }
+        
+        .info-row {
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .info-label {
+            font-weight: bold;
+            display: block;
+            margin-bottom: 5px;
+            color: var(--text-color);
+        }
+        
+        .info-value {
+            font-size: 16px;
+            color: var(--text-color);
+        }
+        
+        .action-btn {
+            margin-top: 20px;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: var(--primary-color);
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        
+        .action-btn:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        /* Estilos para garantir tema night */
+        [data-theme="night"] .certificate-container {
+            background-color: var(--card-bg);
+            border-color: var(--border-color);
+        }
+        
+        [data-theme="night"] .qrcode-area {
+            background-color: rgba(0, 0, 0, 0.2);
+            border-color: var(--border-color);
+        }
+
+        /* Estilos para o histórico de pedidos */
+        .orders-history {
+            margin-top: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .orders-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        .orders-table th,
+        .orders-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+        }
+        
+        .orders-table th {
+            background-color: var(--bg-light);
+            font-weight: bold;
+            color: var(--text-color);
+        }
+        
+        .orders-table tbody tr:hover {
+            background-color: var(--hover-bg);
+        }
+        
+        .order-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-pending {
+            background-color: #ffeeba;
+            color: #856404;
+        }
+        
+        .status-processing {
+            background-color: #b8daff;
+            color: #004085;
+        }
+        
+        .status-completed {
+            background-color: #c3e6cb;
+            color: #155724;
+        }
+        
+        .status-cancelled {
+            background-color: #f5c6cb;
+            color: #721c24;
+        }
+        
+        .order-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .order-action-btn {
+            padding: 4px 8px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .view-btn {
+            background-color: var(--bg-light);
+            color: var(--text-color);
+        }
+        
+        .loading-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 30px;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 50px 20px;
+            color: var(--text-muted);
+        }
+        
+        .empty-state i {
+            margin-bottom: 15px;
+        }
+        
+        /* Estilos para o modal de detalhes do pedido */
+        .order-info {
+            background-color: var(--bg-light);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .items-table th,
+        .items-table td {
+            padding: 8px 12px;
+            border-bottom: 1px solid var(--border-color);
+            text-align: left;
+        }
+        
+        .items-table th {
+            background-color: var(--bg-light);
+        }
     </style>
     <!-- Adicionar esta seção de estilos no <head> da página, após os outros estilos -->
     <style>
@@ -294,6 +489,386 @@
             background-color: var(--card-bg);
             position: relative;
         }
+
+        /* Estilos para a loja virtual */
+        .shop-controls {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 20px;
+            align-items: center;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .search-container {
+            flex: 1;
+            position: relative;
+            min-width: 200px;
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 8px 16px;
+            padding-right: 40px;
+            border-radius: 4px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-light);
+            color: var(--text-color);
+        }
+
+        .search-container i {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .cart-container {
+            position: relative;
+        }
+
+        .cart-btn {
+            padding: 10px;
+            border: none;
+            background: transparent;
+            color: var(--text-color);
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        .cart-count {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        @media (min-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 992px) {
+            .products-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .products-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+        }
+
+        .product-card {
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            overflow: hidden;
+            background-color: var(--card-bg);
+            transition: transform 0.2s, box-shadow 0.2s;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .product-image {
+            height: 150px;
+            width: 100%;
+            background-color: var(--bg-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .product-image i {
+            font-size: 40px;
+            color: var(--text-muted);
+        }
+
+        .product-info {
+            padding: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .product-name {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-size: 16px;
+            line-height: 1.3;
+        }
+
+        .product-price {
+            color: var(--primary-color);
+            font-weight: bold;
+            margin-bottom: 15px;
+            font-size: 15px;
+        }
+
+        .product-action {
+            margin-top: auto;
+        }
+
+        .withdraw-btn {
+            width: 100%;
+            padding: 8px;
+            border: none;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .withdraw-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 20px;
+        }
+
+        .pagination-btn {
+            padding: 5px 10px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            border-radius: 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .pagination-btn:hover:not(.active) {
+            background-color: var(--hover-bg);
+        }
+
+        /* Estilos para o modal do carrinho */
+        .cart-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .cart-modal-content {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 10px;
+        }
+
+        .cart-close {
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .cart-items {
+            margin-bottom: 20px;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .cart-item-image {
+            width: 60px;
+            height: 60px;
+            background-color: var(--bg-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            margin-right: 15px;
+        }
+
+        .cart-item-image i {
+            font-size: 24px;
+            color: var(--text-muted);
+        }
+
+        .cart-item-info {
+            flex: 1;
+        }
+
+        .cart-item-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .cart-item-price {
+            color: var(--primary-color);
+        }
+
+        .cart-item-actions {
+            display: flex;
+            align-items: center;
+            margin-left: 15px;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            margin-right: 15px;
+        }
+
+        .quantity-btn {
+            width: 24px;
+            height: 24px;
+            border: 1px solid var(--border-color);
+            background-color: var(--bg-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        .quantity-input {
+            width: 40px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            border-left: none;
+            border-right: none;
+            height: 24px;
+        }
+
+        .remove-item-btn {
+            background: none;
+            border: none;
+            color: var(--danger-color, #dc3545);
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .cart-footer {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .checkout-btn {
+            padding: 12px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .checkout-btn:hover {
+            background-color: var(--primary-dark);
+        }
+
+        /* Autocomplete dropdown styles */
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-top: none;
+            border-radius: 0 0 4px 4px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 10;
+            display: none;
+        }
+
+        .autocomplete-item {
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+
+        .autocomplete-item:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .withdraw-btn:disabled {
+            background-color: var(--text-muted);
+            cursor: not-allowed;
+        }
     </style>
 </head>
 
@@ -302,11 +877,10 @@
         <!-- O cabeçalho comum será inserido aqui pelo script -->
         
         <div id="planificationPage">
-            <h1>Planificação Econômica</h1>
+            <h1>Portal do Trabalhador</h1>
             
             <div class="info-message">
-                <p><i class="fas fa-info-circle"></i> Esta página permite realizar cálculos de planificação econômica baseados no modelo de insumo-produto de Leontief.</p>
-                <p><strong>Como usar:</strong> Selecione uma instância, ajuste a matriz tecnológica e o vetor de demanda conforme necessário, e clique em "Planificar" para calcular o vetor de produção necessário.</p>
+                <p><i class="fas fa-info-circle"></i> Bem-vindo ao Portal do Trabalhador. Aqui você pode verificar seu certificado de trabalho e solicitar retiradas de produtos e serviços.</p>
             </div>
             
             <div class="form-group">
@@ -314,80 +888,126 @@
                 <select id="instanceSelect" class="form-control">
                     <option value="">Selecione uma instância...</option>
                 </select>
+                <span id="loadingSpinner" class="loading"></span>
             </div>
             
-            <div id="matrixSection" style="display: none;">
-                <h2>Matriz Tecnológica</h2>
-                <p>A matriz tecnológica representa quanto do produto de cada linha é necessário para produzir uma unidade do produto de cada coluna.</p>
+            <div id="certificateSection" style="display: none;">
+                <h2>Certificado de Trabalho</h2>
                 
-                <div class="matrix-container">
-                    <table id="technologicalMatrix" class="editable-table">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <!-- Colunas serão adicionadas dinamicamente -->
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Linhas serão adicionadas dinamicamente -->
-                        </tbody>
-                    </table>
+                <div class="certificate-container">
+                    <div id="uuidQRCode" class="qrcode-area">
+                        <i class="fas fa-qrcode"></i>
+                    </div>
+                    
+                    <div class="worker-info">
+                        <div class="info-row">
+                            <span class="info-label">Nome:</span>
+                            <span id="workerName" class="info-value">Carregando...</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">Conselho de Distribuição e Serviços Associado:</span>
+                            <span id="associatedCouncil" class="info-value">Carregando...</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">Associação de Moradores Associada:</span>
+                            <span id="residentsAssociation" class="info-value">Carregando...</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">Horas no Ponto Eletrônico (h trabalhadas):</span>
+                            <span id="workedHours" class="info-value">Carregando...</span>
+                        </div>
+                        
+                        <div class="info-row">
+                            <span class="info-label">Participação Individual no Trabalho Social (ℳ = %4e6):</span>
+                            <span id="socialParticipation" class="info-value">Carregando...</span>
+                        </div>
+                    </div>
                 </div>
                 
-                <h2>Vetor de Demanda Final</h2>
-                <p>O vetor de demanda final representa a quantidade de cada produto que precisa ser entregue aos consumidores finais.</p>
-
-                <div class="vector-actions">
-                    <button id="addMaterializationBtn" class="action-btn add-btn" title="Adicionar materialização social">
-                        <i class="fas fa-plus"></i>
-                    </button>
+                <h2>Pedidos de Retirada</h2>
+                
+                <!-- Nova estrutura da loja virtual -->
+                <div class="shop-controls">
+                    <div class="filter-buttons">
+                        <button class="filter-btn active" data-type="all">Todos</button>
+                        <button class="filter-btn" data-type="PRODUCT">Produtos</button>
+                        <button class="filter-btn" data-type="SERVICE">Serviços</button>
+                    </div>
+                    
+                    <div class="search-container">
+                        <input type="text" id="searchInput" placeholder="Buscar materializações...">
+                        <i class="fas fa-search"></i>
+                        <div class="autocomplete-dropdown" id="autocompleteDropdown"></div>
+                    </div>
+                    
+                    <div class="cart-container">
+                        <button class="cart-btn" id="cartButton">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="cart-count" id="cartCount">0</span>
+                        </button>
+                    </div>
                 </div>
-
-                <div class="vector-container">
-                    <table id="demandVector" class="editable-table">
+                
+                <div class="products-grid" id="productsGrid">
+                    <!-- Os produtos serão inseridos aqui dinamicamente -->
+                </div>
+                
+                <div class="pagination" id="productsPagination">
+                    <!-- Paginação será inserida aqui dinamicamente -->
+                </div>
+                
+                <!-- Nova seção de histórico de pedidos -->
+                <h2>Histórico de Pedidos</h2>
+                <div class="orders-history" id="ordersHistory">
+                    <div class="loading-container" id="ordersLoading">
+                        <span class="loading" style="display: inline-block;"></span>
+                        <p>Carregando histórico de pedidos...</p>
+                    </div>
+                    <table class="orders-table" id="ordersTable" style="display: none;">
                         <thead>
                             <tr>
-                                <th>Produto</th>
-                                <th>Demanda Final</th>
+                                <th>Código</th>
+                                <th>Data</th>
+                                <th>Itens</th>
+                                <th>Total</th>
+                                <th>Status</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <!-- Linhas serão adicionadas dinamicamente -->
+                        <tbody id="ordersTableBody">
+                            <!-- Pedidos serão inseridos aqui dinamicamente -->
                         </tbody>
                     </table>
-                </div>
-                
-                <div class="controls">
-                    <button id="planifyButton" class="btn">Planificar</button>
-                    <span id="loadingSpinner" class="loading"></span>
-                    <button id="saveButton" class="btn">Salvar Alterações</button>
-                </div>
-                
-                <div id="results" class="results-container" style="display: none;">
-                    <h2>Resultados da Planificação</h2>
-                    
-                    <div>
-                        <h3>Vetor de Produção</h3>
-                        <p>Quantidade total que cada setor precisa produzir para atender à demanda final.</p>
-                        <table id="productionVector">
-                            <thead>
-                                <tr>
-                                    <th>Materialização Social</th>
-                                    <th>Produção Necessária</th>
-                                    <th>Ações</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <!-- Linhas serão adicionadas dinamicamente -->
-                            </tbody>
-                        </table>
+                    <div id="emptyOrders" style="display: none;" class="empty-state">
+                        <i class="fas fa-inbox fa-3x"></i>
+                        <p>Você ainda não realizou nenhum pedido.</p>
                     </div>
                 </div>
             </div>
-            <div id="results" style="display: none;">
-                <!-- Resultados da planificação serão inseridos aqui dinamicamente -->
-                
+        </div>
+    </div>
+    
+    <!-- Modal do carrinho de compras -->
+    <div class="cart-modal" id="cartModal">
+        <div class="cart-modal-content">
+            <div class="cart-header">
+                <h3>Carrinho de Retiradas</h3>
+                <span class="cart-close" id="cartClose">&times;</span>
+            </div>
+            
+            <div class="cart-items" id="cartItems">
+                <!-- Os itens do carrinho serão inseridos aqui dinamicamente -->
+            </div>
+            
+            <div class="cart-footer">
+                <div class="cart-total">
+                    <span>Total:</span>
+                    <span id="cartTotal">ℳ 0,00</span>
+                </div>
+                <button class="checkout-btn" id="checkoutButton">Finalizar Pedido</button>
             </div>
         </div>
     </div>
@@ -500,6 +1120,42 @@
                     <button type="button" class="btn btn-secondary" onclick="closeNewMaterializationModal()">Cancelar</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- Modal de detalhes do pedido -->
+    <div class="modal" id="orderDetailsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Detalhes do Pedido <span id="orderDetailId"></span></h3>
+                <span class="cart-close" onclick="document.getElementById('orderDetailsModal').style.display='none'">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="order-info">
+                    <p><strong>Data:</strong> <span id="orderDetailDate"></span></p>
+                    <p><strong>Status:</strong> <span id="orderDetailStatus"></span></p>
+                    <p><strong>Total:</strong> <span id="orderDetailTotal"></span></p>
+                </div>
+                
+                <h4>Itens do Pedido</h4>
+                <table class="items-table" id="orderItemsTable">
+                    <thead>
+                        <tr>
+                            <th>Item</th>
+                            <th>Tipo</th>
+                            <th>Quantidade</th>
+                            <th>Valor</th>
+                            <th>Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody id="orderItemsTableBody">
+                        <!-- Itens serão inseridos aqui dinamicamente -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" onclick="document.getElementById('orderDetailsModal').style.display='none'">Fechar</button>
+            </div>
         </div>
     </div>
 
