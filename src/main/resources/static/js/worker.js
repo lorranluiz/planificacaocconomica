@@ -5,7 +5,7 @@ let currentInstanceId = null;
 let allProducts = []; // Lista completa de produtos
 let filteredProducts = []; // Produtos filtrados por tipo ou busca
 let currentPage = 1;
-let productsPerPage = 60; // 6 colunas x 10 linhas
+let productsPerPage = 20; // Exibir 20 itens por página
 let cartItems = []; // Itens no carrinho
 let availableSocialParticipation = 0;
 
@@ -942,37 +942,52 @@ function renderPagination(totalPages) {
     
     // Botão para primeira página
     if (currentPage > 1) {
-        addPaginationButton('&laquo; Primeira', 1);
+        addPaginationButton('&laquo;', 1);
     }
     
     // Botão para página anterior
     if (currentPage > 1) {
-        addPaginationButton('&lsaquo; Anterior', currentPage - 1);
+        addPaginationButton('&lsaquo;', currentPage - 1);
     }
     
-    // Botões de páginas
-    const maxButtons = 5; // Número máximo de botões de página para mostrar
-    const halfButtons = Math.floor(maxButtons / 2);
-    let startPage = Math.max(1, currentPage - halfButtons);
-    let endPage = Math.min(totalPages, startPage + maxButtons - 1);
+    // Determinar o grupo de páginas atual (grupos de 10)
+    const pageGroup = Math.floor((currentPage - 1) / 10);
+    const startPage = pageGroup * 10 + 1;
+    const endPage = Math.min(startPage + 9, totalPages);
     
-    // Ajustar se chegamos ao final
-    if (endPage - startPage + 1 < maxButtons) {
-        startPage = Math.max(1, endPage - maxButtons + 1);
+    // Adicionar botão de salto grande para trás (100 páginas)
+    if (currentPage > 100) {
+        addPaginationButton('&laquo; -100', Math.max(1, currentPage - 100));
     }
     
+    // Adicionar botão de salto para trás (10 páginas)
+    if (currentPage > 10) {
+        addPaginationButton('-10', Math.max(1, startPage - 10));
+    }
+    
+    // Adicionar botões de página para o grupo atual
     for (let i = startPage; i <= endPage; i++) {
         addPaginationButton(i.toString(), i, i === currentPage);
     }
     
+    // Adicionar botão de salto para frente (10 páginas)
+    if (endPage + 1 <= totalPages) {
+        addPaginationButton('+10', Math.min(totalPages, startPage + 10));
+    }
+    
+    // Adicionar botão de salto grande para frente (100 páginas)
+    if (currentPage + 100 <= totalPages) {
+        addPaginationButton('+100 &raquo;', Math.min(totalPages, currentPage + 100));
+    }
+    
     // Botão para próxima página
     if (currentPage < totalPages) {
-        addPaginationButton('Próxima &rsaquo;', currentPage + 1);
+        addPaginationButton('&rsaquo;', currentPage + 1);
     }
     
     // Botão para última página
     if (currentPage < totalPages) {
-        addPaginationButton('Última &raquo;', totalPages);
+        addPaginationButton('&raquo;', totalPages);
     }
     
     // Função auxiliar para adicionar botões de paginação
