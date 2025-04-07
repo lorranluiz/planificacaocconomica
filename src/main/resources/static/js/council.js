@@ -627,18 +627,33 @@ function renderOptimizationResults(optimizationResults) {
 
 // Function to render demand vector - moved to global scope
 function renderDemandVector() {
-    if (!demandVector || !productNames) return;
+    // Verificação detalhada dos dados para depuração
+    if (!demandVector) {
+        console.warn("Vetor de demanda não definido");
+        return;
+    }
+    
+    if (!productNames) {
+        console.warn("Nomes de produtos não definidos");
+        return;
+    }
+    
+    if (demandVector.length !== productNames.length || demandVector.length !== productIds.length) {
+        console.warn(`Inconsistência nas dimensões: demandVector(${demandVector.length}), productNames(${productNames.length}), productIds(${productIds.length})`);
+        // Tentar corrigir as dimensões antes de continuar
+        ensureMatrixDimensions();
+    }
     
     const demandVectorTable = document.getElementById('demandVector');
     if (!demandVectorTable) {
-        console.error("Table element for demand vector not found");
+        console.error("Tabela de vetor de demanda não encontrada no DOM");
         return;
     }
     
     // Limpar tabela
     const tbody = demandVectorTable.querySelector('tbody');
     if (!tbody) {
-        console.error("Tbody element not found in demand vector table");
+        console.error("Elemento tbody não encontrado na tabela de vetor de demanda");
         return;
     }
     tbody.innerHTML = '';
@@ -647,43 +662,67 @@ function renderDemandVector() {
     const thead = demandVectorTable.querySelector('thead tr');
     if (thead) {
         thead.innerHTML = `
-            <th>Materialização Social</th>
+            <th>Produto</th>
             <th>Demanda Final</th>
-            <th>Ação</th>
+            <th>Ações</th>
         `;
     }
     
-    // Logging para depuração
-    console.log("productNames:", productNames);
-    console.log("productIds:", productIds);
-    console.log("demandVector:", demandVector);
+    // Log para depuração
+    console.log("Renderizando vetor de demanda:");
+    console.log("- productNames:", productNames);
+    console.log("- productIds:", productIds);
+    console.log("- demandVector:", demandVector);
     
     // Adicionar linhas com valores
     demandVector.forEach((value, index) => {
-        const row = document.createElement('tr');
-        // Add data attribute for the materialization ID
-        row.dataset.materializationId = productIds[index];
+        if (index >= productNames.length || index >= productIds.length) {
+            console.warn(`Índice fora dos limites: ${index}. Ignorando esta entrada.`);
+            return;
+        }
         
-        const hasConfig = optimizationConfigs[index] !== undefined;
-        const displayName = productNames[index] || `Materialização #${productIds[index] || index+1}`;
+        const tr = document.createElement('tr');
         
-        row.innerHTML = `
-            <td>${displayName}</td>
-            <td>
-                <input type="number" step="0.01" min="0" value="${value}" 
-                      onchange="updateDemandVector(${index}, this.value)" />
-            </td>
-            <td class="action-buttons">
-                <button class="btn btn-sm ${hasConfig ? 'btn-success' : ''}" onclick="openOptimizationConfigModal(${index})">
-                    <i class="fas fa-cogs"></i>
-                </button>
-                <button class="btn btn-sm remove-btn" onclick="removeMaterialization(${productIds[index]})">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </td>
-        `;
+        // Formatar o valor para exibição
+        const formattedValue = value !== null && value !== undefined 
+            ? value.toString().replace('.', ',') 
+            : '0';
         
-        tbody.appendChild(row);
+        // Célula com nome do produto
+        const tdName = document.createElement('td');
+        tdName.textContent = productNames[index] || `Produto #${index + 1}`;
+        tr.appendChild(tdName);
+        
+        // Célula com valor da demanda (editável)
+        const tdValue = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = formattedValue;
+        input.className = 'form-control';
+        input.dataset.index = index;
+        input.onchange = function() {
+            const value = this.value.replace(',', '.'); // Normalizar para cálculo
+            updateDemandVectorElement(parseInt(this.dataset.index), value);
+        };
+        tdValue.appendChild(input);
+        tr.appendChild(tdValue);
+        
+        // Célula com botões de ação
+        const tdActions = document.createElement('td');
+        tdActions.className = 'action-buttons';
+        
+        // Botão para remover materialização
+        const removeButton = document.createElement('button');
+        removeButton.className = 'action-btn remove-btn';
+        removeButton.title = 'Remover';
+        removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+        removeButton.onclick = function() {
+            removeMaterialization(productIds[index]);
+        };
+        tdActions.appendChild(removeButton);
+        
+        tr.appendChild(tdActions);
+        tbody.appendChild(tr);
     });
 }
 
@@ -1629,23 +1668,31 @@ function updateTechnologicalMatrix(technologicalMatrixData) {
  */
 function updateDemandVector(demandVectorData) {
     if (!demandVectorData || !demandVectorData.vector) {
-        showNotification('Dados do vetor de demanda inválidos', 'error');
+        console.error("Dados de vetor de demanda inválidos:", demandVectorData);
+        showNotification('Dados de vetor de demanda inválidos', 'error');
         return;
     }
     
     console.log('Atualizando vetor de demanda com dados recebidos:', demandVectorData);
     
-    // Atualizar variáveis globais
-    demandVector = demandVectorData.vector;
-    
-    // Verificar se os nomes dos produtos e IDs devem ser atualizados
+    // Verificar se os nomes dos produtos e IDs serão atualizados antes do vetor
+    // para garantir sincronização entre os arrays
     if (demandVectorData.productNames && demandVectorData.productNames.length > 0) {
         productNames = demandVectorData.productNames;
+        console.log("Nomes de produtos atualizados:", productNames);
     }
     
     if (demandVectorData.productIds && demandVectorData.productIds.length > 0) {
         productIds = demandVectorData.productIds;
+        console.log("IDs de produtos atualizados:", productIds);
     }
+    
+    // Atualizar vetor de demanda global
+    demandVector = demandVectorData.vector;
+    console.log("Vetor de demanda atualizado:", demandVector);
+    
+    // Garantir que as dimensões da matriz tecnológica e vetor de demanda estejam sincronizadas
+    ensureMatrixDimensions();
     
     // Renderizar o vetor na interface
     renderDemandVector();
@@ -1655,16 +1702,14 @@ function updateDemandVector(demandVectorData) {
 }
 
 /**
- * Atualiza o valor de um elemento no vetor de demanda
+ * Atualiza um elemento individual no vetor de demanda
  * @param {number} index - Índice do elemento a ser atualizado
  * @param {string|number} value - Novo valor
  */
-function updateDemandVector(index, value) {
+function updateDemandVectorElement(index, value) {
     if (index >= 0 && index < demandVector.length) {
-        // Converter para número e garantir que não seja NaN
-        const numValue = parseFloat(value) || 0;
-        demandVector[index] = numValue;
-        console.log(`Demanda atualizada no índice ${index}: ${numValue}`);
+        demandVector[index] = parseFloat(value) || 0;
+        pageState.isDirty = true;
     }
 }
 

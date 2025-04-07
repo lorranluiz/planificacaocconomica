@@ -257,9 +257,22 @@ function proceedCalculation() {
         return response.json();
     })
     .then(data => {
+        console.log("Dados completos recebidos do servidor:", data);
+        
         // Processar a resposta e atualizar as tabelas
-        updateTechnologicalMatrix(data.technologicalMatrix);
-        updateDemandVector(data.demandVector);
+        if (data.technologicalMatrix) {
+            console.log("Atualizando matriz tecnológica:", data.technologicalMatrix);
+            updateTechnologicalMatrix(data.technologicalMatrix);
+        } else {
+            console.error("Matriz tecnológica não encontrada na resposta");
+        }
+        
+        if (data.demandVector) {
+            console.log("Atualizando vetor de demanda:", data.demandVector);
+            updateDemandVector(data.demandVector);
+        } else {
+            console.error("Vetor de demanda não encontrado na resposta");
+        }
         
         // Atualizar status para sucesso
         updateCalculationStatus('Estimativas calculadas com sucesso!', 'success');
@@ -281,8 +294,6 @@ function proceedCalculation() {
         console.error('Erro:', error);
         
         // Atualizar status para erro
-        updateCalculationStatus(`Erro: ${error.message}`, 'error');
-        
-        // A notificação de erro já é mostrada pelo handleHttpError
+        updateCalculationStatus(`Erro: ${error.message || 'Falha ao processar dados'}`, 'error');
     });
 }
