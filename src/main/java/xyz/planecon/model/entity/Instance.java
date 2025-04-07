@@ -78,12 +78,9 @@ public class Instance {
     @OneToMany(mappedBy = "instance")
     private List<DemandVector> demandVectors;
     
-    // Remova ou corrija este mapeamento, pois não existe 'instance' em TechnologicalTensor
-    /*
     @OneToMany(mappedBy = "instance")
     private List<TechnologicalTensor> technologicalTensors;
-    */
-    
+        
     @OneToMany(mappedBy = "instance")
     private List<OptimizationInputsResults> optimizationResults = new ArrayList<>();
     
