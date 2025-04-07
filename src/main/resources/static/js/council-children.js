@@ -30,9 +30,15 @@ function loadAndShowChildInstances(councilId) {
             return response.json();
         })
         .then(data => {
-            // Atualizar o conteúdo do modal com as instâncias filhas
-            displayChildInstances(contentContainer, data);
-            return data; // Retornar os dados para uso posterior
+            // Filtrar para remover o próprio conselho da lista de filhos (se existir)
+            const filteredData = data.filter(instance => instance.id != councilId);
+            
+            // Log para depuração
+            console.log(`Instâncias filhas carregadas: ${data.length}, após filtragem: ${filteredData.length}`);
+            
+            // Atualizar o conteúdo do modal com as instâncias filhas filtradas
+            displayChildInstances(contentContainer, filteredData);
+            return filteredData; // Retornar os dados filtrados para uso posterior
         })
         .catch(error => {
             console.error('Erro ao carregar instâncias filhas:', error);

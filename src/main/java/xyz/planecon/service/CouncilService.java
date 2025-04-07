@@ -121,6 +121,14 @@ public class CouncilService {
         allChildren.addAll(directChildren);
         allChildren.addAll(childCouncils);
         
+        // Filtrar para garantir que o conselho atual não está na lista de filhos
+        allChildren = allChildren.stream()
+                .filter(child -> !child.getId().equals(councilId))
+                .collect(Collectors.toList());
+        
+        logger.info("Encontradas {} instâncias filhas para conselho ID: {} (após filtrar a própria instância)", 
+                  allChildren.size(), councilId);
+        
         // Converter para DTOs
         return allChildren.stream()
                 .map(instance -> {
