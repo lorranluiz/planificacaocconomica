@@ -84,13 +84,13 @@ public interface TechnologicalTensorRepository extends JpaRepository<Technologic
      * @return Lista de objetos contendo IDs de materializações de entrada e saída e a média do coeficiente
      */
     @Query(value = "SELECT t.id_production_input as inputMaterializationId, " +
-           "t.output_social_materialization_id as outputMaterializationId, " +
+           "t.id_social_materialization as outputMaterializationId, " +
            "AVG(t.technical_coefficient_element_value) as averageCoefficient " +
            "FROM technological_tensor t " +
-           "JOIN instance i ON t.id_instance = i.id " + // Corrigido: instance_id -> id_instance
+           "JOIN instance i ON t.id_instance = i.id " +
            "WHERE i.popular_council_associated_with_committee_or_worker = :councilId " +
            "OR i.popular_council_associated_with_popular_council = :councilId " +
-           "GROUP BY t.id_production_input, t.output_social_materialization_id", 
+           "GROUP BY t.id_production_input, t.id_social_materialization", 
            nativeQuery = true)
     List<Object[]> calculateAverageCoefficientsByMaterializationPairForCouncilChildren(@Param("councilId") Integer councilId);
 }

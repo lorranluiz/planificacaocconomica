@@ -76,12 +76,12 @@ public interface DemandVectorRepository extends JpaRepository<DemandVector, Dema
      * @param councilId ID do conselho pai
      * @return Lista de objetos contendo o ID da materialização e a média de demanda
      */
-    @Query(value = "SELECT dv.social_materialization_id as materializationId, AVG(dv.demand) as averageDemand " +
+    @Query(value = "SELECT dv.id_social_materialization as materializationId, AVG(dv.demand) as averageDemand " +
            "FROM demand_vector dv " +
-           "JOIN instance i ON dv.id_instance = i.id " + // Corrigido: instance_id -> id_instance
+           "JOIN instance i ON dv.id_instance = i.id " +
            "WHERE i.popular_council_associated_with_committee_or_worker = :councilId " +
            "OR i.popular_council_associated_with_popular_council = :councilId " +
-           "GROUP BY dv.social_materialization_id", 
+           "GROUP BY dv.id_social_materialization", 
            nativeQuery = true)
     List<Object[]> calculateAverageDemandsByMaterializationForCouncilChildren(@Param("councilId") Integer councilId);
 }
