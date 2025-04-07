@@ -79,9 +79,6 @@ public class Instance {
     private List<DemandVector> demandVectors;
     
     @OneToMany(mappedBy = "instance")
-    private List<TechnologicalTensor> technologicalTensors;
-        
-    @OneToMany(mappedBy = "instance")
     private List<OptimizationInputsResults> optimizationResults = new ArrayList<>();
     
     @OneToMany(mappedBy = "instance")
