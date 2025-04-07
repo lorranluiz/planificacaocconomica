@@ -243,7 +243,7 @@ function proceedCalculation() {
     // Atualizar status para processando
     updateCalculationStatus('Processando cálculo de estimativas...', 'processing');
     
-    // Chamar a API para calcular as estimativas (mantenha a implementação original)
+    // Chamar a API para calcular as estimativas
     fetch(`/api/council/${instanceId}/calculate-estimates`, {
         method: 'POST',
         headers: {
@@ -259,7 +259,7 @@ function proceedCalculation() {
     .then(data => {
         console.log("Dados completos recebidos do servidor:", data);
         
-        // Processar a resposta e atualizar as tabelas (implementação original)
+        // Processar a resposta e atualizar as tabelas
         if (data.technologicalMatrix) {
             console.log("Atualizando matriz tecnológica:", data.technologicalMatrix);
             updateTechnologicalMatrix(data.technologicalMatrix);
@@ -273,13 +273,6 @@ function proceedCalculation() {
         } else {
             console.error("Vetor de demanda não encontrado na resposta");
         }
-        
-        // Agora buscar as configurações de otimização das instâncias filhas
-        return fetchOptimizationConfigsFromChildren(instanceId);
-    })
-    .then(optimizationData => {
-        // Processar as configurações médias de otimização
-        processOptimizationConfigs(optimizationData);
         
         // Atualizar status para sucesso
         updateCalculationStatus('Estimativas calculadas com sucesso!', 'success');
@@ -303,117 +296,4 @@ function proceedCalculation() {
         // Atualizar status para erro
         updateCalculationStatus(`Erro: ${error.message || 'Falha ao processar dados'}`, 'error');
     });
-}
-
-/**
- * Calcula as estimativas de matriz tecnológica e vetor de demanda
- * @param {number} instanceId - ID da instância do conselho
- * @returns {Promise} - Promise que resolve com os dados das estimativas
- */
-function calculateEstimates(instanceId) {
-    return fetch(`/api/council/${instanceId}/calculate-estimates`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        }
-    })
-    .then(response => {
-        if (!response.ok) {
-            return handleHttpError(response);
-        }
-        return response.json();
-    });
-}
-
-/**
- * Processa os dados das estimativas calculadas
- * @param {Object} data - Dados das estimativas
- */
-function processEstimatesData(data) {
-    console.log("Dados completos recebidos do servidor:", data);
-    
-    // Atualizar matriz tecnológica
-    if (data.technologicalMatrix) {
-        console.log("Atualizando matriz tecnológica:", data.technologicalMatrix);
-        updateTechnologicalMatrix(data.technologicalMatrix);
-    } else {
-        console.error("Matriz tecnológica não encontrada na resposta");
-    }
-    
-    // Atualizar vetor de demanda
-    if (data.demandVector) {
-        console.log("Atualizando vetor de demanda:", data.demandVector);
-        updateDemandVector(data.demandVector);
-    } else {
-        console.error("Vetor de demanda não encontrado na resposta");
-    }
-}
-
-/**
- * Busca as configurações de otimização das instâncias filhas
- * @param {number} councilId - ID do conselho
- * @returns {Promise} - Promise que resolve com os dados das configurações de otimização
- */
-function fetchOptimizationConfigsFromChildren(councilId) {
-    return fetch(`/api/council/${councilId}/children-optimization-configs`)
-        .then(response => {
-            if (!response.ok) {
-                // Se a API não estiver implementada ainda, retornar um objeto vazio
-                // para não quebrar o fluxo
-                if (response.status === 404) {
-                    console.warn('API de configurações de otimização das instâncias filhas não implementada.');
-                    return { materializationConfigs: {} };
-                }
-                return handleHttpError(response);
-            }
-            return response.json();
-        })
-        .catch(error => {
-            console.error('Erro ao buscar configurações de otimização:', error);
-            // Retornar objeto vazio para não quebrar o fluxo
-            return { materializationConfigs: {} };
-        });
-}
-
-/**
- * Processa as configurações médias de otimização
- * @param {Object} data - Dados das configurações de otimização
- */
-function processOptimizationConfigs(data) {
-    if (!data || !data.materializationConfigs) {
-        console.warn('Nenhuma configuração de otimização recebida');
-        return;
-    }
-    
-    console.log('Processando configurações médias de otimização:', data);
-    
-    // Para cada materialização, atualizar as configurações de otimização
-    Object.entries(data.materializationConfigs).forEach(([materializationId, config]) => {
-        materializationId = parseInt(materializationId);
-        
-        // Buscar índice da materialização no array global
-        const productIndex = productIds.indexOf(materializationId);
-        
-        // Se a materialização não foi encontrada, pular
-        if (productIndex === -1) {
-            console.warn(`Materialização #${materializationId} não encontrada na lista atual`);
-            return;
-        }
-        
-        // Atualizar configurações de otimização na estrutura global
-        optimizationConfigs[productIndex] = {
-            materializationId: materializationId,
-            workerLimit: config.workerLimit,
-            workerHours: config.workerHours,
-            productionTime: config.productionTime,
-            weeklyScale: config.weeklyScale,
-            nightShift: config.nightShift
-        };
-        
-        console.log(`Configurações de otimização atualizadas para materialização #${materializationId} (índice ${productIndex}):`, 
-                  optimizationConfigs[productIndex]);
-    });
-    
-    // Notificar sobre as atualizações das configurações
-    showNotification('Configurações de otimização atualizadas com valores médios das instâncias filhas', 'success');
 }

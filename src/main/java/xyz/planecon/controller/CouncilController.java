@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import xyz.planecon.dto.EstimatesResponseDTO;
 import xyz.planecon.dto.InstanceDto;
+import xyz.planecon.dto.OptimizationConfigsResponseDTO;
 import xyz.planecon.service.CouncilService;
 
 import java.util.List;
@@ -42,5 +43,17 @@ public class CouncilController {
     public ResponseEntity<List<InstanceDto>> getChildInstances(@PathVariable Integer councilId) {
         List<InstanceDto> childInstances = councilService.getChildInstances(councilId);
         return ResponseEntity.ok(childInstances);
+    }
+
+    /**
+     * Endpoint para buscar as configurações de otimização das instâncias filhas de um conselho
+     * 
+     * @param councilId ID da instância do conselho
+     * @return Objeto contendo as configurações médias de otimização por materialização
+     */
+    @GetMapping("/{councilId}/children-optimization-configs")
+    public ResponseEntity<OptimizationConfigsResponseDTO> getChildrenOptimizationConfigs(@PathVariable Integer councilId) {
+        OptimizationConfigsResponseDTO configs = councilService.calculateAverageOptimizationConfigs(councilId);
+        return ResponseEntity.ok(configs);
     }
 }

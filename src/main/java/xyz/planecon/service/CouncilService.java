@@ -7,18 +7,22 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.planecon.dto.EstimatesResponseDTO;
 import xyz.planecon.dto.InstanceDto;
+import xyz.planecon.dto.OptimizationConfigsResponseDTO;
 import xyz.planecon.exception.ResourceNotFoundException;
 import xyz.planecon.model.entity.Instance;
 import xyz.planecon.model.entity.TechnologicalTensor;
 import xyz.planecon.model.entity.DemandVector;
 import xyz.planecon.model.entity.SocialMaterialization;
+import xyz.planecon.model.entity.OptimizationInputsResults;
 import xyz.planecon.model.enums.InstanceType;
 import xyz.planecon.repository.DemandVectorRepository;
 import xyz.planecon.repository.InstanceRepository;
 import xyz.planecon.repository.TechnologicalTensorRepository;
 import xyz.planecon.repository.SocialMaterializationRepository;
+import xyz.planecon.repository.OptimizationInputsResultsRepository;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -38,6 +42,9 @@ public class CouncilService {
 
     @Autowired
     private SocialMaterializationRepository materializationRepository;
+
+    @Autowired
+    private OptimizationInputsResultsRepository optimizationRepository;
 
     /**
      * Calcula estimativas de matriz tecnológica e vetor de demanda com base nas instâncias filhas
@@ -150,6 +157,193 @@ public class CouncilService {
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Calcula a média das configurações de otimização das instâncias filhas por materialização
+     * 
+     * @param councilId ID do conselho pai
+     * @return DTO com as configurações médias de otimização por materialização
+     */
+    @Transactional(readOnly = true)
+    public OptimizationConfigsResponseDTO calculateAverageOptimizationConfigs(Integer councilId) {
+        logger.info("Calculando configurações médias de otimização para o conselho ID: {}", councilId);
+        
+        // 1. Buscar instância do conselho
+        Instance council = instanceRepository.findById(councilId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conselho", councilId));
+                
+        // 2. Verificar se é realmente um conselho
+        if (council.getType() != InstanceType.COUNCIL) {
+            throw new IllegalArgumentException("A instância não é um conselho: " + councilId);
+        }
+        
+        // 3. Buscar todas as instâncias filhas
+        List<Instance> allChildren = new ArrayList<>();
+        
+        // Buscar todas as instâncias filhas diretas (comitês e trabalhadores)
+        List<Instance> directChildren = instanceRepository.findByPopularCouncilAssociatedWithCommitteeOrWorker(council);
+        allChildren.addAll(directChildren);
+        
+        // Buscar todos os conselhos filhos
+        List<Instance> childCouncils = instanceRepository.findByPopularCouncilAssociatedWithPopularCouncil(council);
+        allChildren.addAll(childCouncils);
+        
+        // Filtrar para evitar incluir o próprio conselho na lista
+        allChildren = allChildren.stream()
+                .filter(child -> !child.getId().equals(councilId))
+                .collect(Collectors.toList());
+                
+        logger.info("Encontradas {} instâncias filhas para cálculo de configurações de otimização", allChildren.size());
+        
+        // 4. Para cada materialização, calcular a média das configurações
+        Map<Integer, Map<String, List<Object>>> materializationConfigsAggregated = new HashMap<>();
+        
+        // Para cada instância filha, buscar as configurações de otimização
+        for (Instance child : allChildren) {
+            // Buscar configurações de otimização desta instância
+            List<OptimizationInputsResults> childConfigs = optimizationRepository.findById_InstanceId(child.getId());
+            
+            for (OptimizationInputsResults config : childConfigs) {
+                // Obter a materialização
+                Integer materializationId = config.getSocialMaterialization().getId();
+                
+                // Inicializar o mapa de agregação para esta materialização se não existir
+                materializationConfigsAggregated.putIfAbsent(materializationId, new HashMap<>());
+                Map<String, List<Object>> configValues = materializationConfigsAggregated.get(materializationId);
+                
+                // Adicionar valores para as médias
+                addToListInMap(configValues, "workerLimit", config.getWorkerLimit());
+                addToListInMap(configValues, "workerHours", config.getWorkerHours());
+                addToListInMap(configValues, "productionTime", config.getProductionTime());
+                addToListInMap(configValues, "weeklyScale", config.getWeeklyScale());
+                addToListInMap(configValues, "nightShift", config.getNightShift());
+            }
+        }
+        
+        // 5. Calcular as médias
+        Map<Integer, OptimizationConfigsResponseDTO.OptimizationConfigDTO> finalConfigs = new HashMap<>();
+        
+        for (Map.Entry<Integer, Map<String, List<Object>>> entry : materializationConfigsAggregated.entrySet()) {
+            Integer materializationId = entry.getKey();
+            Map<String, List<Object>> configValues = entry.getValue();
+            
+            // Calcular média de workerLimit
+            Integer workerLimit = calculateIntegerAverage(configValues.get("workerLimit"));
+            
+            // Calcular média de workerHours
+            BigDecimal workerHours = calculateBigDecimalAverage(configValues.get("workerHours"));
+            
+            // Calcular média de productionTime
+            BigDecimal productionTime = calculateBigDecimalAverage(configValues.get("productionTime"));
+            
+            // Calcular média de weeklyScale
+            Integer weeklyScale = calculateIntegerAverage(configValues.get("weeklyScale"));
+            
+            // Calcular valor mais comum de nightShift
+            Boolean nightShift = calculateMostCommonBoolean(configValues.get("nightShift"));
+            
+            // Criar DTO de configuração
+            OptimizationConfigsResponseDTO.OptimizationConfigDTO configDTO = 
+                OptimizationConfigsResponseDTO.OptimizationConfigDTO.builder()
+                    .workerLimit(workerLimit)
+                    .workerHours(workerHours)
+                    .productionTime(productionTime)
+                    .weeklyScale(weeklyScale)
+                    .nightShift(nightShift)
+                    .build();
+                    
+            // Adicionar ao mapa final
+            finalConfigs.put(materializationId, configDTO);
+            
+            logger.info("Configuração média calculada para materialização {}: {}", materializationId, configDTO);
+        }
+        
+        return OptimizationConfigsResponseDTO.builder()
+                .materializationConfigs(finalConfigs)
+                .build();
+    }
+    
+    /**
+     * Adiciona um valor a uma lista em um mapa, criando a lista se não existir
+     */
+    private <T> void addToListInMap(Map<String, List<Object>> map, String key, T value) {
+        if (value == null) return;
+        
+        map.putIfAbsent(key, new ArrayList<>());
+        map.get(key).add(value);
+    }
+    
+    /**
+     * Calcula a média de valores inteiros
+     */
+    private Integer calculateIntegerAverage(List<Object> values) {
+        if (values == null || values.isEmpty()) {
+            return null;
+        }
+        
+        int sum = 0;
+        int count = 0;
+        
+        for (Object value : values) {
+            if (value instanceof Integer) {
+                sum += (Integer) value;
+                count++;
+            } else if (value instanceof Number) {
+                sum += ((Number) value).intValue();
+                count++;
+            }
+        }
+        
+        return count > 0 ? sum / count : null;
+    }
+    
+    /**
+     * Calcula a média de valores BigDecimal
+     */
+    private BigDecimal calculateBigDecimalAverage(List<Object> values) {
+        if (values == null || values.isEmpty()) {
+            return null;
+        }
+        
+        BigDecimal sum = BigDecimal.ZERO;
+        int count = 0;
+        
+        for (Object value : values) {
+            if (value instanceof BigDecimal) {
+                sum = sum.add((BigDecimal) value);
+                count++;
+            } else if (value instanceof Number) {
+                sum = sum.add(BigDecimal.valueOf(((Number) value).doubleValue()));
+                count++;
+            }
+        }
+        
+        return count > 0 ? sum.divide(BigDecimal.valueOf(count), 4, RoundingMode.HALF_UP) : null;
+    }
+    
+    /**
+     * Calcula o valor booleano mais comum (moda)
+     */
+    private Boolean calculateMostCommonBoolean(List<Object> values) {
+        if (values == null || values.isEmpty()) {
+            return null;
+        }
+        
+        int trueCount = 0;
+        int falseCount = 0;
+        
+        for (Object value : values) {
+            if (value instanceof Boolean) {
+                if ((Boolean) value) {
+                    trueCount++;
+                } else {
+                    falseCount++;
+                }
+            }
+        }
+        
+        return trueCount >= falseCount;
     }
 
     /**
