@@ -114,10 +114,7 @@ function openOptimizationConfigModal(productIndex) {
     if (optimizationConfigs[productIndex]) {
         fillOptimizationModalWithData(optimizationConfigs[productIndex]);
         document.getElementById('optimizationModalSpinner').style.display = 'none';
-        
-        // Exibir a modal com display block em vez de flex para compatibilidade
-        const modal = document.getElementById('optimizationConfigModal');
-        modal.style.display = 'block';
+        document.getElementById('optimizationConfigModal').style.display = 'block';
         return;
     }
     
@@ -144,9 +141,8 @@ function openOptimizationConfigModal(productIndex) {
             // Preencher o modal com os dados recebidos
             fillOptimizationModalWithData(config);
             
-            // Mostrar o modal com display block (não flex)
-            const modal = document.getElementById('optimizationConfigModal');
-            modal.style.display = 'block';
+            // Mostrar o modal
+            document.getElementById('optimizationConfigModal').style.display = 'block';
         })
         .catch(error => {
             console.error('Erro ao carregar configuração:', error);
@@ -165,10 +161,7 @@ function openOptimizationConfigModal(productIndex) {
             
             // Preencher o modal com valores padrão
             fillOptimizationModalWithData(defaultConfig);
-            
-            // Mostrar o modal com display block (não flex)
-            const modal = document.getElementById('optimizationConfigModal');
-            modal.style.display = 'block';
+            document.getElementById('optimizationConfigModal').style.display = 'block';
         })
         .finally(() => {
             document.getElementById('optimizationModalSpinner').style.display = 'none';
@@ -176,10 +169,7 @@ function openOptimizationConfigModal(productIndex) {
 }
 
 function closeOptimizationConfigModal() {
-    const modal = document.getElementById('optimizationConfigModal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
+    document.getElementById('optimizationConfigModal').style.display = 'none';
     currentOptimizationProductIndex = -1;
 }
 
@@ -279,7 +269,10 @@ function openOptimizationResultModal(index) {
     }
     
     // Definir explicitamente o nome do produto com base no índice atual da tabela
+    // em vez de confiar no nome armazenado no resultado
     document.getElementById('optimizationModalProductName').textContent = productNames[index];
+    
+    // Restante do código permanece o mesmo...
     
     // Formatar valores numéricos com verificação de existência
     const formatNumber = (value, decimals = 2) => {
@@ -348,8 +341,8 @@ function openOptimizationResultModal(index) {
     style.id = 'optimization-modal-style';
     document.head.appendChild(style);
     
-    // Exibir a modal com display block em vez de flex para consistência
-    document.getElementById('optimizationResultModal').style.display = 'block';
+    // Exibir a modal
+    document.getElementById('optimizationResultModal').style.display = 'flex';
 }
 
 function closeOptimizationResultModal() {
@@ -1319,12 +1312,60 @@ function calculateEstimates() {
         return;
     }
     
-    // Primeiro mostrar as instâncias filhas e só depois prosseguir com o cálculo
-    loadAndShowChildInstances(instanceId)
-        .catch(error => {
-            console.error('Erro:', error);
-            // O erro já é tratado dentro da função loadAndShowChildInstances
-        });
+    // Pedir confirmação ao usuário
+    if (!confirm('Esta operação irá atualizar os valores da matriz tecnológica e do vetor de demanda com base nas instâncias filhas. Deseja continuar?')) {
+        return;
+    }
+    
+    // Mostrar status de processamento
+    const statusElement = document.getElementById('calculationStatus');
+    statusElement.style.display = 'inline-block';
+    
+    // Mostrar notificação de processamento
+    const processingNotification = showNotification('Processando cálculo de estimativas...', 'info');
+    
+    // Chamar a API para calcular as estimativas
+    fetch(`/api/council/${instanceId}/calculate-estimates`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            return handleHttpError(response);
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Processar a resposta e atualizar as tabelas
+        updateTechnologicalMatrix(data.technologicalMatrix);
+        updateDemandVector(data.demandVector);
+        
+        // Remover notificação de processamento
+        processingNotification.remove();
+        
+        // Mostrar mensagem de sucesso
+        showNotification('Estimativas calculadas com sucesso!', 'success');
+        
+        // Marcar que há alterações pendentes para salvar
+        pageState.isDirty = true;
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        
+        // Remover notificação de processamento
+        processingNotification.remove();
+        
+        // Se o erro já foi tratado por handleHttpError, não mostrar notificação duplicada
+        if (!error.status) {
+            showNotification(`Erro ao calcular estimativas: ${error.message}`, 'error');
+        }
+    })
+    .finally(() => {
+        // Esconder status de processamento
+        statusElement.style.display = 'none';
+    });
 }
 
 // Function to update matrix and vector data from UI
@@ -1597,73 +1638,4 @@ function logDemandVectorStatus() {
             console.log("Estado atual do vetor de demanda no servidor:", data);
         })
         .catch(err => console.error("Erro ao verificar vetor de demanda:", err));
-}
-
-/**
- * Atualiza a matriz tecnológica com os novos valores calculados
- * @param {Object} technologicalMatrixData - Dados da matriz tecnológica
- */
-function updateTechnologicalMatrix(technologicalMatrixData) {
-    if (!technologicalMatrixData || !technologicalMatrixData.matrix) {
-        showNotification('Dados da matriz tecnológica inválidos', 'error');
-        return;
-    }
-    
-    console.log('Atualizando matriz tecnológica com dados recebidos:', technologicalMatrixData);
-    
-    // Atualizar variáveis globais
-    technologicalMatrix = technologicalMatrixData.matrix;
-    productNames = technologicalMatrixData.productNames || [];
-    productIds = technologicalMatrixData.productIds || [];
-    
-    // Renderizar a matriz na interface
-    renderTechnologicalMatrix();
-    
-    // Mostrar mensagem de sucesso
-    showNotification('Matriz tecnológica atualizada com sucesso', 'success');
-}
-
-/**
- * Atualiza o vetor de demanda com os novos valores calculados
- * @param {Object} demandVectorData - Dados do vetor de demanda
- */
-function updateDemandVector(demandVectorData) {
-    if (!demandVectorData || !demandVectorData.vector) {
-        showNotification('Dados do vetor de demanda inválidos', 'error');
-        return;
-    }
-    
-    console.log('Atualizando vetor de demanda com dados recebidos:', demandVectorData);
-    
-    // Atualizar variáveis globais
-    demandVector = demandVectorData.vector;
-    
-    // Verificar se os nomes dos produtos e IDs devem ser atualizados
-    if (demandVectorData.productNames && demandVectorData.productNames.length > 0) {
-        productNames = demandVectorData.productNames;
-    }
-    
-    if (demandVectorData.productIds && demandVectorData.productIds.length > 0) {
-        productIds = demandVectorData.productIds;
-    }
-    
-    // Renderizar o vetor na interface
-    renderDemandVector();
-    
-    // Mostrar mensagem de sucesso
-    showNotification('Vetor de demanda atualizado com sucesso', 'success');
-}
-
-/**
- * Atualiza o valor de um elemento no vetor de demanda
- * @param {number} index - Índice do elemento a ser atualizado
- * @param {string|number} value - Novo valor
- */
-function updateDemandVector(index, value) {
-    if (index >= 0 && index < demandVector.length) {
-        // Converter para número e garantir que não seja NaN
-        const numValue = parseFloat(value) || 0;
-        demandVector[index] = numValue;
-        console.log(`Demanda atualizada no índice ${index}: ${numValue}`);
-    }
 }

@@ -78,7 +78,7 @@ public interface DemandVectorRepository extends JpaRepository<DemandVector, Dema
      */
     @Query(value = "SELECT dv.social_materialization_id as materializationId, AVG(dv.demand) as averageDemand " +
            "FROM demand_vector dv " +
-           "JOIN instance i ON dv.instance_id = i.id " +
+           "JOIN instance i ON dv.id_instance = i.id " + // Corrigido: instance_id -> id_instance
            "WHERE i.popular_council_associated_with_committee_or_worker = :councilId " +
            "OR i.popular_council_associated_with_popular_council = :councilId " +
            "GROUP BY dv.social_materialization_id", 

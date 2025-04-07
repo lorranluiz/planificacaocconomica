@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.planecon.dto.EstimatesResponseDTO;
+import xyz.planecon.dto.InstanceDto;
 import xyz.planecon.exception.ResourceNotFoundException;
 import xyz.planecon.model.entity.Instance;
 import xyz.planecon.model.entity.TechnologicalTensor;
@@ -88,6 +89,59 @@ public class CouncilService {
                 .technologicalMatrix(techMatrix)
                 .demandVector(demandVector)
                 .build();
+    }
+
+    /**
+     * Retorna todas as instâncias filhas de um conselho
+     * 
+     * @param councilId ID da instância do conselho
+     * @return Lista de instâncias filhas
+     */
+    @Transactional(readOnly = true)
+    public List<InstanceDto> getChildInstances(Integer councilId) {
+        logger.info("Buscando instâncias filhas para conselho ID: {}", councilId);
+        
+        // Verificar se o conselho existe
+        Instance council = instanceRepository.findById(councilId)
+                .orElseThrow(() -> new ResourceNotFoundException("Conselho", councilId));
+
+        // Verificar se é realmente um conselho
+        if (council.getType() != InstanceType.COUNCIL) {
+            throw new IllegalArgumentException("A instância não é um conselho: " + councilId);
+        }
+        
+        // Buscar todas as instâncias filhas diretas (comitês e trabalhadores)
+        List<Instance> directChildren = instanceRepository.findByPopularCouncilAssociatedWithCommitteeOrWorker(council);
+        
+        // Buscar todos os conselhos filhos
+        List<Instance> childCouncils = instanceRepository.findByPopularCouncilAssociatedWithPopularCouncil(council);
+        
+        // Combinar ambas as listas
+        List<Instance> allChildren = new ArrayList<>();
+        allChildren.addAll(directChildren);
+        allChildren.addAll(childCouncils);
+        
+        // Converter para DTOs
+        return allChildren.stream()
+                .map(instance -> {
+                    InstanceDto dto = new InstanceDto();
+                    dto.setId(instance.getId());
+                    
+					// Definir nome apropriado com base no tipo
+					if (instance.getType() == InstanceType.COMMITTEE) {
+						dto.setName(instance.getCommitteeName());
+					} else if (instance.getType() == InstanceType.COUNCIL) {
+						dto.setName(instance.getCommitteeName() != null ? instance.getCommitteeName() : "Conselho #" + instance.getId());
+					} else {
+						// Caso seja um trabalhador ou outro tipo, usar nome padrão
+						dto.setName("Trabalhador #" + instance.getId());
+					}
+                    
+                    // Passar o enum diretamente, não o nome como string
+                    dto.setType(instance.getType());
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 
     /**
