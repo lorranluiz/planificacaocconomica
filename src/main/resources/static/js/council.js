@@ -483,11 +483,11 @@ function updateDemandVectorFromUI() {
     return demandVector;
 }
 
-// Função corrigida para renderizar o vetor de produção
+// Função corrigida para renderizar o vetor de produção SEM os botões de otimização
 function renderProductionVector(productionVector) {
     const resultsContainer = document.getElementById('results');
     if (!resultsContainer) {
-        console.error("Container de resultados não encontrado");
+        console.error('Container de resultados não encontrado');
         return;
     }
     
@@ -519,25 +519,26 @@ function renderProductionVector(productionVector) {
     
     // Função para formatar números
     const formatNumber = (value) => {
-        if (value === undefined || value === null) return 'N/A';
-        return typeof value === 'number' ? value.toFixed(2) : value;
+        if (value === null || value === undefined || isNaN(value)) return "0";
+        return typeof value === 'number' 
+            ? value.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) 
+            : value.toString().replace('.', ',');
     };
     
-    // Adicionar linhas para cada produto - IMPORTANTE: Com botão "Detalhes" em vez de "Configurar Otimização"
+    // Adicionar linhas para cada produto - APENAS com botão "Detalhes"
     productionVector.forEach((production, index) => {
         if (index < productNames.length) {
             const tr = document.createElement('tr');
-            
             tr.innerHTML = `
                 <td>${productNames[index]}</td>
                 <td>${formatNumber(production)}</td>
-                <td>
-                    <button class="btn details-btn" onclick="openOptimizationResultModal(${index})">
-                        Detalhes
+                <td class="action-buttons">
+                    <button class="action-btn details-btn" title="Ver detalhes de otimização"
+                        onclick="openOptimizationResultModal(${index})">
+                        <i class="fas fa-chart-bar"></i>
                     </button>
                 </td>
             `;
-            
             tbody.appendChild(tr);
         }
     });
@@ -547,82 +548,9 @@ function renderProductionVector(productionVector) {
     
     // 5. Garantir que o container de resultados esteja visível
     resultsContainer.style.display = 'block';
-}
-
-// Function to validate product indices
-function validateProductIndex(index) {
-    if (index === undefined || index === null || isNaN(index) || 
-        index < 0 || index >= productIds.length) {
-        console.error(`Índice de produto inválido: ${index}`);
-        console.log("productIds.length =", productIds.length);
-        console.log("productIds =", productIds);
-        return false;
-    }
-    return true;
-}
-
-// Function to render the technological matrix
-function renderTechnologicalMatrix() {
-    if (!technologicalMatrix || !productNames) return;
     
-    const technologicalMatrixTable = document.getElementById('technologicalMatrix');
-    if (!technologicalMatrixTable) {
-        console.error("Tabela de matriz tecnológica não encontrada");
-        return;
-    }
-    
-    // Limpar tabela
-    technologicalMatrixTable.querySelector('thead tr').innerHTML = '<th></th>';
-    technologicalMatrixTable.querySelector('tbody').innerHTML = '';
-    
-    // Adicionar cabeçalhos de colunas
-    productNames.forEach(name => {
-        const th = document.createElement('th');
-        th.textContent = name;
-        technologicalMatrixTable.querySelector('thead tr').appendChild(th);
-    });
-    
-    // Adicionar linhas com valores
-    technologicalMatrix.forEach((row, rowIndex) => {
-        const tr = document.createElement('tr');
-        
-        // Adicionar nome do produto como primeira célula
-        const headerCell = document.createElement('th');
-        headerCell.textContent = productNames[rowIndex];
-        tr.appendChild(headerCell);
-        
-        // Adicionar valores da matriz
-        row.forEach((value, colIndex) => {
-            const td = document.createElement('td');
-            const input = document.createElement('input');
-            input.type = 'number';
-            input.step = '0.01';
-            input.value = value;
-            input.dataset.row = rowIndex;
-            input.dataset.col = colIndex;
-            input.addEventListener('change', function() {
-                technologicalMatrix[rowIndex][colIndex] = parseFloat(this.value) || 0;
-            });
-            td.appendChild(input);
-            tr.appendChild(td);
-        });
-        
-        technologicalMatrixTable.querySelector('tbody').appendChild(tr);
-    });
-}
-
-// Function to render optimization results - moved to global scope
-function renderOptimizationResults(optimizationResults) {
-    // This is a simplified version - just logging the results
-    console.log("Optimization results:", optimizationResults);
-    
-    // In a complete implementation, you would:
-    // 1. Find or create a container for the optimization results
-    // 2. Render a table or cards showing the optimization details
-    // 3. Add visualizations like charts if needed
-    
-    // Since we're now using the more complete renderProductionVector function,
-    // which already includes the optimization results, this function can be minimal
+    // 6. Armazenar os resultados para uso posterior na otimização
+    storeOptimizationResults(productionVector);
 }
 
 // Function to render demand vector - moved to global scope
@@ -707,11 +635,21 @@ function renderDemandVector() {
         tdValue.appendChild(input);
         tr.appendChild(tdValue);
         
-        // Célula com botões de ação
+        // Célula com botões de ação - AGORA INCLUINDO BOTÃO DE CONFIGURAR OTIMIZAÇÃO
         const tdActions = document.createElement('td');
         tdActions.className = 'action-buttons';
         
-        // Botão para remover materialização
+        // Adicionar botão de Configurar Otimização
+        const configBtn = document.createElement('button');
+        configBtn.className = 'action-btn config-btn';
+        configBtn.title = 'Configurar parâmetros de otimização';
+        configBtn.innerHTML = '<i class="fas fa-cogs"></i>';
+        configBtn.onclick = function() {
+            openOptimizationConfigModal(index);
+        };
+        tdActions.appendChild(configBtn);
+        
+        // Adicionar botão para remover materialização
         const removeButton = document.createElement('button');
         removeButton.className = 'action-btn remove-btn';
         removeButton.title = 'Remover';
@@ -724,6 +662,82 @@ function renderDemandVector() {
         tr.appendChild(tdActions);
         tbody.appendChild(tr);
     });
+}
+
+// Function to validate product indices
+function validateProductIndex(index) {
+    if (index === undefined || index === null || isNaN(index) || 
+        index < 0 || index >= productIds.length) {
+        console.error(`Índice de produto inválido: ${index}`);
+        console.log("productIds.length =", productIds.length);
+        console.log("productIds =", productIds);
+        return false;
+    }
+    return true;
+}
+
+// Function to render the technological matrix
+function renderTechnologicalMatrix() {
+    if (!technologicalMatrix || !productNames) return;
+    
+    const technologicalMatrixTable = document.getElementById('technologicalMatrix');
+    if (!technologicalMatrixTable) {
+        console.error("Tabela de matriz tecnológica não encontrada");
+        return;
+    }
+    
+    // Limpar tabela
+    technologicalMatrixTable.querySelector('thead tr').innerHTML = '<th></th>';
+    technologicalMatrixTable.querySelector('tbody').innerHTML = '';
+    
+    // Adicionar cabeçalhos de colunas
+    productNames.forEach(name => {
+        const th = document.createElement('th');
+        th.textContent = name;
+        technologicalMatrixTable.querySelector('thead tr').appendChild(th);
+    });
+    
+    // Adicionar linhas com valores
+    technologicalMatrix.forEach((row, rowIndex) => {
+        const tr = document.createElement('tr');
+        
+        // Adicionar nome do produto como primeira célula
+        const headerCell = document.createElement('th');
+        headerCell.textContent = productNames[rowIndex];
+        tr.appendChild(headerCell);
+        
+        // Adicionar valores da matriz
+        row.forEach((value, colIndex) => {
+            const td = document.createElement('td');
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.step = '0.01';
+            input.value = value;
+            input.dataset.row = rowIndex;
+            input.dataset.col = colIndex;
+            input.addEventListener('change', function() {
+                technologicalMatrix[rowIndex][colIndex] = parseFloat(this.value) || 0;
+            });
+            td.appendChild(input);
+            tr.appendChild(td);
+        });
+        
+        technologicalMatrixTable.querySelector('tbody').appendChild(tr);
+    });
+}
+
+// Function to render optimization results - moved to global scope
+function renderOptimizationResults(optimizationResults) {
+    // This is a simplified version - just logging the results
+    console.log("Optimization results:", optimizationResults);
+    
+    // In a complete implementation, you would:
+    // 1. Find or create a container for the optimization results
+    // 2. Render a table or cards showing the optimization details
+    // 3. Add visualizations like charts if needed
+    
+    // Since we're now using the more complete renderProductionVector function,
+    // which already includes the optimization results, this function can be minimal
 }
 
 // Mantém o restante do código dentro do evento DOMContentLoaded
@@ -2252,3 +2266,109 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 });
+
+/**
+ * Adiciona um botão "Configurar Parâmetros de Otimização" para cada produto na tabela de resultados
+ * @param {number} index - Índice do produto na tabela
+ * @param {number} production - Quantidade de produção do produto
+ * @param {string} name - Nome do produto
+ * @returns {string} - HTML do botão de configuração e detalhes
+ */
+function createOptimizationButton(index, production, name) {
+    return `
+        <button class="action-btn config-btn" title="Configurar parâmetros de otimização"
+            onclick="openOptimizationConfigModal(${index})">
+            <i class="fas fa-cogs"></i>
+        </button>
+        <button class="action-btn details-btn" title="Ver detalhes de otimização"
+            onclick="openOptimizationResultModal(${index})">
+            <i class="fas fa-chart-bar"></i>
+        </button>
+    `;
+}
+
+/**
+ * Calcula os resultados de otimização para um produto
+ * @param {number} productIndex - Índice do produto
+ */
+function calculateOptimizationResults(productIndex) {
+    // Verificar se temos configuração e resultado para este produto
+    if (!optimizationConfigs[productIndex] || !optimizationResults[productIndex]) {
+        console.error('Configuração ou resultado de otimização não encontrado para índice', productIndex);
+        return;
+    }
+    
+    const config = optimizationConfigs[productIndex];
+    const result = optimizationResults[productIndex];
+    
+    // Pegar a produção necessária do resultado
+    const productionNeeded = result.productionNeeded;
+    
+    // Calcular horas totais necessárias
+    const totalHours = productionNeeded * config.productionTime;
+    
+    // Calcular horas disponíveis por trabalhador por dia
+    const workerHoursPerDay = config.workerHours * (config.nightShift ? 2 : 1);
+    
+    // Calcular horas totais de trabalho disponíveis por semana
+    const totalWeeklyHours = workerHoursPerDay * config.weeklyScale;
+    
+    // Calcular trabalhadores necessários
+    // (horas totais / horas por trabalhador por semana)
+    const workersNeeded = totalHours / totalWeeklyHours;
+    
+    // Calcular fábricas necessárias
+    // (trabalhadores necessários / limite de trabalhadores por fábrica)
+    const factoriesNeeded = workersNeeded / config.workerLimit;
+    
+    // Calcular tempo mínimo de produção em dias
+    // (horas totais / (horas por fábrica por dia * número de fábricas))
+    const factoryDailyHours = config.workerLimit * workerHoursPerDay;
+    const minimumProductionTimeInDays = totalHours / (Math.ceil(factoriesNeeded) * factoryDailyHours);
+    
+    // Atualizar o objeto de resultados
+    result.totalHours = totalHours;
+    result.workersNeeded = workersNeeded;
+    result.factoriesNeeded = factoriesNeeded;
+    result.minimumProductionTimeInDays = minimumProductionTimeInDays;
+    result.factoryOperationHours = workerHoursPerDay;
+    
+    // Copiar valores da configuração para o resultado
+    result.workerLimit = config.workerLimit;
+    result.workerHours = config.workerHours;
+    result.productionTime = config.productionTime;
+    result.weeklyScale = config.weeklyScale;
+    result.nightShift = config.nightShift;
+    
+    console.log('Resultados de otimização calculados:', result);
+}
+
+/**
+ * Armazena os resultados de produção para uso na otimização
+ * @param {Array} productionVector - Vetor de produção calculado
+ */
+function storeOptimizationResults(productionVector) {
+    // Limpar resultados anteriores
+    optimizationResults = [];
+    
+    // Para cada produto no vetor de produção
+    productionVector.forEach((productionNeeded, index) => {
+        // Verificar se temos dados válidos para este índice
+        if (index < productNames.length && index < productIds.length) {
+            // Criar um objeto para armazenar os resultados e configurações de otimização
+            optimizationResults.push({
+                materializationId: productIds[index],
+                materializationName: productNames[index],
+                productionNeeded: productionNeeded,
+                // Outros campos serão adicionados quando o usuário configurar os parâmetros de otimização
+                totalHours: 0,
+                workersNeeded: 0,
+                factoriesNeeded: 0,
+                factoryOperationHours: 0,
+                minimumProductionTimeInDays: 0
+            });
+        }
+    });
+    
+    console.log('Resultados de otimização inicializados:', optimizationResults);
+}
