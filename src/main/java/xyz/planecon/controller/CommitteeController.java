@@ -9,8 +9,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import xyz.planecon.dto.CommitteeStateDTO;
+import xyz.planecon.dto.DemandsAndGoalsResponseDTO;
 import xyz.planecon.model.entity.*;
 import xyz.planecon.repository.*;
+import xyz.planecon.service.CommitteeService;
 import xyz.planecon.model.entity.TechnologicalTensor.TechnologicalTensorId;
 import xyz.planecon.model.entity.DemandStock.DemandStockId;
 import xyz.planecon.model.entity.DemandVector.DemandVectorId;
@@ -47,6 +49,9 @@ public class CommitteeController {
     
     @Autowired
     private SocialMaterializationRepository socialMaterializationRepository;
+
+    @Autowired
+    private CommitteeService committeeService;
 
     /**
      * Endpoint para salvar o estado completo de um comitê em uma única transação.
@@ -699,5 +704,17 @@ public class CommitteeController {
         
         // Converter mapa em lista
         return new ArrayList<>(matMap.values());
+    }
+
+    /**
+     * Endpoint para atualizar demandas e metas do comitê com base nas instâncias relacionadas
+     * 
+     * @param instanceId ID da instância do comitê
+     * @return Objeto contendo os dados de estoque/demanda e metas de produção atualizados
+     */
+    @PostMapping("/{instanceId}/update-demands-goals")
+    public ResponseEntity<DemandsAndGoalsResponseDTO> updateDemandsAndGoals(@PathVariable Integer instanceId) {
+        DemandsAndGoalsResponseDTO response = committeeService.updateDemandsAndGoals(instanceId);
+        return ResponseEntity.ok(response);
     }
 }

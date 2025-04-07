@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/common-styles.css">
     <link rel="stylesheet" href="css/theme-variables.css">
     <link rel="stylesheet" href="css/theme-elements.css">
+    <link rel="stylesheet" href="css/notification.css">
     <script src="/common-header.js"></script>
     <!-- CSS específico para planificação -->
     <style>
@@ -321,6 +322,24 @@
                     <h2 id="tensorTitle">Vetor Tecnológico</h2>
                     <p id="tensorDescription">O vetor tecnológico representa a quantidade de cada insumo necessária para produzir uma unidade do produto do comitê.</p>
                     
+                    <!-- Adicionar o botão de atualizar demandas e metas acima da tabela -->
+                    <div class="container-fluid mt-4">
+                        <h2>Vetor Tecnológico</h2>
+                        
+                        <div class="mb-3">
+                            <button id="btnUpdateDemandsAndGoals" class="btn btn-primary">
+                                <i class="fas fa-bullseye mr-2"></i> Atualizar Demandas e Metas
+                            </button>
+                            <span id="updateStatus" class="ml-2" style="display: none;">
+                                <i class="fas fa-spinner fa-spin"></i> Processando...
+                            </span>
+                        </div>
+                        
+                        <div class="table-responsive">
+                            <!-- Tabela do vetor tecnológico existente -->
+                        </div>
+                    </div>
+                    
                     <div class="matrix-container">
                         <table id="technologicalMatrix" class="editable-table">
                             <thead>
@@ -560,6 +579,7 @@
         </div>
     </div>
 
+    <script src="js/notifications.js"></script>
     <script src="js/committee.js"></script>
     <script>
         // Inicializar cabeçalho comum quando o documento estiver carregado

@@ -13,6 +13,7 @@ import xyz.planecon.model.entity.Instance;
 import xyz.planecon.model.entity.DemandStock.DemandStockId;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DemandStockRepository extends JpaRepository<DemandStock, DemandStockId> {
@@ -44,5 +45,11 @@ public interface DemandStockRepository extends JpaRepository<DemandStock, Demand
     void deleteByIdSocialMaterializationIdAndIdInstanceId(
         @Param("materializationId") Integer materializationId, 
         @Param("instanceId") Integer instanceId
+    );
+
+    @Query("SELECT ds FROM DemandStock ds WHERE ds.instance.id = :instanceId AND ds.socialMaterialization.id = :materializationId")
+    Optional<DemandStock> findByInstanceIdAndSocialMaterializationId(
+        @Param("instanceId") Integer instanceId, 
+        @Param("materializationId") Integer materializationId
     );
 }

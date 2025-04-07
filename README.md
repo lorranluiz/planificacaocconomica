@@ -5,6 +5,10 @@
     </picture>
 </p>
 
+# PlanEcon
+
+Sistema de planejamento econômico baseado em conselhos populares.
+
 ## 📚 Index
 1. [Languages](#languages)
 2. [Introduction](#introduction)
@@ -15,8 +19,11 @@
 7. [How to Use](#how-to-use)
     1. [Clone the Repository](#clone-the-repository)
     2. [Install](#install)
+    3. [Calculate Estimates (Council)](#calculate-estimates-council)
+    4. [Update Demands and Goals (Committee)](#update-demands-and-goals-committee)
 8. [Support](#support)
 9. [Contact](#contact)
+10. [New Features](#new-features)
 
 <a id="languages"></a>
 ## 🌐 Languages 
@@ -75,6 +82,24 @@ chmod +x build.sh
 ./build.sh
 ```
 
+<a id="calculate-estimates-council"></a>
+### 3. Calculate Estimates (Council)
+1. Acesse a página do conselho.
+2. Selecione o conselho desejado no dropdown.
+3. Clique no botão "Calcular Estimativas".
+4. Confirme a operação.
+5. As estimativas serão calculadas e exibidas na interface.
+6. Clique em "Salvar Alterações" para persistir os dados.
+
+<a id="update-demands-and-goals-committee"></a>
+### 4. Update Demands and Goals (Committee)
+1. Acesse a página do comitê.
+2. Selecione o comitê desejado no dropdown.
+3. Clique no botão "Atualizar Demandas e Metas".
+4. Confirme a operação.
+5. As demandas e metas serão atualizadas e exibidas na interface.
+6. Clique em "Salvar Alterações" para persistir os dados.
+
 <a id="support"></a>
 ## 💖 Support This Project
 This project is open-source and built with dedication to help the community. If you find it useful and would like to support its development, consider making a donation. Your support helps keep this project alive and evolving! 🚀
@@ -88,3 +113,49 @@ Every contribution, big or small, makes a difference. Thank you for your support
 <a id="contact"></a>
 ## 📧 Contact
 If you have any questions, please raise an issue or contact us at lorranluiz@id.uff.br .
+
+<a id="new-features"></a>
+## 🆕 New Features
+
+### Cálculo de Estimativas para Conselhos
+
+Implementamos um sistema que permite aos conselhos populares calcular estimativas de matriz tecnológica e vetor de demanda com base nos dados das instâncias filhas (comitês, trabalhadores e conselhos subordinados).
+
+#### Funcionalidades:
+
+- **Cálculo de média ponderada**: O sistema calcula a média dos coeficientes técnicos e demandas das instâncias filhas.
+- **Atualização automática**: Os valores calculados são automaticamente aplicados ao conselho.
+- **Interface visual**: Um botão na interface permite acionar o cálculo e visualizar os resultados.
+
+### Atualização de Demandas e Metas para Comitês
+
+Implementamos um sistema que permite aos comitês atualizar suas demandas e metas de produção com base nos dados do conselho ao qual estão associados.
+
+#### Funcionalidades:
+
+- **Sincronização com o conselho**: O comitê obtém a demanda do conselho para o produto que ele produz.
+- **Atualização de meta**: A meta de produção é automaticamente atualizada.
+- **Atualização de demandas**: As demandas de materializações sociais são sincronizadas.
+- **Interface visual**: Um botão na interface permite acionar a atualização.
+
+### Sistema de Notificações
+
+Implementamos um sistema de notificações visuais para dar feedback ao usuário sobre operações realizadas.
+
+#### Tipos de notificações:
+
+- **Sucesso**: Operação concluída com sucesso.
+- **Erro**: Falha na operação.
+- **Informação**: Mensagem informativa.
+- **Aviso**: Alerta sobre possíveis problemas.
+
+### Tratamento de Erros Aprimorado
+
+Implementamos um sistema de tratamento de erros para fornecer mensagens mais claras e facilitar a resolução de problemas.
+
+#### Funcionalidades:
+
+- **Manipulador global de exceções**: Tratamento consistente de erros em toda a aplicação.
+- **Exceções personalizadas**: Exceções específicas para cada tipo de erro.
+- **Mensagens detalhadas**: Descrições claras dos problemas encontrados.
+- **Logging aprimorado**: Registro detalhado de erros para depuração.

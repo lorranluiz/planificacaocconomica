@@ -167,6 +167,12 @@ document.addEventListener('DOMContentLoaded', function() {
         openPropostaBtn.addEventListener('click', openPropostaModal);
     }
     
+    // Botão para atualizar demandas e metas
+    const btnUpdateDemandsAndGoals = document.getElementById('btnUpdateDemandsAndGoals');
+    if (btnUpdateDemandsAndGoals) {
+        btnUpdateDemandsAndGoals.addEventListener('click', updateDemandsAndGoals);
+    }
+    
     // Verificar se há ID na URL para carregamento direto
     const urlParams = new URLSearchParams(window.location.search);
     const committeeId = urlParams.get('id');
@@ -1132,16 +1138,14 @@ function updateStateFromUI() {
  * Mostra uma mensagem de sucesso temporária
  */
 function showSuccessMessage(message) {
-    // Implementar lógica para mostrar mensagem de sucesso
-    alert(message); // Placeholder simples
+    showNotification(message, 'success');
 }
 
 /**
  * Mostra uma mensagem de erro temporária
  */
 function showErrorMessage(message) {
-    // Implementar lógica para mostrar mensagem de erro
-    alert(message); // Placeholder simples
+    showNotification(message, 'error');
 }
 
 // Funções para abrir modais
@@ -1502,6 +1506,160 @@ function closeOptimizationResultModal() {
 function closeOptimizationConfigModal() {
     const modal = document.getElementById('optimizationConfigModal');
     if (modal) modal.style.display = 'none';
+}
+
+/**
+ * Função para atualizar demandas e metas do comitê
+ */
+function updateDemandsAndGoals() {
+    // Verificar se uma instância está selecionada
+    const instanceId = document.getElementById('instanceSelect').value;
+    if (!instanceId) {
+        showNotification('Selecione uma instância de comitê primeiro!', 'error');
+        return;
+    }
+    
+    // Pedir confirmação ao usuário
+    if (!confirm('Esta operação irá atualizar os valores de demanda e metas com base nas instâncias relacionadas. Deseja continuar?')) {
+        return;
+    }
+    
+    // Mostrar status de processamento
+    const statusElement = document.getElementById('updateStatus');
+    statusElement.style.display = 'inline-block';
+    
+    // Mostrar notificação de processamento
+    const processingNotification = showNotification('Processando atualização de demandas e metas...', 'info');
+    
+    // Chamar a API para atualizar as demandas e metas
+    fetch(`/api/committee/${instanceId}/update-demands-goals`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            return handleHttpError(response);
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Processar a resposta e atualizar as tabelas
+        updateStockDemandTable(data.stockDemand);
+        updateProductionTargets(data.productionTargets);
+        
+        // Remover notificação de processamento
+        processingNotification.remove();
+        
+        // Mostrar mensagem de sucesso
+        showNotification('Demandas e metas atualizadas com sucesso!', 'success');
+        
+        // Marcar que há alterações pendentes para salvar
+        pageState.isDirty = true;
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        
+        // Remover notificação de processamento
+        processingNotification.remove();
+        
+        // Se o erro já foi tratado por handleHttpError, não mostrar notificação duplicada
+        if (!error.status) {
+            showNotification(`Erro ao atualizar demandas e metas: ${error.message}`, 'error');
+        }
+    })
+    .finally(() => {
+        // Esconder status de processamento
+        statusElement.style.display = 'none';
+    });
+}
+
+/**
+ * Atualiza a tabela de estoque e demanda com os novos valores calculados
+ */
+function updateStockDemandTable(stockDemandData) {
+    // Implementação da atualização da tabela de estoque/demanda
+    console.log('Atualizando tabela de estoque e demanda com dados:', stockDemandData);
+    
+    // Se a tabela já estiver carregada, podemos atualizar os valores diretamente
+    const table = document.getElementById('demandStockTable');
+    if (table && stockDemandData) {
+        const rows = table.querySelectorAll('tbody tr');
+        
+        // Percorrer as linhas e atualizar os valores dos inputs
+        rows.forEach(row => {
+            const materializationId = row.getAttribute('data-id');
+            if (materializationId && stockDemandData[materializationId]) {
+                const data = stockDemandData[materializationId];
+                
+                // Atualizar campos de estoque e demanda
+                const stockInput = row.querySelector('input[name="stock"]');
+                if (stockInput && data.stock !== undefined) {
+                    stockInput.value = data.stock;
+                    // Disparar evento de change
+                    stockInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+                
+                const demandInput = row.querySelector('input[name="demand"]');
+                if (demandInput && data.demand !== undefined) {
+                    demandInput.value = data.demand;
+                    // Disparar evento de change
+                    demandInput.dispatchEvent(new Event('change', { bubbles: true }));
+                }
+                
+                // Atualizar campo de saldo, se existir
+                const balanceCell = row.querySelector('.balance');
+                if (balanceCell) {
+                    const stock = parseFloat(data.stock || 0);
+                    const demand = parseFloat(data.demand || 0);
+                    const balance = stock - demand;
+                    balanceCell.textContent = balance.toFixed(2);
+                    
+                    // Atualizar classe CSS baseada no saldo
+                    balanceCell.className = 'balance';
+                    if (balance < 0) {
+                        balanceCell.classList.add('negative');
+                    } else if (balance > 0) {
+                        balanceCell.classList.add('positive');
+                    }
+                }
+            }
+        });
+    }
+}
+
+/**
+ * Atualiza os campos de produção e metas com os novos valores calculados
+ */
+function updateProductionTargets(targetData) {
+    // Implementação da atualização dos campos de produção e metas
+    console.log('Atualizando campos de produção e metas com dados:', targetData);
+    
+    if (targetData) {
+        // Atualizar campo de quantidade produzida
+        const producedQuantityInput = document.getElementById('producedQuantity');
+        if (producedQuantityInput && targetData.producedQuantity !== undefined) {
+            producedQuantityInput.value = targetData.producedQuantity;
+            // Disparar evento de change
+            producedQuantityInput.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+        
+        // Atualizar campo de quantidade restante
+        const remainingQuantityElement = document.getElementById('remainingQuantity');
+        if (remainingQuantityElement && targetData.remainingQuantity !== undefined) {
+            remainingQuantityElement.textContent = targetData.remainingQuantity;
+        }
+    }
+}
+
+/**
+ * Exibe uma mensagem ao usuário
+ * @param {string} message - A mensagem a ser exibida
+ * @param {string} type - O tipo de mensagem ('success', 'error', etc.)
+ */
+function showMessage(message, type = 'info') {
+    showNotification(message, type);
 }
 
 // Substituir a função de salvamento existente para usar o novo endpoint

@@ -1,0 +1,106 @@
+/* Estilos para o componente de notificações */
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    width: 300px;
+}
+
+.notification {
+    background-color: white;
+    border-left: 4px solid #333;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    margin-bottom: 10px;
+    padding: 15px;
+    opacity: 0;
+    transform: translateX(40px);
+    transition: opacity 0.3s, transform 0.3s;
+    max-width: 100%;
+    display: flex;
+    align-items: flex-start;
+}
+
+.notification.show {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.notification.fade-out {
+    opacity: 0;
+    transform: translateX(40px);
+}
+
+.notification-icon {
+    flex-shrink: 0;
+    margin-right: 10px;
+    width: 20px;
+    height: 20px;
+    text-align: center;
+    line-height: 20px;
+}
+
+.notification-message {
+    flex-grow: 1;
+    margin-right: 10px;
+}
+
+.notification-close {
+    cursor: pointer;
+    font-size: 14px;
+    color: #999;
+    padding: 0 5px;
+}
+
+.notification-close:hover {
+    color: #333;
+}
+
+/* Tipos de notificação */
+.notification-success {
+    border-left-color: #28a745;
+}
+
+.notification-success .notification-icon {
+    color: #28a745;
+}
+
+.notification-error {
+    border-left-color: #dc3545;
+}
+
+.notification-error .notification-icon {
+    color: #dc3545;
+}
+
+.notification-info {
+    border-left-color: #17a2b8;
+}
+
+.notification-info .notification-icon {
+    color: #17a2b8;
+}
+
+.notification-warning {
+    border-left-color: #ffc107;
+}
+
+.notification-warning .notification-icon {
+    color: #ffc107;
+}
+
+/* Tema escuro */
+[data-theme="night"] .notification {
+    background-color: #343a40;
+    color: #f8f9fa;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4);
+}
+
+[data-theme="night"] .notification-close {
+    color: #adb5bd;
+}
+
+[data-theme="night"] .notification-close:hover {
+    color: #f8f9fa;
+}

@@ -410,32 +410,14 @@ function saveOptimizationConfigToServer(config) {
     });
 }
 
-// Função para exibir mensagem de erro
+// Substitua as funções existentes para usar o sistema de notificações
+
 function showError(message) {
-    const notification = document.createElement('div');
-    notification.className = 'error-notification';
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    // Remover após alguns segundos
-    setTimeout(() => {
-        notification.classList.add('fade-out');
-        setTimeout(() => notification.remove(), 500);
-    }, 3000);
+    showNotification(message, 'error');
 }
 
-// Função para exibir mensagem de sucesso
 function showSuccess(message) {
-    const notification = document.createElement('div');
-    notification.className = 'success-notification';
-    notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    // Remover após alguns segundos
-    setTimeout(() => {
-        notification.classList.add('fade-out');
-        setTimeout(() => notification.remove(), 500);
-    }, 3000);
+    showNotification(message, 'success');
 }
 
 // Verificar se o cabeçalho já foi inserido
@@ -723,6 +705,12 @@ document.addEventListener('DOMContentLoaded', function() {
     planifyButton.addEventListener('click', performPlanification);
     saveButton.addEventListener('click', saveChanges);
     
+    // Botão para calcular estimativas
+    const btnCalculateEstimates = document.getElementById('btnCalculateEstimates');
+    if (btnCalculateEstimates) {
+        btnCalculateEstimates.addEventListener('click', calculateEstimates);
+    }
+
     /**
      * Carrega a lista de instâncias disponíveis
      */
@@ -1313,352 +1301,71 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 
-// Função para inicializar o botão de adicionar materialização
-function initAddMaterializationButton() {
-    const addButton = document.getElementById('addMaterializationBtn');
-    if (!addButton) return;
-    
-    // Clear previous content and event listeners
-    addButton.innerHTML = '';
-    const newIcon = document.createElement('i');
-    newIcon.className = 'fas fa-plus';
-    addButton.appendChild(newIcon);
-    
-    // Remove old event listeners by cloning and replacing
-    const newButton = addButton.cloneNode(true);
-    addButton.parentNode.replaceChild(newButton, addButton);
-    
-    // Add event listener to the new button
-    newButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleMaterializationSelector(this);
-    });
-}
-
-// Nova função para alternar a visibilidade do dropdown
-function toggleMaterializationSelector(button) {
-    // Verificar se já existe um dropdown
-    const existingDropdown = document.getElementById('materializationDropdownContainer');
-    
-    // Se existir, removê-lo
-    if (existingDropdown) {
-        existingDropdown.remove();
-        return;
-    }
-
-    // Se não existir, criar e mostrar o dropdown
-    showMaterializationSelector(button);
-}
-
-// Function to show the materialization selector dropdown
-function showMaterializationSelector(button) {
-    if (!currentInstanceId) {
-        showError('Por favor, selecione uma instância primeiro');
+/**
+ * Função para calcular estimativas com base nas instâncias filhas
+ */
+function calculateEstimates() {
+    // Verificar se uma instância está selecionada
+    const instanceId = document.getElementById('instanceSelect').value;
+    if (!instanceId) {
+        showNotification('Selecione uma instância primeiro!', 'error');
         return;
     }
     
-    // Criar o container do dropdown
-    const dropdownContainer = document.createElement('div');
-    dropdownContainer.id = 'materializationDropdownContainer';
-    dropdownContainer.className = 'dropdown-container';
-    dropdownContainer.style.position = 'absolute';
-    dropdownContainer.style.display = 'block';
-    dropdownContainer.style.zIndex = '1000';
-    
-    // Obter a posição do botão
-    const buttonRect = button.getBoundingClientRect();
-    
-    // Posicionar o dropdown abaixo do botão
-    dropdownContainer.style.top = `${buttonRect.bottom + window.scrollY}px`;
-    dropdownContainer.style.left = `${buttonRect.left + window.scrollX}px`;
-    
-    // Verificar se estamos usando o tema "night"
-    const isNightTheme = document.documentElement.getAttribute('data-theme') === 'night';
-    
-    // Aplicar cores com alta especificidade
-    const textColor = isNightTheme ? 'white' : '#333';
-    const textMutedColor = isNightTheme ? 'rgba(255, 255, 255, 0.7)' : '#6c757d';
-    const hoverBgColor = isNightTheme ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
-    
-    // Adicionar estilo global para garantir que as cores sejam respeitadas
-    const styleEl = document.createElement('style');
-    styleEl.id = 'dropdown-text-color-fix';
-    styleEl.textContent = `
-        #materializationDropdownContainer #materializationDropdown .dropdown-item {
-            color: ${textColor} !important;
-            transition: background-color 0.2s !important;
-        }
-        
-        #materializationDropdownContainer #materializationDropdown .dropdown-item:hover {
-            background-color: ${hoverBgColor} !important;
-            color: ${textColor} !important;
-        }
-        
-        #materializationDropdownContainer #materializationDropdown .empty-message {
-            color: ${textMutedColor} !important;
-        }
-        
-        /* Modificado para usar a mesma cor de texto que os outros itens */
-        #materializationDropdownContainer #materializationDropdown .add-new-item {
-            color: ${textColor} !important;
-            font-weight: bold !important;
-        }
-        
-        #materializationDropdownContainer #materializationDropdown .add-new-item:hover {
-            color: ${textColor} !important;
-        }
-        
-        #materializationDropdownContainer #materializationDropdown .error-message {
-            color: var(--danger-color, #dc3545) !important;
-        }
-    `;
-    document.head.appendChild(styleEl);
-    
-    // Criar o elemento dropdown
-    const dropdown = document.createElement('div');
-    dropdown.id = 'materializationDropdown';
-    dropdown.className = 'dropdown-menu materialization-dropdown';
-    dropdown.style.display = 'block';
-    dropdown.style.minWidth = '250px';
-    dropdown.style.maxHeight = '300px';
-    dropdown.style.overflowY = 'auto';
-    dropdown.style.backgroundColor = 'var(--card-bg)';
-    dropdown.style.border = '1px solid var(--border-color)';
-    dropdown.style.borderRadius = '4px';
-    dropdown.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-    dropdown.style.padding = '8px 0';
-    
-    // Adicionar mensagem de carregamento com estilo consistente
-    const loadingItem = document.createElement('div');
-    loadingItem.className = 'dropdown-item';
-    loadingItem.textContent = 'Carregando materializações...';
-    loadingItem.style.padding = '8px 16px';
-    loadingItem.style.fontSize = '14px';
-    loadingItem.style.color = textColor; // Aplicar cor diretamente
-    loadingItem.style.cursor = 'default';
-    
-    dropdown.appendChild(loadingItem);
-    dropdownContainer.appendChild(dropdown);
-    
-    // Adicionar container ao body
-    document.body.appendChild(dropdownContainer);
-    
-    // Carregar materializações disponíveis
-    fetch('/api/planification/available-materializations')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao carregar materializações sociais');
-            }
-            return response.json();
-        })
-        .then(allMaterializations => {
-            // Limpar dropdown
-            dropdown.innerHTML = '';
-            
-            // Filtrar materializações já existentes
-            const existingIds = productIds || [];
-            const availableMaterializations = allMaterializations.filter(
-                mat => !existingIds.includes(mat.id)
-            );
-            
-            // Se não houver materializações disponíveis
-            if (availableMaterializations.length === 0) {
-                const emptyItem = document.createElement('div');
-                emptyItem.className = 'dropdown-item empty-message';
-                emptyItem.textContent = 'Não há materializações sociais disponíveis';
-                emptyItem.style.padding = '12px 16px';
-                emptyItem.style.fontSize = '14px';
-                emptyItem.style.color = textMutedColor + ' !important'; // Aplicar cor diretamente com !important
-                emptyItem.style.fontStyle = 'italic';
-                emptyItem.style.textAlign = 'center';
-                dropdown.appendChild(emptyItem);
-                return;
-            }
-            
-            // Adicionar materializações ao dropdown
-            availableMaterializations.forEach(mat => {
-                const item = document.createElement('a');
-                item.href = "#";
-                item.className = 'dropdown-item';
-                item.dataset.id = mat.id;
-                item.dataset.name = mat.name;
-                item.textContent = `${mat.name} (${mat.type})`;
-                item.style.padding = '8px 16px';
-                item.style.fontSize = '14px';
-                item.style.color = `${textColor} !important`; // Aplicar cor com !important
-                item.style.textDecoration = 'none';
-                item.style.display = 'block';
-                item.style.cursor = 'pointer';
-                
-                // Adicionar estilo inline de !important não funciona diretamente, então usamos setAttribute
-                item.setAttribute('style', `
-                    padding: 8px 16px;
-                    font-size: 14px;
-                    color: ${textColor} !important;
-                    text-decoration: none;
-                    display: block;
-                    cursor: pointer;
-                    background-color: transparent;
-                `);
-                
-                // Em vez de usar eventos hover com JS, confiamos no CSS que definimos acima
-                // que tem alta especificidade
-                
-                item.onclick = function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    addMaterializationToTable(mat, currentInstanceId);
-                };
-                
-                dropdown.appendChild(item);
-            });
-            
-            // Adicionar opção para criar nova materialização
-            const newItem = document.createElement('a');
-            newItem.href = "#";
-            newItem.className = 'dropdown-item add-new-item';
-            newItem.innerHTML = '<i class="fas fa-plus-circle"></i> Nova Materialização Social';
-            
-            // Aplicar estilos com alta especificidade, agora usando a mesma cor de texto
-            newItem.setAttribute('style', `
-                padding: 8px 16px;
-                font-size: 14px;
-                color: ${textColor} !important; /* Usa a mesma cor definida para todos os itens */
-                text-decoration: none;
-                display: block;
-                cursor: pointer;
-                font-weight: bold;
-                border-top: 1px solid var(--border-color);
-                margin-top: 4px;
-                padding-top: 10px;
-                background-color: transparent;
-            `);
-            
-            newItem.onclick = function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                showNewMaterializationModal();
-            };
-            
-            dropdown.appendChild(newItem);
-        })
-        .catch(error => {
-            console.error('Erro ao carregar materializações:', error);
-            
-            const errorItem = document.createElement('div');
-            errorItem.className = 'dropdown-item error-message';
-            errorItem.textContent = 'Erro ao carregar materializações';
-            errorItem.style.padding = '8px 16px';
-            errorItem.style.fontSize = '14px';
-            errorItem.style.color = 'var(--danger-color, #dc3545) !important';
-            errorItem.style.fontWeight = 'bold';
-            
-            dropdown.innerHTML = '';
-            dropdown.appendChild(errorItem);
-            
-            showError("Erro ao carregar materializações sociais");
-        });
-    
-    // Adicionar evento para remover os estilos quando o dropdown for fechado
-    const removeDropdownStyles = function() {
-        const styleElement = document.getElementById('dropdown-text-color-fix');
-        if (styleElement) {
-            styleElement.remove();
-        }
-    };
-    
-    // Adicionar evento global para fechar ao clicar fora
-    const documentClickHandler = function closeDropdownOnClickOutside(e) {
-        if (dropdownContainer && 
-            !dropdownContainer.contains(e.target) && 
-            e.target !== button && 
-            !button.contains(e.target)) {
-            
-            if (document.body.contains(dropdownContainer)) {
-                dropdownContainer.remove();
-                removeDropdownStyles();
-            }
-            document.removeEventListener('click', documentClickHandler);
-        }
-    };
-    
-    // Adicionar evento com delay para evitar fechamento imediato
-    setTimeout(() => {
-        document.addEventListener('click', documentClickHandler);
-    }, 100);
-}
-
-// Function to add selected materialization to the table
-function addMaterializationToTable(materialization, instanceId) {
-    // Fechar o dropdown
-    const dropdownContainer = document.getElementById('materializationDropdownContainer');
-    if (dropdownContainer) {
-        dropdownContainer.remove();
+    // Pedir confirmação ao usuário
+    if (!confirm('Esta operação irá atualizar os valores da matriz tecnológica e do vetor de demanda com base nas instâncias filhas. Deseja continuar?')) {
+        return;
     }
     
-    // Add materialization to arrays
-    productIds.push(materialization.id);
-    productNames.push(materialization.name);
+    // Mostrar status de processamento
+    const statusElement = document.getElementById('calculationStatus');
+    statusElement.style.display = 'inline-block';
     
-    // Add empty row to technological matrix
-    const matrixRow = new Array(technologicalMatrix[0]?.length || 0).fill(0);
-    technologicalMatrix.push(matrixRow);
+    // Mostrar notificação de processamento
+    const processingNotification = showNotification('Processando cálculo de estimativas...', 'info');
     
-    // Add column to each existing row
-    technologicalMatrix.forEach(row => {
-        row.push(0);
+    // Chamar a API para calcular as estimativas
+    fetch(`/api/council/${instanceId}/calculate-estimates`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            return handleHttpError(response);
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Processar a resposta e atualizar as tabelas
+        updateTechnologicalMatrix(data.technologicalMatrix);
+        updateDemandVector(data.demandVector);
+        
+        // Remover notificação de processamento
+        processingNotification.remove();
+        
+        // Mostrar mensagem de sucesso
+        showNotification('Estimativas calculadas com sucesso!', 'success');
+        
+        // Marcar que há alterações pendentes para salvar
+        pageState.isDirty = true;
+    })
+    .catch(error => {
+        console.error('Erro:', error);
+        
+        // Remover notificação de processamento
+        processingNotification.remove();
+        
+        // Se o erro já foi tratado por handleHttpError, não mostrar notificação duplicada
+        if (!error.status) {
+            showNotification(`Erro ao calcular estimativas: ${error.message}`, 'error');
+        }
+    })
+    .finally(() => {
+        // Esconder status de processamento
+        statusElement.style.display = 'none';
     });
-    
-    // Add to demand vector
-    demandVector.push(0);
-    
-    // Re-render tables
-    renderTechnologicalMatrix();
-    renderDemandVector();
-    
-    showSuccess(`Materialização "${materialization.name}" adicionada com sucesso`);
-}
-
-// Function to update demand vector value
-function updateDemandVector(index, value) {
-    if (index >= 0 && index < demandVector.length) {
-        demandVector[index] = parseFloat(value) || 0;
-    }
-}
-
-// Function to ensure matrix dimensions match
-function ensureMatrixDimensions() {
-    const size = productIds.length;
-    
-    // Ensure each dimension of technologicalMatrix is correct
-    if (technologicalMatrix.length !== size) {
-        // Add or remove rows as needed
-        while (technologicalMatrix.length < size) {
-            technologicalMatrix.push(new Array(size).fill(0));
-        }
-        while (technologicalMatrix.length > size) {
-            technologicalMatrix.pop();
-        }
-    }
-    
-    // Ensure each row has the correct number of columns
-    technologicalMatrix.forEach((row, i) => {
-        while (row.length < size) {
-            row.push(0);
-        }
-        while (row.length > size) {
-            row.pop();
-        }
-    });
-    
-    // Ensure demandVector has correct size
-    while (demandVector.length < size) {
-        demandVector.push(0);
-    }
-    while (demandVector.length > size) {
-        demandVector.pop();
-    }
 }
 
 // Function to update matrix and vector data from UI

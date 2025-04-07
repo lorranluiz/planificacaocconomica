@@ -14,6 +14,7 @@ import xyz.planecon.model.entity.Instance;
 import xyz.planecon.model.entity.SocialMaterialization;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface DemandVectorRepository extends JpaRepository<DemandVector, DemandVectorId> {
@@ -48,4 +49,39 @@ public interface DemandVectorRepository extends JpaRepository<DemandVector, Dema
         @Param("materializationId") Integer materializationId, 
         @Param("instanceId") Integer instanceId
     );
+
+    @Query("SELECT dv FROM DemandVector dv WHERE dv.instance.id = :instanceId AND dv.socialMaterialization.id = :materializationId")
+    Optional<DemandVector> findByInstanceIdAndSocialMaterializationId(
+        @Param("instanceId") Integer instanceId, 
+        @Param("materializationId") Integer materializationId
+    );
+
+    /**
+     * Busca todos os vetores de demanda das instâncias filhas de um conselho
+     * Inclui tanto comitês e trabalhadores quanto conselhos filhos
+     * 
+     * @param councilId ID do conselho pai
+     * @return Lista de vetores de demanda de todas as instâncias filhas
+     */
+    @Query(value = "SELECT dv.* FROM demand_vector dv " +
+           "JOIN instance i ON dv.instance_id = i.id " +
+           "WHERE i.popular_council_associated_with_committee_or_worker = :councilId " +
+           "OR i.popular_council_associated_with_popular_council = :councilId", 
+           nativeQuery = true)
+    List<DemandVector> findAllByParentCouncilId(@Param("councilId") Integer councilId);
+    
+    /**
+     * Calcula a média de demandas por materialização para todas as instâncias filhas de um conselho
+     * 
+     * @param councilId ID do conselho pai
+     * @return Lista de objetos contendo o ID da materialização e a média de demanda
+     */
+    @Query(value = "SELECT dv.social_materialization_id as materializationId, AVG(dv.demand) as averageDemand " +
+           "FROM demand_vector dv " +
+           "JOIN instance i ON dv.instance_id = i.id " +
+           "WHERE i.popular_council_associated_with_committee_or_worker = :councilId " +
+           "OR i.popular_council_associated_with_popular_council = :councilId " +
+           "GROUP BY dv.social_materialization_id", 
+           nativeQuery = true)
+    List<Object[]> calculateAverageDemandsByMaterializationForCouncilChildren(@Param("councilId") Integer councilId);
 }

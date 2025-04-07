@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="css/common-styles.css">
     <link rel="stylesheet" href="css/theme-variables.css">
     <link rel="stylesheet" href="css/theme-elements.css">
+    <link rel="stylesheet" href="css/notification.css">
     <script src="common-header.js"></script>
     <!-- CSS específico para planificação -->
     <style>
@@ -317,7 +318,23 @@
             </div>
             
             <div id="matrixSection" style="display: none;">
-                <h2>Matriz Tecnológica</h2>
+                <div class="container-fluid mt-4">
+                    <h2>Matriz Tecnológica</h2>
+                    
+                    <div class="mb-3">
+                        <button id="btnCalculateEstimates" class="btn btn-primary">
+                            <i class="fas fa-calculator mr-2"></i> Calcular Estimativas
+                        </button>
+                        <span id="calculationStatus" class="ml-2" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> Processando...
+                        </span>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <!-- Tabela da matriz tecnológica existente -->
+                    </div>
+                </div>
+                
                 <p>A matriz tecnológica representa quanto do produto de cada linha é necessário para produzir uma unidade do produto de cada coluna.</p>
                 
                 <div class="matrix-container">
@@ -503,6 +520,7 @@
         </div>
     </div>
 
+    <script src="js/notifications.js"></script>
     <script src="js/council.js"></script>
 </body>
 </html>
