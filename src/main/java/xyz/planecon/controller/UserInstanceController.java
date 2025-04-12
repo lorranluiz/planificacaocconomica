@@ -81,7 +81,7 @@ public class UserInstanceController {
                         safeToString(instance.getTargetQuantity()));
                     break;
                     
-                case COUNCIL:
+                case POPULARCOUNCIL:
                     instanceInfo.put("totalSocialWork", 
                         safeToString(instance.getTotalSocialWorkOfThisJurisdiction()));
                     break;

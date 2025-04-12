@@ -222,7 +222,7 @@ public class UserController {
             // Se for COUNCILLOR, associar diretamente à instância selecionada
             if (user.getType() == UserType.COUNCILLOR) {
                 // Verificar se a instância é um conselho ou comitê
-                if (selectedInstance.getType() != InstanceType.COUNCIL && selectedInstance.getType() != InstanceType.COMMITTEE) {
+                if (selectedInstance.getType() != InstanceType.POPULARCOUNCIL && selectedInstance.getType() != InstanceType.COMMITTEE) {
                     return ResponseEntity.badRequest().body(Map.of(
                         "message", "Conselheiros só podem ser associados a instâncias do tipo COUNCIL ou COMMITTEE"
                     ));
@@ -292,14 +292,14 @@ public class UserController {
     // Método auxiliar para encontrar ou criar um conselho padrão
     private Instance findOrCreateDefaultCouncil() {
         // Buscar um conselho existente
-        List<Instance> councils = instanceRepository.findByType(InstanceType.COUNCIL);
+        List<Instance> councils = instanceRepository.findByType(InstanceType.POPULARCOUNCIL);
         if (!councils.isEmpty()) {
             return councils.get(0); // Usar o primeiro conselho encontrado
         }
         
         // Se não existir, criar um
         Instance defaultCouncil = new Instance();
-        defaultCouncil.setType(InstanceType.COUNCIL);
+        defaultCouncil.setType(InstanceType.POPULARCOUNCIL);
         defaultCouncil.setCreatedAt(LocalDateTime.now());
         defaultCouncil.setTotalSocialWorkOfThisJurisdiction(0);
         defaultCouncil.setPopularCouncilAssociatedWithPopularCouncil(null); // Este é o conselho superior

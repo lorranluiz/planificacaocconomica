@@ -63,7 +63,7 @@ public class CouncilService {
                 .orElseThrow(() -> new ResourceNotFoundException("Conselho", councilId));
 
         // 2. Verificar se é realmente um conselho
-        if (council.getType() != InstanceType.COUNCIL) {
+        if (council.getType() != InstanceType.POPULARCOUNCIL) {
             throw new IllegalArgumentException("A instância não é um conselho: " + councilId);
         }
 
@@ -113,7 +113,7 @@ public class CouncilService {
                 .orElseThrow(() -> new ResourceNotFoundException("Conselho", councilId));
 
         // Verificar se é realmente um conselho
-        if (council.getType() != InstanceType.COUNCIL) {
+        if (council.getType() != InstanceType.POPULARCOUNCIL) {
             throw new IllegalArgumentException("A instância não é um conselho: " + councilId);
         }
         
@@ -145,7 +145,7 @@ public class CouncilService {
 					// Definir nome apropriado com base no tipo
 					if (instance.getType() == InstanceType.COMMITTEE) {
 						dto.setName(instance.getCommitteeName());
-					} else if (instance.getType() == InstanceType.COUNCIL) {
+					} else if (instance.getType() == InstanceType.POPULARCOUNCIL) {
 						dto.setName(instance.getCommitteeName() != null ? instance.getCommitteeName() : "Conselho #" + instance.getId());
 					} else {
 						// Caso seja um trabalhador ou outro tipo, usar nome padrão
@@ -174,7 +174,7 @@ public class CouncilService {
                 .orElseThrow(() -> new ResourceNotFoundException("Conselho", councilId));
                 
         // 2. Verificar se é realmente um conselho
-        if (council.getType() != InstanceType.COUNCIL) {
+        if (council.getType() != InstanceType.POPULARCOUNCIL) {
             throw new IllegalArgumentException("A instância não é um conselho: " + councilId);
         }
         

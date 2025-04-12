@@ -1,5 +1,5 @@
 package xyz.planecon.model.enums;
 
 public enum InstanceType {
-    COUNCIL, COMMITTEE, WORKER
+    WORKER, POPULARCOUNCIL, PLANNERCOUNCIL, COMMITTEE, DISTCOMMITTEE, SERVICECOMMITTEE
 }

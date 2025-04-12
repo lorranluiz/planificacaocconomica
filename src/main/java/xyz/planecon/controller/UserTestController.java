@@ -77,7 +77,7 @@ public class UserTestController {
                 instance = optionalInstance.get();
                 
                 // Validar o tipo da instância para COUNCILLOR
-                if (instance.getType() != InstanceType.COUNCIL && instance.getType() != InstanceType.COMMITTEE) {
+                if (instance.getType() != InstanceType.POPULARCOUNCIL && instance.getType() != InstanceType.COMMITTEE) {
                     return ResponseEntity.badRequest()
                         .body("Usuários COUNCILLOR só podem ser associados a instâncias do tipo COUNCIL ou COMMITTEE.");
                 }

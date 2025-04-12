@@ -265,7 +265,7 @@ public class InstanceController {
                     }
                     
                     Optional<Instance> councilOpt = instanceRepository.findById(councilId);
-                    if (councilOpt.isEmpty() || councilOpt.get().getType() != InstanceType.COUNCIL) {
+                    if (councilOpt.isEmpty() || councilOpt.get().getType() != InstanceType.POPULARCOUNCIL) {
                         return ResponseEntity.badRequest().body(Map.of(
                             "message", "Conselho popular não encontrado ou inválido com ID: " + councilId
                         ));
@@ -302,7 +302,7 @@ public class InstanceController {
     public ResponseEntity<?> getAllCouncils() {
         try {
             List<Instance> councils = StreamSupport
-                .stream(instanceRepository.findByType(InstanceType.COUNCIL).spliterator(), false)
+                .stream(instanceRepository.findByType(InstanceType.POPULARCOUNCIL).spliterator(), false)
                 .collect(Collectors.toList());
                 
             List<Map<String, Object>> result = councils.stream()
@@ -482,7 +482,7 @@ public class InstanceController {
     }
     
     private String getInstanceTypeDescription(InstanceType type) {
-        if (type == InstanceType.COUNCIL) {
+        if (type == InstanceType.POPULARCOUNCIL) {
             return "Conselho Popular";
         } else if (type == InstanceType.COMMITTEE) {
             return "Comitê de Trabalhadores";

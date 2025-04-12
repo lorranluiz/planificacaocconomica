@@ -1,10 +1,14 @@
 package xyz.planecon.model.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import xyz.planecon.model.enums.InstanceType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -13,35 +17,42 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@ToString(onlyExplicitlyIncluded = true)
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Table(name = "instance")
 public class Instance {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @ToString.Include
     private Integer id;
     
     @Column(name = "created_at")
+    @ToString.Include
     private LocalDateTime createdAt;
     
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
+    @ToString.Include
     private InstanceType type;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_social_materialization")
     private SocialMaterialization socialMaterialization;
     
     @Column(name = "worker_effective_limit")
     private Integer workerEffectiveLimit;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "popular_council_associated_with_committee_or_worker")
     private Instance popularCouncilAssociatedWithCommitteeOrWorker;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "popular_council_associated_with_popular_council")
     private Instance popularCouncilAssociatedWithPopularCouncil;
     
@@ -57,11 +68,11 @@ public class Instance {
     @Column(name = "total_social_work_of_this_jurisdiction")
     private Integer totalSocialWorkOfThisJurisdiction;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_associated_worker_committee")
     private Instance associatedWorkerCommittee;
     
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_associated_worker_residents_association")
     private Instance idAssociatedWorkerResidentsAssociation;
     
@@ -71,20 +82,59 @@ public class Instance {
     @Column(name = "hours_at_electronic_point", precision = 10, scale = 2)
     private BigDecimal hoursAtElectronicPoint;
     
+    // Address fields
+    @Column(name = "postal_code")
+    private String postalCode;
+    
+    @Column(name = "street")
+    private String street;
+    
+    @Column(name = "street_number")
+    private String streetNumber;
+    
+    @Column(name = "suburb")
+    private String suburb;
+    
+    @Column(name = "city")
+    private String city;
+    
+    @Column(name = "state")
+    private String state;
+    
+    @Column(name = "country")
+    private String country;
+    
+    @Column(name = "continent")
+    private String continent;
+    
+    @Column(name = "address_complement")
+    private String addressComplement;
+    
+    @Column(name = "latitude", precision = 10, scale = 7)
+    private BigDecimal latitude;
+    
+    @Column(name = "longitude", precision = 10, scale = 7)
+    private BigDecimal longitude;
+    
     // Relationships
-    @OneToMany(mappedBy = "instance")
+    @JsonIgnoreProperties("instance")
+    @OneToMany(mappedBy = "instance", fetch = FetchType.LAZY)
     private List<DemandStock> demandStocks;
     
-    @OneToMany(mappedBy = "instance")
+    @JsonIgnoreProperties("instance")
+    @OneToMany(mappedBy = "instance", fetch = FetchType.LAZY)
     private List<DemandVector> demandVectors;
     
-    @OneToMany(mappedBy = "instance")
+    @JsonIgnoreProperties("instance")
+    @OneToMany(mappedBy = "instance", fetch = FetchType.LAZY)
     private List<OptimizationInputsResults> optimizationResults = new ArrayList<>();
     
-    @OneToMany(mappedBy = "instance")
+    @JsonIgnoreProperties("instance")
+    @OneToMany(mappedBy = "instance", fetch = FetchType.LAZY)
     private Set<WorkersProposal> workersProposals = new HashSet<>();
     
-    @OneToMany(mappedBy = "instance")
+    @JsonIgnoreProperties("instance")
+    @OneToMany(mappedBy = "instance", fetch = FetchType.LAZY)
     private List<User> users;
 
     /**

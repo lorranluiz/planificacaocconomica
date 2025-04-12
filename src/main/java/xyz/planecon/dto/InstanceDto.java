@@ -59,7 +59,7 @@ public class InstanceDto {
         // Definir nome apropriado com base no tipo
         if (instance.getType() == InstanceType.COMMITTEE) {
             this.name = instance.getCommitteeName();
-        } else if (instance.getType() == InstanceType.COUNCIL) {
+        } else if (instance.getType() == InstanceType.POPULARCOUNCIL) {
             this.name = instance.getCommitteeName() != null ? instance.getCommitteeName() : "Conselho #" + instance.getId();
         } else {
             // Caso seja um trabalhador ou outro tipo, usar nome padrão

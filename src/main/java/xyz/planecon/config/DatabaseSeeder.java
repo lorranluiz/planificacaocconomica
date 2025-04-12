@@ -109,7 +109,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         
         // Primeiro criar instâncias do tipo COUNCIL para poder referenciar depois
         Instance earthCouncil = new Instance();
-        earthCouncil.setType(InstanceType.COUNCIL);
+        earthCouncil.setType(InstanceType.POPULARCOUNCIL);
         earthCouncil.setWorkerEffectiveLimit(null); // COUNCIL não deve ter worker_effective_limit
         earthCouncil.setTotalSocialWorkOfThisJurisdiction(9000 + random.nextInt(41000));
         earthCouncil.setCreatedAt(LocalDateTime.now());
@@ -120,16 +120,16 @@ public class DatabaseSeeder implements CommandLineRunner {
         instanceRepository.save(earthCouncil);
         
         // Criar os outros conselhos que referenciam o central
-        Instance regionalCouncil = createInstance(InstanceType.COUNCIL, null, null, sectors.get(1), 
+        Instance regionalCouncil = createInstance(InstanceType.POPULARCOUNCIL, null, null, sectors.get(1), 
                 earthCouncil.getId(), new BigDecimal(9000 + random.nextInt(41000)), null, null, null);
         
-        Instance educationCouncil = createInstance(InstanceType.COUNCIL, null, null, sectors.get(2), 
+        Instance educationCouncil = createInstance(InstanceType.POPULARCOUNCIL, null, null, sectors.get(2), 
                 earthCouncil.getId(), new BigDecimal(9000 + random.nextInt(41000)), null, null, null);
         
-        Instance energyCouncil = createInstance(InstanceType.COUNCIL, null, null, sectors.get(6), 
+        Instance energyCouncil = createInstance(InstanceType.POPULARCOUNCIL, null, null, sectors.get(6), 
                 regionalCouncil.getId(), new BigDecimal(9000 + random.nextInt(41000)), null, null, null);
         
-        Instance foodCouncil = createInstance(InstanceType.COUNCIL, null, null, sectors.get(9), 
+        Instance foodCouncil = createInstance(InstanceType.POPULARCOUNCIL, null, null, sectors.get(9), 
                 earthCouncil.getId(), new BigDecimal(9000 + random.nextInt(41000)), null, null, null);
         
         List<Instance> councilInstances = Arrays.asList(earthCouncil, regionalCouncil, educationCouncil, energyCouncil, foodCouncil);
@@ -189,7 +189,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         
         // Selecionar instâncias apropriadas para cada tipo de usuário
         List<Instance> councilAndCommitteeInstances = instances.stream()
-            .filter(i -> i.getType() == InstanceType.COUNCIL || i.getType() == InstanceType.COMMITTEE)
+            .filter(i -> i.getType() == InstanceType.POPULARCOUNCIL || i.getType() == InstanceType.COMMITTEE)
             .collect(Collectors.toList());
 
         List<Instance> workerInstances = instances.stream()
@@ -242,7 +242,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         // Create demand_stock e demand_vector usando todos os tipos de instâncias
         // (não apenas WORKER, pois essas operações não violam nossa regra)
         List<Instance> allInstances = instances.stream()
-            .filter(i -> i.getType() == InstanceType.COUNCIL || i.getType() == InstanceType.COMMITTEE || i.getType() == InstanceType.WORKER)
+            .filter(i -> i.getType() == InstanceType.POPULARCOUNCIL || i.getType() == InstanceType.COMMITTEE || i.getType() == InstanceType.WORKER)
             .collect(Collectors.toList());
         
         // Criar demand_stock para diferentes materializações - uma instância diferente para cada
@@ -396,7 +396,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     private Instance createInstance(InstanceType type, String name, Integer workerLimit, Sector sector) {
         // Este método deveria chamar a versão mais completa com valores nulos para os parâmetros adicionais
         return createInstance(type, name, workerLimit, sector, null, 
-                              type == InstanceType.COMMITTEE || type == InstanceType.COUNCIL ? 
+                              type == InstanceType.COMMITTEE || type == InstanceType.POPULARCOUNCIL ? 
                               new BigDecimal(9000 + random.nextInt(41000)) : null, 
                               null, null, null, null, null, null, null);
     }
@@ -417,7 +417,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         boolean isValid = false;
         
         if (type == UserType.COUNCILLOR && 
-            (instance.getType() == InstanceType.COUNCIL || instance.getType() == InstanceType.COMMITTEE)) {
+            (instance.getType() == InstanceType.POPULARCOUNCIL || instance.getType() == InstanceType.COMMITTEE)) {
             isValid = true;
         } else if (type == UserType.NON_COUNCILLOR && instance.getType() == InstanceType.WORKER) {
             // Verificar se essa instância WORKER já está associada a outro usuário
@@ -640,7 +640,7 @@ public class DatabaseSeeder implements CommandLineRunner {
             }
             instance.setProducedQuantity(producedQuantity);
             instance.setTargetQuantity(targetQuantity);
-        } else if (type == InstanceType.COUNCIL) {
+        } else if (type == InstanceType.POPULARCOUNCIL) {
             if (name != null) {
                 instance.setCommitteeName(name);
             }

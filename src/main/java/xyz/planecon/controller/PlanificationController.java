@@ -83,7 +83,7 @@ public class PlanificationController {
                             dto.setName(instance.getCommitteeName() != null ? 
                                        instance.getCommitteeName() : "Comitê #" + instance.getId());
                             break;
-                        case COUNCIL:
+                        case POPULARCOUNCIL:
                             dto.setName("Conselho #" + instance.getId());
                             break;
                         case WORKER:
@@ -123,7 +123,7 @@ public class PlanificationController {
                                 parentName = parent.getCommitteeName() != null ? 
                                            parent.getCommitteeName() : "Comitê #" + parent.getId();
                                 break;
-                            case COUNCIL:
+                            case POPULARCOUNCIL:
                                 parentName = "Conselho #" + parent.getId();
                                 break;
                             case WORKER:
