@@ -30,10 +30,12 @@ import xyz.planecon.service.PlanificationService;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -280,6 +282,88 @@ public class PlanificationController {
         result.put("productIds", productIds);
         
         return ResponseEntity.ok(result);
+    }
+    
+    /**
+     * Novo endpoint que busca o vetor de demanda diretamente sem depender de TechnologicalTensor
+     * Este endpoint é especificamente para a página popularcouncil.js
+     */
+    @GetMapping("/demand-vector/by-instance/{instanceId}")
+    public ResponseEntity<Map<String, Object>> getDemandVectorDirectlyByInstance(@PathVariable Integer instanceId) {
+        logger.info("Buscando vetor de demanda diretamente para instância {}", instanceId);
+        
+        try {
+            // Buscar todos os vetores de demanda para esta instância
+            List<DemandVector> demandVectors = demandVectorRepository.findByInstanceId(instanceId);
+            
+            // Se não houver vetores de demanda, retornar arrays vazios
+            if (demandVectors.isEmpty()) {
+                Map<String, Object> emptyResult = new HashMap<>();
+                emptyResult.put("vector", new BigDecimal[0]);
+                emptyResult.put("productNames", new String[0]);
+                emptyResult.put("productIds", new Integer[0]);
+                
+                logger.info("Nenhum vetor de demanda encontrado para instância {}", instanceId);
+                return ResponseEntity.ok(emptyResult);
+            }
+            
+            // Extrair materializações únicas dos vetores de demanda
+            Set<SocialMaterialization> materializationSet = demandVectors.stream()
+                .map(DemandVector::getSocialMaterialization)
+                .collect(Collectors.toSet());
+            
+            List<SocialMaterialization> materializations = new ArrayList<>(materializationSet);
+            
+            // Ordenar por ID para consistência
+            materializations.sort(Comparator.comparing(SocialMaterialization::getId));
+            
+            // Mapear índices de materializações
+            Map<Integer, Integer> materializationToIndex = new HashMap<>();
+            for (int i = 0; i < materializations.size(); i++) {
+                materializationToIndex.put(materializations.get(i).getId(), i);
+            }
+            
+            // Criar vetor de demanda
+            int size = materializations.size();
+            BigDecimal[] vector = new BigDecimal[size];
+            
+            // Inicializar com zeros
+            for (int i = 0; i < size; i++) {
+                vector[i] = BigDecimal.ZERO;
+            }
+            
+            // Preencher vetor com valores de demanda
+            for (DemandVector demand : demandVectors) {
+                Integer index = materializationToIndex.get(demand.getSocialMaterialization().getId());
+                
+                if (index != null) {
+                    vector[index] = demand.getDemand();
+                }
+            }
+            
+            // Nomes das materializações na ordem do vetor
+            String[] productNames = new String[size];
+            Integer[] productIds = new Integer[size];
+            
+            for (int i = 0; i < materializations.size(); i++) {
+                SocialMaterialization mat = materializations.get(i);
+                int index = materializationToIndex.get(mat.getId());
+                productNames[index] = mat.getName();
+                productIds[index] = mat.getId();
+            }
+            
+            // Retornar resultado
+            Map<String, Object> result = new HashMap<>();
+            result.put("vector", vector);
+            result.put("productNames", productNames);
+            result.put("productIds", productIds);
+            
+            logger.info("Vetor de demanda retornado com sucesso, contendo {} materializações", size);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            logger.error("Erro ao buscar vetor de demanda para instância {}: {}", instanceId, e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
     
     /**
@@ -695,38 +779,34 @@ public class PlanificationController {
     }
 
     /**
-     * Endpoint for directly deleting optimization configuration entries
+     * Deletes an optimization configuration for a given materialization and instance
+     * @param materializationId The materialization ID
+     * @param instanceId The instance ID
+     * @return ResponseEntity with success or error message
      */
     @DeleteMapping("/optimization/{materializationId}/instance/{instanceId}")
-    public ResponseEntity<?> deleteOptimizationConfig(
-            @PathVariable Integer materializationId,
-            @PathVariable Integer instanceId) {
+    public ResponseEntity<?> deleteOptimizationConfig(@PathVariable Integer materializationId, @PathVariable Integer instanceId) {
         try {
-            logger.info("Excluindo configuração de otimização para materialização {} na instância {}", 
+            logger.info("Excluindo configuração de otimização para materialização {} na instância {}", materializationId, instanceId);
+            
+            // First check if the configuration exists
+            boolean exists = optimizationRepository.existsById(
+                new OptimizationInputsResults.OptimizationInputsResultsId(instanceId, materializationId));
+            
+            if (!exists) {
+                // If it doesn't exist, return success without trying to delete
+                logger.info("Configuração de otimização não encontrada para materialização {} na instância {}, nada a excluir", 
                         materializationId, instanceId);
-            
-            // Create the composite ID for the optimization config
-            OptimizationInputsResults.OptimizationInputsResultsId id = 
-                new OptimizationInputsResults.OptimizationInputsResultsId(instanceId, materializationId);
-            
-            // Check if it exists
-            if (!optimizationRepository.existsById(id)) {
-                Map<String, String> response = new HashMap<>();
-                response.put("message", "Configuração de otimização não encontrada");
-                return ResponseEntity.ok(response); // Return OK even if not found
+                return ResponseEntity.ok().build();
             }
             
-            // Delete the optimization config
-            optimizationRepository.deleteById(id);
-            
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Configuração de otimização excluída com sucesso");
-            return ResponseEntity.ok(response);
+            // If it exists, proceed with deletion
+            optimizationRepository.deleteById(new OptimizationInputsResults.OptimizationInputsResultsId(instanceId, materializationId));
+            return ResponseEntity.ok().build();
         } catch (Exception e) {
             logger.error("Erro ao excluir configuração de otimização: {}", e.getMessage(), e);
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("message", "Erro ao excluir configuração de otimização: " + e.getMessage());
-            return ResponseEntity.status(500).body(errorResponse);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Erro ao excluir configuração de otimização: " + e.getMessage());
         }
     }
 
