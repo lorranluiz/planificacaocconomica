@@ -330,7 +330,7 @@
             
             <div class="info-message">
                 <p><i class="fas fa-info-circle"></i> Esta página permite realizar cálculos de planificação econômica baseados no modelo de insumo-produto de Leontief.</p>
-                <p><strong>Como usar:</strong> Selecione uma instância, ajuste a matriz tecnológica e o vetor de demanda conforme necessário, e clique em "Planificar" para calcular o vetor de produção necessário.</p>
+                <p><strong>Como usar:</strong> Selecione uma instância, ajuste o vetor de demanda conforme necessário, e utilize o botão "Calcular Estimativas" quando necessário.</p>
             </div>
             
             <div class="form-group">
@@ -342,8 +342,6 @@
             
             <div id="matrixSection" style="display: none;">
                 <div class="container-fluid mt-4">
-                    <h2>Matriz Tecnológica</h2>
-                    
                     <div class="mb-3">
                         <button id="btnCalculateEstimates" class="btn btn-primary">
                             <i class="fas fa-calculator mr-2"></i> Calcular Estimativas
@@ -352,26 +350,6 @@
                             <i class="fas fa-spinner fa-spin"></i> Processando...
                         </span>
                     </div>
-                    
-                    <div class="table-responsive">
-                        <!-- Tabela da matriz tecnológica existente -->
-                    </div>
-                </div>
-                
-                <p>A matriz tecnológica representa quanto do produto de cada linha é necessário para produzir uma unidade do produto de cada coluna.</p>
-                
-                <div class="matrix-container">
-                    <table id="technologicalMatrix" class="editable-table">
-                        <thead>
-                            <tr>
-                                <th></th>
-                                <!-- Colunas serão adicionadas dinamicamente -->
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Linhas serão adicionadas dinamicamente -->
-                        </tbody>
-                    </table>
                 </div>
                 
                 <h2>Vetor de Demanda Final</h2>
@@ -399,12 +377,11 @@
                 </div>
                 
                 <div class="controls">
-                    <button id="planifyButton" class="btn">Planificar</button>
                     <span id="loadingSpinner" class="loading"></span>
                     <button id="saveButton" class="btn">Salvar Alterações</button>
                 </div>
                 
-                <div id="results" class="results-container" style="display: none;">
+                <div id="results" class="results-container">
                     <h2>Resultados da Planificação</h2>
                     
                     <div>
@@ -424,9 +401,6 @@
                         </table>
                     </div>
                 </div>
-            </div>
-            <div id="results" style="display: none;">
-                <!-- Resultados da planificação serão inseridos aqui dinamicamente -->
             </div>
         </div>
     </div>

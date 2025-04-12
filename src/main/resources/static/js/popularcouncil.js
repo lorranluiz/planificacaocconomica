@@ -748,9 +748,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Elementos principais da interface
     const instanceSelect = document.getElementById('instanceSelect');
     const matrixSection = document.getElementById('matrixSection');
-    const technologicalMatrixTable = document.getElementById('technologicalMatrix');
     const demandVectorTable = document.getElementById('demandVector');
-    const planifyButton = document.getElementById('planifyButton');
     const saveButton = document.getElementById('saveButton');
     const loadingSpinner = document.getElementById('loadingSpinner');
     const resultsContainer = document.getElementById('results');
@@ -762,7 +760,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Configurar eventos
     instanceSelect.addEventListener('change', handleInstanceChange);
-    planifyButton.addEventListener('click', performPlanification);
     saveButton.addEventListener('click', saveChanges);
     
     // Botão para calcular estimativas
@@ -809,34 +806,11 @@ document.addEventListener('DOMContentLoaded', function() {
         
         if (!instanceId) {
             matrixSection.style.display = 'none';
-            resultsContainer.style.display = 'none';
             return;
         }
         
-        // IMPORTANTE: Em vez de chamar loadTechnologicalMatrix e loadDemandVector,
-        // chamar a função loadInstanceData que executa a planificação automática
+        // Chamar a função loadInstanceData que carrega os dados da instância
         loadInstanceData(instanceId);
-    }
-    
-    /**
-     * Carrega a matriz tecnológica da instância selecionada
-     */
-    function loadTechnologicalMatrix(instanceId) {
-        return fetch(`/api/planification/instances/${instanceId}/technological-matrix`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Erro ao carregar matriz tecnológica');
-                }
-                return response.json();
-            })
-            .then(data => {
-                technologicalMatrix = data.matrix;
-                productNames = data.productNames;
-                productIds = data.productIds;
-                
-                // Renderizar a matriz na tabela - now uses global function
-                renderTechnologicalMatrix();
-            });
     }
     
     /**
@@ -950,190 +924,6 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     function hasOptimizationConfig(productIndex) {
         return optimizationConfigs[productIndex] !== undefined;
-    }
-    
-    /**
-     * Executa o processo de planificação
-     */
-    function performPlanification() {
-        const planifyButton = document.getElementById('planifyButton');
-        const loadingSpinner = document.getElementById('loadingSpinner');
-        
-        console.log("Iniciando planificação...");
-        
-        // Desabilitar o botão e mostrar spinner
-        planifyButton.disabled = true;
-        loadingSpinner.style.display = 'inline-block';
-        
-        try {
-            // Atualizar dados a partir da interface
-            updateMatrixAndVectorData();
-            
-            // Verificar se há dados para planificar
-            if (!productIds || productIds.length === 0) {
-                console.error("IDs de materialização inválidos ou vazios:", productIds);
-                showError("Não há materializações válidas para planificar. Adicione pelo menos uma materialização.");
-                planifyButton.disabled = false;
-                loadingSpinner.style.display = 'none';
-                return;
-            }
-            
-            console.log("Dados para planificação:");
-            console.log("Matriz tecnológica:", technologicalMatrix);
-            console.log("Vetor de demanda:", demandVector);
-            console.log("Produtos:", productNames);
-            console.log("IDs dos produtos:", productIds);
-            
-            // Verificar e ajustar dimensões da matriz e vetor
-            ensureMatrixDimensions();
-            
-            // Preparar o objeto com os dados da planificação
-            const planificationRequest = {
-                instanceId: currentInstanceId,
-                technologicalMatrix: technologicalMatrix,
-                demandVector: demandVector,
-                productNames: productNames,
-                materializationIds: productIds
-            };
-            
-            console.log("Enviando requisição de planificação:", planificationRequest);
-            
-            // Enviar a requisição para o servidor
-            fetch('/api/planification/planify', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(planificationRequest)
-            })
-            .then(response => {
-                if (!response.ok) {
-                    return response.json().then(errorData => {
-                        throw new Error(errorData.message || 'Erro ao executar a planificação');
-                    });
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log("Resposta da planificação:", data);
-                
-                // Exibir resultados
-                const results = document.getElementById('results');
-                results.style.display = 'block';
-                
-                // Renderizar o vetor de produção
-                renderProductionVector(data.productionVector);
-                
-                // Renderizar resultados de otimização
-                if (data.optimizationResults) {
-                    optimizationResults = data.optimizationResults;
-                    renderOptimizationResults(data.optimizationResults);
-                }
-                
-                // Rolar para os resultados
-                results.scrollIntoView({ behavior: 'smooth' });
-                
-                showSuccess("Planificação concluída com sucesso!");
-            })
-            .catch(error => {
-                console.error("Erro durante a planificação:", error);
-                showError("Erro durante a planificação: " + error.message);
-            })
-            .finally(() => {
-                // Habilitar o botão e esconder spinner
-                planifyButton.disabled = false;
-                loadingSpinner.style.display = 'none';
-            });
-        } catch (error) {
-            console.error("Erro ao preparar dados para planificação:", error);
-            showError("Erro ao preparar dados: " + error.message);
-            planifyButton.disabled = false;
-            loadingSpinner.style.display = 'none';
-        }
-    }
-    
-    /**
-     * Renderiza os resultados da planificação
-     */
-    function renderResults(data) {
-        console.log("Renderizando resultados da planificação:", data);
-        
-        if (!data || !data.productionVector || data.productionVector.length === 0) {
-            showError("Não há resultados de planificação para exibir");
-            return;
-        }
-        
-        // Exibir resultados
-        const results = document.getElementById('results');
-        if (!results) {
-            console.error("Elemento de resultados não encontrado");
-            return;
-        }
-        
-        results.style.display = 'block';
-        
-        // Armazenar resultados globalmente para uso nas modais
-        optimizationResults = data.optimizationResults;
-        
-        // Renderizar o vetor de produção na tabela principal
-        const productionResultsBody = document.getElementById('productionResults');
-        if (!productionResultsBody) {
-            console.error("Tabela de resultados de produção não encontrada");
-            return;
-        }
-        
-        // Limpar conteúdo anterior
-        productionResultsBody.innerHTML = '';
-        
-        // Função para formatar números
-        const formatNumber = (value) => {
-            if (value === undefined || value === null) return 'N/A';
-            return typeof value === 'number' ? value.toFixed(2) : value;
-        };
-        
-        // Adicionar linhas à tabela de produção - AGORA COM BOTÃO DE DETALHES
-        data.productionVector.forEach((production, index) => {
-            // Verificar se temos o nome e ID correspondentes
-            if (index < productNames.length) {
-                const row = document.createElement('tr');
-                
-                // Obter o ID da materialização correspondente a este índice
-                const materializationId = productIds[index];
-                
-                // Encontrar os dados de otimização correspondentes
-                const optimizationData = optimizationResults ? 
-                    optimizationResults.find(r => r.materializationId === materializationId) : null;
-                
-                row.innerHTML = `
-                    <td>${productNames[index]}</td>
-                    <td>${formatNumber(production)}</td>
-                    <td>
-                        <button class="btn details-btn" onclick="openOptimizationResultModal(${index})">
-                            Detalhes
-                        </button>
-                    </td>
-                `;
-                
-                productionResultsBody.appendChild(row);
-            } else {
-                console.warn("Índice fora dos limites para vetor de produção:", index);
-            }
-        });
-        
-        // Rolar para os resultados
-        results.scrollIntoView({ behavior: 'smooth' });
-        
-        // Atualizar as linhas do vetor de demanda para adicionar o botão de configuração
-        updateDemandVectorWithConfigButton();
-        
-        // Não chamar mais a função de renderização de resultados de otimização
-        // renderOptimizationResults(optimizationResults);
-        
-        // Esconder a seção de resultados de otimização
-        const optimizationResultsContainer = document.getElementById('optimizationResultsContainer');
-        if (optimizationResultsContainer) {
-            optimizationResultsContainer.style.display = 'none';
-        }
     }
     
     /**
@@ -1327,37 +1117,31 @@ document.addEventListener('DOMContentLoaded', function() {
         // Mostrar spinner de carregamento
         document.getElementById('loadingSpinner').style.display = 'inline-block';
         
-        // Limpar resultados anteriores
-        document.getElementById('results').style.display = 'none';
-        
         // Limpar configurações de otimização existentes
         Object.keys(optimizationConfigs).forEach(key => delete optimizationConfigs[key]);
         
-        // Carregar matriz tecnológica e vetor de demanda em paralelo
-        Promise.all([
-            loadTechnologicalMatrix(instanceId),
-            loadDemandVector(instanceId)
-        ])
-        .then(() => {
-            // Carregar configurações de otimização existentes
-            return loadOptimizationConfigs();
-        })
-        .then(() => {
-            // Tentar carregar resultados anteriores, se existirem
-            return loadPreviousResults(instanceId);
-        })
-        .catch(error => {
-            console.error('Erro ao carregar dados da instância:', error);
-            showError(`Erro ao carregar dados: ${error.message}`);
-        })
-        .finally(() => {
-            // Mostrar a seção da matriz
-            document.getElementById('matrixSection').style.display = 'block';
-            document.getElementById('loadingSpinner').style.display = 'none';
-            
-            // Garantir que o botão de adicionar materialização esteja inicializado
-            initAddMaterializationButton();
-        });
+        // Carregar vetor de demanda
+        loadDemandVector(instanceId)
+            .then(() => {
+                // Carregar configurações de otimização existentes
+                return loadOptimizationConfigs();
+            })
+            .then(() => {
+                // Tentar carregar resultados anteriores, se existirem
+                return loadPreviousResults(instanceId);
+            })
+            .catch(error => {
+                console.error('Erro ao carregar dados da instância:', error);
+                showError(`Erro ao carregar dados: ${error.message}`);
+            })
+            .finally(() => {
+                // Mostrar a seção mesmo sem a matriz tecnológica
+                document.getElementById('matrixSection').style.display = 'block';
+                document.getElementById('loadingSpinner').style.display = 'none';
+                
+                // Garantir que o botão de adicionar materialização esteja inicializado
+                initAddMaterializationButton();
+            });
     }
 });
 
@@ -1380,22 +1164,53 @@ function calculateEstimates() {
         });
 }
 
-// Function to update matrix and vector data from UI
-function updateMatrixAndVectorData() {
-    // Update matrix values from UI
-    const matrixTable = document.getElementById('technologicalMatrix');
-    const matrixInputs = matrixTable.querySelectorAll('input');
+// Function to update demand vector data from UI
+function updateDemandVectorFromUI() {
+    const demandTable = document.getElementById('demandVector');
+    const tbody = demandTable.querySelector('tbody');
+    const rows = tbody.querySelectorAll('tr');
     
-    matrixInputs.forEach(input => {
-        const row = parseInt(input.dataset.row);
-        const col = parseInt(input.dataset.col);
-        if (!isNaN(row) && !isNaN(col)) {
-            technologicalMatrix[row][col] = parseFloat(input.value) || 0;
+    // Limpar o vetor de demanda atual
+    const oldDemandVector = [...demandVector]; // Para depuração
+    demandVector = [];
+    
+    // Ler os valores atualizados da interface
+    rows.forEach((row, index) => {
+        const inputElement = row.querySelector('input');
+        if (inputElement) {
+            // Converter para número, garantindo que seja um valor válido
+            const value = parseFloat(inputElement.value) || 0;
+            demandVector.push(value);
+            
+            // Verificar se o ID de materialização correspondente existe
+            if (index >= productIds.length) {
+                console.warn(`Aviso: Índice ${index} não tem ID de materialização correspondente!`);
+            }
         }
     });
     
-    // Update demand vector from UI
-    updateDemandVectorFromUI();
+    console.log("Vetor de demanda atualizado da UI:");
+    console.log("- Antes:", oldDemandVector);
+    console.log("- Depois:", demandVector);
+    console.log("- IDs correspondentes:", productIds);
+    
+    // Garantir que o comprimento do vetor de demanda corresponda ao dos IDs de materialização
+    if (demandVector.length !== productIds.length) {
+        console.warn(`Aviso: Comprimento do vetor de demanda (${demandVector.length}) não corresponde ao dos IDs (${productIds.length})`);
+        
+        // Ajustar para garantir consistência
+        while (demandVector.length > productIds.length) {
+            demandVector.pop();
+        }
+        
+        while (demandVector.length < productIds.length) {
+            demandVector.push(0);
+        }
+        
+        console.log("- Depois do ajuste:", demandVector);
+    }
+    
+    return demandVector;
 }
 
 // Function to remove a materialization from the tables
@@ -1477,205 +1292,6 @@ function removeMaterialization(materializationId) {
     showSuccess('Materialização removida. Clique em "Salvar Alterações" para confirmar a exclusão no banco de dados.');
 }
 
-// Function to show the modal for creating a new materialization
-function showNewMaterializationModal() {
-    // Close the materialization dropdown if it's open
-    const dropdown = document.querySelector('.materialization-dropdown');
-    if (dropdown) dropdown.remove();
-    
-    // Get modal element
-    const modal = document.getElementById('newMaterializationModal');
-    if (!modal) {
-        console.error("Modal for new materialization not found");
-        showError("Erro: Modal para nova materialização não encontrada");
-        return;
-    }
-    
-    // Clear previous content
-    const modalContent = modal.querySelector('.modal-content');
-    modalContent.innerHTML = `
-        <div class="modal-header">
-            <h3>Criar Nova Materialização Social</h3>
-            <span class="close" onclick="closeNewMaterializationModal()">&times;</span>
-        </div>
-        <div class="modal-body">
-            <form id="newMaterializationForm">
-                <div class="form-group">
-                    <label for="newMaterializationName">Nome:</label>
-                    <input type="text" id="newMaterializationName" required>
-                </div>
-                <div class="form-group">
-                    <label for="newMaterializationType">Tipo:</label>
-                    <select id="newMaterializationType" required>
-                        <option value="">Selecione um tipo</option>
-                        <option value="SERVICE">Serviço</option>
-                        <option value="GOOD">Bem</option>
-                        <option value="INFRASTRUCTURE">Infraestrutura</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="newMaterializationSector">Setor:</label>
-                    <select id="newMaterializationSector" required>
-                        <option value="">Carregando setores...</option>
-                    </select>
-                </div>
-                <div id="newMaterializationError" class="error-message" style="display: none;"></div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" onclick="closeNewMaterializationModal()">Cancelar</button>
-            <button type="button" class="btn btn-primary" onclick="saveNewMaterialization()">Salvar</button>
-            <div id="newMaterializationSpinner" class="loading" style="display: none;"></div>
-        </div>
-    `;
-    
-    // Show modal
-    modal.style.display = 'block';
-    
-    // Load sectors for dropdown
-    loadSectorsForDropdown();
-}
-
-// Function to close the new materialization modal
-function closeNewMaterializationModal() {
-    const modal = document.getElementById('newMaterializationModal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-// Function to load sectors for dropdown
-function loadSectorsForDropdown() {
-    const sectorSelect = document.getElementById('newMaterializationSector');
-    if (!sectorSelect) return;
-    
-    fetch('/api/sectors')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao carregar setores');
-            }
-            return response.json();
-        })
-        .then(sectors => {
-            // Clear loading option
-            sectorSelect.innerHTML = '<option value="">Selecione um setor</option>';
-            
-            // Add sectors to dropdown
-            sectors.forEach(sector => {
-                const option = document.createElement('option');
-                option.value = sector.id;
-                option.textContent = sector.name;
-                sectorSelect.appendChild(option);
-            });
-        })
-        .catch(error => {
-            console.error('Erro ao carregar setores:', error);
-            sectorSelect.innerHTML = '<option value="">Erro ao carregar setores</option>';
-        });
-}
-
-// Function to save new materialization
-function saveNewMaterialization() {
-    // Get form values
-    const name = document.getElementById('newMaterializationName').value.trim();
-    const type = document.getElementById('newMaterializationType').value;
-    const sectorId = document.getElementById('newMaterializationSector').value;
-    
-    // Validate form
-    if (!name || !type || !sectorId) {
-        const errorElement = document.getElementById('newMaterializationError');
-        errorElement.textContent = 'Todos os campos são obrigatórios';
-        errorElement.style.display = 'block';
-        return;
-    }
-    
-    // Show spinner
-    const spinner = document.getElementById('newMaterializationSpinner');
-    spinner.style.display = 'inline-block';
-    
-    // Prepare data
-    const data = {
-        name: name,
-        type: type,
-        sectorId: parseInt(sectorId)
-    };
-    
-    // Send request
-    fetch('/api/social-materializations', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(errorData => {
-                throw new Error(errorData.message || 'Erro ao criar materialização');
-            });
-        }
-        return response.json();
-    })
-    .then(result => {
-        // Close modal
-        closeNewMaterializationModal();
-        
-        // Show success message
-        showSuccess(`Materialização "${result.name}" criada com sucesso`);
-        
-        // Add to table if we're in a planification context
-        if (currentInstanceId) {
-            addMaterializationToTable(result, currentInstanceId);
-        }
-    })
-    .catch(error => {
-        console.error('Erro ao criar materialização:', error);
-        const errorElement = document.getElementById('newMaterializationError');
-        errorElement.textContent = error.message || 'Erro ao criar materialização';
-        errorElement.style.display = 'block';
-    })
-    .finally(() => {
-        // Hide spinner
-        spinner.style.display = 'none';
-    });
-}
-
-// Adicione esta função de log para ajudar no diagnóstico
-function logDemandVectorStatus() {
-    if (!currentInstanceId) return;
-    
-    fetch(`/api/planification/instances/${currentInstanceId}/demand-vector`)
-        .then(response => response.json())
-        .then(data => {
-            console.log("Estado atual do vetor de demanda no servidor:", data);
-        })
-        .catch(err => console.error("Erro ao verificar vetor de demanda:", err));
-}
-
-/**
- * Atualiza a matriz tecnológica com os novos valores calculados
- * @param {Object} technologicalMatrixData - Dados da matriz tecnológica
- */
-function updateTechnologicalMatrix(technologicalMatrixData) {
-    if (!technologicalMatrixData || !technologicalMatrixData.matrix) {
-        showNotification('Dados da matriz tecnológica inválidos', 'error');
-        return;
-    }
-    
-    console.log('Atualizando matriz tecnológica com dados recebidos:', technologicalMatrixData);
-    
-    // Atualizar variáveis globais
-    technologicalMatrix = technologicalMatrixData.matrix;
-    productNames = technologicalMatrixData.productNames || [];
-    productIds = technologicalMatrixData.productIds || [];
-    
-    // Renderizar a matriz na interface
-    renderTechnologicalMatrix();
-    
-    // Mostrar mensagem de sucesso
-    showNotification('Matriz tecnológica atualizada com sucesso', 'success');
-}
-
 /**
  * Atualiza o vetor de demanda com os novos valores calculados
  * @param {Object} demandVectorData - Dados do vetor de demanda
@@ -1728,32 +1344,10 @@ function updateDemandVectorElement(index, value) {
 }
 
 /**
- * Função para garantir que as dimensões da matriz tecnológica correspondam corretamente
- * ao número de produtos
+ * Função para garantir que as dimensões dos vetores correspondam corretamente
  */
 function ensureMatrixDimensions() {
     const size = productIds.length;
-    
-    // Garantir que cada dimensão da matriz tecnológica esteja correta
-    if (technologicalMatrix.length !== size) {
-        // Adicionar ou remover linhas conforme necessário
-        while (technologicalMatrix.length < size) {
-            technologicalMatrix.push(new Array(size).fill(0));
-        }
-        while (technologicalMatrix.length > size) {
-            technologicalMatrix.pop();
-        }
-    }
-    
-    // Garantir que cada linha tenha o número correto de colunas
-    technologicalMatrix.forEach((row, i) => {
-        while (row.length < size) {
-            row.push(0);
-        }
-        while (row.length > size) {
-            row.pop();
-        }
-    });
     
     // Garantir que o vetor de demanda tenha o tamanho correto
     while (demandVector.length < size) {
@@ -1762,613 +1356,4 @@ function ensureMatrixDimensions() {
     while (demandVector.length > size) {
         demandVector.pop();
     }
-}
-
-// Função para inicializar o botão de adicionar materialização
-function initAddMaterializationButton() {
-    const addButton = document.getElementById('addMaterializationBtn');
-    if (!addButton) return;
-    
-    // Limpar conteúdo anterior e event listeners
-    addButton.innerHTML = '';
-    const newIcon = document.createElement('i');
-    newIcon.className = 'fas fa-plus';
-    addButton.appendChild(newIcon);
-    
-    // Remover event listeners antigos clonando e substituindo o botão
-    const newButton = addButton.cloneNode(true);
-    addButton.parentNode.replaceChild(newButton, addButton);
-    
-    // Adicionar event listener ao novo botão
-    newButton.addEventListener('click', function(e) {
-        e.preventDefault();
-        e.stopPropagation();
-        toggleMaterializationSelector(this);
-    });
-}
-
-// Nova função para alternar a visibilidade do dropdown
-function toggleMaterializationSelector(button) {
-    // Verificar se já existe um dropdown
-    const existingDropdown = document.getElementById('materializationDropdownContainer');
-    
-    // Se existir, removê-lo
-    if (existingDropdown) {
-        existingDropdown.remove();
-        return;
-    }
-
-    // Se não existir, criar e mostrar o dropdown
-    showMaterializationSelector(button);
-}
-
-// Função para mostrar o seletor de materializações em um dropdown
-function showMaterializationSelector(button) {
-    if (!currentInstanceId) {
-        showNotification('Por favor, selecione uma instância primeiro', 'error');
-        return;
-    }
-    
-    // Criar o container do dropdown
-    const dropdownContainer = document.createElement('div');
-    dropdownContainer.id = 'materializationDropdownContainer';
-    dropdownContainer.className = 'dropdown-container';
-    dropdownContainer.style.position = 'absolute';
-    dropdownContainer.style.display = 'block';
-    dropdownContainer.style.zIndex = '1000';
-    
-    // Obter a posição do botão
-    const buttonRect = button.getBoundingClientRect();
-    
-    // Posicionar o dropdown abaixo do botão
-    dropdownContainer.style.top = `${buttonRect.bottom + window.scrollY}px`;
-    dropdownContainer.style.left = `${buttonRect.left + window.scrollX}px`;
-    
-    // Verificar se estamos usando o tema "night"
-    const isNightTheme = document.documentElement.getAttribute('data-theme') === 'night';
-    
-    // Aplicar cores com alta especificidade
-    const textColor = isNightTheme ? 'white' : '#333';
-    const textMutedColor = isNightTheme ? 'rgba(255, 255, 255, 0.7)' : '#6c757d';
-    const hoverBgColor = isNightTheme ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.05)';
-    
-    // Adicionar estilo global para garantir que as cores sejam respeitadas
-    const styleEl = document.createElement('style');
-    styleEl.id = 'dropdown-text-color-fix';
-    styleEl.textContent = `
-        #materializationDropdownContainer #materializationDropdown .dropdown-item {
-            color: ${textColor} !important;
-            transition: background-color 0.2s !important;
-        }
-        
-        #materializationDropdownContainer #materializationDropdown .dropdown-item:hover {
-            background-color: ${hoverBgColor} !important;
-            color: ${textColor} !important;
-        }
-        
-        #materializationDropdownContainer #materializationDropdown .empty-message {
-            color: ${textMutedColor} !important;
-        }
-        
-        /* Modificado para usar a mesma cor de texto que os outros itens */
-        #materializationDropdownContainer #materializationDropdown .add-new-item {
-            color: ${textColor} !important;
-            font-weight: bold !important;
-        }
-        
-        #materializationDropdownContainer #materializationDropdown .add-new-item:hover {
-            color: ${textColor} !important;
-        }
-        
-        #materializationDropdownContainer #materializationDropdown .error-message {
-            color: var(--danger-color, #dc3545) !important;
-        }
-    `;
-    document.head.appendChild(styleEl);
-    
-    // Criar o elemento dropdown
-    const dropdown = document.createElement('div');
-    dropdown.id = 'materializationDropdown';
-    dropdown.className = 'dropdown-menu materialization-dropdown';
-    dropdown.style.display = 'block';
-    dropdown.style.minWidth = '250px';
-    dropdown.style.maxHeight = '300px';
-    dropdown.style.overflowY = 'auto';
-    dropdown.style.backgroundColor = 'var(--card-bg)';
-    dropdown.style.border = '1px solid var(--border-color)';
-    dropdown.style.borderRadius = '4px';
-    dropdown.style.boxShadow = '0 4px 8px rgba(0,0,0,0.1)';
-    dropdown.style.padding = '8px 0';
-    
-    // Adicionar mensagem de carregamento com estilo consistente
-    const loadingItem = document.createElement('div');
-    loadingItem.className = 'dropdown-item';
-    loadingItem.textContent = 'Carregando materializações...';
-    loadingItem.style.padding = '8px 16px';
-    loadingItem.style.fontSize = '14px';
-    loadingItem.style.color = textColor; // Aplicar cor diretamente
-    loadingItem.style.cursor = 'default';
-    
-    dropdown.appendChild(loadingItem);
-    dropdownContainer.appendChild(dropdown);
-    
-    // Adicionar container ao body
-    document.body.appendChild(dropdownContainer);
-    
-    // Carregar materializações disponíveis
-    fetch('/api/planification/available-materializations')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao carregar materializações sociais');
-            }
-            return response.json();
-        })
-        .then(allMaterializations => {
-            // Limpar dropdown
-            dropdown.innerHTML = '';
-            
-            // Filtrar materializações já existentes
-            const existingIds = productIds || [];
-            const availableMaterializations = allMaterializations.filter(
-                mat => !existingIds.includes(mat.id)
-            );
-            
-            // Se não houver materializações disponíveis
-            if (availableMaterializations.length === 0) {
-                const emptyItem = document.createElement('div');
-                emptyItem.className = 'dropdown-item empty-message';
-                emptyItem.textContent = 'Não há materializações sociais disponíveis';
-                emptyItem.style.padding = '12px 16px';
-                emptyItem.style.fontSize = '14px';
-                emptyItem.style.color = textMutedColor + ' !important'; // Aplicar cor diretamente com !important
-                emptyItem.style.fontStyle = 'italic';
-                emptyItem.style.textAlign = 'center';
-                dropdown.appendChild(emptyItem);
-                return;
-            }
-            
-            // Adicionar materializações ao dropdown
-            availableMaterializations.forEach(mat => {
-                const item = document.createElement('a');
-                item.href = "#";
-                item.className = 'dropdown-item';
-                item.dataset.id = mat.id;
-                item.dataset.name = mat.name;
-                item.textContent = `${mat.name} (${mat.type})`;
-                item.style.padding = '8px 16px';
-                item.style.fontSize = '14px';
-                item.style.color = `${textColor} !important`; // Aplicar cor com !important
-                item.style.textDecoration = 'none';
-                item.style.display = 'block';
-                item.style.cursor = 'pointer';
-                
-                // Adicionar estilo inline de !important não funciona diretamente, então usamos setAttribute
-                item.setAttribute('style', `
-                    padding: 8px 16px;
-                    font-size: 14px;
-                    color: ${textColor} !important;
-                    text-decoration: none;
-                    display: block;
-                    cursor: pointer;
-                    background-color: transparent;
-                `);
-                
-                item.onclick = function(e) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    addMaterializationToTable(mat, currentInstanceId);
-                };
-                
-                dropdown.appendChild(item);
-            });
-            
-            // Adicionar opção para criar nova materialização
-            const newItem = document.createElement('a');
-            newItem.href = "#";
-            newItem.className = 'dropdown-item add-new-item';
-            newItem.innerHTML = '<i class="fas fa-plus-circle"></i> Nova Materialização Social';
-            
-            // Aplicar estilos com alta especificidade, agora usando a mesma cor de texto
-            newItem.setAttribute('style', `
-                padding: 8px 16px;
-                font-size: 14px;
-                color: ${textColor} !important;
-                text-decoration: none;
-                display: block;
-                cursor: pointer;
-                font-weight: bold;
-                border-top: 1px solid var(--border-color);
-                margin-top: 4px;
-                padding-top: 10px;
-                background-color: transparent;
-            `);
-            
-            newItem.onclick = function(e) {
-                e.preventDefault();
-                e.stopPropagation();
-                showNewMaterializationModal();
-            };
-            
-            dropdown.appendChild(newItem);
-        })
-        .catch(error => {
-            console.error('Erro ao carregar materializações:', error);
-            
-            const errorItem = document.createElement('div');
-            errorItem.className = 'dropdown-item error-message';
-            errorItem.textContent = 'Erro ao carregar materializações';
-            errorItem.style.padding = '8px 16px';
-            errorItem.style.fontSize = '14px';
-            errorItem.style.color = 'var(--danger-color, #dc3545) !important';
-            errorItem.style.fontWeight = 'bold';
-            
-            dropdown.innerHTML = '';
-            dropdown.appendChild(errorItem);
-            
-            showNotification("Erro ao carregar materializações sociais", "error");
-        });
-    
-    // Adicionar evento para remover os estilos quando o dropdown for fechado
-    const removeDropdownStyles = function() {
-        const styleElement = document.getElementById('dropdown-text-color-fix');
-        if (styleElement) {
-            styleElement.remove();
-        }
-    };
-    
-    // Adicionar evento global para fechar ao clicar fora
-    const documentClickHandler = function closeDropdownOnClickOutside(e) {
-        if (dropdownContainer && 
-            !dropdownContainer.contains(e.target) && 
-            e.target !== button && 
-            !button.contains(e.target)) {
-            
-            if (document.body.contains(dropdownContainer)) {
-                dropdownContainer.remove();
-                removeDropdownStyles();
-            }
-            document.removeEventListener('click', documentClickHandler);
-        }
-    };
-    
-    // Adicionar evento com delay para evitar fechamento imediato
-    setTimeout(() => {
-        document.addEventListener('click', documentClickHandler);
-    }, 100);
-}
-
-// Função para adicionar materialização selecionada à tabela
-function addMaterializationToTable(materialization, instanceId) {
-    // Fechar o dropdown
-    const dropdownContainer = document.getElementById('materializationDropdownContainer');
-    if (dropdownContainer) {
-        dropdownContainer.remove();
-    }
-    
-    // Adicionar materialização aos arrays
-    productIds.push(materialization.id);
-    productNames.push(materialization.name);
-    
-    // Adicionar linha vazia à matriz tecnológica
-    const matrixRow = new Array(technologicalMatrix[0]?.length || 0).fill(0);
-    technologicalMatrix.push(matrixRow);
-    
-    // Adicionar coluna a cada linha existente
-    technologicalMatrix.forEach(row => {
-        row.push(0);
-    });
-    
-    // Adicionar ao vetor de demanda
-    demandVector.push(0);
-    
-    // Re-renderizar tabelas
-    renderTechnologicalMatrix();
-    renderDemandVector();
-    
-    showNotification(`Materialização "${materialization.name}" adicionada com sucesso`, 'success');
-}
-
-// Função para mostrar o modal de criação de nova materialização
-function showNewMaterializationModal() {
-    // Fechar o dropdown de materialização se estiver aberto
-    const dropdown = document.querySelector('#materializationDropdownContainer');
-    if (dropdown) dropdown.remove();
-    
-    // Obter o elemento modal
-    const modal = document.getElementById('newMaterializationModal');
-    if (!modal) {
-        console.error("Modal para nova materialização não encontrada");
-        showNotification("Erro: Modal para nova materialização não encontrada", "error");
-        return;
-    }
-    
-    // Exibir o modal
-    modal.style.display = 'block';
-    
-    // Carregar setores para o dropdown
-    loadSectorsForDropdown();
-}
-
-// Função para fechar o modal de nova materialização
-function closeNewMaterializationModal() {
-    const modal = document.getElementById('newMaterializationModal');
-    if (modal) {
-        modal.style.display = 'none';
-    }
-}
-
-// Função para carregar setores para o dropdown
-function loadSectorsForDropdown() {
-    const sectorSelect = document.getElementById('newMaterializationSector');
-    if (!sectorSelect) return;
-    
-    fetch('/api/sectors')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Erro ao carregar setores');
-            }
-            return response.json();
-        })
-        .then(sectors => {
-            // Limpar opção de carregamento
-            sectorSelect.innerHTML = '<option value="">Selecione um setor</option>';
-            
-            // Adicionar setores ao dropdown
-            sectors.forEach(sector => {
-                const option = document.createElement('option');
-                option.value = sector.id;
-                option.textContent = sector.name;
-                sectorSelect.appendChild(option);
-            });
-        })
-        .catch(error => {
-            console.error('Erro ao carregar setores:', error);
-            sectorSelect.innerHTML = '<option value="">Erro ao carregar setores</option>';
-        });
-}
-
-// Função para salvar nova materialização
-function saveNewMaterialization() {
-    // Obter valores do formulário
-    const name = document.getElementById('newMaterializationName').value.trim();
-    const type = document.getElementById('newMaterializationType').value;
-    const sectorId = document.getElementById('newMaterializationSector').value;
-    
-    // Validar formulário
-    if (!name || !type || !sectorId) {
-        const errorElement = document.getElementById('newMaterializationError');
-        errorElement.textContent = 'Todos os campos são obrigatórios';
-        errorElement.style.display = 'block';
-        return;
-    }
-    
-    // Mostrar spinner
-    const spinner = document.getElementById('newMaterializationSpinner');
-    spinner.style.display = 'inline-block';
-    
-    // Preparar dados
-    const data = {
-        name: name,
-        type: type,
-        sectorId: parseInt(sectorId)
-    };
-    
-    // Enviar requisição
-    fetch('/api/social-materializations', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-    })
-    .then(response => {
-        if (!response.ok) {
-            return response.json().then(errorData => {
-                throw new Error(errorData.message || 'Erro ao criar materialização');
-            });
-        }
-        return response.json();
-    })
-    .then(result => {
-        // Fechar modal
-        closeNewMaterializationModal();
-        
-        // Mostrar mensagem de sucesso
-        showNotification(`Materialização "${result.name}" criada com sucesso`, 'success');
-        
-        // Adicionar à tabela se estivermos em um contexto de planificação
-        if (currentInstanceId) {
-            addMaterializationToTable(result, currentInstanceId);
-        }
-    })
-    .catch(error => {
-        console.error('Erro ao criar materialização:', error);
-        const errorElement = document.getElementById('newMaterializationError');
-        errorElement.textContent = error.message || 'Erro ao criar materialização';
-        errorElement.style.display = 'block';
-    })
-    .finally(() => {
-        // Esconder spinner
-        spinner.style.display = 'none';
-    });
-}
-
-/**
- * Função auxiliar para verificar se a modal de otimização está sendo exibida
- * para diagnosticar o comportamento de fechamento automático
- */
-function checkModalStatus() {
-    const modal = document.getElementById('optimizationConfigModal');
-    if (modal) {
-        const isVisible = window.getComputedStyle(modal).display !== 'none';
-        console.log('Status da modal de otimização:', isVisible ? 'Visível' : 'Oculta');
-        
-        // Se a modal estiver fechada quando não deveria, verificamos possíveis causas
-        if (!isVisible && currentOptimizationProductIndex >= 0) {
-            console.warn('A modal de otimização foi fechada inesperadamente!');
-            console.log('currentOptimizationProductIndex =', currentOptimizationProductIndex);
-            console.log('productIds =', productIds);
-            console.log('Modal element style:', modal.style.display);
-        }
-        return isVisible;
-    }
-    return false;
-}
-
-// Garantir que o evento DOMContentLoaded do arquivo original contenha
-// a inicialização do botão de materializações
-document.addEventListener('DOMContentLoaded', function() {
-    // Inicializar cabeçalho comum - APENAS UMA VEZ
-    ensureHeader();
-    
-    // Adicionar código para inicializar o botão de adicionar materialização
-    initAddMaterializationButton();
-    
-    /**
-     * Carrega todos os dados da instância selecionada
-     */
-    function loadInstanceData(instanceId) {
-        currentInstanceId = instanceId;
-        
-        // Mostrar spinner de carregamento
-        document.getElementById('loadingSpinner').style.display = 'inline-block';
-        
-        // Limpar resultados anteriores
-        document.getElementById('results').style.display = 'none';
-        
-        // Limpar configurações de otimização existentes
-        Object.keys(optimizationConfigs).forEach(key => delete optimizationConfigs[key]);
-        
-        // Carregar matriz tecnológica e vetor de demanda em paralelo
-        Promise.all([
-            loadTechnologicalMatrix(instanceId),
-            loadDemandVector(instanceId)
-        ])
-        .then(() => {
-            // Carregar configurações de otimização existentes
-            return loadOptimizationConfigs();
-        })
-        .then(() => {
-            // Tentar carregar resultados anteriores, se existirem
-            return loadPreviousResults(instanceId);
-        })
-        .catch(error => {
-            console.error('Erro ao carregar dados da instância:', error);
-            showError(`Erro ao carregar dados: ${error.message}`);
-        })
-        .finally(() => {
-            // Mostrar a seção da matriz
-            document.getElementById('matrixSection').style.display = 'block';
-            document.getElementById('loadingSpinner').style.display = 'none';
-            
-            // Garantir que o botão de adicionar materialização esteja inicializado
-            initAddMaterializationButton();
-        });
-    }
-});
-
-/**
- * Adiciona um botão "Configurar Parâmetros de Otimização" para cada produto na tabela de resultados
- * @param {number} index - Índice do produto na tabela
- * @param {number} production - Quantidade de produção do produto
- * @param {string} name - Nome do produto
- * @returns {string} - HTML do botão de configuração e detalhes
- */
-function createOptimizationButton(index, production, name) {
-    return `
-        <button class="action-btn config-btn" title="Configurar parâmetros de otimização"
-            onclick="openOptimizationConfigModal(${index})">
-            <i class="fas fa-cogs"></i>
-        </button>
-        <button class="action-btn details-btn" title="Ver detalhes de otimização"
-            onclick="openOptimizationResultModal(${index})">
-            <i class="fas fa-chart-bar"></i>
-        </button>
-    `;
-}
-
-/**
- * Calcula os resultados de otimização para um produto
- * @param {number} productIndex - Índice do produto
- */
-function calculateOptimizationResults(productIndex) {
-    // Verificar se temos configuração e resultado para este produto
-    if (!optimizationConfigs[productIndex] || !optimizationResults[productIndex]) {
-        console.error('Configuração ou resultado de otimização não encontrado para índice', productIndex);
-        return;
-    }
-    
-    const config = optimizationConfigs[productIndex];
-    const result = optimizationResults[productIndex];
-    
-    // Pegar a produção necessária do resultado
-    const productionNeeded = result.productionNeeded;
-    
-    // Calcular horas totais necessárias
-    const totalHours = productionNeeded * config.productionTime;
-    
-    // Calcular horas disponíveis por trabalhador por dia
-    const workerHoursPerDay = config.workerHours * (config.nightShift ? 2 : 1);
-    
-    // Calcular horas totais de trabalho disponíveis por semana
-    const totalWeeklyHours = workerHoursPerDay * config.weeklyScale;
-    
-    // Calcular trabalhadores necessários
-    // (horas totais / horas por trabalhador por semana)
-    const workersNeeded = totalHours / totalWeeklyHours;
-    
-    // Calcular fábricas necessárias
-    // (trabalhadores necessários / limite de trabalhadores por fábrica)
-    const factoriesNeeded = workersNeeded / config.workerLimit;
-    
-    // Calcular tempo mínimo de produção em dias
-    // (horas totais / (horas por fábrica por dia * número de fábricas))
-    const factoryDailyHours = config.workerLimit * workerHoursPerDay;
-    const minimumProductionTimeInDays = totalHours / (Math.ceil(factoriesNeeded) * factoryDailyHours);
-    
-    // Atualizar o objeto de resultados
-    result.totalHours = totalHours;
-    result.workersNeeded = workersNeeded;
-    result.factoriesNeeded = factoriesNeeded;
-    result.minimumProductionTimeInDays = minimumProductionTimeInDays;
-    result.factoryOperationHours = workerHoursPerDay;
-    
-    // Copiar valores da configuração para o resultado
-    result.workerLimit = config.workerLimit;
-    result.workerHours = config.workerHours;
-    result.productionTime = config.productionTime;
-    result.weeklyScale = config.weeklyScale;
-    result.nightShift = config.nightShift;
-    
-    console.log('Resultados de otimização calculados:', result);
-}
-
-/**
- * Armazena os resultados de produção para uso na otimização
- * @param {Array} productionVector - Vetor de produção calculado
- */
-function storeOptimizationResults(productionVector) {
-    // Limpar resultados anteriores
-    optimizationResults = [];
-    
-    // Para cada produto no vetor de produção
-    productionVector.forEach((productionNeeded, index) => {
-        // Verificar se temos dados válidos para este índice
-        if (index < productNames.length && index < productIds.length) {
-            // Criar um objeto para armazenar os resultados e configurações de otimização
-            optimizationResults.push({
-                materializationId: productIds[index],
-                materializationName: productNames[index],
-                productionNeeded: productionNeeded,
-                // Outros campos serão adicionados quando o usuário configurar os parâmetros de otimização
-                totalHours: 0,
-                workersNeeded: 0,
-                factoriesNeeded: 0,
-                factoryOperationHours: 0,
-                minimumProductionTimeInDays: 0
-            });
-        }
-    });
-    
-    console.log('Resultados de otimização inicializados:', optimizationResults);
 }

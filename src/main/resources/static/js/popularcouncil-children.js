@@ -243,7 +243,7 @@ function proceedCalculation() {
     // Atualizar status para processando
     updateCalculationStatus('Processando cálculo de estimativas...', 'processing');
     
-    // Chamar a API para calcular as estimativas (mantenha a implementação original)
+    // Chamar a API para calcular as estimativas
     fetch(`/api/council/${instanceId}/calculate-estimates`, {
         method: 'POST',
         headers: {
@@ -259,14 +259,7 @@ function proceedCalculation() {
     .then(data => {
         console.log("Dados completos recebidos do servidor:", data);
         
-        // Processar a resposta e atualizar as tabelas (implementação original)
-        if (data.technologicalMatrix) {
-            console.log("Atualizando matriz tecnológica:", data.technologicalMatrix);
-            updateTechnologicalMatrix(data.technologicalMatrix);
-        } else {
-            console.error("Matriz tecnológica não encontrada na resposta");
-        }
-        
+        // Atualizar apenas o vetor de demanda (removida referência à matriz tecnológica)
         if (data.demandVector) {
             console.log("Atualizando vetor de demanda:", data.demandVector);
             updateDemandVector(data.demandVector);
@@ -306,7 +299,7 @@ function proceedCalculation() {
 }
 
 /**
- * Calcula as estimativas de matriz tecnológica e vetor de demanda
+ * Calcula as estimativas de vetor de demanda
  * @param {number} instanceId - ID da instância do conselho
  * @returns {Promise} - Promise que resolve com os dados das estimativas
  */
@@ -332,15 +325,7 @@ function calculateEstimates(instanceId) {
 function processEstimatesData(data) {
     console.log("Dados completos recebidos do servidor:", data);
     
-    // Atualizar matriz tecnológica
-    if (data.technologicalMatrix) {
-        console.log("Atualizando matriz tecnológica:", data.technologicalMatrix);
-        updateTechnologicalMatrix(data.technologicalMatrix);
-    } else {
-        console.error("Matriz tecnológica não encontrada na resposta");
-    }
-    
-    // Atualizar vetor de demanda
+    // Atualizar apenas o vetor de demanda
     if (data.demandVector) {
         console.log("Atualizando vetor de demanda:", data.demandVector);
         updateDemandVector(data.demandVector);
