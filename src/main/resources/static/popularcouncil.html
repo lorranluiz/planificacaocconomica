@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="ocean">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planificação Econômica - Conselho</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="css/common-styles.css">
+    <link rel="stylesheet" href="css/theme-variables.css">
+    <link rel="stylesheet" href="css/theme-elements.css">
+    <link rel="stylesheet" href="css/notification.css">
+    <link rel="stylesheet" href="css/modal.css">
+    <script src="common-header.js"></script>
+    <!-- CSS específico para planificação -->
+    <style>
+        .matrix-container {
+            margin-bottom: 30px;
+            overflow-x: auto;
+        }
+        
+        .vector-container {
+            margin-bottom: 30px;
+        }
+        
+        .editable-table input {
+            width: 80px;
+            text-align: right;
+            border: 1px solid #ccc;
+            padding: 5px;
+            border-radius: 4px;
+        }
+        
+        .results-container {
+            margin-top: 30px;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary-color);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+            vertical-align: middle;
+            display: none;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .result-tables-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        @media (max-width: 768px) {
+            .result-tables-container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .info-message {
+            background-color: var(--bg-light, #e3f2fd);
+            border-left: 4px solid var(--primary-color, #2196f3);
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            color: var(--text-color);
+        }
+        
+        [data-theme="night"] .info-message {
+            background-color: rgba(198, 40, 40, 0.15); /* Vermelho translúcido */
+        }
+        
+        .info-message i {
+            color: var(--primary-color);
+            margin-right: 8px;
+        }
+
+        .vector-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 10px;
+        }
+
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.2s, transform 0.1s;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .add-btn {
+            background-color: var(--primary-color);
+            color: var(--text-on-primary);
+        }
+
+        .add-btn:hover {
+            background-color: var(--primary-light);
+        }
+
+        .remove-btn {
+            background-color: var(--danger-color, #dc3545);
+            color: white;
+            font-size: 14px;
+        }
+
+        .remove-btn:hover {
+            background-color: var(--danger-light, #e25563);
+        }
+
+        /* Estilos para o dropdown de seleção */
+        .materialization-dropdown {
+            position: absolute;
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 100;
+            min-width: 250px;
+        }
+
+        .materialization-dropdown .dropdown-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .materialization-dropdown .dropdown-item:hover {
+            background-color: var(--hover-bg);
+        }
+
+        .materialization-dropdown .add-new-item {
+            border-top: 1px solid var(--border-color);
+            font-weight: bold;
+            color: var(--primary-color);
+        }
+
+        .materialization-dropdown .empty-message {
+            padding: 12px 16px;
+            font-style: italic;
+            color: var(--text-muted);
+            text-align: center;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+        }
+        
+        .config-btn {
+            background-color: var(--secondary-color, #6c757d);
+            color: white;
+        }
+        
+        .config-btn:hover {
+            background-color: var(--secondary-light, #7d868e);
+        }
+        
+        /* Estilos específicos para garantir que o tema night use vermelho em vez de azul */
+        [data-theme="night"] .editable-table input {
+            background-color: var(--bg-light) !important;
+            color: var(--text-color) !important;
+            border-color: var(--border-color) !important;
+        }
+        
+        [data-theme="night"] .editable-table input:focus {
+            border-color: var(--primary-color) !important;
+            box-shadow: 0 0 0 0.2rem rgba(198, 40, 40, 0.25) !important;
+        }
+        
+        [data-theme="night"] .btn,
+        [data-theme="night"] button:not(.close):not(.btn-secondary) {
+            background-color: var(--primary-color) !important;
+        }
+        
+        [data-theme="night"] .btn:hover,
+        [data-theme="night"] button:not(.close):not(.btn-secondary):hover {
+            background-color: var(--primary-light) !important;
+        }
+        
+        [data-theme="night"] .modal-header {
+            background-color: var(--primary-dark) !important;
+        }
+        
+        [data-theme="night"] table th {
+            background-color: var(--primary-dark) !important;
+        }
+        
+        /* Override para qualquer elemento que ainda use azul no tema night */
+        [data-theme="night"] .blue-bg,
+        [data-theme="night"] .blue-background,
+        [data-theme="night"] .bg-primary,
+        [data-theme="night"] .bg-info {
+            background-color: var(--primary-color) !important;
+        }
+        
+        [data-theme="night"] .text-primary,
+        [data-theme="night"] .text-info {
+            color: var(--primary-light) !important;
+        }
+        
+        /* Garantir que o spinner de carregamento use vermelho */
+        [data-theme="night"] .loading {
+            border-top-color: var(--primary-color) !important;
+        }
+
+        /* Estilos para o rodapé da modal e seus botões */
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .modal-footer button {
+            min-width: 100px;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 500;
+            border: none;
+            transition: background-color 0.2s;
+        }
+        
+        .modal-footer .btn {
+            background-color: var(--primary-color);
+            color: var(--text-on-primary);
+        }
+        
+        .modal-footer .btn:hover {
+            background-color: var(--primary-light);
+        }
+        
+        .modal-footer .btn-secondary {
+            background-color: var(--bg-light);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+        
+        .modal-footer .btn-secondary:hover {
+            background-color: var(--hover-bg);
+        }
+        
+        /* Garantir que o tema noturno com vermelho seja aplicado corretamente nos botões da modal */
+        [data-theme="night"] .modal-footer .btn {
+            background-color: var(--primary-color) !important;
+            color: white !important;
+        }
+        
+        [data-theme="night"] .modal-footer .btn:hover {
+            background-color: var(--primary-light) !important;
+        }
+        
+        [data-theme="night"] .modal-footer .btn-secondary {
+            background-color: var(--bg-light) !important;
+            color: var(--text-color) !important;
+            border: 1px solid var(--border-color) !important;
+        }
+        
+        /* Aumentar a especificidade dos estilos da modal para garantir que sejam aplicados */
+        #optimizationConfigModal .modal-content,
+        #optimizationResultModal .modal-content {
+            padding: 20px;
+            max-width: 600px;
+            width: 100%;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            background-color: var(--card-bg);
+            position: relative;
+        }
+        
+        /* Correção para o problema da modal fechando */
+        #optimizationConfigModal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Correção específica para a modal de configuração */
+        #optimizationConfigModal .close {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- O cabeçalho comum será inserido aqui pelo script -->
+        
+        <div id="planificationPage">
+            <h1>Planificação Econômica</h1>
+            
+            <div class="info-message">
+                <p><i class="fas fa-info-circle"></i> Esta página permite realizar cálculos de planificação econômica baseados no modelo de insumo-produto de Leontief.</p>
+                <p><strong>Como usar:</strong> Selecione uma instância, ajuste a matriz tecnológica e o vetor de demanda conforme necessário, e clique em "Planificar" para calcular o vetor de produção necessário.</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="instanceSelect">Selecione a Instância:</label>
+                <select id="instanceSelect" class="form-control">
+                    <option value="">Selecione uma instância...</option>
+                </select>
+            </div>
+            
+            <div id="matrixSection" style="display: none;">
+                <div class="container-fluid mt-4">
+                    <h2>Matriz Tecnológica</h2>
+                    
+                    <div class="mb-3">
+                        <button id="btnCalculateEstimates" class="btn btn-primary">
+                            <i class="fas fa-calculator mr-2"></i> Calcular Estimativas
+                        </button>
+                        <span id="calculationStatus" class="ml-2" style="display: none;">
+                            <i class="fas fa-spinner fa-spin"></i> Processando...
+                        </span>
+                    </div>
+                    
+                    <div class="table-responsive">
+                        <!-- Tabela da matriz tecnológica existente -->
+                    </div>
+                </div>
+                
+                <p>A matriz tecnológica representa quanto do produto de cada linha é necessário para produzir uma unidade do produto de cada coluna.</p>
+                
+                <div class="matrix-container">
+                    <table id="technologicalMatrix" class="editable-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <!-- Colunas serão adicionadas dinamicamente -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Linhas serão adicionadas dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <h2>Vetor de Demanda Final</h2>
+                <p>O vetor de demanda final representa a quantidade de cada produto que precisa ser entregue aos consumidores finais.</p>
+
+                <div class="vector-actions">
+                    <button id="addMaterializationBtn" class="action-btn add-btn" title="Adicionar materialização social">
+                        <i class="fas fa-plus"></i>
+                    </button>
+                </div>
+
+                <div class="vector-container">
+                    <table id="demandVector" class="editable-table">
+                        <thead>
+                            <tr>
+                                <th>Produto</th>
+                                <th>Demanda Final</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Linhas serão adicionadas dinamicamente -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="controls">
+                    <button id="planifyButton" class="btn">Planificar</button>
+                    <span id="loadingSpinner" class="loading"></span>
+                    <button id="saveButton" class="btn">Salvar Alterações</button>
+                </div>
+                
+                <div id="results" class="results-container" style="display: none;">
+                    <h2>Resultados da Planificação</h2>
+                    
+                    <div>
+                        <h3>Vetor de Produção</h3>
+                        <p>Quantidade total que cada setor precisa produzir para atender à demanda final.</p>
+                        <table id="productionVector">
+                            <thead>
+                                <tr>
+                                    <th>Materialização Social</th>
+                                    <th>Produção Necessária</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Linhas serão adicionadas dinamicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div id="results" style="display: none;">
+                <!-- Resultados da planificação serão inseridos aqui dinamicamente -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal de Configuração de Otimização -->
+    <div id="optimizationConfigModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeOptimizationConfigModal()">&times;</span>
+            <h2>Configurar Parâmetros de Otimização</h2>
+            <p>Materialização Social: <span id="optimizationModalProductName"></span></p>
+            
+            <div id="optimizationModalSpinner" class="loading" style="display:none;"></div>
+            
+            <div class="form-group">
+                <label for="workerLimit">Limite de Trabalhadores por Fábrica:</label>
+                <input type="number" id="workerLimit" class="form-control" min="1" step="1">
+            </div>
+            
+            <div class="form-group">
+                <label for="workerHours">Horas de Trabalho por Dia:</label>
+                <input type="number" id="workerHours" class="form-control" min="0.1" step="0.5">
+            </div>
+            
+            <div class="form-group">
+                <label for="productionTime">Tempo para Produzir Uma Unidade (em horas):</label>
+                <input type="number" id="productionTime" class="form-control" min="0.0001" step="0.01">
+            </div>
+            
+            <div class="form-group">
+                <label for="weeklyScale">Escala Semanal (dias de trabalho por semana):</label>
+                <input type="number" id="weeklyScale" class="form-control" min="1" max="7" step="1">
+            </div>
+            
+            <div class="form-check">
+                <input type="checkbox" id="nightShift" class="form-check-input">
+                <label for="nightShift" class="form-check-label">Turno Noturno</label>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn" onclick="saveOptimizationConfig()">Salvar</button>
+                <button class="btn btn-secondary" onclick="closeOptimizationConfigModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Resultados de Otimização -->
+    <div id="optimizationResultModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeOptimizationResultModal()">&times;</span>
+            <h2>Resultados da Otimização</h2>
+            <p class="product-info">Materialização Social: <strong><span id="optimizationModalProductName">Carregando...</span></strong></p>
+            
+            <div id="optimizationModalContent">
+                <!-- O conteúdo será preenchido dinamicamente -->
+            </div>
+            
+            <div class="modal-footer">
+                <button class="btn" onclick="closeOptimizationResultModal()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Cadastro de Nova Materialização -->
+    <div id="newMaterializationModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeNewMaterializationModal()">&times;</span>
+            <h2>Nova Materialização Social</h2>
+            
+            <div id="newMaterializationModalSpinner" class="loading" style="display:none;"></div>
+            <div id="newMaterializationFormError" class="message error" style="display:none;"></div>
+            <div id="newMaterializationFormSuccess" class="message success" style="display:none;"></div>
+            
+            <form id="newMaterializationForm">
+                <div class="form-group">
+                    <label for="materialName">Nome:</label>
+                    <input type="text" id="materialName" class="form-control" required>
+                </div>
+                
+                <!-- Adicionar opções ao select no modal -->
+                <div class="form-group">
+                    <label for="materialType">Tipo:</label>
+                    <select id="materialType" class="form-control" required>
+                        <option value="PRODUCT">Produto</option>
+                        <option value="SERVICE">Serviço</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="materialDescription">Descrição:</label>
+                    <textarea id="materialDescription" class="form-control" rows="3"></textarea>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="submit" class="btn">Salvar</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeNewMaterializationModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal para exibir as instâncias filhas -->
+    <div id="childInstancesModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Instâncias Filhas</h3>
+                <span class="close" onclick="closeChildInstancesModal()">&times;</span>
+            </div>
+            <div class="modal-children-content"></div>
+            <div class="modal-footer">
+                <div class="calculation-status" id="modalCalculationStatus">
+                    <span class="status-text">Aguardando...</span>
+                    <div class="status-spinner"></div>
+                </div>
+                <button class="btn btn-secondary" onclick="closeChildInstancesModal()">Fechar</button>
+                <button class="btn btn-primary" id="btnProceedCalculation" onclick="proceedCalculation()">Prosseguir</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/notifications.js"></script>
+    <script src="js/popularcouncil-children.js"></script>
+    <script src="js/popularcouncil.js"></script>
+</body>
+</html>

@@ -775,10 +775,10 @@ document.addEventListener('DOMContentLoaded', function() {
      * Carrega a lista de instâncias disponíveis
      */
     function loadInstances() {
-        fetch('/api/planification/instances')
+        fetch('/api/instances?type=POPULARCOUNCIL')
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Erro ao carregar instâncias');
+                    throw new Error('Erro ao carregar instâncias de conselho');
                 }
                 return response.json();
             })
@@ -792,12 +792,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 instances.forEach(instance => {
                     const option = document.createElement('option');
                     option.value = instance.id;
-                    option.textContent = instance.name;
+                    option.textContent = instance.name || `Conselho #${instance.id}`;
                     instanceSelect.appendChild(option);
                 });
             })
             .catch(error => {
-                showError('Erro ao carregar instâncias: ' + error.message);
+                showError('Erro ao carregar instâncias de conselho: ' + error.message);
             });
     }
     

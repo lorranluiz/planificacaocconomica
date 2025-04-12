@@ -11,9 +11,9 @@ import java.util.List;
 
 @Repository
 public interface InstanceRepository extends JpaRepository<Instance, Integer> {
+       
     /**
      * Encontra todas as instâncias de um determinado tipo
-     * @param type o tipo da instância (COUNCIL, COMMITTEE, WORKER)
      * @return lista de instâncias do tipo especificado
      */
     List<Instance> findByType(String type);

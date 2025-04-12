@@ -21,9 +21,12 @@ SET row_security = off;
 --
 
 CREATE TYPE public.instance_type AS ENUM (
-    'COUNCIL',
+    'WORKER',
+    'POPULARCOUNCIL',
+    'PLANNERCOUNCIL',
     'COMMITTEE',
-    'WORKER'
+    'DISTCOMMITTEE',
+    'SERVICECOMMITTEE'
 );
 
 
@@ -336,11 +339,22 @@ CREATE TABLE public.instance (
     estimated_individual_participation_in_social_work numeric(20,10),
     hours_at_electronic_point numeric(10,2),
     type character varying(50) NOT NULL,
+    postal_code character varying(20),
+    street character varying(255),
+    street_number character varying(20),
+    suburb character varying(255),
+    city character varying(255),
+    state character varying(255),
+    country character varying(100),
+    continent character varying(50),
+    address_complement character varying(255),
+    latitude numeric(10,7),
+    longitude numeric(10,7),
     CONSTRAINT chk_committee_columns CHECK ((((type)::text <> 'COMMITTEE'::text) OR ((committee_name IS NOT NULL) AND (popular_council_associated_with_committee_or_worker IS NOT NULL) AND (total_social_work_of_this_jurisdiction IS NOT NULL) AND (id_social_materialization IS NOT NULL) AND (produced_quantity IS NOT NULL) AND (target_quantity IS NOT NULL) AND (produced_quantity < target_quantity)))),
     CONSTRAINT chk_council_columns CHECK ((((type)::text <> 'COUNCIL'::text) OR ((total_social_work_of_this_jurisdiction IS NOT NULL) AND (popular_council_associated_with_popular_council IS NOT NULL)))),
     CONSTRAINT chk_worker_columns CHECK ((((type)::text <> 'WORKER'::text) OR ((popular_council_associated_with_committee_or_worker IS NOT NULL) AND (id_associated_worker_committee IS NOT NULL) AND (id_associated_worker_residents_association = 0) AND (estimated_individual_participation_in_social_work IS NOT NULL) AND (hours_at_electronic_point IS NOT NULL)))),
     CONSTRAINT chk_worker_effective_limit CHECK (((((type)::text = 'COMMITTEE'::text) AND (worker_effective_limit IS NOT NULL)) OR (((type)::text <> 'COMMITTEE'::text) AND (worker_effective_limit IS NULL)))),
-    CONSTRAINT instance_type_check CHECK (((type)::text = ANY ((ARRAY['COUNCIL'::character varying, 'COMMITTEE'::character varying, 'WORKER'::character varying])::text[])))
+    CONSTRAINT instance_type_check CHECK (((type)::text = ANY (ARRAY['WORKER'::text, 'POPULARCOUNCIL'::text, 'PLANNERCOUNCIL'::text, 'COMMITTEE'::text, 'DISTCOMMITTEE'::text, 'SERVICECOMMITTEE'::text])))
 );
 
 
