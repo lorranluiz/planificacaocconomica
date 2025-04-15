@@ -1372,27 +1372,11 @@ function calculateEstimates() {
         return;
     }
     
-    // Verificar o tipo da instância - apenas para log
-    console.log(`Calculando estimativas para instância ID: ${instanceId}`);
-    
     // Primeiro mostrar as instâncias filhas e só depois prosseguir com o cálculo
     loadAndShowChildInstances(instanceId)
-        .then(children => {
-            console.log(`Encontradas ${children.length} instâncias filhas`);
-            if (children.length === 0) {
-                // Mostramos uma mensagem no modal para o usuário, mas não tratamos como erro
-                console.warn("Não foram encontradas instâncias filhas para este conselho");
-            }
-            // Continuar mesmo sem filhos, o modal vai mostrar a mensagem
-        })
         .catch(error => {
             console.error('Erro:', error);
             // O erro já é tratado dentro da função loadAndShowChildInstances
-            // Apenas adicionamos uma mensagem de notificação mais amigável
-            showNotification(
-                'Não foi possível carregar as instâncias filhas. Verifique se esta instância é um conselho válido.',
-                'warning'
-            );
         });
 }
 

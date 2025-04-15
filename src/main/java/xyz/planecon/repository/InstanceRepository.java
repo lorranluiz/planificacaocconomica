@@ -52,6 +52,16 @@ public interface InstanceRepository extends JpaRepository<Instance, Integer> {
     @Query("SELECT i FROM Instance i WHERE i.popularCouncilAssociatedWithCommitteeOrWorker = :instance OR i.popularCouncilAssociatedWithPopularCouncil = :instance")
     List<Instance> findByAnyAssociatedPopularCouncil(@Param("instance") Instance instance);
     
+    /**
+     * Encontra instâncias que têm uma determinada instância como conselho pai
+     * (tanto em popular_council_associated_with_committee_or_worker quanto em popular_council_associated_with_popular_council)
+     * 
+     * @param parentId ID da instância pai (conselho)
+     * @return Lista de instâncias filhas
+     */
+    @Query("SELECT i FROM Instance i WHERE i.popularCouncilAssociatedWithCommitteeOrWorker = :parentId OR i.popularCouncilAssociatedWithPopularCouncil = :parentId")
+    List<Instance> findByParentCouncilId(@Param("parentId") Integer parentId);
+    
     // Métodos para acessar entidades relacionadas
     @Query("SELECT wp FROM WorkersProposal wp WHERE wp.instance.id = :instanceId")
     List<WorkersProposal> findWorkerProposalsByInstance(@Param("instanceId") Integer instanceId);

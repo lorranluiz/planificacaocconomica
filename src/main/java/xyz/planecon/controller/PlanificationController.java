@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.web.server.ResponseStatusException;
 
 import xyz.planecon.dto.InstanceDto;
 import xyz.planecon.dto.PlanificationRequest;
@@ -20,6 +21,7 @@ import xyz.planecon.model.entity.OptimizationInputsResults;
 import xyz.planecon.model.entity.SocialMaterialization;
 import xyz.planecon.model.entity.TechnologicalTensor;
 import xyz.planecon.model.entity.TechnologicalTensor.TechnologicalTensorId;
+import xyz.planecon.model.enums.InstanceType;
 import xyz.planecon.repository.DemandVectorRepository;
 import xyz.planecon.repository.InstanceRepository;
 import xyz.planecon.repository.SocialMaterializationRepository;
@@ -32,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -49,7 +52,7 @@ public class PlanificationController {
     private final SocialMaterializationRepository materializationRepository;
     private final TechnologicalTensorRepository tensorRepository;
     private final DemandVectorRepository demandVectorRepository;
-    private final OptimizationInputsResultsRepository optimizationRepository; // Adicionar esta linha
+    private final OptimizationInputsResultsRepository optimizationRepository;
 
     @Autowired
     public PlanificationController(
@@ -58,13 +61,13 @@ public class PlanificationController {
             SocialMaterializationRepository materializationRepository,
             TechnologicalTensorRepository tensorRepository,
             DemandVectorRepository demandVectorRepository,
-            OptimizationInputsResultsRepository optimizationRepository) { // Adicionar este parâmetro
+            OptimizationInputsResultsRepository optimizationRepository) {
         this.planificationService = planificationService;
         this.instanceRepository = instanceRepository;
         this.materializationRepository = materializationRepository;
         this.tensorRepository = tensorRepository;
         this.demandVectorRepository = demandVectorRepository;
-        this.optimizationRepository = optimizationRepository; // Inicializar o campo
+        this.optimizationRepository = optimizationRepository;
     }
 
     /**
@@ -260,7 +263,7 @@ public class PlanificationController {
             Integer index = materializationToIndex.get(demand.getSocialMaterialization().getId());
             
             if (index != null) {
-                vector[index] = demand.getDemand(); // Alterado: getQuantity() → getDemand()
+                vector[index] = demand.getDemand();
             }
         }
         
@@ -527,7 +530,7 @@ public class PlanificationController {
             response.put("instanceId", instanceId);
             response.put("materializationId", materializationId);
             response.put("materializationName", materialization.getName());
-            response.put("demand", savedVector.getDemand()); // Alterado: getQuantity() → getDemand()
+            response.put("demand", savedVector.getDemand());
             response.put("createdAt", savedVector.getCreatedAt());
             
             return ResponseEntity.ok(response);
@@ -931,6 +934,72 @@ public class PlanificationController {
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("message", "Erro ao buscar dados da instância: " + e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
+    /**
+     * Obtém as instâncias filhas de uma instância específica
+     * Esta API é uma versão mais flexível que aceita instâncias do tipo PLANNERCOUNCIL
+     * @param instanceId ID da instância
+     * @param type Tipo opcional da instância (PLANNERCOUNCIL, COUNCIL, etc.)
+     * @return Lista de instâncias filhas
+     */
+    @GetMapping("/instance/{instanceId}/children")
+    public ResponseEntity<List<Instance>> getInstanceChildren(
+            @PathVariable Integer instanceId,
+            @RequestParam(required = false) String type) {
+        
+        logger.info("Buscando instâncias filhas para instância ID: {}, tipo: {}", instanceId, type);
+        
+        try {
+            Instance instance = instanceRepository.findById(instanceId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Instância não encontrada: " + instanceId));
+            
+            // Verificar se a instância é do tipo esperado, se o tipo foi especificado
+            if (type != null && !type.isEmpty() && !instance.getType().equals(type)) {
+                logger.warn("Instância {} não é do tipo esperado: {} (atual: {})", 
+                        instanceId, type, instance.getType());
+                
+                // Retornamos uma lista vazia em vez de erro para ser mais robusto
+                return ResponseEntity.ok(new ArrayList<>());
+            }
+            
+            // Para PLANNERCOUNCIL, buscamos instâncias associadas de forma diferente
+            // Também incluímos lógica para POPULARCOUNCIL para compatibilidade
+            List<Instance> childInstances;
+            
+            if (InstanceType.PLANNERCOUNCIL.toString().equals(instance.getType()) || 
+                InstanceType.POPULARCOUNCIL.toString().equals(instance.getType())) {
+                
+                // Buscar instâncias que têm esta instância como parent
+                // Usar a instância obtida pelo findById em vez de passar o ID diretamente
+                childInstances = instanceRepository.findByPopularCouncilAssociatedWithPopularCouncil(instance);
+                
+                // Também podemos buscar comitês vinculados ao conselho
+                // Usar a instância obtida pelo findById em vez de passar o ID diretamente
+                List<Instance> committees = instanceRepository.findByPopularCouncilAssociatedWithCommitteeOrWorker(instance);
+                
+                // Combinar as listas, evitando duplicatas
+                Set<Instance> allChildrenSet = new HashSet<>(childInstances);
+                allChildrenSet.addAll(committees);
+                
+                childInstances = new ArrayList<>(allChildrenSet);
+                
+                logger.info("Encontradas {} instâncias filhas para o PLANNERCOUNCIL/POPULARCOUNCIL {}", 
+                        childInstances.size(), instanceId);
+            } else {
+                // Para outros tipos, retornamos lista vazia
+                childInstances = new ArrayList<>();
+                logger.info("Tipo de instância não suportado para buscar filhos: {}", instance.getType());
+            }
+            
+            return ResponseEntity.ok(childInstances);
+        } catch (ResponseStatusException e) {
+            logger.error("Instância não encontrada: {}", instanceId);
+            throw e;
+        } catch (Exception e) {
+            logger.error("Erro ao buscar instâncias filhas: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 }

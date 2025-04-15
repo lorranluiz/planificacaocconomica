@@ -21,18 +21,11 @@ function loadAndShowChildInstances(councilId) {
         </div>
     `;
     
-    // Usar preferencialmente o endpoint original que funciona com POPULARCOUNCIL
+    // Carregar as instâncias filhas do conselho
     return fetch(`/api/council/${councilId}/children`)
         .then(response => {
             if (!response.ok) {
-                // Se o primeiro endpoint falhar, tenta o segundo
-                console.log("Primeiro endpoint falhou, tentando endpoint alternativo para instâncias filhas");
-                return fetch(`/api/planification/instance/${councilId}/children?type=PLANNERCOUNCIL`).then(r => {
-                    if (!r.ok) {
-                        return handleHttpError(r);
-                    }
-                    return r.json();
-                });
+                return handleHttpError(response);
             }
             return response.json();
         })
@@ -53,7 +46,6 @@ function loadAndShowChildInstances(councilId) {
                 <div class="error-message">
                     <i class="fas fa-exclamation-triangle"></i>
                     <p>Erro ao carregar instâncias filhas: ${error.message}</p>
-                    <p>A função de cálculo de estimativas requer instâncias filhas do tipo PLANNERCOUNCIL.</p>
                 </div>
             `;
             throw error;

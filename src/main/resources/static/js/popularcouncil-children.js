@@ -22,6 +22,8 @@ function loadAndShowChildInstances(councilId) {
     `;
     
     // Carregar as instâncias filhas do conselho
+    // return fetch(`/api/planification/instance/${councilId}/children?type=PLANNERCOUNCIL`).then(r => {
+  //return fetch(`/api/council/${councilId}/children`)
     return fetch(`/api/council/${councilId}/children`)
         .then(response => {
             if (!response.ok) {

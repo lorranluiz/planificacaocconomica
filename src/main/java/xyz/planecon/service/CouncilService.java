@@ -111,11 +111,6 @@ public class CouncilService {
         // Verificar se o conselho existe
         Instance council = instanceRepository.findById(councilId)
                 .orElseThrow(() -> new ResourceNotFoundException("Conselho", councilId));
-
-        // Verificar se é realmente um conselho
-        if (council.getType() != InstanceType.POPULARCOUNCIL) {
-            throw new IllegalArgumentException("A instância não é um conselho: " + councilId);
-        }
         
         // Buscar todas as instâncias filhas diretas (comitês e trabalhadores)
         List<Instance> directChildren = instanceRepository.findByPopularCouncilAssociatedWithCommitteeOrWorker(council);
