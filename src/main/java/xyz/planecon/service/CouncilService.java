@@ -63,9 +63,9 @@ public class CouncilService {
                 .orElseThrow(() -> new ResourceNotFoundException("Conselho", councilId));
 
         // 2. Verificar se é realmente um conselho
-        if (council.getType() != InstanceType.POPULARCOUNCIL) {
-            throw new IllegalArgumentException("A instância não é um conselho: " + councilId);
-        }
+        //if (council.getType() != InstanceType.POPULARCOUNCIL) {
+        //    throw new IllegalArgumentException("A instância não é um conselho: " + councilId);
+        //}
 
         // 3. Buscar todas as materializações sociais usadas pelas instâncias filhas
         Set<Integer> allMaterializationIds = findAllMaterializationIdsForCouncilChildren(councilId);
@@ -169,9 +169,9 @@ public class CouncilService {
                 .orElseThrow(() -> new ResourceNotFoundException("Conselho", councilId));
                 
         // 2. Verificar se é realmente um conselho
-        if (council.getType() != InstanceType.POPULARCOUNCIL) {
-            throw new IllegalArgumentException("A instância não é um conselho: " + councilId);
-        }
+        //if (council.getType() != InstanceType.POPULARCOUNCIL) {
+        //    throw new IllegalArgumentException("A instância não é um conselho: " + councilId);
+       // }
         
         // 3. Buscar todas as instâncias filhas
         List<Instance> allChildren = new ArrayList<>();
