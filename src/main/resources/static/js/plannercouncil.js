@@ -292,12 +292,25 @@ function openOptimizationResultModal(index) {
     const requiredFactories = result.factoriesNeeded ? Math.ceil(result.factoriesNeeded) : 0;
     const factoryDifference = requiredFactories - existingFactories;
 
-    // Determine the appropriate message and value to display
+    // Determine the appropriate message and value to display for factories
     let factoryDifferenceLabel = 'Fábricas a serem construídas';
     let factoryDifferenceValue = factoryDifference;
     if (factoryDifference < 0) {
         factoryDifferenceLabel = 'Fábricas a serem revertidas';
         factoryDifferenceValue = Math.abs(factoryDifference);
+    }
+    
+    // Calculate the difference between required workers and worker limit
+    const requiredWorkers = result.workersNeeded ? Math.ceil(result.workersNeeded) : 0;
+    const workerLimit = result.workerLimit || 0;
+    const workerDifference = requiredWorkers - workerLimit;
+    
+    // Determine the appropriate message and value to display for workers
+    let workerDifferenceLabel = 'Trabalhadores a serem contratados';
+    let workerDifferenceValue = workerDifference;
+    if (workerDifference < 0) {
+        workerDifferenceLabel = 'Trabalhadores a serem realocados';
+        workerDifferenceValue = Math.abs(workerDifference);
     }
     
     // Criar o conteúdo HTML estruturado em seções
@@ -319,9 +332,10 @@ function openOptimizationResultModal(index) {
         
         <div class="optimization-section">
             <h4>Resultados Calculados</h4>
-            <p><strong>Trabalhadores Necessários:</strong> ${result.workersNeeded ? Math.ceil(result.workersNeeded) : '0'} trabalhadores</p>
+            <p><strong>Trabalhadores Necessários:</strong> ${requiredWorkers} trabalhadores</p>
+            <p><strong>${workerDifferenceLabel}:</strong> ${workerDifferenceValue} trabalhadores</p>
             <p><strong>Fábricas Existentes:</strong> ${result.committeeCount || '0'} fábricas</p>
-            <p><strong>Fábricas Necessárias:</strong> ${result.factoriesNeeded ? Math.ceil(result.factoriesNeeded) : '0'} fábricas</p>
+            <p><strong>Fábricas Necessárias:</strong> ${requiredFactories} fábricas</p>
             <p><strong>${factoryDifferenceLabel}:</strong> ${factoryDifferenceValue} fábricas</p>
             <p><strong>Tempo Mínimo de Produção:</strong> ${formatNumber(result.minimumProductionTimeInDays, 1)} dias</p>
             <p><strong>Horas de Operação da Fábrica:</strong> ${formatNumber(result.factoryOperationHours)} horas por dia</p>
