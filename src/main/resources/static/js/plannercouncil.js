@@ -279,7 +279,8 @@ function openOptimizationResultModal(index) {
     }
     
     // Definir explicitamente o nome do produto com base no índice atual da tabela
-    document.getElementById('optimizationModalProductName').textContent = productNames[index];
+    // Atualizado para usar o ID correto do elemento no modal de resultados
+    document.getElementById('optimizationResultModalProductName').textContent = productNames[index];
     
     // Formatar valores numéricos com verificação de existência
     const formatNumber = (value, decimals = 2) => {
