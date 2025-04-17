@@ -67,7 +67,8 @@ public class OptimizationService {
             Integer materializationId,
             String productName,
             double productionNeeded,
-            Integer instanceId) {
+            Integer instanceId,
+            Integer committeeCount) {
         
         try {
             logger.info("Iniciando otimização para materialização {} com produção necessária {}", 
@@ -195,7 +196,8 @@ public class OptimizationService {
                 factoryOperationHours,
                 workerLimit,
                 minimumProductionTimeInDays,
-                nightShift // Adicione este campo
+                nightShift,
+                committeeCount
             );
             
             logger.info("Otimização concluída com sucesso para materialização {} ({})", 
@@ -219,7 +221,8 @@ public class OptimizationService {
             String productName,
             double productionNeeded,
             Integer instanceId,
-            OptimizationInputsResults existingConfig) {
+            OptimizationInputsResults existingConfig,
+            Integer committeeCount) {
         
         try {
             // Configuração e valores existentes
@@ -313,7 +316,8 @@ public class OptimizationService {
                 factoryOperationHours,
                 workerLimit,
                 minimumProductionTimeInDays,
-                nightShift
+                nightShift,
+                committeeCount
             );
             
         } catch (Exception e) {
@@ -392,7 +396,8 @@ public class OptimizationService {
             0.0,  // factoryOperationHours
             0,    // workerLimit
             0.0,  // minimumProductionTimeInDays
-            false // Adicionando o valor padrão para nightShift
+            false, // nightShift
+            0     // committeeCount (default to 0)
         );
     }
 }

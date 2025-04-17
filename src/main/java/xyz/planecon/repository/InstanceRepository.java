@@ -71,4 +71,7 @@ public interface InstanceRepository extends JpaRepository<Instance, Integer> {
     
     @Query("SELECT dv FROM DemandVector dv WHERE dv.instance.id = :instanceId")
     List<DemandVector> findDemandVectorsByInstance(@Param("instanceId") Integer instanceId);
+    
+    @Query("SELECT COUNT(i) FROM Instance i WHERE i.type = :type AND i.socialMaterialization.id = :materializationId")
+    Integer countByTypeAndSocialMaterializationId(InstanceType type, Integer materializationId);
 }

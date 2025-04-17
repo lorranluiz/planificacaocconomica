@@ -11,12 +11,12 @@ import xyz.planecon.dto.PlanificationFullDataDTO;
 import xyz.planecon.dto.PlanificationRequest;
 import xyz.planecon.dto.PlanificationResponse;
 import xyz.planecon.dto.PlanificationResponse.OptimizationResult;
-import xyz.planecon.service.OptimizationService;
 import xyz.planecon.model.entity.DemandVector;
 import xyz.planecon.model.entity.Instance;
 import xyz.planecon.model.entity.OptimizationInputsResults;
 import xyz.planecon.model.entity.SocialMaterialization;
 import xyz.planecon.model.entity.TechnologicalTensor;
+import xyz.planecon.model.enums.InstanceType;
 import xyz.planecon.repository.DemandVectorRepository;
 import xyz.planecon.repository.InstanceRepository;
 import xyz.planecon.repository.OptimizationInputsResultsRepository;
@@ -216,6 +216,8 @@ public class PlanificationService {
                             factoryOperationHours *= 3;
                         }
 
+                        Integer committeeCount = countCommitteesForMaterialization(materializationId);
+
                         PlanificationResponse.OptimizationResult result = new PlanificationResponse.OptimizationResult(
                             materializationId,
                             mat.getName(),
@@ -229,7 +231,8 @@ public class PlanificationService {
                             factoryOperationHours,
                             config.getWorkerLimit(),
                             config.getMinimumProductionTime().doubleValue(),
-                            config.getNightShift()
+                            config.getNightShift(),
+                            committeeCount
                         );
 
                         optimizationResults.add(result);
@@ -280,6 +283,9 @@ public class PlanificationService {
                 String productName = request.getProductNames()[i];
                 double productionNeeded = productionVector[i] * 1000; // Ajustar escala (mil unidades)
 
+                // Contar os comitês existentes para esta materialização
+                Integer committeeCount = countCommitteesForMaterialization(materializationId);
+
                 // Verificar se já existe uma configuração para esta materialização
                 OptimizationResult result;
 
@@ -293,7 +299,8 @@ public class PlanificationService {
                         productName,
                         productionNeeded,
                         instanceId,
-                        existingConfig
+                        existingConfig,
+                        committeeCount
                     );
                 } else {
                     // Criar uma configuração padrão nova
@@ -301,18 +308,25 @@ public class PlanificationService {
                         materializationId,
                         productName,
                         productionNeeded,
-                        instanceId
+                        instanceId,
+                        committeeCount
                     );
                 }
 
                 optimizationResults.add(result);
             } catch (Exception e) {
                 logger.error("Erro ao processar otimização para produto {}: {}", i, e.getMessage(), e);
+                
+                // Contar comitês para este produto, mesmo em caso de erro
+                Integer materializationId = request.getMaterializationIds()[i];
+                Integer committeeCount = countCommitteesForMaterialization(materializationId);
+                
                 // Adicionar um resultado vazio para manter a ordem
                 optimizationResults.add(createEmptyOptimizationResult(
                     request.getMaterializationIds()[i],
                     request.getProductNames()[i],
-                    productionVector[i] * 1000
+                    productionVector[i] * 1000,
+                    committeeCount
                 ));
             }
         }
@@ -328,6 +342,21 @@ public class PlanificationService {
             boxedProductionVector,
             optimizationResults
         );
+    }
+
+    /**
+     * Conta quantos comitês existem para uma materialização específica
+     */
+    private Integer countCommitteesForMaterialization(Integer materializationId) {
+        try {
+            // Contar comitês que produzem esta materialização
+            Integer count = instanceRepository.countByTypeAndSocialMaterializationId(
+                InstanceType.COMMITTEE, materializationId);
+            return count != null ? count : 0;
+        } catch (Exception e) {
+            logger.warn("Erro ao contar comitês para materialização {}: {}", materializationId, e.getMessage());
+            return 0;
+        }
     }
 
     /**
@@ -355,7 +384,7 @@ public class PlanificationService {
     }
 
     // Método auxiliar para criar um resultado de otimização vazio
-    private OptimizationResult createEmptyOptimizationResult(Integer materializationId, String productName, double productionNeeded) {
+    private OptimizationResult createEmptyOptimizationResult(Integer materializationId, String productName, double productionNeeded, Integer committeeCount) {
         return new OptimizationResult(
             materializationId,
             productName,
@@ -369,7 +398,8 @@ public class PlanificationService {
             0.0,  // factoryOperationHours
             0,    // workerLimit
             0.0,  // minimumProductionTimeInDays
-            false // nightShift - parâmetro que estava faltando
+            false, // nightShift
+            committeeCount
         );
     }
 }

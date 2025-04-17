@@ -593,6 +593,10 @@ public class PlanificationController {
                         factoryOperationHours *= 3; // 3 turnos quando noturno está ativo
                     }
                     
+                    // Obter o número de comitês associados à materialização
+                    Integer committeeCount = instanceRepository.countByTypeAndSocialMaterializationId(
+                        InstanceType.COMMITTEE, materializationId);
+                    
                     PlanificationResponse.OptimizationResult result = new PlanificationResponse.OptimizationResult(
                         materializationId,
                         materialization.getName(),
@@ -606,7 +610,8 @@ public class PlanificationController {
                         factoryOperationHours,
                         config.getWorkerLimit(),
                         config.getMinimumProductionTime().doubleValue(),
-                        config.getNightShift()
+                        config.getNightShift(),
+                        committeeCount // Adicionar o número de comitês
                     );
                     
                     optimizationResults.add(result);

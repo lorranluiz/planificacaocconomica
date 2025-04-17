@@ -307,6 +307,7 @@ function openOptimizationResultModal(index) {
         <div class="optimization-section">
             <h4>Resultados Calculados</h4>
             <p><strong>Trabalhadores Necessários:</strong> ${result.workersNeeded ? Math.ceil(result.workersNeeded) : '0'} trabalhadores</p>
+            <p><strong>Fábricas Existentes:</strong> ${result.committeeCount || '0'} fábricas</p>
             <p><strong>Fábricas Necessárias:</strong> ${result.factoriesNeeded ? Math.ceil(result.factoriesNeeded) : '0'} fábricas</p>
             <p><strong>Tempo Mínimo de Produção:</strong> ${formatNumber(result.minimumProductionTimeInDays, 1)} dias</p>
             <p><strong>Horas de Operação da Fábrica:</strong> ${formatNumber(result.factoryOperationHours)} horas por dia</p>
