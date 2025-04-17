@@ -301,11 +301,21 @@ psql
 
       - [ok - otimizou, melhorou, ficou mais rápido, mas pode ficar ainda mais e mais facilmente agora] Ver se vai otimizar velocidade de processamento de dados usar esses objetos no cliente, no JavaScript, se sim, usar, se não, só otimizar o que já é feito, mas mantendo estrutura de código.
 
-      - No campo "Selecione a Instância:" implementar para Conselho, Comitê e Worker, aí abre a tela que abrirá depois quando eu implementar os fluxos de acordo com o tipo de usuário logado (ver como colocar em páginas separadas, vai ficar melhor, já começar colocando em páginas separadas na vdd, só reaproveitando essa, colocar filtro no select, cada página um filtro, uma só conselhos, outra só comitês outra só trabalhadores (intancias tipo WORKER)).
+      - [ok] No campo "Selecione a Instância:" implementar para Conselho, Comitê e Worker, aí abre a tela que abrirá depois quando eu implementar os fluxos de acordo com o tipo de usuário logado (ver como colocar em páginas separadas, vai ficar melhor, já começar colocando em páginas separadas na vdd, só reaproveitando essa, colocar filtro no select, cada página um filtro, uma só conselhos, outra só comitês outra só trabalhadores (intancias tipo WORKER)).
 
-      - Implementar agregados, médias de instâncias inferiores/filhas para alimentar tabelas de matriz tecnológica (vetor tecnológico de comitê ou qualquer coisa de usuário não agrega de nada abaixo, só para cima, então só implementa isso na página de tipo Conselho (a atual que estou trabalhando, já fazer isso agora, antes de ir para a próxima))
+      - [ok] Implementar agregados, médias de instâncias inferiores/filhas para alimentar tabelas de matriz tecnológica (vetor tecnológico de comitê ou qualquer coisa de usuário não agrega de nada abaixo, só para cima, então só implementa isso na página de tipo Conselho (a atual que estou trabalhando, já fazer isso agora, antes de ir para a próxima))
 
-      - Depois de tudo colocar funcionalidade de inserir ou excluir materialização da tabela, mantendo ela quadrada mas mudando o tamanho dela e do vetor demanda, consequentemente (tudo dinamicamente, com link para cadastro de nova materialização, que redireciona para a página que faz isso, etc, depois essa página já fica com a instância preenchida automaticamente, a partir do link que encaminhou pra ela)
+      - [ok] Depois de tudo colocar funcionalidade de inserir ou excluir materialização da tabela, mantendo ela quadrada mas mudando o tamanho dela e do vetor demanda, consequentemente (tudo dinamicamente, com link para cadastro de nova materialização, que redireciona para a página que faz isso, etc, depois essa página já fica com a instância preenchida automaticamente, a partir do link que encaminhou pra ela)
+
+     -  Implementar a distribuição dos dados da planificação.
+
+     - Implementar sistemas de pesos nas médias ponderadas calculadas no Conselho de Planificação.
+
+     - Avançar na exibição do planejamento nos Comitês, para cada comitê, ou seja, cada unidade produtiva ou de prestação de serviço
+
+     - Avançar na tela do trabalhador, com custos de produção baseados em percentuais dos números absolutos do Conselho de Planificação.
+
+     - Implementar QRcode do certificado de trabalho do usuário (mesma regra e mesmo nome de variável que versão inicial do sistema que implementou esse qrcode).
 
       Tudo muito bem amarrado, pra evitar bugs e inconsistências nos dados.
 
@@ -320,7 +330,7 @@ i.2) [*** NOVA FUNCIONALIDADE, SERÁ NOVO SETOR INDEPENDENTE AQUI DO ARQUIVO DE 
 
 7) Pós otimização na persistência (velocidade e tamanho, fim do download de tudo e de busca em tudo)
 
-7.1) Depois, gerar script que cria novos usuários não conselheiro, como Julia, com nomes reais associados ao local do mundo em que o usuário for criado. Perceba que ala tem um UUID, veja como isso é armazenado no arquivo de dados e veja como os dados dela são salvos em torno desse UUID e respeite isso. Crie 1 usuário para cada Conselho de Distribuição e Serviços que existe associado a cada bairro em todo o mundo existente no sistema. Use nomes de usuário para login fáceis e intuitivos de serem lembrados, e como senha use 123 para todos. 70% dos usuários criados devem ser mulheres. Para cada usuário criado já crie uma demanda que ele tenha feito (como se tivesse ido na tela para retirada de produtos e escolhido produtos serviços para retirada) escolha 3 produtos e 3 serviços existentes no sistema para cada usuário, não seja muito repetitivo, varie nas escolhas, para que pareçam usuários reais que tenham escolhido.Crie valores quaisquer e diferentes entre 30 a 100 horas de trabalho no ponto eletrônico de cada usuário criado, criado. Preencha devidamente e de maneira criativa e consistente cada campo criado no arquivo de dados.
+[ok] 7.1) Depois, gerar script que cria novos usuários não conselheiro, como Julia, com nomes reais associados ao local do mundo em que o usuário for criado. Perceba que ala tem um UUID, veja como isso é armazenado no arquivo de dados e veja como os dados dela são salvos em torno desse UUID e respeite isso. Crie 1 usuário para cada Conselho de Distribuição e Serviços que existe associado a cada bairro em todo o mundo existente no sistema. Use nomes de usuário para login fáceis e intuitivos de serem lembrados, e como senha use 123 para todos. 70% dos usuários criados devem ser mulheres. Para cada usuário criado já crie uma demanda que ele tenha feito (como se tivesse ido na tela para retirada de produtos e escolhido produtos serviços para retirada) escolha 3 produtos e 3 serviços existentes no sistema para cada usuário, não seja muito repetitivo, varie nas escolhas, para que pareçam usuários reais que tenham escolhido.Crie valores quaisquer e diferentes entre 30 a 100 horas de trabalho no ponto eletrônico de cada usuário criado, criado. Preencha devidamente e de maneira criativa e consistente cada campo criado no arquivo de dados.
 
 7.2) Depois que eu fizer isso, continuar testando o script de gráficos do Amazonas, pra ver se aparece mais coisas.
 
