@@ -287,6 +287,19 @@ function openOptimizationResultModal(index) {
         return typeof value === 'number' ? value.toFixed(decimals) : value;
     };
     
+    // Calculate the difference between required and existing factories
+    const existingFactories = result.committeeCount || 0;
+    const requiredFactories = result.factoriesNeeded ? Math.ceil(result.factoriesNeeded) : 0;
+    const factoryDifference = requiredFactories - existingFactories;
+
+    // Determine the appropriate message and value to display
+    let factoryDifferenceLabel = 'Fábricas a serem construídas';
+    let factoryDifferenceValue = factoryDifference;
+    if (factoryDifference < 0) {
+        factoryDifferenceLabel = 'Fábricas a serem revertidas';
+        factoryDifferenceValue = Math.abs(factoryDifference);
+    }
+    
     // Criar o conteúdo HTML estruturado em seções
     let contentHTML = `
         <div class="optimization-section">
@@ -309,6 +322,7 @@ function openOptimizationResultModal(index) {
             <p><strong>Trabalhadores Necessários:</strong> ${result.workersNeeded ? Math.ceil(result.workersNeeded) : '0'} trabalhadores</p>
             <p><strong>Fábricas Existentes:</strong> ${result.committeeCount || '0'} fábricas</p>
             <p><strong>Fábricas Necessárias:</strong> ${result.factoriesNeeded ? Math.ceil(result.factoriesNeeded) : '0'} fábricas</p>
+            <p><strong>${factoryDifferenceLabel}:</strong> ${factoryDifferenceValue} fábricas</p>
             <p><strong>Tempo Mínimo de Produção:</strong> ${formatNumber(result.minimumProductionTimeInDays, 1)} dias</p>
             <p><strong>Horas de Operação da Fábrica:</strong> ${formatNumber(result.factoryOperationHours)} horas por dia</p>
         </div>
