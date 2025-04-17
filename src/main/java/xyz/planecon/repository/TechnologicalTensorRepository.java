@@ -93,4 +93,21 @@ public interface TechnologicalTensorRepository extends JpaRepository<Technologic
            "GROUP BY t.id_production_input, t.id_social_materialization", 
            nativeQuery = true)
     List<Object[]> calculateAverageCoefficientsByMaterializationPairForCouncilChildren(@Param("councilId") Integer councilId);
+
+    /**
+     * Calcula os coeficientes médios por par de materialização considerando TODOS os comitês do sistema
+     * 
+     * @return Lista de arrays de objetos contendo [inputMatId, outputMatId, avgCoefficient]
+     */
+    @Query(value = 
+        "SELECT " +
+        "    tt.id_production_input AS inputMatId, " +
+        "    tt.id_social_materialization AS outputMatId, " +
+        "    AVG(tt.technical_coefficient_element_value) AS avgCoefficient " +
+        "FROM technological_tensor tt " +
+        "JOIN instance i ON tt.id_instance = i.id " +
+        "WHERE i.type = 'COMMITTEE' " +
+        "GROUP BY tt.id_production_input, tt.id_social_materialization", 
+        nativeQuery = true)
+    List<Object[]> calculateAverageCoefficientsByMaterializationPairForAllCommittees();
 }
