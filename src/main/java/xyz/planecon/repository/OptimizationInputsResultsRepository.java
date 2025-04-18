@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import xyz.planecon.model.entity.OptimizationInputsResults;
 import xyz.planecon.model.entity.OptimizationInputsResults.OptimizationInputsResultsId;
+import xyz.planecon.model.entity.Instance;
 
 import java.util.List;
 
@@ -22,4 +23,7 @@ public interface OptimizationInputsResultsRepository extends JpaRepository<Optim
     @Modifying
     @Query("DELETE FROM OptimizationInputsResults o WHERE o.id.instanceId = :instanceId")
     void deleteByInstanceId(@Param("instanceId") Integer instanceId);
+
+    // Adicione este método ao repositório
+    List<OptimizationInputsResults> findByInstance(Instance instance);
 }

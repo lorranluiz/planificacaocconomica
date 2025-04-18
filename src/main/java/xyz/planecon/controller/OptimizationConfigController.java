@@ -332,6 +332,116 @@ public class OptimizationConfigController {
         }
     }
     
+    /**
+     * Endpoint para obter resultados de otimização de uma instância específica
+     */
+    @GetMapping("/results/by-instance/{instanceId}")
+    public ResponseEntity<?> getOptimizationResultsByInstance(@PathVariable Integer instanceId) {
+        try {
+            // Buscar a instância
+            Optional<Instance> instanceOpt = instanceRepository.findById(instanceId);
+            if (!instanceOpt.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Instance instance = instanceOpt.get();
+            
+            // Buscar todos os resultados de otimização para esta instância
+            List<OptimizationInputsResults> results = optimizationRepository.findByInstance(instance);
+            
+            if (results.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            // Converter para formato mais amigável para o frontend
+            List<Map<String, Object>> responseList = results.stream()
+                .map(result -> {
+                    Map<String, Object> map = new HashMap<>();
+                    map.put("instanceId", result.getInstanceId());
+                    map.put("materializationId", result.getMaterializationId());
+                    map.put("productionGoal", result.getProductionGoal());
+                    map.put("workersNeeded", result.getWorkersNeeded());
+                    map.put("factoriesNeeded", result.getFactoriesNeeded());
+                    map.put("minimumProductionTime", result.getMinimumProductionTime());
+                    map.put("workerLimit", result.getWorkerLimit());
+                    map.put("workerHours", result.getWorkerHours());
+                    map.put("productionTime", result.getProductionTime());
+                    map.put("weeklyScale", result.getWeeklyScale());
+                    map.put("nightShift", result.getNightShift());
+                    map.put("currentFactories", result.getCurrentFactories());
+                    map.put("neededFactoriesToBuild", result.getNeededFactoriesToBuild());
+                    map.put("factoryDailyOperatingHours", result.getFactoryDailyOperatingHours());
+                    map.put("totalHours", result.getTotalHours());
+                    
+                    // Adicionar o nome do produto/materialização se disponível
+                    if (result.getSocialMaterialization() != null) {
+                        map.put("materializationName", result.getSocialMaterialization().getName());
+                    }
+                    
+                    return map;
+                })
+                .collect(Collectors.toList());
+            
+            return ResponseEntity.ok(responseList);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "Erro ao buscar resultados de otimização: " + e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Endpoint para obter resultado de otimização específico
+     */
+    @GetMapping("/results/{instanceId}/{materializationId}")
+    public ResponseEntity<?> getOptimizationResult(
+            @PathVariable Integer instanceId,
+            @PathVariable Integer materializationId) {
+        try {
+            OptimizationInputsResultsId id = new OptimizationInputsResultsId(instanceId, materializationId);
+            Optional<OptimizationInputsResults> resultOpt = optimizationRepository.findById(id);
+            
+            if (!resultOpt.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            OptimizationInputsResults result = resultOpt.get();
+            
+            // Converter para formato mais amigável para o frontend
+            Map<String, Object> response = new HashMap<>();
+            response.put("instanceId", result.getInstanceId());
+            response.put("materializationId", result.getMaterializationId());
+            response.put("productionGoal", result.getProductionGoal());
+            response.put("workersNeeded", result.getWorkersNeeded());
+            response.put("factoriesNeeded", result.getFactoriesNeeded());
+            response.put("minimumProductionTime", result.getMinimumProductionTime());
+            response.put("workerLimit", result.getWorkerLimit());
+            response.put("workerHours", result.getWorkerHours());
+            response.put("productionTime", result.getProductionTime());
+            response.put("weeklyScale", result.getWeeklyScale());
+            response.put("nightShift", result.getNightShift());
+            response.put("currentFactories", result.getCurrentFactories());
+            response.put("neededFactoriesToBuild", result.getNeededFactoriesToBuild());
+            response.put("factoryDailyOperatingHours", result.getFactoryDailyOperatingHours());
+            response.put("totalHours", result.getTotalHours());
+            
+            // Adicionar o nome do produto/materialização se disponível
+            if (result.getSocialMaterialization() != null) {
+                response.put("materializationName", result.getSocialMaterialization().getName());
+            }
+            
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "Erro ao buscar resultado de otimização: " + e.getMessage()
+            ));
+        }
+    }
+    
     // Métodos auxiliares para extrair valores do payload
     private Integer getIntegerValue(Map<String, Object> payload, String key) {
         Object value = payload.get(key);

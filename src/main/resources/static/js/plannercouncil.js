@@ -110,18 +110,46 @@ function openOptimizationConfigModal(productIndex) {
     // Mostrar spinner de carregamento
     document.getElementById('optimizationModalSpinner').style.display = 'inline-block';
     
-    // Se já temos em cache, usamos diretamente
+    // Verificar se já temos configurações carregadas em cache
     if (optimizationConfigs[productIndex]) {
+        // Usar a configuração do cache
         fillOptimizationModalWithData(optimizationConfigs[productIndex]);
         document.getElementById('optimizationModalSpinner').style.display = 'none';
         
-        // Exibir a modal com display block em vez de flex para compatibilidade
+        // Exibir a modal
+        const modal = document.getElementById('optimizationConfigModal');
+        modal.style.display = 'block';
+        return;
+    }
+
+    // Verificar se temos resultados de otimização que contêm os dados de configuração
+    if (optimizationResults && optimizationResults[productIndex]) {
+        const result = optimizationResults[productIndex];
+        
+        // Criar objeto de configuração a partir dos dados do resultado
+        const config = {
+            materializationId: result.materializationId,
+            workerLimit: result.workerLimit || 100,
+            workerHours: result.workerHours || 8.0,
+            productionTime: result.productionTime || 1.0,
+            weeklyScale: result.weeklyScale || 5,
+            nightShift: result.nightShift || false
+        };
+        
+        // Armazenar no cache para uso futuro
+        optimizationConfigs[productIndex] = config;
+        
+        // Preencher o modal com os dados
+        fillOptimizationModalWithData(config);
+        document.getElementById('optimizationModalSpinner').style.display = 'none';
+        
+        // Exibir a modal
         const modal = document.getElementById('optimizationConfigModal');
         modal.style.display = 'block';
         return;
     }
     
-    // Caso contrário, carregamos do servidor
+    // Caso não tenha nem no cache nem nos resultados, carregar do servidor
     console.log(`Carregando config para instância ${currentInstanceId}, materialização ${materializationId}`);
     
     fetch(`/api/planification/instances/${currentInstanceId}/optimization/${materializationId}`)
@@ -253,7 +281,7 @@ function saveOptimizationConfig() {
         });
 }
 
-// Função para exibir detalhes de otimização
+// Função para exibir detalhes de otimização - Melhorada para calcular valores se necessário
 function openOptimizationResultModal(index) {
     // Validar o índice antes de prosseguir
     if (!validateProductIndex(index)) {
@@ -265,26 +293,87 @@ function openOptimizationResultModal(index) {
     const materializationId = productIds[index];
     
     // Encontrar o resultado de otimização correto com base no ID da materialização
-    const result = optimizationResults.find(r => r && r.materializationId === materializationId);
+    let result = optimizationResults.find(r => r && r.materializationId === materializationId);
     
     console.log('Abrindo modal de resultado para índice:', index);
     console.log('Materialização ID:', materializationId);
     console.log('Produto:', productNames[index]);
     console.log('Resultado encontrado:', result);
     
+    // Se não encontramos resultado para esta materialização, tentamos criar um
     if (!result) {
-        console.error('Resultado de otimização não encontrado para índice ' + index);
+        // Verificar se temos a configuração de otimização para esta materialização
+        const config = optimizationConfigs[index];
+        
+        if (config) {
+            // Criar um objeto de resultado com base na configuração
+            result = {
+                materializationId: materializationId,
+                materializationName: productNames[index],
+                // Obter o valor de produção - usar o valor da demanda se disponível
+                productionNeeded: demandVector[index] || 0,
+                workerLimit: config.workerLimit || 100,
+                workerHours: config.workerHours || 8,
+                productionTime: config.productionTime || 1,
+                weeklyScale: config.weeklyScale || 5,
+                nightShift: config.nightShift || false,
+                // Valores padrão para os campos calculados
+                totalHours: 0,
+                workersNeeded: 0,
+                factoriesNeeded: 0,
+                minimumProductionTimeInDays: 0,
+                factoryOperationHours: 0,
+                committeeCount: 0
+            };
+            
+            // Adicionar ao array de resultados
+            optimizationResults[index] = result;
+            
+            // Calcular os valores com base na configuração e no valor da demanda
+            calculateOptimizationResults(index);
+            
+            // Atualizar a variável de resultado
+            result = optimizationResults[index];
+        } else {
+            console.error('Resultado e configuração de otimização não encontrados para índice ' + index);
+            showError('Dados de otimização não disponíveis para este produto. Configure primeiro.');
+            return;
+        }
+    }
+    
+    // Verificar se existe resultado calculado
+    if (!result) {
         showError('Dados de otimização não disponíveis para este produto.');
         return;
     }
     
+    // Garantir que os valores calculados estão atualizados
+    if (result && (!result.totalHours || !result.workersNeeded || !result.factoriesNeeded)) {
+        // Calcular os valores se estiverem faltando
+        if (optimizationConfigs[index]) {
+            calculateOptimizationResults(index);
+            result = optimizationResults[index]; // Atualizar a referência ao resultado
+        }
+    }
+    
     // Definir explicitamente o nome do produto com base no índice atual da tabela
-    // Atualizado para usar o ID correto do elemento no modal de resultados
     document.getElementById('optimizationResultModalProductName').textContent = productNames[index];
     
-    // Formatar valores numéricos com verificação de existência
-    const formatNumber = (value, decimals = 2) => {
+    // Formatar valores numéricos com verificação de existência e mais casas decimais
+    // para valores de produção e científicos
+    const formatNumber = (value, decimals = 2, scientific = false) => {
         if (value === undefined || value === null) return 'N/A';
+        
+        // Usar mais casas decimais para valores científicos pequenos
+        if (scientific && Math.abs(value) < 0.01 && value !== 0) {
+            return value.toExponential(4);
+        }
+        
+        // Para valores de produção e outros valores críticos, usar no mínimo 4 casas
+        if (scientific) {
+            return typeof value === 'number' ? value.toFixed(Math.max(4, decimals)) : value;
+        }
+        
         return typeof value === 'number' ? value.toFixed(decimals) : value;
     };
     
@@ -314,32 +403,32 @@ function openOptimizationResultModal(index) {
         workerDifferenceValue = Math.abs(workerDifference);
     }
     
-    // Criar o conteúdo HTML estruturado em seções
+    // Criar o conteúdo HTML estruturado em seções com formatação melhorada
     let contentHTML = `
         <div class="optimization-section">
             <h4>Dados de Produção</h4>
-            <p><strong>Produção Necessária:</strong> ${formatNumber(result.productionNeeded)} unidades</p>
-            <p><strong>Total de Horas Necessárias:</strong> ${formatNumber(result.totalHours)} horas</p>
+            <p><strong>Produção Necessária:</strong> ${formatNumber(result.productionNeeded, 6, true)} unidades</p>
+            <p><strong>Total de Horas Necessárias:</strong> ${formatNumber(result.totalHours, 4, true)} horas</p>
         </div>
         
         <div class="optimization-section">
             <h4>Parâmetros Configurados</h4>
             <p><strong>Limite de Trabalhadores por Fábrica:</strong> ${result.workerLimit || '0'}</p>
-            <p><strong>Horas de Trabalho por Dia:</strong> ${formatNumber(result.workerHours, 1)} horas</p>
-            <p><strong>Tempo para Produzir Uma Unidade:</strong> ${formatNumber(result.productionTime, 4)} horas</p>
+            <p><strong>Horas de Trabalho por Dia:</strong> ${formatNumber(result.workerHours, 2)} horas</p>
+            <p><strong>Tempo para Produzir Uma Unidade:</strong> ${formatNumber(result.productionTime, 4, true)} horas</p>
             <p><strong>Escala Semanal:</strong> ${formatNumber(result.weeklyScale, 0)} dias por semana</p>
             <p><strong>Turno Noturno:</strong> ${result.nightShift ? 'Sim' : 'Não'}</p>
         </div>
         
         <div class="optimization-section">
             <h4>Resultados Calculados</h4>
-            <p><strong>Trabalhadores Necessários:</strong> ${requiredWorkers} trabalhadores</p>
-            <p><strong>${workerDifferenceLabel}:</strong> ${workerDifferenceValue} trabalhadores</p>
+            <p><strong>Trabalhadores Necessários:</strong> ${formatNumber(requiredWorkers, 4, true)} trabalhadores</p>
+            <p><strong>${workerDifferenceLabel}:</strong> ${formatNumber(workerDifferenceValue, 4, true)} trabalhadores</p>
             <p><strong>Fábricas Existentes:</strong> ${result.committeeCount || '0'} fábricas</p>
-            <p><strong>Fábricas Necessárias:</strong> ${requiredFactories} fábricas</p>
-            <p><strong>${factoryDifferenceLabel}:</strong> ${factoryDifferenceValue} fábricas</p>
-            <p><strong>Tempo Mínimo de Produção:</strong> ${formatNumber(result.minimumProductionTimeInDays, 1)} dias</p>
-            <p><strong>Horas de Operação da Fábrica:</strong> ${formatNumber(result.factoryOperationHours)} horas por dia</p>
+            <p><strong>Fábricas Necessárias:</strong> ${formatNumber(requiredFactories, 4, true)} fábricas</p>
+            <p><strong>${factoryDifferenceLabel}:</strong> ${formatNumber(factoryDifferenceValue, 4, true)} fábricas</p>
+            <p><strong>Tempo Mínimo de Produção:</strong> ${formatNumber(result.minimumProductionTimeInDays, 4, true)} dias</p>
+            <p><strong>Horas de Operação da Fábrica:</strong> ${formatNumber(result.factoryOperationHours, 2)} horas por dia</p>
         </div>
     `;
     
@@ -387,6 +476,15 @@ function closeOptimizationResultModal() {
 }
 
 function fillOptimizationModalWithData(config) {
+    // Log para debug dos valores recebidos
+    console.log('Valores sendo usados para preencher o modal:', {
+        workerLimit: config.workerLimit,
+        workerHours: config.workerHours,
+        productionTime: config.productionTime,
+        weeklyScale: config.weeklyScale,
+        nightShift: config.nightShift
+    });
+    
     document.getElementById('workerLimit').value = config.workerLimit || '';
     document.getElementById('workerHours').value = config.workerHours || '';
     document.getElementById('productionTime').value = config.productionTime || '';
@@ -547,11 +645,18 @@ function renderProductionVector(productionVector) {
     const tbody = document.createElement('tbody');
     tbody.id = 'productionResults';
     
-    // Função para formatar números
+    // Função para formatar números - melhorada para mostrar mais casas decimais
     const formatNumber = (value) => {
         if (value === null || value === undefined || isNaN(value)) return "0";
+        
+        // Para valores que precisam de precisão científica
+        if (typeof value === 'number' && Math.abs(value) < 0.01 && value !== 0) {
+            return value.toExponential(4);
+        }
+        
+        // Para valores normais, usar mais casas decimais
         return typeof value === 'number' 
-            ? value.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2}) 
+            ? value.toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 6}) 
             : value.toString().replace('.', ',');
     };
     
@@ -632,7 +737,7 @@ function renderDemandVector() {
     console.log("- productIds:", productIds);
     console.log("- demandVector:", demandVector);
     
-    // Adicionar linhas com valores
+    // Adicionar linhas com valores - com formatação melhorada
     demandVector.forEach((value, index) => {
         if (index >= productNames.length || index >= productIds.length) {
             console.warn(`Índice fora dos limites: ${index}. Ignorando esta entrada.`);
@@ -641,9 +746,11 @@ function renderDemandVector() {
         
         const tr = document.createElement('tr');
         
-        // Formatar o valor para exibição
+        // Formatar o valor para exibição - mostrar mais casas decimais para precisão
         const formattedValue = value !== null && value !== undefined 
-            ? value.toString().replace('.', ',') 
+            ? (typeof value === 'number' && Math.abs(value) < 0.01 && value !== 0)
+                ? value.toExponential(4).replace('.', ',')  // Formato científico para valores muito pequenos
+                : value.toString().replace('.', ',') 
             : '0';
         
         // Célula com nome do produto
@@ -953,6 +1060,9 @@ document.addEventListener('DOMContentLoaded', function() {
             return Promise.resolve();
         }
         
+        console.log(`Carregando configurações e resultados de otimização para instância ${currentInstanceId}...`);
+        
+        // Primeiro, carregar configurações de otimização
         return fetch(`/api/planification/optimization-config/by-instance/${currentInstanceId}`)
             .then(response => {
                 if (!response.ok) {
@@ -965,14 +1075,119 @@ document.addEventListener('DOMContentLoaded', function() {
                 configs.forEach(config => {
                     const productIndex = productIds.findIndex(id => id === config.materializationId);
                     if (productIndex >= 0) {
+                        // Converter valores BigDecimal que podem ter sido serializados como objetos
+                        config.workerHours = parseBigDecimal(config.workerHours);
+                        config.productionTime = parseBigDecimal(config.productionTime);
+                        
                         optimizationConfigs[productIndex] = config;
+                        console.log(`Configuração de otimização carregada para materialização ${config.materializationId}:`, config);
                     }
                 });
+                
+                // Agora, carregar os resultados de otimização para esta instância
+                return fetch(`/api/planification/optimization-config/results/by-instance/${currentInstanceId}`);
+            })
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        console.log("Nenhum resultado de otimização encontrado para esta instância");
+                        return [];
+                    }
+                    return response.json().then(err => {
+                        console.warn("Erro ao carregar resultados de otimização:", err);
+                        return [];
+                    });
+                }
+                return response.json();
+            })
+            .then(results => {
+                // Inicializar array de resultados se necessário
+                if (!optimizationResults) {
+                    optimizationResults = [];
+                }
+                
+                // Processar cada resultado recebido
+                results.forEach(result => {
+                    if (!result || !result.materializationId) return;
+                    
+                    // Log para depuração - ver formato dos dados recebidos
+                    console.log(`Dados brutos do servidor para materialização ${result.materializationId}:`, result);
+                    
+                    // Encontrar o índice do produto correspondente
+                    const productIndex = productIds.findIndex(id => id === result.materializationId);
+                    
+                    if (productIndex >= 0) {
+                        // Converter o resultado do backend para o formato usado no frontend
+                        const processedResult = {
+                            materializationId: result.materializationId,
+                            materializationName: productNames[productIndex],
+                            productionNeeded: parseBigDecimal(result.productionGoal) || 0,
+                            totalHours: parseBigDecimal(result.totalHours) || 0,
+                            workersNeeded: result.workersNeeded || 0,
+                            factoriesNeeded: result.factoriesNeeded || 0,
+                            minimumProductionTimeInDays: parseBigDecimal(result.minimumProductionTime) || 0,
+                            workerLimit: result.workerLimit || 100,
+                            workerHours: parseBigDecimal(result.workerHours) || 8,
+                            productionTime: parseBigDecimal(result.productionTime) || 1,
+                            weeklyScale: result.weeklyScale || 5,
+                            nightShift: result.nightShift || false,
+                            committeeCount: result.currentFactories || 0,
+                            factoryOperationHours: parseBigDecimal(result.factoryDailyOperatingHours) || 0
+                        };
+                        
+                        // Armazenar no array de resultados
+                        optimizationResults[productIndex] = processedResult;
+                        console.log(`Resultado de otimização processado para materialização ${result.materializationId}:`, processedResult);
+                    }
+                });
+                
+                console.log("Dados carregados:", optimizationConfigs, optimizationResults);
+                return optimizationConfigs;
             })
             .catch(error => {
-                console.error('Erro ao carregar configurações de otimização:', error);
+                console.error('Erro ao carregar dados de otimização:', error);
                 return [];
             });
+    }
+
+    /**
+     * Função auxiliar para processar valores BigDecimal que podem vir do servidor em diferentes formatos
+     * @param {*} value - O valor a ser processado, que pode ser número simples, string ou objeto BigDecimal
+     * @returns {number} - O valor numérico correto
+     */
+    function parseBigDecimal(value) {
+        // Verifica se o valor é nulo ou indefinido
+        if (value === null || value === undefined) {
+            return 0;
+        }
+        
+        // Caso 1: Valor já é um número simples
+        if (typeof value === 'number') {
+            return value;
+        }
+        
+        // Caso 2: Valor é uma string que pode ser convertida para número
+        if (typeof value === 'string') {
+            return parseFloat(value) || 0;
+        }
+        
+        // Caso 3: Valor é um objeto com propriedades específicas do BigDecimal (formato Jackson)
+        if (typeof value === 'object') {
+            // Verificar se é um objeto no formato do Jackson para BigDecimal
+            if (value.scale !== undefined && (value.value !== undefined || value.unscaledValue !== undefined)) {
+                const unscaledValue = value.value || value.unscaledValue;
+                const scale = value.scale;
+                
+                // Log para debug dos valores brutos
+                console.debug('Convertendo BigDecimal:', { unscaledValue, scale });
+                
+                // Calcular o valor real usando a escala (evitando a divisão por 1000)
+                return parseFloat(unscaledValue) / Math.pow(10, scale);
+            }
+        }
+        
+        // Fallback: Tentar converter para string e então para número
+        return parseFloat(String(value)) || 0;
     }
 
     /**
@@ -2412,23 +2627,45 @@ function createOptimizationButton(index, production, name) {
  * @param {number} productIndex - Índice do produto
  */
 function calculateOptimizationResults(productIndex) {
-    // Verificar se temos configuração e resultado para este produto
-    if (!optimizationConfigs[productIndex] || !optimizationResults[productIndex]) {
-        console.error('Configuração ou resultado de otimização não encontrado para índice', productIndex);
+    // Verificar se temos configuração e vetor de resultados inicializados
+    if (!optimizationConfigs[productIndex]) {
+        console.error('Configuração de otimização não encontrada para índice', productIndex);
         return;
+    }
+    
+    if (!optimizationResults[productIndex]) {
+        // Criar um objeto de resultado básico se não existir
+        const materializationId = productIds[productIndex];
+        optimizationResults[productIndex] = {
+            materializationId: materializationId,
+            materializationName: productNames[productIndex],
+            productionNeeded: demandVector[productIndex] || 0
+        };
     }
     
     const config = optimizationConfigs[productIndex];
     const result = optimizationResults[productIndex];
     
-    // Pegar a produção necessária do resultado
-    const productionNeeded = result.productionNeeded;
+    // Pegar a produção necessária do resultado ou do vetor de demanda
+    const productionNeeded = result.productionNeeded || demandVector[productIndex] || 0;
+    
+    // Garantir que o resultado tem referência à produção
+    result.productionNeeded = productionNeeded;
+    
+    // Copiar os valores de configuração para o resultado para garantir consistência
+    result.workerLimit = config.workerLimit || 100;
+    result.workerHours = config.workerHours || 8;
+    result.productionTime = config.productionTime || 1;
+    result.weeklyScale = config.weeklyScale || 5;
+    result.nightShift = config.nightShift || false;
     
     // Calcular horas totais necessárias
     const totalHours = productionNeeded * config.productionTime;
+    result.totalHours = totalHours;
     
     // Calcular horas disponíveis por trabalhador por dia
     const workerHoursPerDay = config.workerHours * (config.nightShift ? 2 : 1);
+    result.factoryOperationHours = workerHoursPerDay;
     
     // Calcular horas totais de trabalho disponíveis por semana
     const totalWeeklyHours = workerHoursPerDay * config.weeklyScale;
@@ -2436,31 +2673,22 @@ function calculateOptimizationResults(productIndex) {
     // Calcular trabalhadores necessários
     // (horas totais / horas por trabalhador por semana)
     const workersNeeded = totalHours / totalWeeklyHours;
+    result.workersNeeded = workersNeeded;
     
     // Calcular fábricas necessárias
     // (trabalhadores necessários / limite de trabalhadores por fábrica)
     const factoriesNeeded = workersNeeded / config.workerLimit;
+    result.factoriesNeeded = factoriesNeeded;
     
     // Calcular tempo mínimo de produção em dias
     // (horas totais / (horas por fábrica por dia * número de fábricas))
     const factoryDailyHours = config.workerLimit * workerHoursPerDay;
     const minimumProductionTimeInDays = totalHours / (Math.ceil(factoriesNeeded) * factoryDailyHours);
-    
-    // Atualizar o objeto de resultados
-    result.totalHours = totalHours;
-    result.workersNeeded = workersNeeded;
-    result.factoriesNeeded = factoriesNeeded;
     result.minimumProductionTimeInDays = minimumProductionTimeInDays;
-    result.factoryOperationHours = workerHoursPerDay;
     
-    // Copiar valores da configuração para o resultado
-    result.workerLimit = config.workerLimit;
-    result.workerHours = config.workerHours;
-    result.productionTime = config.productionTime;
-    result.weeklyScale = config.weeklyScale;
-    result.nightShift = config.nightShift;
+    console.log('Resultados de otimização calculados para', productNames[productIndex], ':', result);
     
-    console.log('Resultados de otimização calculados:', result);
+    return result;
 }
 
 /**
@@ -2468,27 +2696,53 @@ function calculateOptimizationResults(productIndex) {
  * @param {Array} productionVector - Vetor de produção calculado
  */
 function storeOptimizationResults(productionVector) {
-    // Limpar resultados anteriores
+    // Armazenar os resultados existentes para preservar configurações
+    const existingResults = [...optimizationResults];
+    
+    // Limpar ou inicializar o array de resultados
     optimizationResults = [];
     
     // Para cada produto no vetor de produção
     productionVector.forEach((productionNeeded, index) => {
         // Verificar se temos dados válidos para este índice
         if (index < productNames.length && index < productIds.length) {
-            // Criar um objeto para armazenar os resultados e configurações de otimização
-            optimizationResults.push({
-                materializationId: productIds[index],
-                materializationName: productNames[index],
-                productionNeeded: productionNeeded,
-                // Outros campos serão adicionados quando o usuário configurar os parâmetros de otimização
-                totalHours: 0,
-                workersNeeded: 0,
-                factoriesNeeded: 0,
-                factoryOperationHours: 0,
-                minimumProductionTimeInDays: 0
-            });
+            // Buscar resultado existente para esta materialização, se houver
+            const materializationId = productIds[index];
+            const existingResult = existingResults.find(r => r && r.materializationId === materializationId);
+            
+            if (existingResult) {
+                // Manter a maioria das configurações, apenas atualizar a produção necessária
+                existingResult.productionNeeded = productionNeeded;
+                optimizationResults[index] = existingResult;
+            } else {
+                // Criar um objeto para armazenar os resultados e configurações de otimização
+                optimizationResults[index] = {
+                    materializationId: materializationId,
+                    materializationName: productNames[index],
+                    productionNeeded: productionNeeded,
+                    
+                    // Usar configurações do cache se disponível
+                    ...(optimizationConfigs[index] || {}),
+                    
+                    // Campos padrão para cálculos
+                    totalHours: 0,
+                    workersNeeded: 0,
+                    factoriesNeeded: 0,
+                    minimumProductionTimeInDays: 0,
+                    factoryOperationHours: 0,
+                    committeeCount: 0,
+                    workerLimit: optimizationConfigs[index]?.workerLimit || 100,
+                    workerHours: optimizationConfigs[index]?.workerHours || 8,
+                    productionTime: optimizationConfigs[index]?.productionTime || 1,
+                    weeklyScale: optimizationConfigs[index]?.weeklyScale || 5,
+                    nightShift: optimizationConfigs[index]?.nightShift || false
+                };
+            }
+            
+            // Calcular os resultados de otimização com base nas configurações e na produção
+            calculateOptimizationResults(index);
         }
     });
     
-    console.log('Resultados de otimização inicializados:', optimizationResults);
+    console.log('Resultados de otimização atualizados:', optimizationResults);
 }
