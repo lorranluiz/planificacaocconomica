@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
 import xyz.planecon.dto.InstanceDto;
 import xyz.planecon.dto.PlanificationRequest;
@@ -642,24 +643,29 @@ public class PlanificationController {
      * Endpoint para excluir um tensor da matriz tecnológica por materialização
      */
     @DeleteMapping("/technological-tensor/by-materialization/{materializationId}/instance/{instanceId}")
-    public ResponseEntity<?> deleteTensorByMaterialization(
-            @PathVariable Integer materializationId,
-            @PathVariable Integer instanceId) {
+    @Transactional
+    public ResponseEntity<?> deleteTensorByMaterialization(@PathVariable Integer materializationId, 
+                                                          @PathVariable Integer instanceId) {
         try {
-            // Excluir todos os tensores relacionados a esta materialização para esta instância
-            List<TechnologicalTensor> tensorsToDelete = tensorRepository.findByInstanceIdAndMaterializationId(
-                    instanceId, materializationId);
+            logger.info("Solicitada exclusão de tensores para materialização {} na instância {}", 
+                      materializationId, instanceId);
             
-            tensorRepository.deleteAll(tensorsToDelete);
+            // Modificação: Em vez de usar deleteAll que lança exceção quando o registro não existe,
+            // usar um método personalizado que executa uma query nativa SQL para excluir sem validar existência
+            int deletedCount = tensorRepository.deleteByInstanceIdAndMaterializationId(
+                instanceId, materializationId);
             
-            Map<String, String> response = new HashMap<>();
-            response.put("message", "Tensores relacionados à materialização excluídos com sucesso");
-            return ResponseEntity.ok(response);
+            // Log do resultado para depuração
+            logger.info("Exclusão de tensores concluída. {} registros afetados", deletedCount);
+            
+            return ResponseEntity.ok(Map.of(
+                "message", "Tensores tecnológicos excluídos com sucesso",
+                "deletedCount", deletedCount
+            ));
         } catch (Exception e) {
-            e.printStackTrace();
-            Map<String, String> errorResponse = new HashMap<>();
-            errorResponse.put("message", "Erro ao excluir tensores: " + e.getMessage());
-            return ResponseEntity.status(500).body(errorResponse);
+            logger.error("Erro ao excluir tensores tecnológicos", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("message", "Erro ao excluir tensores tecnológicos: " + e.getMessage()));
         }
     }
 

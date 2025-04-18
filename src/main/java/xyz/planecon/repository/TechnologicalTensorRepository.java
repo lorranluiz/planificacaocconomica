@@ -57,10 +57,12 @@ public interface TechnologicalTensorRepository extends JpaRepository<Technologic
 
     @Modifying
     @Transactional
-    @Query("DELETE FROM TechnologicalTensor t WHERE t.instance.id = :instanceId AND " +
-           "(t.inputSocialMaterialization.id = :materializationId OR " +
-           "t.outputSocialMaterialization.id = :materializationId)")
-    int deleteByInstanceIdAndMaterializationId(Integer instanceId, Integer materializationId);
+    @Query(value = "DELETE FROM technological_tensor WHERE " +
+           "(id_instance = :instanceId) AND " +
+           "(id_production_input = :materializationId OR id_social_materialization = :materializationId)",
+           nativeQuery = true)
+    int deleteByInstanceIdAndMaterializationId(@Param("instanceId") Integer instanceId, 
+                                              @Param("materializationId") Integer materializationId);
 
     /**
      * Busca todos os tensores tecnológicos das instâncias filhas de um conselho
