@@ -1190,6 +1190,7 @@ document.addEventListener('DOMContentLoaded', function() {
             console.log("- productIds:", productIds);
             console.log("- demandVector:", demandVector);
             console.log("- Removidos:", window.removedMaterializationIds || []);
+            console.log("- Resultados de otimização:", optimizationResults);
             
             // 3. Create deletion promises for the tracked removed materializations
             if (window.removedMaterializationIds && window.removedMaterializationIds.length > 0) {
@@ -1300,7 +1301,80 @@ document.addEventListener('DOMContentLoaded', function() {
                 allPromises.push(demandPromise);
             }
             
-            // 6. Execute all promises
+            // 6. NOVO: Adicionar promessas para salvar os resultados de otimização
+            if (optimizationResults && optimizationResults.length > 0) {
+                console.log(`Salvando ${optimizationResults.length} resultados de otimização`);
+                
+                // Para cada resultado de otimização, criar uma promessa para salvar
+                optimizationResults.forEach((result, index) => {
+                    if (!result || !result.materializationId) {
+                        console.warn(`Resultado de otimização inválido no índice ${index}:`, result);
+                        return; // Pular este item
+                    }
+                    
+                    // Encontrar o valor de produção correspondente
+                    const productionValue = index < demandVector.length ? demandVector[index] : null;
+                    
+                    // Calcular as diferenças necessárias para os dados que serão salvos
+                    const existingFactories = result.committeeCount || 0;
+                    const requiredFactories = result.factoriesNeeded ? Math.ceil(result.factoriesNeeded) : 0;
+                    const factoryDifference = requiredFactories - existingFactories;
+                    
+                    const requiredWorkers = result.workersNeeded ? Math.ceil(result.workersNeeded) : 0;
+                    const workerLimit = result.workerLimit || 0;
+                    const workerDifference = requiredWorkers - workerLimit;
+                    
+                    // Preparar payload com todos os dados necessários
+                    const payload = {
+                        instanceId: currentInstanceId,
+                        materializationId: result.materializationId,
+                        productionGoal: result.productionNeeded || productionValue || 0,
+                        workersNeeded: requiredWorkers,
+                        factoriesNeeded: requiredFactories,
+                        minimumProductionTime: result.minimumProductionTimeInDays || 0,
+                        workersToContract: workerDifference > 0 ? workerDifference : 0,
+                        currentFactories: existingFactories,
+                        neededFactoriesToBuild: factoryDifference > 0 ? factoryDifference : 0,
+                        factoryDailyOperatingHours: result.factoryOperationHours || 0,
+                        workerLimit: result.workerLimit || 0,
+                        workerHours: result.workerHours || 8,
+                        productionTime: result.productionTime || 1,
+                        weeklyScale: result.weeklyScale || 5,
+                        nightShift: result.nightShift || false
+                    };
+                    
+                    console.log(`Salvando resultado de otimização para materialização ${result.materializationId}:`, payload);
+                    
+                    // Criar promessa para salvar este resultado
+                    const optimizationPromise = fetch('/api/planification/optimization-config/results', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(payload)
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            console.error(`Erro ao salvar resultado de otimização para materialização ${result.materializationId}:`, response.statusText);
+                            return response.text().then(text => {
+                                console.error("Detalhes do erro:", text);
+                                return response;
+                            });
+                        }
+                        console.log(`Resultado de otimização salvo com sucesso para materialização ${result.materializationId}`);
+                        return response;
+                    })
+                    .catch(error => {
+                        console.error(`Erro na requisição para salvar resultado de otimização:`, error);
+                        throw error;
+                    });
+                    
+                    // Adicionar esta promessa à lista geral
+                    allPromises.push(optimizationPromise);
+                });
+            }
+            
+            // 7. Execute all promises
             Promise.all(allPromises)
                 .then(responses => {
                     // Check if all responses were successful

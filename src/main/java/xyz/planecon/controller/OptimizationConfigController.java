@@ -242,4 +242,157 @@ public class OptimizationConfigController {
             return ResponseEntity.status(500).body(errorResponse);
         }
     }
+    
+    /**
+     * Endpoint para salvar resultados de otimização
+     */
+    @PostMapping("/results")
+    public ResponseEntity<?> saveOptimizationResults(@RequestBody Map<String, Object> payload) {
+        try {
+            // Logging detalhado para depuração
+            System.out.println("Payload de resultados recebido: " + payload);
+            
+            // Extrair e validar ids
+            Integer instanceId = getIntegerValue(payload, "instanceId");
+            Integer materializationId = getIntegerValue(payload, "materializationId");
+            
+            if (instanceId == null || materializationId == null) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "message", "instanceId e materializationId são obrigatórios"
+                ));
+            }
+            
+            // Buscar instância e materialização
+            Instance instance = instanceRepository.findById(instanceId)
+                .orElseThrow(() -> new IllegalArgumentException("Instância não encontrada: " + instanceId));
+            
+            SocialMaterialization materialization = materializationRepository.findById(materializationId)
+                .orElseThrow(() -> new IllegalArgumentException("Materialização não encontrada: " + materializationId));
+            
+            // Criar ou buscar o objeto de otimização existente
+            OptimizationInputsResults optimization = null;
+            
+            OptimizationInputsResultsId id = new OptimizationInputsResultsId(instanceId, materializationId);
+            Optional<OptimizationInputsResults> existingOpt = optimizationRepository.findById(id);
+            
+            if (existingOpt.isPresent()) {
+                optimization = existingOpt.get();
+            } else {
+                optimization = new OptimizationInputsResults();
+                optimization.setInstance(instance);
+                optimization.setSocialMaterialization(materialization);
+                optimization.setCreatedAt(LocalDateTime.now());
+            }
+            
+            // Campos obrigatórios
+            optimization.setWorkerLimit(getIntegerValue(payload, "workerLimit", 100));
+            optimization.setWorkerHours(getBigDecimalValue(payload, "workerHours", new BigDecimal("8.0")));
+            optimization.setProductionTime(getBigDecimalValue(payload, "productionTime", BigDecimal.ONE));
+            optimization.setWeeklyScale(getIntegerValue(payload, "weeklyScale", 5));
+            optimization.setNightShift(getBooleanValue(payload, "nightShift", false));
+            optimization.setPlannedWeeklyScale(getIntegerValue(payload, "weeklyScale", 5));
+            
+            // Resultados calculados
+            BigDecimal productionGoal = getBigDecimalValue(payload, "productionGoal", BigDecimal.ZERO);
+            optimization.setProductionGoal(productionGoal);
+            optimization.setPlannedFinalDemand(productionGoal);
+            
+            optimization.setWorkersNeeded(getIntegerValue(payload, "workersNeeded", 0));
+            optimization.setFactoriesNeeded(getIntegerValue(payload, "factoriesNeeded", 0));
+            optimization.setMinimumProductionTime(getBigDecimalValue(payload, "minimumProductionTime", BigDecimal.ZERO));
+            
+            BigDecimal totalHours = getBigDecimalValue(payload, "totalHours", BigDecimal.ZERO);
+            optimization.setTotalHours(totalHours);
+            optimization.setTotalShifts(1);
+            
+            // Campos adicionais
+            optimization.setWorkersToContract(getIntegerValue(payload, "workersToContract", 0));
+            optimization.setCurrentFactories(getIntegerValue(payload, "currentFactories", 0));
+            optimization.setNeededFactoriesToBuild(getIntegerValue(payload, "neededFactoriesToBuild", 0));
+            optimization.setFactoryDailyOperatingHours(getBigDecimalValue(payload, "factoryDailyOperatingHours", BigDecimal.ZERO));
+            
+            // Definir período de emprego total (pode ser calculado com base em outros campos)
+            optimization.setTotalEmploymentPeriodSeconds(86400L); // 1 dia em segundos como valor padrão
+            
+            // Salvar a entidade
+            OptimizationInputsResults savedOptimization = optimizationRepository.save(optimization);
+            
+            // Retornar resposta de sucesso
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "Resultados de otimização salvos com sucesso",
+                "optimizationId", savedOptimization.getId()
+            ));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "Erro ao salvar resultados de otimização: " + e.getMessage()
+            ));
+        }
+    }
+    
+    // Métodos auxiliares para extrair valores do payload
+    private Integer getIntegerValue(Map<String, Object> payload, String key) {
+        Object value = payload.get(key);
+        if (value == null) return null;
+        
+        if (value instanceof Integer) {
+            return (Integer) value;
+        } else if (value instanceof Number) {
+            return ((Number) value).intValue();
+        } else if (value instanceof String) {
+            try {
+                return Integer.parseInt((String) value);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+    
+    private Integer getIntegerValue(Map<String, Object> payload, String key, Integer defaultValue) {
+        Integer value = getIntegerValue(payload, key);
+        return value != null ? value : defaultValue;
+    }
+    
+    private BigDecimal getBigDecimalValue(Map<String, Object> payload, String key) {
+        Object value = payload.get(key);
+        if (value == null) return null;
+        
+        if (value instanceof BigDecimal) {
+            return (BigDecimal) value;
+        } else if (value instanceof Number) {
+            return new BigDecimal(value.toString());
+        } else if (value instanceof String) {
+            try {
+                return new BigDecimal((String) value);
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+    
+    private BigDecimal getBigDecimalValue(Map<String, Object> payload, String key, BigDecimal defaultValue) {
+        BigDecimal value = getBigDecimalValue(payload, key);
+        return value != null ? value : defaultValue;
+    }
+    
+    private Boolean getBooleanValue(Map<String, Object> payload, String key) {
+        Object value = payload.get(key);
+        if (value == null) return null;
+        
+        if (value instanceof Boolean) {
+            return (Boolean) value;
+        } else if (value instanceof String) {
+            return Boolean.parseBoolean((String) value);
+        }
+        return null;
+    }
+    
+    private Boolean getBooleanValue(Map<String, Object> payload, String key, Boolean defaultValue) {
+        Boolean value = getBooleanValue(payload, key);
+        return value != null ? value : defaultValue;
+    }
 }

@@ -307,13 +307,20 @@ psql
 
       - [ok] Depois de tudo colocar funcionalidade de inserir ou excluir materialização da tabela, mantendo ela quadrada mas mudando o tamanho dela e do vetor demanda, consequentemente (tudo dinamicamente, com link para cadastro de nova materialização, que redireciona para a página que faz isso, etc, depois essa página já fica com a instância preenchida automaticamente, a partir do link que encaminhou pra ela)
 
-     -  Implementar a distribuição dos dados da planificação.
+     -  ~~~~~~~~~ PRÓXIMA TAREFA ~~~~~~> Implementar a distribuição dos dados da planificação.
+        1º |-> Simplesmente replicar a janela do resultado do Conselho na Planificação na janela do Comitê, primeiro isso.
+          1.1º Simplesmente pedir para o prompt analisar os dados que são exibidos nessa janela, de onde vem e onde ficam salvos no banco. Se não ficam salvos pedir para ele passar a salvar de modo que essa janela possa ser inteiramente reconstruída com o carregamento desses dados nos comitês que produzem a materialização social dessa janela.
+          1.2º A partir disso pedir, no código do comitê, que carregue essa janela com base na materialização social principal produzida ou realizada por esse comitê.
+        2º |-> Em seguide pedir pra multiplicar pelo peso daquele conselho (numero de trabalhadores dele divido pelo número de trabalhadores totais do sistema). Peso não precisa incidir na demanda pois os Conselhos Populares já possuem o papel político de ponderar de maneira mais racional as demandas dos WORKERs e COMMITTEEs.
+          Estará quase 100% completo o ciclo de informação. Depois será necessário implementar o ciclo de fechamento de produção-distribuição.
 
      - Implementar sistemas de pesos nas médias ponderadas calculadas no Conselho de Planificação.
 
      - Avançar na exibição do planejamento nos Comitês, para cada comitê, ou seja, cada unidade produtiva ou de prestação de serviço
 
      - Avançar na tela do trabalhador, com custos de produção baseados em percentuais dos números absolutos do Conselho de Planificação.
+
+     - Implementar ciclo de fechamento produção-distribuição (com subtrações e zeramentos, para remunerações dos trabalhadores e fidelidade nos dados de produção e distribuição conforme o tempo avança, o que inclusive posteriormente poderá permitir os gráficos de espectativas ou tendências futuras etc, com base num histórico desses dados).
 
      - Implementar QRcode do certificado de trabalho do usuário (mesma regra e mesmo nome de variável que versão inicial do sistema que implementou esse qrcode).
 

@@ -75,6 +75,19 @@ public class OptimizationInputsResults {
     @Column(name = "factories_needed", nullable = false)
     private Integer factoriesNeeded;
     
+    // Novos campos adicionados
+    @Column(name = "workers_to_contract", nullable = true)
+    private Integer workersToContract;
+    
+    @Column(name = "current_factories", nullable = true)
+    private Integer currentFactories;
+    
+    @Column(name = "needed_factories_to_build", nullable = true)
+    private Integer neededFactoriesToBuild;
+    
+    @Column(name = "factory_daily_operating_hours", precision = 10, scale = 2, nullable = true)
+    private BigDecimal factoryDailyOperatingHours;
+    
     @Transient // Adicionar esta anotação
     private Double productionTimeInHours;
     
