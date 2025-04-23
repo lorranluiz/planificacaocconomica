@@ -28,7 +28,10 @@ const pageState = {
 
     // Flags de controle
     initialized: false,
-    isDirty: false
+    isDirty: false,
+
+    // Adicionar campo para dados de otimização
+    optimizationData: null
 };
 
 // Adicionar ao estado global no topo do arquivo (após declaração do pageState)
@@ -171,6 +174,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const btnUpdateDemandsAndGoals = document.getElementById('btnUpdateDemandsAndGoals');
     if (btnUpdateDemandsAndGoals) {
         btnUpdateDemandsAndGoals.addEventListener('click', updateDemandsAndGoals);
+    }
+    
+    // Event listener para o botão "Plano"
+    const btnShowPlan = document.getElementById('btnShowPlan');
+    if (btnShowPlan) {
+        btnShowPlan.addEventListener('click', showProductPlan);
     }
     
     // Verificar se há ID na URL para carregamento direto
@@ -521,6 +530,16 @@ function initializePageState(committeeId) {
             // Marcar como inicializado
             pageState.initialized = true;
             console.log("Dados carregados do servidor e armazenados em cache");
+
+            // Armazenar dados de otimização se estiverem presentes
+            pageState.optimizationData = data.optimizationData || null;
+            
+            // Log para debug se os dados de otimização foram carregados
+            if (pageState.optimizationData) {
+                console.log("Dados de otimização carregados durante a inicialização");
+            } else {
+                console.log("Nenhum dado de otimização disponível na inicialização");
+            }
         })
         .catch(error => {
             console.error('Erro ao carregar estado do comitê:', error);
@@ -1665,3 +1684,202 @@ function showMessage(message, type = 'info') {
 // Substituir a função de salvamento existente para usar o novo endpoint
 // Assumindo que a função existente é chamada 'saveChanges' ou algo similar
 window.saveChanges = saveCommitteeState;
+
+/**
+ * Mostra o plano de produção do produto principal do comitê
+ * Usando dados do conselho planificador central
+ */
+function showProductPlan() {
+    if (!pageState.id || !pageState.socialMaterializationId) {
+        showErrorMessage("Dados do comitê não carregados completamente.");
+        return;
+    }
+
+    // Buscar a materialização principal do comitê
+    const mainProduct = pageState.materializations.find(m => m.id === pageState.socialMaterializationId);
+    if (!mainProduct) {
+        showErrorMessage("Produto principal não encontrado.");
+        return;
+    }
+
+    // Mostrar indicador de carregamento na modal
+    const modal = document.getElementById('optimizationResultModal');
+    const modalContent = document.getElementById('optimizationModalContent');
+    
+    if (!modal || !modalContent) {
+        showErrorMessage("Elementos da interface não encontrados.");
+        return;
+    }
+    
+    // Definir nome do produto na modal
+    document.getElementById('optimizationModalProductName').textContent = mainProduct.name || "Produto principal";
+    
+    // Exibir indicador de carregamento
+    modalContent.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Carregando dados de otimização...</p></div>';
+    
+    // Exibir a modal
+    modal.style.display = 'block';
+    
+    // Buscar dados de otimização do produto principal do conselho planificador central
+    fetch(`/api/committees/${pageState.id}/central-optimization/${pageState.socialMaterializationId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erro ao buscar dados: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(result => {
+            // Armazenar os dados para uso futuro
+            pageState.optimizationData = result;
+            
+            // Exibir os dados de otimização
+            displayOptimizationResults(result);
+        })
+        .catch(error => {
+            console.error('Erro ao buscar dados de otimização central:', error);
+            modalContent.innerHTML = `
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p>Erro ao carregar dados de otimização: ${error.message}</p>
+                </div>
+            `;
+        });
+}
+
+/**
+ * Exibe os resultados da otimização na modal
+ */
+function displayOptimizationResults(result) {
+    const modalContent = document.getElementById('optimizationModalContent');
+    if (!modalContent) return;
+    
+    // Função para formatar números com verificação de existência
+    const formatNumber = (value, decimals = 2, scientific = false) => {
+        if (value === undefined || value === null) return 'N/A';
+        
+        // Usar mais casas decimais para valores científicos pequenos
+        if (scientific && Math.abs(value) < 0.01 && value !== 0) {
+            return value.toExponential(4);
+        }
+        
+        // Para valores de produção e outros valores críticos
+        if (scientific) {
+            return typeof value === 'number' ? value.toFixed(Math.max(4, decimals)) : value;
+        }
+        
+        return typeof value === 'number' ? value.toFixed(decimals) : value;
+    };
+    
+    // Calculate the difference between required and existing factories
+    const existingFactories = result.committeeCount || 0;
+    const requiredFactories = result.factoriesNeeded ? Math.ceil(result.factoriesNeeded) : 0;
+    const factoryDifference = requiredFactories - existingFactories;
+
+    // Determine the appropriate message and value to display for factories
+    let factoryDifferenceLabel = 'Fábricas a serem construídas';
+    let factoryDifferenceValue = factoryDifference;
+    if (factoryDifference < 0) {
+        factoryDifferenceLabel = 'Fábricas a serem revertidas';
+        factoryDifferenceValue = Math.abs(factoryDifference);
+    }
+    
+    // Calculate the difference between required workers and worker limit
+    const requiredWorkers = result.workersNeeded ? Math.ceil(result.workersNeeded) : 0;
+    const workerLimit = result.workerLimit || 0;
+    const workerDifference = requiredWorkers - workerLimit;
+    
+    // Determine the appropriate message and value to display for workers
+    let workerDifferenceLabel = 'Trabalhadores a serem contratados';
+    let workerDifferenceValue = workerDifference;
+    if (workerDifference < 0) {
+        workerDifferenceLabel = 'Trabalhadores a serem realocados';
+        workerDifferenceValue = Math.abs(workerDifference);
+    }
+    
+    // Criar o conteúdo HTML estruturado em seções com formatação melhorada
+    let contentHTML = `
+        <div class="optimization-section">
+            <h4>Dados de Produção</h4>
+            <p><strong>Produção Necessária:</strong> ${formatNumber(result.productionNeeded, 6, true)} unidades</p>
+            <p><strong>Total de Horas Necessárias:</strong> ${formatNumber(result.totalHours, 4, true)} horas</p>
+        </div>
+        
+        <div class="optimization-section">
+            <h4>Parâmetros Configurados</h4>
+            <p><strong>Limite de Trabalhadores por Fábrica:</strong> ${result.workerLimit || '0'}</p>
+            <p><strong>Horas de Trabalho por Dia:</strong> ${formatNumber(result.workerHours, 2)} horas</p>
+            <p><strong>Tempo para Produzir Uma Unidade:</strong> ${formatNumber(result.productionTime, 4, true)} horas</p>
+            <p><strong>Escala Semanal:</strong> ${formatNumber(result.weeklyScale, 0)} dias por semana</p>
+            <p><strong>Turno Noturno:</strong> ${result.nightShift ? 'Sim' : 'Não'}</p>
+        </div>
+        
+        <div class="optimization-section">
+            <h4>Resultados Calculados</h4>
+            <p><strong>Trabalhadores Necessários:</strong> ${formatNumber(requiredWorkers, 4, true)} trabalhadores</p>
+            <p><strong>${workerDifferenceLabel}:</strong> ${formatNumber(workerDifferenceValue, 4, true)} trabalhadores</p>
+            <p><strong>Fábricas Existentes:</strong> ${result.committeeCount || '0'} fábricas</p>
+            <p><strong>Fábricas Necessárias:</strong> ${formatNumber(requiredFactories, 4, true)} fábricas</p>
+            <p><strong>${factoryDifferenceLabel}:</strong> ${formatNumber(factoryDifferenceValue, 4, true)} fábricas</p>
+            <p><strong>Tempo Mínimo de Produção:</strong> ${formatNumber(result.minimumProductionTimeInDays, 4, true)} dias</p>
+        </div>
+    `;
+    
+    // Inserir o HTML na modal
+    modalContent.innerHTML = contentHTML;
+    
+    // Adicionar estilos para as seções na modal
+    if (!document.getElementById('optimization-modal-styles')) {
+        const style = document.createElement('style');
+        style.id = 'optimization-modal-styles';
+        style.textContent = `
+            .optimization-section {
+                margin-bottom: 20px;
+                padding: 15px;
+                background-color: var(--card-bg, #f9f9f9);
+                border-radius: 6px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+            
+            .optimization-section h4 {
+                margin-top: 0;
+                margin-bottom: 10px;
+                color: var(--accent-color, #3498db);
+                font-size: 16px;
+            }
+            
+            .loading-container {
+                text-align: center;
+                padding: 20px;
+            }
+            
+            .spinner {
+                display: inline-block;
+                width: 40px;
+                height: 40px;
+                border: 4px solid rgba(0,0,0,0.1);
+                border-radius: 50%;
+                border-top-color: var(--primary-color, #2196f3);
+                animation: spin 1s ease-in-out infinite;
+            }
+            
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+            
+            .error-message {
+                color: var(--danger-color, #dc3545);
+                padding: 15px;
+                text-align: center;
+                border: 1px solid var(--danger-color, #dc3545);
+                border-radius: 4px;
+                margin: 10px 0;
+            }
+            
+            .error-message i {
+                font-size: 24px;
+                margin-bottom: 10px;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+}

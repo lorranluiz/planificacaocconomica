@@ -13,15 +13,17 @@ import xyz.planecon.dto.DemandsAndGoalsResponseDTO;
 import xyz.planecon.model.entity.*;
 import xyz.planecon.repository.*;
 import xyz.planecon.service.CommitteeService;
+import xyz.planecon.service.OptimizationService;
 import xyz.planecon.model.entity.TechnologicalTensor.TechnologicalTensorId;
 import xyz.planecon.model.entity.DemandStock.DemandStockId;
 import xyz.planecon.model.entity.DemandVector.DemandVectorId;
 import xyz.planecon.model.enums.UserType;
+import xyz.planecon.model.enums.InstanceType;
 import xyz.planecon.model.enums.PronounType;
-
 import java.time.LocalDateTime;
 import java.util.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 
 @RestController
 @RequestMapping("/api/committees")
@@ -52,6 +54,12 @@ public class CommitteeController {
 
     @Autowired
     private CommitteeService committeeService;
+
+    @Autowired
+    private OptimizationService optimizationService;
+
+    @Autowired
+    private OptimizationInputsResultsRepository optimizationInputsResultsRepository;
 
     /**
      * Endpoint para salvar o estado completo de um comitê em uma única transação.
@@ -590,6 +598,96 @@ public class CommitteeController {
             List<CommitteeStateDTO.MaterializationStateDTO> materializationDTOs = getMaterializationsForCommittee(committee);
             committeeStateDTO.setMaterializations(materializationDTOs);
             
+            // Adicionar dados de otimização para o produto principal, se existir
+            if (committee.getSocialMaterialization() != null) {
+                Integer mainProductId = committee.getSocialMaterialization().getId();
+                
+                // Obter dados de otimização do produto principal
+                //WorkersProposal.WorkersProposalId proposalId = new WorkersProposal.WorkersProposalId();
+                //proposalId.setInstanceId(id);
+                
+                Optional<WorkersProposal> proposalOptForOptimization = workersProposalRepository.findById(proposalId);
+                
+                if (proposalOptForOptimization.isPresent()) {
+                    WorkersProposal proposal = proposalOptForOptimization.get();
+                    
+                    // Obter demanda para o produto principal
+                    BigDecimal productionNeeded = BigDecimal.ZERO;
+                    Optional<DemandVector> demandVectorOpt = demandVectorRepository.findByInstanceIdAndSocialMaterializationId(
+                            id, mainProductId);
+                    
+                    if (demandVectorOpt.isPresent()) {
+                        productionNeeded = demandVectorOpt.get().getDemand();
+                    } else {
+                        Optional<DemandStock> demandStockOpt = demandStockRepository.findByInstanceIdAndSocialMaterializationId(
+                                id, mainProductId);
+                        if (demandStockOpt.isPresent()) {
+                            productionNeeded = demandStockOpt.get().getDemand();
+                        }
+                    }
+                    
+                    // Se a meta for maior que a produção atual, usar a diferença como produção necessária
+                    BigDecimal producedQuantity = committee.getProducedQuantity() != null ? 
+                                                committee.getProducedQuantity() : BigDecimal.ZERO;
+                    
+                    BigDecimal targetQuantity = committee.getTargetQuantity() != null ? 
+                                              committee.getTargetQuantity() : BigDecimal.ZERO;
+                    
+                    if (targetQuantity.compareTo(producedQuantity) > 0) {
+                        productionNeeded = targetQuantity.subtract(producedQuantity);
+                    }
+                    
+                    // Contar comitês associados à esta materialização
+                    int committeeCount = (int) instanceRepository.countByTypeAndSocialMaterializationId(
+                            xyz.planecon.model.enums.InstanceType.COMMITTEE, mainProductId);
+                    
+                    // Criar objeto de dados de otimização
+                    Map<String, Object> optimizationData = new HashMap<>();
+                    
+                    // Dados da proposta de trabalhadores
+                    optimizationData.put("workerLimit", proposal.getWorkerLimit());
+                    optimizationData.put("workerHours", proposal.getWorkerHours());
+                    optimizationData.put("productionTime", proposal.getProductionTime());
+                    optimizationData.put("weeklyScale", proposal.getWeeklyScale());
+                    optimizationData.put("nightShift", proposal.getNightShift());
+                    
+                    // Dados de produção
+                    optimizationData.put("productionNeeded", productionNeeded);
+                    
+                    // Calcular horas totais necessárias
+                    BigDecimal totalHours = productionNeeded.multiply(proposal.getProductionTime());
+                    optimizationData.put("totalHours", totalHours);
+                    
+                    // Calcular horas disponíveis por trabalhador por dia
+                    BigDecimal workerHoursPerDay = proposal.getWorkerHours().multiply(
+                            proposal.getNightShift() ? new BigDecimal("2") : BigDecimal.ONE);
+                    
+                    // Calcular horas totais de trabalho disponíveis por semana
+                    BigDecimal totalWeeklyHours = workerHoursPerDay.multiply(new BigDecimal(proposal.getWeeklyScale()));
+                    
+                    // Calcular trabalhadores necessários
+                    BigDecimal workersNeeded = totalHours.divide(totalWeeklyHours, 4, RoundingMode.CEILING);
+                    optimizationData.put("workersNeeded", workersNeeded);
+                    
+                    // Calcular fábricas necessárias
+                    BigDecimal factoriesNeeded = workersNeeded.divide(new BigDecimal(proposal.getWorkerLimit()), 4, RoundingMode.CEILING);
+                    optimizationData.put("factoriesNeeded", factoriesNeeded);
+                    
+                    // Calcular tempo mínimo de produção em dias
+                    BigDecimal factoryDailyHours = new BigDecimal(proposal.getWorkerLimit()).multiply(workerHoursPerDay);
+                    BigDecimal minimumProductionTimeInDays = totalHours.divide(
+                            factoriesNeeded.setScale(0, RoundingMode.CEILING).multiply(factoryDailyHours), 
+                            4, RoundingMode.CEILING);
+                    optimizationData.put("minimumProductionTimeInDays", minimumProductionTimeInDays);
+                    
+                    // Adicionar contagem de comitês existentes
+                    optimizationData.put("committeeCount", committeeCount);
+                    
+                    // Adicionar dados de otimização ao DTO
+                    committeeStateDTO.setOptimizationData(optimizationData);
+                }
+            }
+            
             logger.info("Estado completo do comitê {} obtido com sucesso", id);
             return ResponseEntity.ok(committeeStateDTO);
             
@@ -716,5 +814,325 @@ public class CommitteeController {
     public ResponseEntity<DemandsAndGoalsResponseDTO> updateDemandsAndGoals(@PathVariable Integer instanceId) {
         DemandsAndGoalsResponseDTO response = committeeService.updateDemandsAndGoals(instanceId);
         return ResponseEntity.ok(response);
+    }
+
+    /**
+     * Endpoint para obter dados de otimização para um produto específico do comitê
+     * 
+     * @param committeeId ID do comitê
+     * @param materializationId ID da materialização social (produto)
+     * @return ResponseEntity com os dados de otimização
+     */
+    @GetMapping("/{committeeId}/optimization/{materializationId}")
+    public ResponseEntity<?> getOptimizationData(
+            @PathVariable Integer committeeId,
+            @PathVariable Integer materializationId) {
+        
+        try {
+            logger.info("Obtendo dados de otimização para comitê {} e materialização {}", committeeId, materializationId);
+            
+            // 1. Verificar se o comitê existe
+            Optional<Instance> committeeOpt = instanceRepository.findById(committeeId);
+            if (!committeeOpt.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Instance committee = committeeOpt.get();
+            
+            // 2. Verificar se a materialização existe
+            Optional<SocialMaterialization> materializationOpt = socialMaterializationRepository.findById(materializationId);
+            if (!materializationOpt.isPresent()) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Materialização não encontrada"
+                ));
+            }
+            
+            // 3. Obter a proposta de trabalhadores associada ao comitê
+            WorkersProposal.WorkersProposalId proposalId = new WorkersProposal.WorkersProposalId();
+            proposalId.setInstanceId(committeeId);
+            
+            Optional<WorkersProposal> proposalOpt = workersProposalRepository.findById(proposalId);
+            if (!proposalOpt.isPresent()) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Proposta de trabalhadores não encontrada"
+                ));
+            }
+            
+            WorkersProposal proposal = proposalOpt.get();
+            
+            // 4. Obter demanda para a materialização
+            Optional<DemandVector> demandVectorOpt = demandVectorRepository.findByInstanceIdAndSocialMaterializationId(
+                    committeeId, materializationId);
+            
+            // Se não encontrar um vetor de demanda específico, buscar no estoque/demanda
+            BigDecimal productionNeeded = BigDecimal.ZERO;
+            
+            if (demandVectorOpt.isPresent()) {
+                productionNeeded = demandVectorOpt.get().getDemand();
+            } else {
+                // Tentar buscar da tabela de estoques/demandas
+                Optional<DemandStock> demandStockOpt = demandStockRepository.findByInstanceIdAndSocialMaterializationId(
+                        committeeId, materializationId);
+                
+                if (demandStockOpt.isPresent()) {
+                    productionNeeded = demandStockOpt.get().getDemand();
+                }
+            }
+            
+            // 5. Verificar a quantidade já produzida e a meta
+            BigDecimal producedQuantity = committee.getProducedQuantity() != null ? 
+                                         committee.getProducedQuantity() : BigDecimal.ZERO;
+            
+            BigDecimal targetQuantity = committee.getTargetQuantity() != null ? 
+                                       committee.getTargetQuantity() : BigDecimal.ZERO;
+            
+            // Se a meta for maior que a produção atual, usar a diferença como produção necessária
+            if (targetQuantity.compareTo(producedQuantity) > 0 && 
+                materializationId.equals(committee.getSocialMaterialization().getId())) {
+                productionNeeded = targetQuantity.subtract(producedQuantity);
+            }
+            
+            // 6. Contar comitês associados à esta materialização
+            int committeeCount = (int) instanceRepository.countByTypeAndSocialMaterializationId(
+                    xyz.planecon.model.enums.InstanceType.COMMITTEE, materializationId);
+            
+            // 7. Preparar dados de retorno
+            Map<String, Object> optimizationData = new HashMap<>();
+            
+            // Dados da proposta de trabalhadores
+            optimizationData.put("workerLimit", proposal.getWorkerLimit());
+            optimizationData.put("workerHours", proposal.getWorkerHours());
+            optimizationData.put("productionTime", proposal.getProductionTime());
+            optimizationData.put("weeklyScale", proposal.getWeeklyScale());
+            optimizationData.put("nightShift", proposal.getNightShift());
+            
+            // Dados de produção
+            optimizationData.put("productionNeeded", productionNeeded);
+            
+            // Calcular horas totais necessárias
+            BigDecimal totalHours = productionNeeded.multiply(proposal.getProductionTime());
+            optimizationData.put("totalHours", totalHours);
+            
+            // Calcular horas disponíveis por trabalhador por dia
+            BigDecimal workerHoursPerDay = proposal.getWorkerHours().multiply(
+                    proposal.getNightShift() ? new BigDecimal("2") : BigDecimal.ONE);
+            
+            // Calcular horas totais de trabalho disponíveis por semana
+            BigDecimal totalWeeklyHours = workerHoursPerDay.multiply(new BigDecimal(proposal.getWeeklyScale()));
+            
+            // Calcular trabalhadores necessários
+            BigDecimal workersNeeded = totalHours.divide(totalWeeklyHours, 4, RoundingMode.CEILING);
+            optimizationData.put("workersNeeded", workersNeeded);
+            
+            // Calcular fábricas necessárias
+            BigDecimal factoriesNeeded = workersNeeded.divide(new BigDecimal(proposal.getWorkerLimit()), 4, RoundingMode.CEILING);
+            optimizationData.put("factoriesNeeded", factoriesNeeded);
+            
+            // Calcular tempo mínimo de produção em dias
+            BigDecimal factoryDailyHours = new BigDecimal(proposal.getWorkerLimit()).multiply(workerHoursPerDay);
+            BigDecimal minimumProductionTimeInDays = totalHours.divide(
+                    factoriesNeeded.setScale(0, RoundingMode.CEILING).multiply(factoryDailyHours), 
+                    4, RoundingMode.CEILING);
+            optimizationData.put("minimumProductionTimeInDays", minimumProductionTimeInDays);
+            
+            // Adicionar contagem de comitês existentes
+            optimizationData.put("committeeCount", committeeCount);
+            
+            logger.info("Dados de otimização obtidos com sucesso para comitê {} e materialização {}", committeeId, materializationId);
+            
+            return ResponseEntity.ok(optimizationData);
+            
+        } catch (Exception e) {
+            logger.error("Erro ao obter dados de otimização", e);
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "Erro ao obter dados de otimização: " + e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Endpoint para obter dados de otimização do conselho planificador central para um produto específico do comitê
+     * 
+     * @param committeeId ID do comitê
+     * @param materializationId ID da materialização social (produto)
+     * @return ResponseEntity com os dados de otimização do conselho central
+     */
+    @GetMapping("/{committeeId}/central-optimization/{materializationId}")
+    public ResponseEntity<?> getCentralOptimizationData(
+            @PathVariable Integer committeeId,
+            @PathVariable Integer materializationId) {
+        
+        try {
+            logger.info("Obtendo dados de otimização central para comitê {} e materialização {}", committeeId, materializationId);
+            
+            // 1. Verificar se o comitê existe
+            Optional<Instance> committeeOpt = instanceRepository.findById(committeeId);
+            if (!committeeOpt.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+            
+            Instance committee = committeeOpt.get();
+            
+            // 2. Verificar se a materialização existe
+            Optional<SocialMaterialization> materializationOpt = socialMaterializationRepository.findById(materializationId);
+            if (!materializationOpt.isPresent()) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Materialização não encontrada"
+                ));
+            }
+            
+            // 3. Encontrar o conselho planejador central ao qual o comitê pertence
+            // CORREÇÃO 1: Usar a propriedade councilId diretamente ao invés do método getCouncilId()
+            Integer councilId = instanceRepository.findByType(InstanceType.PLANNERCOUNCIL)
+                .stream()
+                .findFirst()
+                .map(Instance::getId)
+                .orElse(null);
+            if (councilId == null) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Comitê não está associado a um conselho"
+                ));
+            }
+            
+            // Buscar instância do tipo PLANNERCOUNCIL
+            Instance plannerCouncil = null;
+            
+            // Primeiro verificar se o conselho pai já é um PLANNERCOUNCIL
+            Optional<Instance> directCouncilOpt = instanceRepository.findById(councilId);
+            if (directCouncilOpt.isPresent() && 
+                directCouncilOpt.get().getType() == InstanceType.PLANNERCOUNCIL) {
+                plannerCouncil = directCouncilOpt.get();
+            } else {
+                // Caso contrário, buscar o PLANNERCOUNCIL superior na hierarquia
+                List<Instance> plannerCouncils = instanceRepository.findByType(InstanceType.PLANNERCOUNCIL);
+                
+                // Encontrar o PLANNERCOUNCIL que contém este conselho na hierarquia
+                for (Instance pc : plannerCouncils) {
+                    // Implementação simplificada: buscar relações em árvore seria mais complexo
+                    // Por ora, assumimos que o primeiro PLANNERCOUNCIL encontrado é o correto
+                    plannerCouncil = pc;
+                    break;
+                }
+            }
+            
+            if (plannerCouncil == null) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Conselho planificador central não encontrado"
+                ));
+            }
+            
+            // 4. Buscar a configuração de otimização do conselho central para esta materialização
+            OptimizationInputsResults optimizationConfig = optimizationInputsResultsRepository
+                .findByInstanceIdAndMaterializationId(plannerCouncil.getId(), materializationId)
+                .orElse(null);
+            
+            if (optimizationConfig == null) {
+                // Se não encontrar configuração específica, criar uma configuração padrão
+                WorkersProposal.WorkersProposalId proposalId = new WorkersProposal.WorkersProposalId();
+                proposalId.setInstanceId(committeeId);
+                
+                Optional<WorkersProposal> proposalOpt = workersProposalRepository.findById(proposalId);
+                
+                // Use a proposta do comitê como fallback
+                WorkersProposal proposal = proposalOpt.orElse(new WorkersProposal());
+                
+                Map<String, Object> defaultConfig = new HashMap<>();
+                defaultConfig.put("workerLimit", proposal.getWorkerLimit() != null ? proposal.getWorkerLimit() : 100);
+                defaultConfig.put("workerHours", proposal.getWorkerHours() != null ? proposal.getWorkerHours() : 8.0);
+                defaultConfig.put("productionTime", proposal.getProductionTime() != null ? proposal.getProductionTime() : 1.0);
+                defaultConfig.put("weeklyScale", proposal.getWeeklyScale() != null ? proposal.getWeeklyScale() : 5);
+                defaultConfig.put("nightShift", proposal.getNightShift() != null ? proposal.getNightShift() : false);
+                
+                // Buscar demanda para calcular produção necessária
+                BigDecimal productionNeeded = BigDecimal.ZERO;
+                Optional<DemandVector> demandVectorOpt = demandVectorRepository
+                    .findByInstanceIdAndSocialMaterializationId(plannerCouncil.getId(), materializationId);
+                
+                if (demandVectorOpt.isPresent()) {
+                    productionNeeded = demandVectorOpt.get().getDemand();
+                }
+                
+                defaultConfig.put("productionNeeded", productionNeeded);
+                
+                // Calcular outros valores necessários
+                BigDecimal totalHours = productionNeeded.multiply(BigDecimal.valueOf(
+                    (Double) defaultConfig.get("productionTime")));
+                defaultConfig.put("totalHours", totalHours);
+                
+                int committeeCount = (int) instanceRepository.countByTypeAndSocialMaterializationId(
+                        InstanceType.COMMITTEE, materializationId);
+                defaultConfig.put("committeeCount", committeeCount);
+                
+                return ResponseEntity.ok(defaultConfig);
+            }
+            
+            // 5. Preparar resposta com os dados da configuração do conselho central
+            Map<String, Object> optimizationData = new HashMap<>();
+            optimizationData.put("workerLimit", optimizationConfig.getWorkerLimit());
+            optimizationData.put("workerHours", optimizationConfig.getWorkerHours());
+            optimizationData.put("productionTime", optimizationConfig.getProductionTime());
+            optimizationData.put("weeklyScale", optimizationConfig.getWeeklyScale());
+            optimizationData.put("nightShift", optimizationConfig.getNightShift());
+            
+            // 6. Buscar demanda para esta materialização no conselho central
+            BigDecimal productionNeeded = BigDecimal.ZERO;
+            Optional<DemandVector> demandVectorOpt = demandVectorRepository
+                .findByInstanceIdAndSocialMaterializationId(plannerCouncil.getId(), materializationId);
+            
+            if (demandVectorOpt.isPresent()) {
+                productionNeeded = demandVectorOpt.get().getDemand();
+            }
+            
+            optimizationData.put("productionNeeded", productionNeeded);
+            
+            // 7. Calcular horas totais necessárias
+            BigDecimal totalHours = productionNeeded.multiply(optimizationConfig.getProductionTime());
+            optimizationData.put("totalHours", totalHours);
+            
+            // 8. Calcular os outros valores necessários para a otimização
+            // Calcular horas disponíveis por trabalhador por dia
+            BigDecimal workerHoursPerDay = optimizationConfig.getWorkerHours().multiply(
+                    optimizationConfig.getNightShift() ? new BigDecimal("2") : BigDecimal.ONE);
+            
+            // Calcular horas totais de trabalho disponíveis por semana
+            BigDecimal totalWeeklyHours = workerHoursPerDay.multiply(new BigDecimal(optimizationConfig.getWeeklyScale()));
+            
+            // Calcular trabalhadores necessários
+            BigDecimal workersNeeded = totalHours.divide(totalWeeklyHours, 4, RoundingMode.CEILING);
+            optimizationData.put("workersNeeded", workersNeeded);
+            
+            // Calcular fábricas necessárias
+            BigDecimal factoriesNeeded = workersNeeded.divide(new BigDecimal(optimizationConfig.getWorkerLimit()), 4, RoundingMode.CEILING);
+            optimizationData.put("factoriesNeeded", factoriesNeeded);
+            
+            // Calcular tempo mínimo de produção em dias
+            BigDecimal factoryDailyHours = new BigDecimal(optimizationConfig.getWorkerLimit()).multiply(workerHoursPerDay);
+            BigDecimal minimumProductionTimeInDays = totalHours.divide(
+                    factoriesNeeded.setScale(0, RoundingMode.CEILING).multiply(factoryDailyHours), 
+                    4, RoundingMode.CEILING);
+            optimizationData.put("minimumProductionTimeInDays", minimumProductionTimeInDays);
+            
+            // Adicionar contagem de comitês existentes
+            int committeeCount = (int) instanceRepository.countByTypeAndSocialMaterializationId(
+                    InstanceType.COMMITTEE, materializationId);
+            optimizationData.put("committeeCount", committeeCount);
+            
+            logger.info("Dados de otimização central obtidos com sucesso para comitê {} e materialização {}", committeeId, materializationId);
+            
+            return ResponseEntity.ok(optimizationData);
+            
+        } catch (Exception e) {
+            logger.error("Erro ao obter dados de otimização central", e);
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "Erro ao obter dados de otimização central: " + e.getMessage()
+            ));
+        }
     }
 }

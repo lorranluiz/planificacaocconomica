@@ -27,6 +27,8 @@ public class CommitteeStateDTO {
     // Materializações sociais (produtos/serviços) associados
     private List<MaterializationStateDTO> materializations;
     
+    private Map<String, Object> optimizationData;
+
     // Getters e Setters
     
     public Integer getId() {
@@ -107,6 +109,14 @@ public class CommitteeStateDTO {
 
     public void setMaterializations(List<MaterializationStateDTO> materializations) {
         this.materializations = materializations;
+    }
+
+    public Map<String, Object> getOptimizationData() {
+        return optimizationData;
+    }
+    
+    public void setOptimizationData(Map<String, Object> optimizationData) {
+        this.optimizationData = optimizationData;
     }
 
     /**
