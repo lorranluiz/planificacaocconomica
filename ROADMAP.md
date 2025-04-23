@@ -310,6 +310,7 @@ psql
      -  ~~~~~~~~~ PRÓXIMA TAREFA ~~~~~~> Implementar a distribuição dos dados da planificação.
         1º |-> Simplesmente replicar a janela do resultado do Conselho na Planificação na janela do Comitê, primeiro isso.
           1.1º Simplesmente pedir para o prompt analisar os dados que são exibidos nessa janela, de onde vem e onde ficam salvos no banco. Se não ficam salvos pedir para ele passar a salvar de modo que essa janela possa ser inteiramente reconstruída com o carregamento desses dados nos comitês que produzem a materialização social dessa janela.
+            DADOS ERRADOS CARREGADO NA JANELA. NO BANCO SALVO CORRETAMENTE.
           1.2º A partir disso pedir, no código do comitê, que carregue essa janela com base na materialização social principal produzida ou realizada por esse comitê.
         2º |-> Em seguide pedir pra multiplicar pelo peso daquele conselho (numero de trabalhadores dele divido pelo número de trabalhadores totais do sistema). Peso não precisa incidir na demanda pois os Conselhos Populares já possuem o papel político de ponderar de maneira mais racional as demandas dos WORKERs e COMMITTEEs.
           Estará quase 100% completo o ciclo de informação. Depois será necessário implementar o ciclo de fechamento de produção-distribuição.

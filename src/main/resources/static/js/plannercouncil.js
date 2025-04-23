@@ -9,6 +9,7 @@ let demandVector = [];
 let currentOptimizationProductIndex = -1;
 const optimizationConfigs = {};
 let optimizationResults = [];
+let loadingOrLoaded = true;
 
 // Adicione esta função após a declaração de variáveis no início do arquivo
 function loadPreviousResults(instanceId) {
@@ -350,7 +351,7 @@ function openOptimizationResultModal(index) {
     // Garantir que os valores calculados estão atualizados
     if (result && (!result.totalHours || !result.workersNeeded || !result.factoriesNeeded)) {
         // Calcular os valores se estiverem faltando
-        if (optimizationConfigs[index]) {
+        if (optimizationConfigs[index] && !loadingOrLoaded) {
             calculateOptimizationResults(index);
             result = optimizationResults[index]; // Atualizar a referência ao resultado
         }
@@ -428,7 +429,6 @@ function openOptimizationResultModal(index) {
             <p><strong>Fábricas Necessárias:</strong> ${formatNumber(requiredFactories, 4, true)} fábricas</p>
             <p><strong>${factoryDifferenceLabel}:</strong> ${formatNumber(factoryDifferenceValue, 4, true)} fábricas</p>
             <p><strong>Tempo Mínimo de Produção:</strong> ${formatNumber(result.minimumProductionTimeInDays, 4, true)} dias</p>
-            <p><strong>Horas de Operação da Fábrica:</strong> ${formatNumber(result.factoryOperationHours, 2)} horas por dia</p>
         </div>
     `;
     
@@ -877,6 +877,112 @@ function renderOptimizationResults(optimizationResults) {
     // which already includes the optimization results, this function can be minimal
 }
 
+// Função que exibe a modal com os resultados da otimização
+function showOptimizationResults(productId, productName, productionQuantity) {
+    // Mostrar nome do produto
+    document.getElementById('optimizationResultModalProductName').textContent = productName;
+    
+    // Buscar resultados de otimização para este produto
+    let loadingContent = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i> Carregando resultados...</div>';
+    document.getElementById('optimizationModalContent').innerHTML = loadingContent;
+    
+    // Mostrar modal
+    document.getElementById('optimizationResultModal').style.display = 'block';
+    
+    // Buscar resultados diretamente da API sem cálculos locais
+    console.log(`Buscando resultados de otimização para a materialização ID: ${productId} na instância ID: ${selectedInstanceId}`);
+    
+    // Caminho da API para buscar resultados de otimização
+    const apiUrl = `/api/planification/optimization-config/results/${selectedInstanceId}/${productId}`;
+    
+    // Realizar a solicitação à API
+    fetch(apiUrl)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erro ao buscar resultados: ${response.status} ${response.statusText}`);
+            }
+            return response.json();
+        })
+        .then(results => {
+            // Log para depuração dos dados recebidos da API
+            console.log('Dados recebidos da API:', results);
+            
+            // Exibir os dados exatamente como vieram da API, sem cálculos adicionais
+            displayRawOptimizationResults(results);
+        })
+        .catch(error => {
+            console.error('Erro ao buscar resultados de otimização:', error);
+            document.getElementById('optimizationModalContent').innerHTML = 
+                '<div class="alert alert-danger">Erro ao buscar resultados de otimização. ' + error.message + '</div>';
+        });
+}
+
+// Nova função que exibe os resultados exatamente como vieram da API, sem recálculos
+function displayRawOptimizationResults(results) {
+    console.log('Exibindo resultados brutos da otimização:', results);
+    
+    // Verificar se temos dados válidos
+    if (!results || Object.keys(results).length === 0) {
+        document.getElementById('optimizationModalContent').innerHTML = 
+            '<div class="alert alert-warning">Nenhum resultado de otimização encontrado para esta materialização.</div>';
+        return;
+    }
+    
+    // Gerar HTML com os resultados - usando exatamente os dados que vieram da API
+    let html = '<div class="optimization-results">';
+    html += '<h3>Parâmetros Utilizados</h3>';
+    html += '<ul>';
+    html += `<li><strong>Limite de Trabalhadores por Fábrica:</strong> ${results.workerLimit}</li>`;
+    html += `<li><strong>Horas de Trabalho por Dia:</strong> ${results.workerHours}</li>`;
+    html += `<li><strong>Tempo para Produzir Uma Unidade:</strong> ${results.productionTime} horas</li>`;
+    html += `<li><strong>Escala Semanal:</strong> ${results.weeklyScale} dias</li>`;
+    html += `<li><strong>Turno Noturno:</strong> ${results.nightShift ? 'Sim' : 'Não'}</li>`;
+    html += '</ul>';
+    
+    html += '<h3>Resultados Calculados</h3>';
+    html += '<ul>';
+    
+    // Usar os valores exatos retornados pela API
+    html += `<li><strong>Produção Necessária:</strong> ${formatNumber(results.productionGoal)} unidades</li>`;
+    html += `<li><strong>Total de Horas Necessárias:</strong> ${formatNumber(results.totalHours)} horas</li>`;
+    html += `<li><strong>Trabalhadores Necessários:</strong> ${results.workersNeeded}</li>`;
+    html += `<li><strong>Fábricas Necessárias:</strong> ${results.factoriesNeeded}</li>`;
+    html += '</ul>';
+    html += '</div>';
+    
+    // Inserir HTML na modal
+    document.getElementById('optimizationModalContent').innerHTML = html;
+}
+
+// Função auxiliar para formatar números grandes
+function formatNumber(value) {
+    if (value === undefined || value === null) return '0';
+    
+    // Verificar se value é número
+    if (typeof value !== 'number') {
+        // Tentar converter para número
+        value = Number(value);
+        if (isNaN(value)) return '0';
+    }
+    
+    // Formatar com separador de milhares
+    return value.toLocaleString('pt-BR');
+}
+
+// Substituir a função calculateOrFetchOptimizationResults para sempre buscar do banco
+function calculateOrFetchOptimizationResults(instanceId, materializationId, productionQuantity, config) {
+    // Apenas retornar o resultado da API, sem cálculos locais
+    return fetch(`/api/planification/optimization-config/results/${instanceId}/${materializationId}`)
+        .then(response => {
+            if (response.ok) {
+                return response.json();
+            } else {
+                console.log("Nenhum resultado encontrado no banco, calculando novo");
+                throw new Error("Resultado não encontrado");
+            }
+        });
+}
+
 // Mantém o restante do código dentro do evento DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
     // Inicializar cabeçalho comum - APENAS UMA VEZ
@@ -1079,7 +1185,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         config.workerHours = parseBigDecimal(config.workerHours);
                         config.productionTime = parseBigDecimal(config.productionTime);
                         
-                        optimizationConfigs[productIndex] = config;
+                        optimizationConfigs[config.materializationId] = config;
                         console.log(`Configuração de otimização carregada para materialização ${config.materializationId}:`, config);
                     }
                 });
@@ -1136,7 +1242,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         };
                         
                         // Armazenar no array de resultados
-                        optimizationResults[productIndex] = processedResult;
+                        optimizationResults[result.materializationId] = processedResult;
                         console.log(`Resultado de otimização processado para materialização ${result.materializationId}:`, processedResult);
                     }
                 });
@@ -1201,6 +1307,9 @@ document.addEventListener('DOMContentLoaded', function() {
      * Executa o processo de planificação
      */
     function performPlanification() {
+
+        loadingOrLoaded = false;
+        
         const planifyButton = document.getElementById('planifyButton');
         const loadingSpinner = document.getElementById('loadingSpinner');
         
@@ -2698,6 +2807,10 @@ function calculateOptimizationResults(productIndex) {
 function storeOptimizationResults(productionVector) {
     // Armazenar os resultados existentes para preservar configurações
     const existingResults = [...optimizationResults];
+
+    if(loadingOrLoaded){
+        return;
+    }
     
     // Limpar ou inicializar o array de resultados
     optimizationResults = [];
