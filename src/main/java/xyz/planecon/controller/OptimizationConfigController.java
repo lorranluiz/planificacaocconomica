@@ -3,6 +3,9 @@ package xyz.planecon.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.CacheControl;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 
 import xyz.planecon.model.entity.Instance;
 import xyz.planecon.model.entity.OptimizationInputsResults;
@@ -34,6 +37,7 @@ public class OptimizationConfigController {
      * Endpoint para salvar configuração de otimização
      */
     @PostMapping
+    @CacheEvict(value = {"optimizationConfig", "optimizationConfigs", "planificationResults"}, allEntries = true)
     public ResponseEntity<?> saveOptimizationConfig(@RequestBody Map<String, Object> payload) {
         try {
             // Logging detalhado para depuração
@@ -194,7 +198,11 @@ public class OptimizationConfigController {
             response.put("nightShift", config.getNightShift());
             response.put("createdAt", config.getCreatedAt());
             
-            return ResponseEntity.ok(response);
+            // Adicionar cabeçalho de cache para prevenir cache do navegador
+            return ResponseEntity
+                .ok()
+                .cacheControl(CacheControl.noCache())
+                .body(response);
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -233,7 +241,11 @@ public class OptimizationConfigController {
                 return item;
             }).collect(Collectors.toList());
             
-            return ResponseEntity.ok(responseList);
+            // Adicionar cabeçalho de cache para prevenir cache do navegador
+            return ResponseEntity
+                .ok()
+                .cacheControl(CacheControl.noCache())
+                .body(responseList);
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -247,6 +259,7 @@ public class OptimizationConfigController {
      * Endpoint para salvar resultados de otimização
      */
     @PostMapping("/results")
+    @CacheEvict(value = {"optimizationConfig", "optimizationConfigs", "planificationResults"}, allEntries = true)
     public ResponseEntity<?> saveOptimizationResults(@RequestBody Map<String, Object> payload) {
         try {
             // Logging detalhado para depuração
@@ -382,7 +395,11 @@ public class OptimizationConfigController {
                 })
                 .collect(Collectors.toList());
             
-            return ResponseEntity.ok(responseList);
+            // Adicionar cabeçalho de cache para prevenir cache do navegador
+            return ResponseEntity
+                .ok()
+                .cacheControl(CacheControl.noCache())
+                .body(responseList);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of(
@@ -432,7 +449,11 @@ public class OptimizationConfigController {
                 response.put("materializationName", result.getSocialMaterialization().getName());
             }
             
-            return ResponseEntity.ok(response);
+            // Adicionar cabeçalho de cache para prevenir cache do navegador
+            return ResponseEntity
+                .ok()
+                .cacheControl(CacheControl.noCache())
+                .body(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ResponseEntity.badRequest().body(Map.of(

@@ -3,6 +3,7 @@ package xyz.planecon.controller;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.CacheControl;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -771,7 +772,13 @@ public class PlanificationController {
                 result.put("nightShift", config.getNightShift());
                 result.put("materializationId", materializationId);
                 
-                return ResponseEntity.ok(result);
+                // Adicionar cabeçalho de cache para prevenir cache do navegador
+                return ResponseEntity
+                    .ok()
+                    .cacheControl(CacheControl.noCache().mustRevalidate())
+                    .header("Pragma", "no-cache") // HTTP 1.0 compatibilidade
+                    .header("Expires", "0") // Proxies
+                    .body(result);
             } else {
                 logger.info("Configuração não encontrada, retornando valores padrão");
                 // Retornar valores padrão se não encontrar configuração
@@ -783,7 +790,13 @@ public class PlanificationController {
                 defaultConfig.put("nightShift", false);
                 defaultConfig.put("materializationId", materializationId);
                 
-                return ResponseEntity.ok(defaultConfig);
+                // Adicionar cabeçalho de cache para prevenir cache do navegador
+                return ResponseEntity
+                    .ok()
+                    .cacheControl(CacheControl.noCache().mustRevalidate())
+                    .header("Pragma", "no-cache")
+                    .header("Expires", "0")
+                    .body(defaultConfig);
             }
         } catch (Exception e) {
             logger.error("Erro ao buscar configuração de otimização: {}", e.getMessage(), e);

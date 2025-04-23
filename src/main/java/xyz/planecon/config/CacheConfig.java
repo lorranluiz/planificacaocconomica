@@ -11,6 +11,7 @@ import org.springframework.context.annotation.Primary;
 
 import com.github.benmanes.caffeine.cache.Caffeine;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
@@ -26,13 +27,15 @@ public class CacheConfig {
             "sectors",
             "committees",
             "councils",
-            "committeeMembers"
+            "committeeMembers",
+            "optimizationConfig",  // Adicionado aqui em vez de no compositeCacheManager
+            "optimizationConfigs"  // Adicionado aqui em vez de no compositeCacheManager
         );
         
         // Cache baseado em Caffeine para dados frequentemente utilizados mas com expiração curta
         CaffeineCacheManager shortLivedCacheManager = new CaffeineCacheManager(
             "materializations", 
-            "availableMaterializations",  // Adicionado o cache faltante
+            "availableMaterializations",
             "instances", 
             "technologicalMatrix", 
             "demandVector"
@@ -63,7 +66,7 @@ public class CacheConfig {
         
         longLivedCacheManager.setCaffeine(longLivedCaffeine);
         
-        // Combinar os gerenciadores de cache
+        // Combinar os gerenciadores de cache sem chamar setCacheNames
         return new CompositeCacheManager(simpleCacheManager, shortLivedCacheManager, longLivedCacheManager);
     }
 }

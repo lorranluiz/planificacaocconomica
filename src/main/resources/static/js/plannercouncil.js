@@ -10,6 +10,7 @@ let currentOptimizationProductIndex = -1;
 const optimizationConfigs = {};
 let optimizationResults = [];
 let loadingOrLoaded = true;
+let currentMaterializationId = null; // ID da materialização atualmente selecionada para otimização
 
 // Adicione esta função após a declaração de variáveis no início do arquivo
 function loadPreviousResults(instanceId) {
@@ -79,129 +80,94 @@ function loadPreviousResults(instanceId) {
 }
 
 // Funções de manipulação das modais precisam ser globais para serem acessíveis pelos botões
-function openOptimizationConfigModal(productIndex) {
-    // Validar o índice antes de prosseguir
-    if (!validateProductIndex(productIndex)) {
-        showError('Índice de produto inválido. Recarregue a página e tente novamente.');
-        return;
-    }
+function openOptimizationConfigModal(materializationId, productName) {
+    // Armazenar o ID da materialização que está sendo configurada
+    currentMaterializationId = materializationId;
     
-    currentOptimizationProductIndex = productIndex;
-        
-    // Define o nome do produto no modal
-    document.getElementById('optimizationModalProductName').textContent = productNames[productIndex];
+    // Definir o nome do produto na modal
+    document.getElementById('optimizationModalProductName').textContent = productName;
     
-    // Carregar dados existentes para esta materialização específica
-    const materializationId = productIds[productIndex];
-    
-    // Verificar se o ID da materialização é válido
-    if (!materializationId) {
-        console.error(`ID de materialização indefinido para índice: ${productIndex}`);
-        showError('ID de materialização não disponível para este produto.');
-        return;
-    }
-    
-    // Verificar se o ID da instância é válido
-    if (!currentInstanceId) {
-        console.error('ID da instância não definido');
-        showError('Selecione uma instância antes de configurar a otimização.');
-        return;
-    }
-    
-    // Mostrar spinner de carregamento
+    // Mostrar o spinner enquanto busca os dados
     document.getElementById('optimizationModalSpinner').style.display = 'inline-block';
     
-    // Verificar se já temos configurações carregadas em cache
-    if (optimizationConfigs[productIndex]) {
-        // Usar a configuração do cache
-        fillOptimizationModalWithData(optimizationConfigs[productIndex]);
-        document.getElementById('optimizationModalSpinner').style.display = 'none';
-        
-        // Exibir a modal
-        const modal = document.getElementById('optimizationConfigModal');
-        modal.style.display = 'block';
-        return;
-    }
+    // Limpar campos antigos para evitar mostrar dados desatualizados
+    document.getElementById('workerLimit').value = '';
+    document.getElementById('workerHours').value = '';
+    document.getElementById('productionTime').value = '';
+    document.getElementById('weeklyScale').value = '';
+    document.getElementById('nightShift').checked = false;
 
-    // Verificar se temos resultados de otimização que contêm os dados de configuração
-    if (optimizationResults && optimizationResults[productIndex]) {
-        const result = optimizationResults[productIndex];
+    // Verificar primeiro se temos dados de otimização nos resultados da planificação
+    if (window.lastPlanificationResults && window.lastPlanificationResults.optimizationResults) {
+        // Buscar configurações específicas para esta materialização usando seu ID
+        const result = window.lastPlanificationResults.optimizationResults.find(
+            r => r.materializationId === materializationId
+        );
         
-        // Criar objeto de configuração a partir dos dados do resultado
-        const config = {
-            materializationId: result.materializationId,
-            workerLimit: result.workerLimit || 100,
-            workerHours: result.workerHours || 8.0,
-            productionTime: result.productionTime || 1.0,
-            weeklyScale: result.weeklyScale || 5,
-            nightShift: result.nightShift || false
-        };
+        if (result) {
+            // Se encontrou, preencher o formulário com os dados do resultado
+            console.log('Usando dados de otimização dos resultados da planificação para materialização:', materializationId);
+            document.getElementById('workerLimit').value = result.workerLimit || 100;
+            document.getElementById('workerHours').value = result.workerHours || 8.0;
+            document.getElementById('productionTime').value = result.productionTime || 1.0;
+            document.getElementById('weeklyScale').value = result.weeklyScale || 5;
+            document.getElementById('nightShift').checked = result.nightShift || false;
+            
+            // Esconder o spinner e mostrar a modal
+            document.getElementById('optimizationModalSpinner').style.display = 'none';
+            document.getElementById('optimizationConfigModal').style.display = 'block';
+            return;
+        }
+    }
+    
+    // Se não tiver nos resultados da planificação, buscar da API
+    // Adicionar timestamp para evitar cache do navegador
+    const timestamp = new Date().getTime();
+    fetch(`/api/planification/instances/${currentInstanceId}/optimization/${materializationId}?_=${timestamp}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Erro ao buscar configuração: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Dados de configuração recebidos da API para materialização:', materializationId, data);
         
-        // Armazenar no cache para uso futuro
-        optimizationConfigs[productIndex] = config;
+        // Preencher o formulário com os dados recebidos
+        document.getElementById('workerLimit').value = data.workerLimit || 100;
+        document.getElementById('workerHours').value = data.workerHours || 8.0;
+        document.getElementById('productionTime').value = data.productionTime || 1.0;
+        document.getElementById('weeklyScale').value = data.weeklyScale || 5;
+        document.getElementById('nightShift').checked = data.nightShift || false;
         
-        // Preencher o modal com os dados
-        fillOptimizationModalWithData(config);
+        // Esconder o spinner
         document.getElementById('optimizationModalSpinner').style.display = 'none';
         
         // Exibir a modal
-        const modal = document.getElementById('optimizationConfigModal');
-        modal.style.display = 'block';
-        return;
-    }
-    
-    // Caso não tenha nem no cache nem nos resultados, carregar do servidor
-    console.log(`Carregando config para instância ${currentInstanceId}, materialização ${materializationId}`);
-    
-    fetch(`/api/planification/instances/${currentInstanceId}/optimization/${materializationId}`)
-        .then(response => {
-            // Não lançar erro se status não for 2xx, apenas logar no console
-            if (!response.ok) {
-                console.warn(`Resposta não OK (${response.status}) ao carregar configuração`);
-            }
-            return response.json();
-        })
-        .then(config => {
-            // Validar se recebemos um objeto de configuração válido
-            if (!config || typeof config !== 'object') {
-                throw new Error('Formato de resposta inválido');
-            }
-            
-            // Armazenar no cache (mesmo que sejam valores padrão)
-            optimizationConfigs[productIndex] = config;
-            
-            // Preencher o modal com os dados recebidos
-            fillOptimizationModalWithData(config);
-            
-            // Mostrar o modal com display block (não flex)
-            const modal = document.getElementById('optimizationConfigModal');
-            modal.style.display = 'block';
-        })
-        .catch(error => {
-            console.error('Erro ao carregar configuração:', error);
-            // Em caso de erro, ainda exibimos o modal, mas com valores padrão
-            const defaultConfig = {
-                workerLimit: 100,
-                workerHours: 8.0,
-                productionTime: 1.0,
-                weeklyScale: 5,
-                nightShift: false,
-                materializationId: materializationId
-            };
-            
-            // Armazenar os valores padrão no cache para evitar chamadas repetidas
-            optimizationConfigs[productIndex] = defaultConfig;
-            
-            // Preencher o modal com valores padrão
-            fillOptimizationModalWithData(defaultConfig);
-            
-            // Mostrar o modal com display block (não flex)
-            const modal = document.getElementById('optimizationConfigModal');
-            modal.style.display = 'block';
-        })
-        .finally(() => {
-            document.getElementById('optimizationModalSpinner').style.display = 'none';
-        });
+        document.getElementById('optimizationConfigModal').style.display = 'block';
+    })
+    .catch(error => {
+        console.error('Erro ao carregar configuração:', error);
+        showNotification('Erro ao carregar configuração: ' + error.message, 'error');
+        
+        document.getElementById('optimizationModalSpinner').style.display = 'none';
+        
+        // Exibir a modal mesmo com erro, com valores padrão
+        document.getElementById('workerLimit').value = 100;
+        document.getElementById('workerHours').value = 8.0;
+        document.getElementById('productionTime').value = 1.0;
+        document.getElementById('weeklyScale').value = 5;
+        document.getElementById('nightShift').checked = false;
+        document.getElementById('optimizationConfigModal').style.display = 'block';
+    });
 }
 
 function closeOptimizationConfigModal() {
@@ -212,42 +178,23 @@ function closeOptimizationConfigModal() {
     currentOptimizationProductIndex = -1;
 }
 
+/**
+ * Salva a configuração de otimização para um produto
+ * Corrigido para usar currentMaterializationId em vez de currentOptimizationProductIndex
+ */
 function saveOptimizationConfig() {
-    if (currentOptimizationProductIndex < 0) return;
+    // Verificar se temos um ID de materialização válido
+    if (!currentMaterializationId) {
+        console.error("Nenhuma materialização selecionada para configuração");
+        return;
+    }
     
-    // Captura os valores dos campos com conversão explícita para números
-    const workerLimitValue = document.getElementById('workerLimit').value.trim();
-    const workerHoursValue = document.getElementById('workerHours').value.trim();
-    const productionTimeValue = document.getElementById('productionTime').value.trim();
-    const weeklyScaleValue = document.getElementById('weeklyScale').value.trim();
+    // Obter valores do formulário
+    const workerLimit = document.getElementById('workerLimit').value;
+    const workerHours = document.getElementById('workerHours').value;
+    const productionTime = document.getElementById('productionTime').value;
+    const weeklyScale = document.getElementById('weeklyScale').value;
     const nightShift = document.getElementById('nightShift').checked;
-    
-    // Conversão para números, garantindo que não sejam NaN
-    const workerLimit = workerLimitValue ? parseInt(workerLimitValue) : 100;
-    const workerHours = workerHoursValue ? parseFloat(workerHoursValue) : 8;
-    const productionTime = productionTimeValue ? parseFloat(productionTimeValue) : 1;
-    const weeklyScale = weeklyScaleValue ? parseInt(weeklyScaleValue) : 5;
-    
-    // Validação mais rigorosa
-    if (isNaN(workerLimit) || workerLimit <= 0) {
-        showError('O limite de trabalhadores deve ser um número maior que zero.');
-        return;
-    }
-    
-    if (isNaN(workerHours) || workerHours <= 0) {
-        showError('As horas de trabalho devem ser um número maior que zero.');
-        return;
-    }
-    
-    if (isNaN(productionTime) || productionTime <= 0) {
-        showError('O tempo de produção deve ser um número maior que zero.');
-        return;
-    }
-    
-    if (isNaN(weeklyScale) || weeklyScale < 1 || weeklyScale > 7) {
-        showError('A escala semanal deve ser um número entre 1 e 7 dias.');
-        return;
-    }
     
     // Cria a configuração com valores verificados
     const config = {
@@ -255,31 +202,40 @@ function saveOptimizationConfig() {
         workerHours,
         productionTime,
         weeklyScale,
-        nightShift,
-        materializationId: productIds[currentOptimizationProductIndex]
+        nightShift
     };
     
-    // Log de debug explícito
-    console.log('Config a ser enviada:', {
-        ...config,
-        instanceId: currentInstanceId,
-        productName: productNames[currentOptimizationProductIndex]
-    });
-    
-    // Mostrar indicador de carregamento
-    document.getElementById('optimizationModalSpinner').style.display = 'inline-block';
-    
-    // Salva no servidor
-    saveOptimizationConfigToServer(config)
-        .then(() => {
-            document.getElementById('optimizationModalSpinner').style.display = 'none';
-            closeOptimizationConfigModal();
-            showSuccess('Configuração salva com sucesso!');
+    // Enviar para a API
+    fetch('/api/planification/optimization-config', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            instanceId: currentInstanceId,
+            materializationId: currentMaterializationId,  // Usar o ID armazenado diretamente
+            workerLimit: parseInt(workerLimit),
+            workerHours: parseFloat(workerHours),
+            productionTime: parseFloat(productionTime),
+            weeklyScale: parseInt(weeklyScale),
+            nightShift: nightShift
         })
-        .catch(err => {
-            document.getElementById('optimizationModalSpinner').style.display = 'none';
-            console.error('Erro detalhado:', err);
-        });
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Erro ao salvar configuração: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Configuração salva com sucesso:', data);
+        closeOptimizationConfigModal();
+        showNotification('Configuração salva com sucesso!', 'success');
+    })
+    .catch(error => {
+        console.error('Erro ao salvar configuração:', error);
+        showNotification('Erro ao salvar configuração: ' + error.message, 'error');
+    });
 }
 
 // Função para exibir detalhes de otimização - Melhorada para calcular valores se necessário
@@ -782,7 +738,7 @@ function renderDemandVector() {
         configBtn.title = 'Configurar parâmetros de otimização';
         configBtn.innerHTML = '<i class="fas fa-cogs"></i>';
         configBtn.onclick = function() {
-            openOptimizationConfigModal(index);
+            openOptimizationConfigModal(productIds[index], productNames[index]);
         };
         tdActions.appendChild(configBtn);
         
@@ -2858,4 +2814,217 @@ function storeOptimizationResults(productionVector) {
     });
     
     console.log('Resultados de otimização atualizados:', optimizationResults);
+}
+
+// Função para abrir a modal de configuração de otimização com dados atualizados
+function openOptimizationConfigModal(materializationId, productName) {
+    // Definir o nome do produto na modal
+    document.getElementById('optimizationModalProductName').textContent = productName;
+    
+    // Mostrar o spinner enquanto busca os dados
+    document.getElementById('optimizationModalSpinner').style.display = 'inline-block';
+    
+    // Limpar campos antigos para evitar mostrar dados desatualizados
+    document.getElementById('workerLimit').value = '';
+    document.getElementById('workerHours').value = '';
+    document.getElementById('productionTime').value = '';
+    document.getElementById('weeklyScale').value = '';
+    document.getElementById('nightShift').checked = false;
+    
+    // Armazenar o ID da materialização para uso posterior
+    currentMaterializationId = materializationId;
+    
+    // Verificar primeiro se temos dados de otimização nos resultados da planificação
+    if (window.lastPlanificationResults && window.lastPlanificationResults.optimizationResults) {
+        // Buscar os parâmetros específicos para esta materialização usando o mesmo método da função showOptimizationResults
+        const result = window.lastPlanificationResults.optimizationResults.find(r => r.materializationId === materializationId);
+        
+        if (result) {
+            console.log('Usando dados de otimização dos resultados da planificação:', result);
+            
+            // Preencher o formulário com os dados encontrados
+            document.getElementById('workerLimit').value = result.workerLimit || 100;
+            document.getElementById('workerHours').value = result.workerHours || 8.0;
+            document.getElementById('productionTime').value = result.productionTime || 1.0;
+            document.getElementById('weeklyScale').value = result.weeklyScale || 5;
+            document.getElementById('nightShift').checked = result.nightShift || false;
+            
+            // Esconder o spinner
+            document.getElementById('optimizationModalSpinner').style.display = 'none';
+            
+            // Exibir a modal
+            document.getElementById('optimizationConfigModal').style.display = 'block';
+            return;
+        }
+    }
+    
+    // Se não encontrarmos dados nos resultados da planificação ou se não houver resultados,
+    // buscamos na API com timestamp para evitar cache
+    const timestamp = new Date().getTime();
+    
+    // Buscar configuração atual para esta materialização
+    fetch(`/api/planification/instances/${currentInstanceId}/optimization/${materializationId}?_=${timestamp}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`Erro ao buscar configuração: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Dados de configuração recebidos da API:', data);
+        
+        // Preencher o formulário com os dados recebidos
+        document.getElementById('workerLimit').value = data.workerLimit || 100;
+        document.getElementById('workerHours').value = data.workerHours || 8.0;
+        document.getElementById('productionTime').value = data.productionTime || 1.0;
+        document.getElementById('weeklyScale').value = data.weeklyScale || 5;
+        document.getElementById('nightShift').checked = data.nightShift || false;
+        
+        // Esconder o spinner
+        document.getElementById('optimizationModalSpinner').style.display = 'none';
+        
+        // Exibir a modal
+        document.getElementById('optimizationConfigModal').style.display = 'block';
+    })
+    .catch(error => {
+        console.error('Erro ao carregar configuração:', error);
+        showNotification('Erro ao carregar configuração: ' + error.message, 'error');
+        
+        document.getElementById('optimizationModalSpinner').style.display = 'none';
+        
+        // Exibir a modal mesmo com erro, com valores padrão
+        document.getElementById('workerLimit').value = 100;
+        document.getElementById('workerHours').value = 8.0;
+        document.getElementById('productionTime').value = 1.0;
+        document.getElementById('weeklyScale').value = 5;
+        document.getElementById('nightShift').checked = false;
+        document.getElementById('optimizationConfigModal').style.display = 'block';
+    });
+}
+
+// Garantir que a função showOptimizationResults use a mesma abordagem de identificar resultados pelo materializationId
+function showOptimizationResults(materializationId, productName) {
+    document.getElementById('optimizationResultModalProductName').textContent = productName || 'Produto';
+    
+    // Buscar resultados de otimização específicos para esta materialização
+    const optimizationResults = window.lastPlanificationResults?.optimizationResults;
+    
+    if (!optimizationResults) {
+        document.getElementById('optimizationModalContent').innerHTML = 
+            '<p class="error-message">Nenhum resultado disponível. Execute a planificação primeiro.</p>';
+        document.getElementById('optimizationResultModal').style.display = 'block';
+        return;
+    }
+    
+    // Encontrar o resultado específico para esta materialização usando o ID do banco
+    const result = optimizationResults.find(r => r.materializationId === materializationId);
+    
+    if (!result) {
+        document.getElementById('optimizationModalContent').innerHTML = 
+            '<p class="error-message">Nenhum resultado disponível para esta materialização.</p>';
+        document.getElementById('optimizationResultModal').style.display = 'block';
+        return;
+    }
+    
+    // Log para depurar e verificar os dados encontrados
+    console.log('Dados de otimização para resultado:', result);
+    
+    // Formatar os resultados para exibição
+    let content = `
+        <div class="result-tables-container">
+            <div class="result-table">
+                <h3>Produção</h3>
+                <table>
+                    <tr>
+                        <td>Meta de Produção:</td>
+                        <td>${result.productionGoal.toLocaleString()} unidades</td>
+                    </tr>
+                    <tr>
+                        <td>Tempo de Produção por Unidade:</td>
+                        <td>${result.productionTime} horas</td>
+                    </tr>
+                    <tr>
+                        <td>Tempo Mínimo de Produção:</td>
+                        <td>${result.minimumProductionTime} horas</td>
+                    </tr>
+                    <tr>
+                        <td>Total de Horas Necessárias:</td>
+                        <td>${result.totalHours.toLocaleString()} horas</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="result-table">
+                <h3>Parâmetros Configurados</h3>
+                <table>
+                    <tr>
+                        <td>Limite de Trabalhadores:</td>
+                        <td>${result.workerLimit} por fábrica</td>
+                    </tr>
+                    <tr>
+                        <td>Horas de Trabalho:</td>
+                        <td>${result.workerHours} horas/dia</td>
+                    </tr>
+                    <tr>
+                        <td>Escala Semanal:</td>
+                        <td>${result.weeklyScale} dias</td>
+                    </tr>
+                    <tr>
+                        <td>Turno Noturno:</td>
+                        <td>${result.nightShift ? "Sim" : "Não"}</td>
+                    </tr>
+                </table>
+            </div>
+            
+            <div class="result-table">
+                <h3>Recursos</h3>
+                <table>
+                    <tr>
+                        <td>Trabalhadores Necessários:</td>
+                        <td>${Math.ceil(result.workersNeeded)} pessoas</td>
+                    </tr>
+                    <tr>
+                        <td>Fábricas Necessárias:</td>
+                        <td>${Math.ceil(result.factoriesNeeded)} unidades</td>
+                    </tr>
+                    <tr>
+                        <td>Comitês Associados:</td>
+                        <td>${result.committeeCount || 0} comitês</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    `;
+    
+    document.getElementById('optimizationModalContent').innerHTML = content;
+    document.getElementById('optimizationResultModal').style.display = 'block';
+}
+
+// Melhorando a função storeOptimizationResults para manter consistência com a nova abordagem
+function storeOptimizationResults(results) {
+    // Armazenar resultados globalmente para uso posterior
+    window.lastPlanificationResults = results;
+    console.log("Resultados da otimização armazenados na variável global:", results);
+    
+    // Para cada resultado, vamos garantir que o materializationId esteja disponível
+    if (results && results.optimizationResults) {
+        results.optimizationResults.forEach(result => {
+            if (!result.materializationId && window.productReferences) {
+                // Tentar buscar o ID correto se estiver faltando
+                const index = results.optimizationResults.indexOf(result);
+                if (index >= 0 && index < window.productReferences.ids.length) {
+                    result.materializationId = window.productReferences.ids[index];
+                    result.materializationName = window.productReferences.names[index];
+                }
+            }
+        });
+    }
 }
