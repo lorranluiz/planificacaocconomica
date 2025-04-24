@@ -663,8 +663,14 @@ function updateBasicDataUI() {
                 productNameTechnologicalVector.textContent = name;
             }
             
+            // NOVO: Atualizar também todos os spans com a classe optimization-product-name
+            const productNameElements = document.querySelectorAll('.optimization-product-name');
+            productNameElements.forEach(element => {
+                element.textContent = name;
+            });
+            
             // Log para depuração
-            console.log(`Nome do produto atualizado para: ${name}`);
+            console.log(`Nome do produto atualizado para: ${name} em ${productNameElements.length} elementos`);
         } else {
             console.warn(`Materialização com ID ${pageState.socialMaterializationId} não encontrada no array de materializações`);
         }
@@ -1172,6 +1178,10 @@ function showErrorMessage(message) {
 function openPropostaModal() {
     // Configurar campos do modal com dados atuais
     document.getElementById('unitName').textContent = pageState.committeeName || "---";
+    
+    // Não é mais necessário definir o nome do produto aqui, pois já
+    // é definido na função updateBasicDataUI() durante o carregamento da página
+    
     document.getElementById('workerLimitProposta').value = pageState.workerProposal.workerLimit || 0;
     document.getElementById('workerHoursProposta').value = pageState.workerProposal.workerHours || 0;
     document.getElementById('productionTimeProposta').value = pageState.workerProposal.productionTime || 0;
