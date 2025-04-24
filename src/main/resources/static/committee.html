@@ -431,7 +431,7 @@
         <div class="modal-content">
             <span class="close" onclick="closeOptimizationConfigModal()">&times;</span>
             <h2>Configurar Parâmetros de Otimização</h2>
-            <p>Materialização Social: <span id="optimizationModalProductName"></span></p>
+            <p>Materialização Social: <span class="optimization-product-name"><!-- Nome do produto --></span></p>
             
             <div id="optimizationModalSpinner" class="loading" style="display:none;"></div>
             
@@ -475,7 +475,7 @@
         <div class="modal-content">
             <span class="close" onclick="closeOptimizationResultModal()">&times;</span>
             <h2>Resultados da Otimização</h2>
-            <p class="product-info">Materialização Social: <strong><span id="optimizationModalProductName">Carregando...</span></strong></p>
+            <p class="product-info">Materialização Social: <strong><span class="optimization-product-name">Carregando...</span></strong></p>
             
             <div id="optimizationModalContent">
                 <!-- O conteúdo será preenchido dinamicamente -->
@@ -549,7 +549,7 @@
             </div>
             <div class="modal-body">
                 <p><strong>Nome da Unidade de Produção:</strong> <span id="unitName"></span></p>
-                
+                <p>Materialização Social: <span class="optimization-product-name"><!-- Nome do produto --></span></p>
                 <div class="form-group">
                     <label for="workerLimitProposta">Limite de Trabalhadores na Unidade de Produção:</label>
                     <input type="number" id="workerLimitProposta" class="form-control" min="1" required>

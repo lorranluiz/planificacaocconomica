@@ -1686,7 +1686,7 @@ function showMessage(message, type = 'info') {
 window.saveChanges = saveCommitteeState;
 
 /**
- * Mostra o plano de produção do produto principal do comitê
+ * Exibe o plano de produção do produto principal do comitê
  * Usando dados do conselho planificador central
  */
 function showProductPlan() {
@@ -1702,6 +1702,10 @@ function showProductPlan() {
         return;
     }
 
+    // Capturar o nome do produto para uso em todo o escopo da função
+    const productName = mainProduct.name || "Produto principal";
+    console.log(`Exibindo plano para produto: ${productName}`);
+
     // Mostrar indicador de carregamento na modal
     const modal = document.getElementById('optimizationResultModal');
     const modalContent = document.getElementById('optimizationModalContent');
@@ -1711,8 +1715,11 @@ function showProductPlan() {
         return;
     }
     
-    // Definir nome do produto na modal
-    document.getElementById('optimizationModalProductName').textContent = mainProduct.name || "Produto principal";
+    // MODIFICADO: Usar querySelectorAll com classe para atualizar todos os elementos de uma vez
+    const productNameElements = document.querySelectorAll('.optimization-product-name');
+    productNameElements.forEach(element => {
+        element.textContent = productName;
+    });
     
     // Exibir indicador de carregamento
     modalContent.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Carregando dados de otimização...</p></div>';
@@ -1732,6 +1739,15 @@ function showProductPlan() {
             // Armazenar os dados para uso futuro
             pageState.optimizationData = result;
             
+            // MODIFICADO: Verificar e corrigir nome do produto em todos os elementos
+            const productNameElements = document.querySelectorAll('.optimization-product-name');
+            productNameElements.forEach(element => {
+                if (element.textContent === "Carregando...") {
+                    console.log("Corrigindo nome do produto que foi redefinido para 'Carregando...'");
+                    element.textContent = productName;
+                }
+            });
+            
             // Exibir os dados de otimização
             displayOptimizationResults(result);
         })
@@ -1743,6 +1759,12 @@ function showProductPlan() {
                     <p>Erro ao carregar dados de otimização: ${error.message}</p>
                 </div>
             `;
+            
+            // MODIFICADO: Garantir que o nome do produto ainda está definido em caso de erro
+            const productNameElements = document.querySelectorAll('.optimization-product-name');
+            productNameElements.forEach(element => {
+                element.textContent = productName;
+            });
         });
 }
 
@@ -1752,6 +1774,12 @@ function showProductPlan() {
 function displayOptimizationResults(result) {
     const modalContent = document.getElementById('optimizationModalContent');
     if (!modalContent) return;
+    
+    // MODIFICADO: Usar a classe em vez do ID
+    // Garantir que o nome do produto não seja alterado ao exibir os resultados
+    const productNameElements = document.querySelectorAll('.optimization-product-name');
+    const currentProductName = productNameElements.length > 0 ? productNameElements[0].textContent : 'Produto';
+    console.log(`Nome do produto na renderização dos resultados: ${currentProductName}`);
     
     // Função para formatar números com verificação de existência
     const formatNumber = (value, decimals = 2, scientific = false) => {
@@ -1770,10 +1798,11 @@ function displayOptimizationResults(result) {
         return typeof value === 'number' ? value.toFixed(decimals) : value;
     };
     
-    // Calculate the difference between required and existing factories
+    // Use os valores diretos do banco de dados para fábricas
     const existingFactories = result.committeeCount || 0;
-    const requiredFactories = result.factoriesNeeded ? Math.ceil(result.factoriesNeeded) : 0;
-    const factoryDifference = requiredFactories - existingFactories;
+    // MODIFICADO: Usar valores diretos do banco sem Math.ceil
+    const requiredFactories = result.factoriesNeeded || 0;
+    const factoryDifference = Math.round((requiredFactories - existingFactories) * 100) / 100;
 
     // Determine the appropriate message and value to display for factories
     let factoryDifferenceLabel = 'Fábricas a serem construídas';
@@ -1783,10 +1812,11 @@ function displayOptimizationResults(result) {
         factoryDifferenceValue = Math.abs(factoryDifference);
     }
     
-    // Calculate the difference between required workers and worker limit
-    const requiredWorkers = result.workersNeeded ? Math.ceil(result.workersNeeded) : 0;
+    // MODIFICADO: Usar o valor direto do banco para trabalhadores necessários
+    // NÃO aplicar Math.ceil para preservar o valor original
+    const requiredWorkers = result.workersNeeded || 0;
     const workerLimit = result.workerLimit || 0;
-    const workerDifference = requiredWorkers - workerLimit;
+    const workerDifference = Math.round((requiredWorkers - workerLimit) * 100) / 100;
     
     // Determine the appropriate message and value to display for workers
     let workerDifferenceLabel = 'Trabalhadores a serem contratados';
@@ -1815,10 +1845,10 @@ function displayOptimizationResults(result) {
         
         <div class="optimization-section">
             <h4>Resultados Calculados</h4>
-            <p><strong>Trabalhadores Necessários:</strong> ${formatNumber(requiredWorkers, 4, true)} trabalhadores</p>
+            <p><strong>Trabalhadores Necessários:</strong> ${formatNumber(result.workersNeeded, 4, true)} trabalhadores</p>
             <p><strong>${workerDifferenceLabel}:</strong> ${formatNumber(workerDifferenceValue, 4, true)} trabalhadores</p>
             <p><strong>Fábricas Existentes:</strong> ${result.committeeCount || '0'} fábricas</p>
-            <p><strong>Fábricas Necessárias:</strong> ${formatNumber(requiredFactories, 4, true)} fábricas</p>
+            <p><strong>Fábricas Necessárias:</strong> ${formatNumber(result.factoriesNeeded, 4, true)} fábricas</p>
             <p><strong>${factoryDifferenceLabel}:</strong> ${formatNumber(factoryDifferenceValue, 4, true)} fábricas</p>
             <p><strong>Tempo Mínimo de Produção:</strong> ${formatNumber(result.minimumProductionTimeInDays, 4, true)} dias</p>
         </div>

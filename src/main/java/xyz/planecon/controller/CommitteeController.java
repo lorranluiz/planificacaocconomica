@@ -985,40 +985,11 @@ public class CommitteeController {
                 ));
             }
             
-            // 3. Encontrar o conselho planejador central ao qual o comitê pertence
-            // CORREÇÃO 1: Usar a propriedade councilId diretamente ao invés do método getCouncilId()
-            Integer councilId = instanceRepository.findByType(InstanceType.PLANNERCOUNCIL)
+            // 3. Encontrar o conselho planejador central (assume que existe apenas um)
+            Instance plannerCouncil = instanceRepository.findByType(InstanceType.PLANNERCOUNCIL)
                 .stream()
                 .findFirst()
-                .map(Instance::getId)
                 .orElse(null);
-            if (councilId == null) {
-                return ResponseEntity.badRequest().body(Map.of(
-                    "success", false,
-                    "message", "Comitê não está associado a um conselho"
-                ));
-            }
-            
-            // Buscar instância do tipo PLANNERCOUNCIL
-            Instance plannerCouncil = null;
-            
-            // Primeiro verificar se o conselho pai já é um PLANNERCOUNCIL
-            Optional<Instance> directCouncilOpt = instanceRepository.findById(councilId);
-            if (directCouncilOpt.isPresent() && 
-                directCouncilOpt.get().getType() == InstanceType.PLANNERCOUNCIL) {
-                plannerCouncil = directCouncilOpt.get();
-            } else {
-                // Caso contrário, buscar o PLANNERCOUNCIL superior na hierarquia
-                List<Instance> plannerCouncils = instanceRepository.findByType(InstanceType.PLANNERCOUNCIL);
-                
-                // Encontrar o PLANNERCOUNCIL que contém este conselho na hierarquia
-                for (Instance pc : plannerCouncils) {
-                    // Implementação simplificada: buscar relações em árvore seria mais complexo
-                    // Por ora, assumimos que o primeiro PLANNERCOUNCIL encontrado é o correto
-                    plannerCouncil = pc;
-                    break;
-                }
-            }
             
             if (plannerCouncil == null) {
                 return ResponseEntity.badRequest().body(Map.of(
@@ -1029,7 +1000,7 @@ public class CommitteeController {
             
             // 4. Buscar a configuração de otimização do conselho central para esta materialização
             OptimizationInputsResults optimizationConfig = optimizationInputsResultsRepository
-                .findByInstanceIdAndMaterializationId(plannerCouncil.getId(), materializationId)
+                .findById_InstanceIdAndId_SocialMaterializationId(plannerCouncil.getId(), materializationId)
                 .orElse(null);
             
             if (optimizationConfig == null) {
@@ -1074,49 +1045,37 @@ public class CommitteeController {
             
             // 5. Preparar resposta com os dados da configuração do conselho central
             Map<String, Object> optimizationData = new HashMap<>();
+            
+            // Parâmetros configurados - usar valores diretos do banco
             optimizationData.put("workerLimit", optimizationConfig.getWorkerLimit());
             optimizationData.put("workerHours", optimizationConfig.getWorkerHours());
             optimizationData.put("productionTime", optimizationConfig.getProductionTime());
             optimizationData.put("weeklyScale", optimizationConfig.getWeeklyScale());
             optimizationData.put("nightShift", optimizationConfig.getNightShift());
             
-            // 6. Buscar demanda para esta materialização no conselho central
-            BigDecimal productionNeeded = BigDecimal.ZERO;
-            Optional<DemandVector> demandVectorOpt = demandVectorRepository
-                .findByInstanceIdAndSocialMaterializationId(plannerCouncil.getId(), materializationId);
+            // MODIFICADO: Garantir que os dados de produção usem valores diretos do banco
+            optimizationData.put("productionNeeded", optimizationConfig.getProductionGoal());
             
-            if (demandVectorOpt.isPresent()) {
-                productionNeeded = demandVectorOpt.get().getDemand();
+            // CORRIGIDO: Garantir que totalHours seja calculado corretamente quando não estiver presente
+            BigDecimal totalHours = optimizationConfig.getTotalHours();
+            if (totalHours == null || totalHours.compareTo(BigDecimal.ZERO) == 0) {
+                // Se não tiver um valor de totalHours armazenado, calcular com base na fórmula:
+                // totalHours = productionNeeded * productionTime
+                BigDecimal productionNeeded = optimizationConfig.getProductionGoal();
+                BigDecimal productionTime = optimizationConfig.getProductionTime();
+                
+                if (productionNeeded != null && productionTime != null) {
+                    totalHours = productionNeeded.multiply(productionTime);
+                } else {
+                    totalHours = BigDecimal.ZERO;
+                }
             }
-            
-            optimizationData.put("productionNeeded", productionNeeded);
-            
-            // 7. Calcular horas totais necessárias
-            BigDecimal totalHours = productionNeeded.multiply(optimizationConfig.getProductionTime());
             optimizationData.put("totalHours", totalHours);
             
-            // 8. Calcular os outros valores necessários para a otimização
-            // Calcular horas disponíveis por trabalhador por dia
-            BigDecimal workerHoursPerDay = optimizationConfig.getWorkerHours().multiply(
-                    optimizationConfig.getNightShift() ? new BigDecimal("2") : BigDecimal.ONE);
-            
-            // Calcular horas totais de trabalho disponíveis por semana
-            BigDecimal totalWeeklyHours = workerHoursPerDay.multiply(new BigDecimal(optimizationConfig.getWeeklyScale()));
-            
-            // Calcular trabalhadores necessários
-            BigDecimal workersNeeded = totalHours.divide(totalWeeklyHours, 4, RoundingMode.CEILING);
-            optimizationData.put("workersNeeded", workersNeeded);
-            
-            // Calcular fábricas necessárias
-            BigDecimal factoriesNeeded = workersNeeded.divide(new BigDecimal(optimizationConfig.getWorkerLimit()), 4, RoundingMode.CEILING);
-            optimizationData.put("factoriesNeeded", factoriesNeeded);
-            
-            // Calcular tempo mínimo de produção em dias
-            BigDecimal factoryDailyHours = new BigDecimal(optimizationConfig.getWorkerLimit()).multiply(workerHoursPerDay);
-            BigDecimal minimumProductionTimeInDays = totalHours.divide(
-                    factoriesNeeded.setScale(0, RoundingMode.CEILING).multiply(factoryDailyHours), 
-                    4, RoundingMode.CEILING);
-            optimizationData.put("minimumProductionTimeInDays", minimumProductionTimeInDays);
+            // MODIFICADO: Resultados calculados - usar valores diretos do banco sem recalcular
+            optimizationData.put("workersNeeded", optimizationConfig.getWorkersNeeded());
+            optimizationData.put("factoriesNeeded", optimizationConfig.getFactoriesNeeded());
+            optimizationData.put("minimumProductionTimeInDays", optimizationConfig.getMinimumProductionTime());
             
             // Adicionar contagem de comitês existentes
             int committeeCount = (int) instanceRepository.countByTypeAndSocialMaterializationId(
