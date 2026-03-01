@@ -1,0 +1,6 @@
+=== ANÁLISE DE COORDENADAS ===
+
+✅ Coordenadas Válidas: 105
+❌ Coordenadas Inválidas: 0
+📊 Total de Empresas: 105
+

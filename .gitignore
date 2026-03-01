@@ -1,6 +1,26 @@
 # Ignore the backups directory
 data/
+
+# FactorsMap - dados sensíveis e temporários
+factorsMap/data/
+factorsMap/node_modules/
+factorsMap/geocache.json
+factorsMap/client-logs.json
+factorsMap/coords_warmup_done.flag
+factorsMap/coords_progress_today.txt
+factorsMap/processamento.log
+factorsMap/processing.lock
+factorsMap/*.log
+factorsMap/*.flag
+factorsMap/*.progress.*
+factorsMap/*:Zone.Identifier
+factorsMap/**/*:Zone.Identifier
+factorsMap/1000000
+factorsMap/1000000)
+
+# Build e temporários
 .qodo
 target/
 *.class
 *.jar
+*:Zone.Identifier

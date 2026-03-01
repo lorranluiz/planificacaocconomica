@@ -1,0 +1,17 @@
+{
+  "name": "mapa-fabricas",
+  "version": "1.0.0",
+  "description": "Mapa de fábricas em Niterói com geocodificação em cache",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["mapa", "fábricas", "niterói"],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2",
+    "node-fetch": "^2.6.11"
+  }
+}
