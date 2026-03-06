@@ -9,6 +9,8 @@ import xyz.planecon.model.enums.InstanceType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -25,6 +27,7 @@ import java.util.Set;
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Table(name = "instance")
 public class Instance {
     @Id
@@ -41,6 +44,7 @@ public class Instance {
     @ToString.Include
     private InstanceType type;
     
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_social_materialization")
     private SocialMaterialization socialMaterialization;
@@ -48,10 +52,12 @@ public class Instance {
     @Column(name = "worker_effective_limit")
     private Integer workerEffectiveLimit;
     
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "popular_council_associated_with_committee_or_worker")
     private Instance popularCouncilAssociatedWithCommitteeOrWorker;
     
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "popular_council_associated_with_popular_council")
     private Instance popularCouncilAssociatedWithPopularCouncil;
@@ -68,10 +74,12 @@ public class Instance {
     @Column(name = "total_social_work_of_this_jurisdiction")
     private Integer totalSocialWorkOfThisJurisdiction;
     
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_associated_worker_committee")
     private Instance associatedWorkerCommittee;
     
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_associated_worker_residents_association")
     private Instance idAssociatedWorkerResidentsAssociation;
@@ -97,6 +105,12 @@ public class Instance {
     
     @Column(name = "city")
     private String city;
+    
+    @Column(name = "city_code", length = 10)
+    private String cityCode;
+    
+    @Column(name = "cnpj", length = 18)
+    private String cnpj;
     
     @Column(name = "state")
     private String state;

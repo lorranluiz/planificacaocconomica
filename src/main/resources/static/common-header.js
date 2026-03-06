@@ -111,16 +111,33 @@ function applyThemeToEntirePage(theme) {
 /**
  * Insere o cabeçalho comum em todas as páginas do sistema
  */
+// Flag global para controlar se o header já foi inserido
+let headerInserted = false;
+
 function insertCommonHeader() {
+    // Verificar flag global primeiro
+    if (headerInserted) {
+        console.log('Cabeçalho já foi inserido (flag global), pulando inserção');
+        return;
+    }
+    
+    // Verificar se o cabeçalho já existe no DOM
+    if (document.querySelector('.nav-container') || document.querySelector('.main-header')) {
+        console.log('Cabeçalho já existe no DOM, pulando inserção');
+        headerInserted = true;
+        return;
+    }
+    
+    // Marcar como inserido IMEDIATAMENTE para evitar race conditions
+    headerInserted = true;
+    console.log('Inserindo cabeçalho...');
+    
     // Primeiro aplicar o tema
     const savedTheme = localStorage.getItem('preferredTheme') || 'night';
     applyThemeToEntirePage(savedTheme);
     
-    // Verificar se o cabeçalho já existe para evitar duplicação
-    if (document.querySelector('.nav-container')) {
-        console.log('Cabeçalho já existe, pulando inserção');
-        return;
-    }
+    // Adicionar estilos do header
+    addHeaderStyles();
     
     // Criar elemento de cabeçalho
     const header = document.createElement('div');
@@ -287,6 +304,253 @@ function addThemeSelector() {
     
     // Configurar eventos DEPOIS de adicionar ao DOM
     setTimeout(setupThemeEvents, 0);
+}
+
+// NOVA FUNÇÃO: Adicionar estilos do header
+function addHeaderStyles() {
+    if (document.getElementById('header-styles')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'header-styles';
+    style.textContent = `
+        /* Container principal do header */
+        .nav-container {
+            background: var(--primary-color, #2c3e50) !important;
+            color: var(--header-text, white) !important;
+            padding: 1rem 2rem !important;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15) !important;
+            margin: -20px -20px 20px -20px !important;
+            border-bottom: 3px solid var(--primary-color-light, #3498db) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        [data-theme="night"] .nav-container {
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.5) !important;
+        }
+        
+        /* Linha superior (logo + toggle + menu usuário) */
+        .nav-top-row {
+            display: flex !important;
+            justify-content: space-between !important;
+            align-items: center !important;
+            flex-wrap: wrap !important;
+            margin-bottom: 1rem !important;
+            gap: 1rem !important;
+        }
+        
+        /* Logo */
+        .nav-container .logo {
+            flex: 1 !important;
+            min-width: 200px !important;
+        }
+        
+        .nav-container .logo a {
+            color: var(--header-text, white) !important;
+            text-decoration: none !important;
+            font-size: 1.4rem !important;
+            font-weight: 600 !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2) !important;
+            transition: all 0.3s !important;
+            display: inline-block !important;
+        }
+        
+        .nav-container .logo a:hover {
+            color: var(--primary-color-light, #3498db) !important;
+            transform: translateY(-1px) !important;
+        }
+        
+        /* Toggle de menu mobile */
+        .nav-menu-toggle {
+            display: none !important;
+            background: var(--primary-color-dark, #1f2d3d) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
+            padding: 0.6rem 0.8rem !important;
+            border-radius: 4px !important;
+            cursor: pointer !important;
+            font-size: 1.2rem !important;
+            transition: all 0.3s !important;
+        }
+        
+        .nav-menu-toggle:hover {
+            background: var(--primary-color-light, #3498db) !important;
+            transform: scale(1.05) !important;
+        }
+        
+        /* Menu do usuário */
+        .user-menu {
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.75rem !important;
+            flex-wrap: wrap !important;
+        }
+        
+        /* Botão de toggle do tema */
+        .theme-toggle-btn {
+            background: var(--primary-color-dark, #1f2d3d) !important;
+            border: 1px solid rgba(255, 255, 255, 0.2) !important;
+            color: white !important;
+            padding: 0.6rem 1rem !important;
+            border-radius: 4px !important;
+            cursor: pointer !important;
+            font-size: 0.9rem !important;
+            font-weight: 500 !important;
+            transition: all 0.3s !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+        }
+        
+        .theme-toggle-btn:hover {
+            background: var(--primary-color-light, #3498db) !important;
+            border-color: rgba(255, 255, 255, 0.4) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3) !important;
+        }
+        
+        .theme-toggle-btn i {
+            font-size: 1rem !important;
+        }
+        
+        /* Botão de login */
+        .login-button {
+            background: var(--primary-color-light, #3498db) !important;
+            border: 1px solid rgba(255, 255, 255, 0.3) !important;
+            color: white !important;
+            padding: 0.6rem 1rem !important;
+            border-radius: 4px !important;
+            cursor: pointer !important;
+            font-size: 0.9rem !important;
+            font-weight: 500 !important;
+            transition: all 0.3s !important;
+        }
+        
+        .login-button:hover {
+            background: var(--primary-color-dark, #2c3e50) !important;
+            transform: translateY(-2px) !important;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3) !important;
+        }
+        
+        /* Info do usuário */
+        #userInfo {
+            display: flex !important;
+            align-items: center !important;
+            gap: 0.75rem !important;
+            color: var(--header-text, white) !important;
+            font-size: 0.9rem !important;
+        }
+        
+        #userInfo strong {
+            color: var(--primary-color-light, #3498db) !important;
+        }
+        
+        #logoutBtn {
+            background: var(--error-color, #e74c3c) !important;
+            border: none !important;
+            padding: 0.5rem 0.9rem !important;
+        }
+        
+        #logoutBtn:hover {
+            background: darkred !important;
+        }
+        
+        /* Container dos links de navegação */
+        .nav-links-container {
+            width: 100% !important;
+            overflow-x: auto !important;
+            overflow-y: hidden !important;
+        }
+        
+        .nav-links-container::-webkit-scrollbar {
+            height: 4px !important;
+        }
+        
+        .nav-links-container::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.3) !important;
+            border-radius: 4px !important;
+        }
+        
+        .nav-links-container::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        /* Links de navegação */
+        .nav-links {
+            display: flex !important;
+            gap: 0.5rem !important;
+            flex-wrap: nowrap !important;
+            white-space: nowrap !important;
+        }
+        
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.9) !important;
+            text-decoration: none !important;
+            padding: 0.6rem 1rem !important;
+            border-radius: 4px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            gap: 0.5rem !important;
+            transition: all 0.3s !important;
+            font-size: 0.9rem !important;
+            font-weight: 500 !important;
+            border: 1px solid transparent !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+        }
+        
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, 0.15) !important;
+            color: white !important;
+            border-color: rgba(255, 255, 255, 0.2) !important;
+            transform: translateY(-1px) !important;
+        }
+        
+        .nav-links a.active {
+            background: var(--primary-color-light, #3498db) !important;
+            color: white !important;
+            font-weight: 600 !important;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3) !important;
+        }
+        
+        .nav-links a i {
+            font-size: 1rem !important;
+        }
+        
+        /* Responsivo - Mobile */
+        @media (max-width: 768px) {
+            .nav-container {
+                padding: 0.75rem 1rem !important;
+                margin: -20px -20px 15px -20px !important;
+            }
+            
+            .nav-top-row {
+                margin-bottom: 0.75rem !important;
+            }
+            
+            .nav-container .logo a {
+                font-size: 1.1rem !important;
+            }
+            
+            .nav-menu-toggle {
+                display: inline-flex !important;
+            }
+            
+            .nav-links {
+                flex-direction: column !important;
+                gap: 0.5rem !important;
+            }
+            
+            .nav-links a {
+                width: 100% !important;
+                justify-content: flex-start !important;
+            }
+            
+            .user-menu {
+                width: 100% !important;
+                justify-content: flex-end !important;
+            }
+        }
+    `;
+    document.head.appendChild(style);
 }
 
 // NOVA FUNÇÃO: Adicionar estilos do seletor de tema
@@ -1026,7 +1290,6 @@ function verifyTheme() {
 
 // Expor funções necessárias globalmente
 window.insertCommonHeader = insertCommonHeader;
-window.applyThemeDirectly = applyThemeDirectly;  // Expor para acesso direto se necessário
 window.verifyTheme = verifyTheme;
 window.applyThemeToEntirePage = applyThemeToEntirePage;
 
@@ -1108,104 +1371,6 @@ function updateLoginLogoutButton() {
         loginLogoutBtn.onclick = null;
     }
 }
-
-// Chamada inicial quando o script é carregado
-document.addEventListener('DOMContentLoaded', function() {
-    if (typeof insertCommonHeader === 'function') {
-        insertCommonHeader();
-    }
-});
-
-// Função para criar o header
-function createHeader() {
-    const header = document.createElement('header');
-    header.className = 'main-header';
-    
-    // Logo e título
-    const logoContainer = document.createElement('div');
-    logoContainer.className = 'logo-container';
-    
-    const logo = document.createElement('img');
-    logo.src = '/img/logo.png';
-    logo.alt = 'Logo Sistema de Planejamento Econômico';
-    logo.className = 'logo';
-    
-    const title = document.createElement('h1');
-    title.textContent = 'Sistema de Planejamento Econômico';
-    
-    logoContainer.appendChild(logo);
-    logoContainer.appendChild(title);
-    
-    // Navegação principal
-    const nav = document.createElement('nav');
-    nav.className = 'main-nav';
-    
-    const navList = document.createElement('ul');
-    
-    // Links de navegação
-    const navItems = [
-        { text: 'Página Inicial', url: '/index.html' },
-        { text: 'Usuários', url: '/users.html' },
-        { text: 'Instâncias', url: '/instances.html' },
-        { text: 'Materializações Sociais', url: '/social-materializations.html' },
-        { text: "Propostas de Trabalhadores", url: "/workers-proposals.html", icon: "fas fa-users-cog" },
-        { text: "Demanda e Estoque", url: "/demand-stocks.html", icon: "fas fa-boxes" },
-        { text: "Vetores de Demanda", url: "/demand-vectors.html", icon: "fas fa-project-diagram" }
-    ];
-    
-    navItems.forEach(item => {
-        const li = document.createElement('li');
-        const a = document.createElement('a');
-        a.href = item.url;
-        a.textContent = item.text;
-        
-        // Verificar se é a página atual
-        if (window.location.pathname.endsWith(item.url)) {
-            a.className = 'active';
-        }
-        
-        li.appendChild(a);
-        navList.appendChild(li);
-    });
-    
-    nav.appendChild(navList);
-    
-    // Área de usuário
-    const userArea = document.createElement('div');
-    userArea.className = 'user-area';
-    
-    // Botão de tema
-    const themeToggle = document.createElement('button');
-    themeToggle.className = 'theme-toggle';
-    themeToggle.id = 'theme-toggle';
-    themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
-    themeToggle.title = 'Alternar tema';
-    themeToggle.addEventListener('click', toggleTheme);
-    
-    // Botão de login
-    const loginButton = document.createElement('button');
-    loginButton.className = 'login-button';
-    loginButton.id = 'login-button';
-    loginButton.innerHTML = '<i class="fas fa-sign-in-alt"></i> Login';
-    loginButton.addEventListener('click', handleLoginButtonClick);
-    
-    userArea.appendChild(themeToggle);
-    userArea.appendChild(loginButton);
-    
-    // Montar o header
-    header.appendChild(logoContainer);
-    header.appendChild(nav);
-    header.appendChild(userArea);
-    
-    // Adicionar ao DOM
-    const container = document.querySelector('.container');
-    container.insertBefore(header, container.firstChild);
-    
-    // Criar modal de login e garantir que esteja disponível globalmente
-    const loginModal = createLoginModal();
-    
-    // Verificar se já existe uma sessão de usuário
-    checkUserSession();
     
     // Expor funções para uso global
     window.handleLoginButtonClick = handleLoginButtonClick;
@@ -1626,13 +1791,17 @@ function toggleTheme() {
 }
 
 // Exportar funções para uso global
-window.insertCommonHeader = createHeader;
+window.insertCommonHeader = insertCommonHeader;
 window.handleLoginButtonClick = handleLoginButtonClick;
 window.handleLoginSubmit = handleLoginSubmit;
 window.handleLogout = handleLogout;
 
-// Chamar a função para criar o header quando o DOM estiver carregado
-document.addEventListener('DOMContentLoaded', createHeader);
+// Chamar a função para criar o header quando o DOM estiver carregado (apenas se não foi chamado antes)
+document.addEventListener('DOMContentLoaded', function() {
+    if (!document.querySelector('.nav-container') && !document.querySelector('.main-header')) {
+        insertCommonHeader();
+    }
+});
 
 // Adicionar esta função após a função updateLoginLogoutButton()
 

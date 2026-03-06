@@ -13,13 +13,16 @@ public class ServerConfig {
     @Value("${server.port}")
     private int serverPort;
 
-    @Bean
-    public WebServerFactoryCustomizer<TomcatServletWebServerFactory> servletContainerCustomizer() {
-        return factory -> {
-            Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
-            connector.setPort(80);
-            connector.setRedirectPort(serverPort);
-            factory.addAdditionalTomcatConnectors(connector);
-        };
-    }
+    // Comentado: não precisamos de conector HTTP adicional no desenvolvimento
+    // Isso evita problemas com portas privilegiadas (<1024) que precisam de sudo
+    //
+    // @Bean
+    // public WebServerFactoryCustomizer<TomcatServletWebServerFactory> servletContainerCustomizer() {
+    //     return factory -> {
+    //         Connector connector = new Connector(TomcatServletWebServerFactory.DEFAULT_PROTOCOL);
+    //         connector.setPort(80);
+    //         connector.setRedirectPort(serverPort);
+    //         factory.addAdditionalTomcatConnectors(connector);
+    //     };
+    // }
 }

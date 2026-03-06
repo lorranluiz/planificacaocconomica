@@ -1,8 +1,21 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="ocean">
+<html lang="pt-BR" data-theme="night">
 <head>
+    <script>
+    // Aplicar tema imediatamente no carregamento da página
+    (function() {
+        try {
+            const savedTheme = localStorage.getItem('preferredTheme') || 'night';
+            document.documentElement.setAttribute('data-theme', savedTheme);
+            console.log('Tema aplicado em committee.html:', savedTheme);
+        } catch(e) {
+            console.error('Erro ao aplicar tema inicial:', e);
+        }
+    })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" id="theme-color" content="#c62828">
     <title>Planificação Econômica</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="css/common-styles.css">
@@ -587,14 +600,5 @@
 
     <script src="js/notifications.js"></script>
     <script src="js/committee.js"></script>
-    <script>
-        // Inicializar cabeçalho comum quando o documento estiver carregado
-        document.addEventListener('DOMContentLoaded', function() {
-            // Inserir o cabeçalho comum
-            if (typeof insertCommonHeader === 'function') {
-                insertCommonHeader();
-            }
-        });
-    </script>
 </body>
 </html>

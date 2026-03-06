@@ -1,0 +1,16 @@
+{
+  "watch": [
+    "server.js",
+    "mapa_fabricas.html",
+    "*.js",
+    "*.html"
+  ],
+  "ext": "js,json,html",
+  "ignore": [
+    "node_modules/**/*",
+    "data/**/*",
+    "geocache.json",
+    "*.log"
+  ],
+  "delay": 500
+}

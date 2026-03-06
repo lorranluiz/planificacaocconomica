@@ -124,10 +124,26 @@ function parseDecimalInput(value) {
     return parsed;
 }
 
+// LOG DE INICIALIZAÇÃO
+console.log('=== committee.js carregado ==');
+
 // Configurar event listeners quando o documento estiver carregado
 document.addEventListener('DOMContentLoaded', function() {
-    // Carregar instâncias para o select
-    loadInstanceSelect();
+    console.log('=== DOMContentLoaded disparado ===');
+    
+    // Verificar se há parâmetros na URL
+    const urlParams = new URLSearchParams(window.location.search);
+    let cityCode = urlParams.get('cityCode');
+    let cityName = urlParams.get('cityName');
+    const cnpj = urlParams.get('id');
+    const factoryName = urlParams.get('name');
+    const instanceName = urlParams.get('instance');
+    
+    // Tratar cityCode vazio como null
+    if (cityCode === '') cityCode = null;
+    if (cityName === '') cityName = null;
+    
+    console.log('Parâmetros URL:', { cityCode, cityName, cnpj, factoryName, instanceName });
     
     // Event listener para seleção de instância
     const instanceSelect = document.getElementById('instanceSelect');
@@ -182,21 +198,54 @@ document.addEventListener('DOMContentLoaded', function() {
         btnShowPlan.addEventListener('click', showProductPlan);
     }
     
-    // Verificar se há ID na URL para carregamento direto
-    const urlParams = new URLSearchParams(window.location.search);
-    const committeeId = urlParams.get('id');
-    if (committeeId) {
-        // Selecionar no dropdown
-        if (instanceSelect) {
-            instanceSelect.value = committeeId;
-            // Disparar evento de change para carregar os dados
-            const event = new Event('change');
-            instanceSelect.dispatchEvent(event);
-        } else {
-            // Se o dropdown não foi carregado ainda, inicializar diretamente
-            document.getElementById('matrixSection').style.display = 'block';
-            initializePageState(committeeId);
-        }
+    // Caso 1: URL vinda do mapa com CNPJ (com ou sem cityCode/cityName)
+    if (cnpj) {
+        console.log('🏭 CASO 1: Carregando fábrica do mapa', { cityCode, cityName, cnpj, factoryName });
+        
+        // Buscar ou criar a fábrica primeiro
+        findOrCreateFactory(cityCode, cityName, cnpj, factoryName)
+            .then(factory => {
+                if (!factory || !factory.id) {
+                    console.error('❌ Fábrica retornada sem ID:', factory);
+                    throw new Error('Fábrica criada/encontrada, mas sem ID');
+                }
+                
+                console.log('✅ Fábrica retornada:', factory);
+                
+                // Usar cityCode da fábrica se não veio na URL
+                const factoryCityCode = cityCode || factory.cityCode;
+                
+                if (factoryCityCode) {
+                    console.log('📋 Carregando lista de fábricas da cidade:', factoryCityCode);
+                    // Carregar lista de fábricas da cidade e aguardar a Promise
+                    return loadInstanceSelect(factoryCityCode)
+                        .then(() => {
+                            console.log('✅ Lista carregada, agora selecionando fábrica ID:', factory.id);
+                            return selectInstanceById(factory.id);
+                        });
+                } else {
+                    console.warn('⚠️ Sem cityCode, carregando TODAS as comissões');
+                    // Se não tem cityCode, carregar todas e selecionar
+                    return loadInstanceSelect(null)
+                        .then(() => {
+                            console.log('✅ Lista completa carregada, selecionando fábrica ID:', factory.id);
+                            return selectInstanceById(factory.id);
+                        });
+                }
+            })
+            .catch(error => {
+                console.error('❌ Erro ao buscar/criar fábrica:', error);
+                alert(`Erro ao carregar dados da fábrica:\n${error.message}\n\nTente novamente.`);
+            });
+    }
+    // Caso 2: URL com nome de instância (legado)
+    else if (instanceName) {
+        loadInstanceSelect();
+        selectInstanceByName(instanceName);
+    }
+    // Caso 3: Sem parâmetros - carregar lista completa
+    else {
+        loadInstanceSelect();
     }
     
     // Configurar verificação antes de sair da página com alterações não salvas
@@ -211,21 +260,232 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Funções para carregar dados
 
-function loadInstanceSelect() {
-    const select = document.getElementById('instanceSelect');
-    if (!select) return;
+/**
+ * Carrega o select de instâncias
+ * @param {string} cityCode - Código IBGE da cidade (opcional)
+ * @returns {Promise} Promise que resolve quando o select está populado
+ */
+function loadInstanceSelect(cityCode = null) {
+    console.log('>>> loadInstanceSelect chamado, cityCode:', cityCode);
     
-    fetch('/api/instances/committees')
-        .then(response => response.json())
+    const select = document.getElementById('instanceSelect');
+    if (!select) {
+        console.error('❌ Select #instanceSelect não encontrado no DOM');
+        alert('ERRO: Elemento select não encontrado. Verifique o HTML.');
+        return Promise.reject(new Error('Select não encontrado'));
+    }
+    
+    console.log('✅ Select encontrado:', select);
+    console.log(`📋 Carregando select de instâncias${cityCode ? ` para cidade ${cityCode}` : ' (TODOS)'}`);
+    
+    // Limpar TODAS as opções anteriores
+    select.innerHTML = '<option value="">Carregando...</option>';
+    select.disabled = true;
+    
+    // Se cityCode foi fornecido, carregar apenas fábricas dessa cidade
+    const endpoint = cityCode 
+        ? `/api/factories/by-city/${cityCode}` 
+        : '/api/instances/committees';
+    
+    console.log(`🌐 Fazendo requisição para: ${endpoint}`);
+    
+    return fetch(endpoint)
+        .then(response => {
+            console.log('📡 Resposta recebida:', response.status, response.statusText);
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+            }
+            return response.json();
+        })
         .then(committees => {
+            console.log(`✅ Recebidos ${committees.length} comitês:`, committees);
+            
+            // Limpar e adicionar opção padrão
+            select.innerHTML = '<option value="">Selecione uma instância...</option>';
+            select.disabled = false;
+            
+            if (committees.length === 0) {
+                console.warn('⚠️ Nenhuma fábrica encontrada');
+                select.innerHTML = '<option value="">Nenhuma fábrica encontrada</option>';
+                return;
+            }
+            
             committees.forEach(committee => {
                 const option = document.createElement('option');
                 option.value = committee.id;
-                option.textContent = committee.name;
+                option.textContent = committee.name || 'Sem nome';
                 select.appendChild(option);
+                console.log(`  → Adicionado: ${committee.id} - ${committee.name}`);
             });
+            console.log(`✅ Select populado com ${committees.length} opções`);
+            console.log('📊 Opções finais no select:', Array.from(select.options).map(o => `${o.value}: ${o.textContent}`));
         })
-        .catch(error => console.error('Erro ao carregar comitês:', error));
+        .catch(error => {
+            console.error('❌ Erro ao carregar comitês:', error);
+            select.innerHTML = '<option value="">Erro ao carregar</option>';
+            select.disabled = false;
+            alert(`Erro ao carregar lista de fábricas:\n${error.message}\n\nVerifique:\n1. Servidor Java está rodando?\n2. Console do navegador para mais detalhes`);
+            throw error; // Re-throw para que o .catch() externo possa capturar
+        });
+}
+
+/**
+ * Seleciona uma instância pelo nome
+ * @param {string} instanceName - Nome da instância a ser selecionada
+ */
+function selectInstanceByName(instanceName) {
+    const select = document.getElementById('instanceSelect');
+    if (!select) return;
+    
+    // Aguardar um pouco para garantir que o select foi carregado
+    setTimeout(() => {
+        const options = select.options;
+        let found = false;
+        
+        for (let i = 0; i < options.length; i++) {
+            if (options[i].textContent.trim() === instanceName.trim()) {
+                select.value = options[i].value;
+                // Disparar evento de change para carregar os dados
+                const event = new Event('change');
+                select.dispatchEvent(event);
+                found = true;
+                break;
+            }
+        }
+        
+        if (!found) {
+            console.warn(`Instância "${instanceName}" não encontrada. Tentando novamente...`);
+            // Se não encontrou, pode ser que o select ainda não foi carregado
+            // Tentar novamente após mais tempo
+            setTimeout(() => {
+                for (let i = 0; i < select.options.length; i++) {
+                    if (select.options[i].textContent.trim() === instanceName.trim()) {
+                        select.value = select.options[i].value;
+                        const event = new Event('change');
+                        select.dispatchEvent(event);
+                        break;
+                    }
+                }
+            }, 1000);
+        }
+    }, 500);
+}
+
+/**
+ * Seleciona uma instância pelo ID
+ * @param {number} instanceId - ID da instância a ser selecionada  
+ * @returns {Promise} Promise que resolve quando a seleção é concluída
+ */
+function selectInstanceById(instanceId) {
+    return new Promise((resolve, reject) => {
+        const select = document.getElementById('instanceSelect');
+        if (!select) {
+            console.error('❌ Select não encontrado');
+            reject(new Error('Select não encontrado'));
+            return;
+        }
+        
+        // Garantir que instanceId seja string para comparação com select.value
+        const targetId = String(instanceId);
+        
+        console.log(`🎯 Tentando selecionar instância ID: ${targetId} (tipo original: ${typeof instanceId})`);
+        console.log(`📊 Select tem ${select.options.length} opções disponíveis`);
+        console.log(`📋 Opções:`, Array.from(select.options).map(o => `[${o.value}] ${o.textContent}`));
+        
+        // Tentar selecionar imediatamente
+        select.value = targetId;
+        
+        if (select.value == targetId) {
+            console.log(`✅ Instância ID ${targetId} selecionada IMEDIATAMENTE`);
+            // Disparar evento de change para carregar os dados
+            const event = new Event('change', { bubbles: true });
+            select.dispatchEvent(event);
+            console.log('📤 Evento change disparado');
+            resolve(true);
+        } else {
+            console.warn(`⚠️ Seleção imediata falhou. Aguardando 300ms...`);
+            
+            // Se não funcionou, aguardar um pouco e tentar novamente
+            setTimeout(() => {
+                console.log(`🔄 Segunda tentativa - Select tem ${select.options.length} opções`);
+                select.value = targetId;
+                
+                if (select.value == targetId) {
+                    console.log(`✅ Instância ID ${targetId} selecionada na SEGUNDA tentativa`);
+                    const event = new Event('change', { bubbles: true });
+                    select.dispatchEvent(event);
+                    console.log('📤 Evento change disparado');
+                    resolve(true);
+                } else {
+                    console.error(`❌ FALHA ao selecionar instância ID ${targetId}`);
+                    console.error(`📊 IDs disponíveis:`, Array.from(select.options).map(o => o.value).filter(v => v));
+                    console.error(`🔍 Procurando por ID: ${targetId} (tipo: ${typeof targetId})`);
+                    console.error(`📍 Select.value atual: "${select.value}" (tipo: ${typeof select.value})`);
+                    reject(new Error(`Instância ID ${targetId} não encontrada no select`));
+                }
+            }, 300);
+        }
+    });
+}
+
+/**
+ * Busca ou cria uma fábrica pelo CNPJ
+ * @param {string} cityCode - Código IBGE da cidade
+ * @param {string} cityName - Nome da cidade
+ * @param {string} cnpj - CNPJ da fábrica
+ * @param {string} name - Nome da fábrica (opcional)
+ * @returns {Promise<Object>} - Promise com os dados da fábrica
+ */
+async function findOrCreateFactory(cityCode, cityName, cnpj, name) {
+    console.log('🏭 findOrCreateFactory chamado:', { cityCode, cityName, cnpj, name });
+    
+    try {
+        const params = new URLSearchParams({
+            cnpj: cnpj
+        });
+        
+        // Adicionar cityCode apenas se fornecido
+        if (cityCode) {
+            params.append('cityCode', cityCode);
+        }
+        
+        // Adicionar cityName apenas se fornecido
+        if (cityName) {
+            params.append('cityName', cityName);
+        }
+        
+        if (name) {
+            params.append('name', name);
+        }
+        
+        const url = `/api/factories/find-or-create?${params.toString()}`;
+        console.log(`🌐 POST ${url}`);
+        
+        const response = await fetch(url, {
+            method: 'POST'
+        });
+        
+        console.log('📡 Resposta:', response.status, response.statusText);
+        
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('❌ Erro na resposta:', errorText);
+            throw new Error(`Erro ao buscar/criar fábrica: ${response.status} - ${errorText}`);
+        }
+        
+        const factory = await response.json();
+        console.log('✅ Fábrica retornada do servidor:', factory);
+        console.log('  → ID:', factory.id, '(tipo:', typeof factory.id, ')');
+        console.log('  → Nome:', factory.name);
+        console.log('  → CNPJ:', factory.cnpj);
+        console.log('  → Cidade:', factory.city);
+        console.log('  → CityCode:', factory.cityCode);
+        
+        return factory;
+    } catch (error) {
+        console.error('❌ Erro em findOrCreateFactory:', error);
+        throw error;
+    }
 }
 
 /**

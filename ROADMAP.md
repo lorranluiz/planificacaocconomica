@@ -418,5 +418,22 @@ http {
 
 -----------------
 
+
+Continuar Integração Mapa -> Planificação
+
+PRÓXIMO BLOCO DE ATUALIZAÇÕES:
+
+- Condicional: Colocar que item do mapa pode ter ou não cnpj, por enquanto todos tem, mas o usuário vai pode cadastrar conselho direto no app do mapa, aparece no menu direito e no mapa, e é salvo no csv, mas na coluna cnpj aparece escrito "Conselho". Se item clicado no mapa tiver CNPJ é comitê, se não, é conselho.
+- Criar arquivo de conselhos, com mesmos dados do csv das empresas, mas onde está CNPJ aparece o ID do Conselho, sabe que é conselho pois está nesse arquivo chamado "conselhos_cidade.csv"
+- ali tem os bairros, se é de bairro etc ver melhor forma de conferir.
+
+- Aí se for conselho, abre formulario de conselho do sistema de planificação, se for fábrica etc abre o de comitê
+
+---------------------------------
+
+DEPOIS IR PROSSEGUINDO COM PRÓXIMAS ATUALIZAÇÕES.
+
+-----------------
+
 Rascunhos temporários:
 

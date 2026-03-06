@@ -3,6 +3,8 @@ package xyz.planecon.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import java.io.Serializable;
 import java.math.BigDecimal;

@@ -5,6 +5,8 @@ import lombok.Data;
 import xyz.planecon.model.enums.SocialMaterializationType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -14,6 +16,7 @@ import java.util.Set;
 @Entity
 @Cacheable
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 @Table(name = "social_materialization")
 public class SocialMaterialization {
     @Id

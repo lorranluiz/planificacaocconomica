@@ -2986,6 +2986,17 @@ function formatarEnderecoComBairro(empresa) {
   return `${prefixo}, ${bairro} - ${sufixo}`;
 }
 
+// Função para extrair nome da cidade do endereço
+function extrairCidadeDoEndereco(endereco) {
+  if (!endereco) return null;
+  // Formato esperado: "RUA X, 123 - CIDADE/UF"
+  const match = endereco.match(/\-\s*([A-Z\s]+)\/[A-Z]{2}\s*$/);
+  if (match && match[1]) {
+    return match[1].trim();
+  }
+  return null;
+}
+
 // Intervalo de capital usado para mapear a rotação das pirâmides
 const capitalValores = empresas.map(e => e.capital);
 const capitalMin = Math.min(...capitalValores);
@@ -3307,8 +3318,9 @@ function atualizarMarcadores() {
     }
     let tel = empresa.telefone;
     if (empresa.whatsapp) tel = '<a href="' + empresa.whatsapp + '" target="_blank" style="color: #25D366;">WhatsApp: ' + empresa.telefone + '</a>';
+    const cidadeNome = extrairCidadeDoEndereco(empresa.endereco) || '';
     const marker = L.marker([coords.lat, coords.lon], { icon: icon })
-      .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="https://localhost/" target="_blank" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`)
+      .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="http://localhost:8080/committee.html?cityCode=${_codigoCidadeAtiva || ''}&cityName=${encodeURIComponent(cidadeNome)}&id=${empresa.cnpj}&name=${encodeURIComponent(empresa.nome)}" target="_blank" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`)
       .addTo(map);
     markerGroup.addLayer(marker);
     markers[idx].marker = marker;
@@ -3463,7 +3475,7 @@ function criarMarcadoresComCoordenadas(coordenadas) {
         if (empresa.whatsapp) tel = '<a href="' + empresa.whatsapp + '" target="_blank" style="color: #25D366;">WhatsApp: ' + empresa.telefone + '</a>';
         const icon = liteMode ? criarIconeClassico(obterCorPorCapital(empresa.capital)) : criarIconePiramide();
         const marker = L.marker([coords.lat, coords.lon], { icon: icon })
-          .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="https://localhost/" target="_blank" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`)
+          .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="http://localhost:8080/committee.html?cityCode=${_codigoCidadeAtiva || ''}&id=${empresa.cnpj}&name=${encodeURIComponent(empresa.nome)}" target="_blank" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`)
           .addTo(map);
         markerGroup.addLayer(marker);
         if (!liteMode) iniciarPiramideNoMarcador(marker, obterCorPorCapital(empresa.capital), empresa.capital);
@@ -3510,9 +3522,10 @@ async function criarMarcadoresComCoordenadasProgressivo(coordenadas, options = {
       empresa.coordenadas = coords;
       let tel = empresa.telefone;
       if (empresa.whatsapp) tel = '<a href="' + empresa.whatsapp + '" target="_blank" style="color: #25D366;">WhatsApp: ' + empresa.telefone + '</a>';
+      const cidadeNome = extrairCidadeDoEndereco(empresa.endereco) || '';
       const icon = liteMode ? criarIconeClassico(obterCorPorCapital(empresa.capital)) : criarIconePiramide();
       const marker = L.marker([coords.lat, coords.lon], { icon: icon })
-        .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="https://localhost/" target="_blank" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`)
+        .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="http://localhost:8080/committee.html?cityCode=${_codigoCidadeAtiva || ''}&cityName=${encodeURIComponent(cidadeNome)}&id=${empresa.cnpj}&name=${encodeURIComponent(empresa.nome)}" target="_blank" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`)
         .addTo(map);
       markerGroup.addLayer(marker);
       if (!liteMode) iniciarPiramideNoMarcador(marker, obterCorPorCapital(empresa.capital), empresa.capital);
