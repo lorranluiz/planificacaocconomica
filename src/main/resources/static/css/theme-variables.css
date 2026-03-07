@@ -18,65 +18,58 @@
 /* Melhorar tema Night com cores vermelhas */
 [data-theme="night"] {
     /* Cores primárias e de acento */
-    --primary-color: #c62828;       /* Vermelho escuro com preto */
-    --primary-light: #ff5f52;       /* Vermelho claro para hover */
-    --primary-dark: #8e0000;        /* Vermelho muito escuro para elementos de destaque */
-    --accent-color: #d32f2f;        /* Tom de vermelho para acentuação */
-    --accent-hover: #b71c1c;        /* Tom de vermelho para hover em acentuação */
+    --primary-color: var(--scheme-primary, #c62828);
+    --primary-light: var(--scheme-primary-light, #ff5f52);
+    --primary-dark: var(--scheme-primary-dark, #8e0000);
+    --accent-color: var(--scheme-accent, #d32f2f);
+    --accent-hover: var(--scheme-primary-dark, #b71c1c);
     
     /* Ajustar cores de sucesso para contrastarem bem */
-    --success-color: #66bb6a;       /* Verde mais claro e vibrante para melhor contraste */
-    --info-color: #ef5350;          /* Vermelho claro para informações */
+    --success-color: var(--functional-success, #66bb6a);
+    --info-color: var(--scheme-primary-light, #ef5350);
     
-    /* Cores de fundo */
-    --bg-color: #121212;            /* Fundo principal (preto elegante) */
-    --bg-light: #1e1e1e;            /* Fundo claro (preto acinzentado) */
-    --card-bg: #212121;             /* Fundo de cartões */
-    --hover-bg: #2d2d2d;            /* Fundo para elementos em hover */
+    /* Cores de fundo - usar bg-modal para coincidir com o modal da página Node */
+    --bg-color: var(--scheme-bg-modal, #121212);
+    --bg-light: var(--scheme-bg-card, #1e1e1e);
+    --card-bg: var(--scheme-bg-card, #212121);
+    --hover-bg: var(--scheme-bg-hover, #2d2d2d);
     
     /* Cores de texto */
-    --text-color: #f5f5f5;          /* Texto principal (quase branco) */
-    --text-secondary: #b0b0b0;      /* Texto secundário (cinza claro) */
-    --text-tertiary: #909090;       /* Texto terciário (cinza médio) */
-    --text-on-primary: #ffffff;     /* Texto sobre cor primária (branco puro) */
+    --text-color: var(--scheme-text-primary, #f5f5f5);
+    --text-secondary: var(--scheme-text-secondary, #b0b0b0);
+    --text-tertiary: var(--scheme-text-tertiary, #909090);
+    --text-on-primary: #ffffff;
     
     /* Cores de borda */
-    --border-color: #383838;        /* Bordas padrão */
-    --divider-color: #424242;       /* Divisores */
+    --border-color: var(--scheme-border-light, #383838);
+    --divider-color: var(--scheme-border-light, #424242);
     
     /* Cores de cabeçalho */
-    --header-bg: #1a1a1a;           /* Fundo do cabeçalho */
-    --header-text: #f0f0f0;         /* Texto do cabeçalho */
+    --header-bg: var(--scheme-bg-header, #1a1a1a);
+    --header-text: #f0f0f0;
     
     /* Cores de botões */
-    --button-bg: #b71c1c;           /* Fundo de botão (vermelho elegante) */
-    --button-hover: #d32f2f;        /* Hover de botão (vermelho mais claro) */
-    --button-active: #7f0000;       /* Estado ativo de botão (vermelho mais escuro) */
-    --button-text: #ffffff;         /* Texto de botão */
+    --button-bg: var(--scheme-button-bg, #c62828);
+    --button-hover: var(--scheme-button-hover, #ff5f52);
+    --button-active: var(--scheme-button-active, #8e0000);
+    --button-text: var(--scheme-button-text, #ffffff);
     
     /* Cores de notificação */
-    --success-color: #66bb6a;       /* Verde mais claro e vibrante para melhor contraste */
-    --warning-color: #fb8c00;       /* Alerta (laranja) */
-    --error-color: #e53935;         /* Erro (vermelho) */
-    --info-color: #ef5350;          /* Informativo (vermelho claro) */
-    
-    /* Botões específicos */
-    --button-bg: #c62828;           /* Fundo do botão - vermelho escuro */
-    --button-hover: #ff5f52;        /* Hover do botão - vermelho claro */
-    --button-active: #8e0000;       /* Estado ativo do botão - vermelho muito escuro */
+    --warning-color: var(--functional-warning, #fb8c00);
+    --error-color: var(--functional-error, #e53935);
     
     /* Elementos de tabela */
-    --table-header-bg: #8e0000;     /* Cabeçalho da tabela - vermelho escuro */
-    --table-header-text: #ffffff;   /* Texto do cabeçalho - branco */
-    --table-row-hover: rgba(198, 40, 40, 0.15); /* Hover na linha - vermelho translúcido */
-    --table-cell-highlight: rgba(255, 95, 82, 0.2); /* Célula destacada - vermelho claro translúcido */
+    --table-header-bg: var(--scheme-table-header-bg, #8e0000);
+    --table-header-text: #ffffff;
+    --table-row-hover: var(--scheme-table-hover, rgba(198, 40, 40, 0.15));
+    --table-cell-highlight: var(--scheme-primary-transparent, rgba(255, 95, 82, 0.2));
     
     /* Links e elementos interativos */
-    --link-color: #ff5f52;          /* Cor de link - vermelho claro */
-    --link-hover: #ff8a80;          /* Hover de link - vermelho mais claro */
+    --link-color: var(--scheme-link, #ff5f52);
+    --link-hover: var(--scheme-link-hover, #ff8a80);
     
     /* Outros elementos */
-    --selection-bg: rgba(198, 40, 40, 0.2); /* Fundo de seleção - vermelho translúcido */
+    --selection-bg: var(--scheme-primary-transparent, rgba(198, 40, 40, 0.2));
 }
 
 /* Tema Sunlight */

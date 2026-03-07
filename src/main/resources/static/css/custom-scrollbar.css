@@ -1,0 +1,208 @@
+/* ==================== SCROLLBAR CUSTOMIZADA UNIFICADA ==================== */
+/* Aplica-se a todas as páginas do sistema (Node e Java) */
+
+/* ========== SCROLLBAR - TEMA AZUL ========== */
+:root,
+[data-color-scheme="blue"] {
+    --scrollbar-track-bg: rgba(30, 30, 30, 0.3);
+    --scrollbar-thumb-bg: rgba(33, 150, 243, 0.4);
+    --scrollbar-thumb-hover-bg: rgba(33, 150, 243, 0.6);
+    --scrollbar-thumb-active-bg: rgba(33, 150, 243, 0.8);
+    --scrollbar-thumb-border: rgba(33, 150, 243, 0.6);
+    --scrollbar-thumb-shadow: 0 0 6px rgba(33, 150, 243, 0.5);
+    --scrollbar-thumb-hover-shadow: 0 0 10px rgba(33, 150, 243, 0.8);
+}
+
+/* ========== SCROLLBAR - TEMA VERMELHO ========== */
+[data-color-scheme="red"] {
+    --scrollbar-track-bg: rgba(18, 18, 18, 0.3);
+    --scrollbar-thumb-bg: rgba(198, 40, 40, 0.4);
+    --scrollbar-thumb-hover-bg: rgba(198, 40, 40, 0.6);
+    --scrollbar-thumb-active-bg: rgba(198, 40, 40, 0.8);
+    --scrollbar-thumb-border: rgba(198, 40, 40, 0.6);
+    --scrollbar-thumb-shadow: 0 0 6px rgba(198, 40, 40, 0.5);
+    --scrollbar-thumb-hover-shadow: 0 0 10px rgba(198, 40, 40, 0.8);
+}
+
+/* ========== ESTILO WEBKIT (Chrome, Safari, Edge, Opera) ========== */
+*::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+*::-webkit-scrollbar-track {
+    background: var(--scrollbar-track-bg);
+    border-radius: 0 !important;
+}
+
+*::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb-bg);
+    border-radius: 0 !important;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    box-shadow: var(--scrollbar-thumb-shadow);
+    transition: all 0.3s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover-bg);
+    box-shadow: var(--scrollbar-thumb-hover-shadow);
+    border-color: var(--scrollbar-thumb-border);
+}
+
+*::-webkit-scrollbar-thumb:active {
+    background: var(--scrollbar-thumb-active-bg);
+}
+
+/* Remover arredondamento dos cantos */
+*::-webkit-scrollbar-corner {
+    background: transparent;
+    border-radius: 0 !important;
+}
+
+/* Botões da scrollbar (se existirem) */
+*::-webkit-scrollbar-button {
+    display: none;
+}
+
+/* Scrollbar horizontal */
+*::-webkit-scrollbar-track:horizontal {
+    background: var(--scrollbar-track-bg);
+    border-radius: 0 !important;
+}
+
+*::-webkit-scrollbar-thumb:horizontal {
+    background: var(--scrollbar-thumb-bg);
+    box-shadow: var(--scrollbar-thumb-shadow);
+    border-radius: 0 !important;
+}
+
+*::-webkit-scrollbar-thumb:horizontal:hover {
+    background: var(--scrollbar-thumb-hover-bg);
+    box-shadow: var(--scrollbar-thumb-hover-shadow);
+}
+
+/* ========== ESTILO FIREFOX ========== */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb-bg) var(--scrollbar-track-bg);
+}
+
+/* ========== SCROLLBAR PARA ELEMENTOS ESPECÍFICOS ========== */
+
+/* Sidebar */
+.sidebar::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb-bg);
+    box-shadow: var(--scrollbar-thumb-shadow);
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover-bg);
+    box-shadow: var(--scrollbar-thumb-hover-shadow);
+}
+
+/* Modal overlay */
+#processamento-overlay::-webkit-scrollbar-thumb,
+#overlay-inner::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb-bg);
+    box-shadow: var(--scrollbar-thumb-shadow);
+}
+
+#processamento-overlay::-webkit-scrollbar-thumb:hover,
+#overlay-inner::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover-bg);
+    box-shadow: var(--scrollbar-thumb-hover-shadow);
+}
+
+/* Tabelas */
+table::-webkit-scrollbar-thumb,
+.table-container::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb-bg);
+    box-shadow: var(--scrollbar-thumb-shadow);
+}
+
+table::-webkit-scrollbar-thumb:hover,
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover-bg);
+    box-shadow: var(--scrollbar-thumb-hover-shadow);
+}
+
+/* Iframes */
+iframe::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb-bg);
+    box-shadow: var(--scrollbar-thumb-shadow);
+}
+
+iframe::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover-bg);
+    box-shadow: var(--scrollbar-thumb-hover-shadow);
+}
+
+/* Body principal */
+body::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb-bg);
+    box-shadow: var(--scrollbar-thumb-shadow);
+}
+
+body::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover-bg);
+    box-shadow: var(--scrollbar-thumb-hover-shadow);
+}
+
+/* Divs com overflow */
+div[style*="overflow"]::-webkit-scrollbar-thumb,
+.overflow-auto::-webkit-scrollbar-thumb,
+.overflow-scroll::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb-bg);
+    box-shadow: var(--scrollbar-thumb-shadow);
+}
+
+div[style*="overflow"]::-webkit-scrollbar-thumb:hover,
+.overflow-auto::-webkit-scrollbar-thumb:hover,
+.overflow-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover-bg);
+    box-shadow: var(--scrollbar-thumb-hover-shadow);
+}
+
+/* ========== SCROLLBAR FINA PARA ELEMENTOS COMPACTOS ========== */
+.scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb-bg);
+    box-shadow: var(--scrollbar-thumb-shadow);
+}
+
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover-bg);
+    box-shadow: var(--scrollbar-thumb-hover-shadow);
+}
+
+/* ========== DARK MODE ADJUSTMENTS ========== */
+body.dark-mode *::-webkit-scrollbar-track {
+    background: rgba(18, 18, 18, 0.5);
+}
+
+/* ========== EFEITO NEON NAS BORDAS ========== */
+*::-webkit-scrollbar-thumb {
+    position: relative;
+}
+
+*::-webkit-scrollbar-thumb::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 10px;
+    padding: 1px;
+    background: linear-gradient(
+        180deg,
+        var(--scrollbar-thumb-border) 0%,
+        transparent 50%,
+        var(--scrollbar-thumb-border) 100%
+    );
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+}

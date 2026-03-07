@@ -2,22 +2,50 @@
 <html lang="pt-BR" data-theme="night">
 <head>
     <script>
-    // Aplicar tema imediatamente no carregamento da página
+    // Aplicar tema e esquema de cores imediatamente
     (function() {
         try {
+            // Tentar obter esquema da URL primeiro (quando em iframe)
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlScheme = urlParams.get('colorScheme');
+            
             const savedTheme = localStorage.getItem('preferredTheme') || 'night';
             document.documentElement.setAttribute('data-theme', savedTheme);
-            console.log('Tema aplicado em committee.html:', savedTheme);
+            
+            // Usar esquema da URL se disponível, senão usar localStorage
+            const savedScheme = urlScheme || localStorage.getItem('preferredColorScheme') || 'blue';
+            document.documentElement.setAttribute('data-color-scheme', savedScheme);
+            
+            // Se veio da URL, salvar no localStorage também
+            if (urlScheme) {
+                localStorage.setItem('preferredColorScheme', urlScheme);
+            }
+            
+            console.log('Tema aplicado em committee.html:', savedTheme, 'Esquema:', savedScheme);
         } catch(e) {
             console.error('Erro ao aplicar tema inicial:', e);
         }
     })();
+    
+    // Ouvir mudanças de esquema da página pai (quando em iframe)
+    window.addEventListener('message', function(event) {
+        if (event.data && event.data.type === 'colorSchemeChange') {
+            const newScheme = event.data.scheme;
+            console.log('Recebida mudança de esquema via postMessage:', newScheme);
+            document.documentElement.setAttribute('data-color-scheme', newScheme);
+            document.body.setAttribute('data-color-scheme', newScheme);
+            localStorage.setItem('preferredColorScheme', newScheme);
+        }
+    });
     </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" id="theme-color" content="#c62828">
     <title>Planificação Econômica</title>
     <base target="_self">
+    <link rel="stylesheet" href="/css/color-scheme.css">
+    <link rel="stylesheet" href="/css/custom-scrollbar.css">
+    <script src="/js/color-scheme.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="css/common-styles.css">
     <link rel="stylesheet" href="css/theme-variables.css">

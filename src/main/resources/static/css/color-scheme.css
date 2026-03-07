@@ -1,0 +1,110 @@
+/* Sistema de Esquema de Cores Unificado - Azul (Node) e Vermelho (Java) */
+
+/* ==================== TEMA AZUL (Padrão - Node) ==================== */
+:root,
+[data-color-scheme="blue"] {
+    /* Cores de fundo */
+    --scheme-bg-main: #1e1e1e;
+    --scheme-bg-card: #2d2d2d;
+    --scheme-bg-modal: #12121f;
+    --scheme-bg-modal-backdrop: rgba(0,0,0,0.82);
+    --scheme-bg-hover: #333;
+    --scheme-bg-header: #1a1a1a;
+    
+    /* Cores primárias */
+    --scheme-primary: #2196F3;
+    --scheme-primary-light: #4fc3f7;
+    --scheme-primary-dark: #1976d2;
+    --scheme-primary-transparent: rgba(33,150,243,0.15);
+    
+    /* Cores de texto */
+    --scheme-text-primary: #e0e0e0;
+    --scheme-text-secondary: #aaa;
+    --scheme-text-tertiary: #666;
+    
+    /* Cores de borda */
+    --scheme-border-main: rgba(33,150,243,0.35);
+    --scheme-border-light: #444;
+    --scheme-border-hover: #2196F3;
+    
+    /* Cores de botão */
+    --scheme-button-bg: #1976d2;
+    --scheme-button-hover: #2196F3;
+    --scheme-button-active: #1565c0;
+    --scheme-button-text: #ffffff;
+    
+    /* Cores de tabela */
+    --scheme-table-header-bg: #1565c0;
+    --scheme-table-hover: rgba(33,150,243,0.15);
+    
+    /* Cores de destaque */
+    --scheme-accent: #64b5f6;
+    --scheme-info-bg: rgba(33,150,243,0.1);
+    --scheme-info-border: rgba(33,150,243,0.3);
+    
+    /* Cores de elementos interativos */
+    --scheme-link: #4fc3f7;
+    --scheme-link-hover: #64b5f6;
+}
+
+/* ==================== TEMA VERMELHO (Java) ==================== */
+[data-color-scheme="red"] {
+    /* Cores de fundo */
+    --scheme-bg-main: #121212;
+    --scheme-bg-card: #212121;
+    --scheme-bg-modal: #101010;
+    --scheme-bg-modal-backdrop: rgba(0,0,0,0.85);
+    --scheme-bg-hover: #2d2d2d;
+    --scheme-bg-header: #1a1a1a;
+    
+    /* Cores primárias */
+    --scheme-primary: #c62828;
+    --scheme-primary-light: #ff5f52;
+    --scheme-primary-dark: #8e0000;
+    --scheme-primary-transparent: rgba(198,40,40,0.15);
+    
+    /* Cores de texto */
+    --scheme-text-primary: #f5f5f5;
+    --scheme-text-secondary: #b0b0b0;
+    --scheme-text-tertiary: #909090;
+    
+    /* Cores de borda */
+    --scheme-border-main: rgba(198,40,40,0.35);
+    --scheme-border-light: #383838;
+    --scheme-border-hover: #c62828;
+    
+    /* Cores de botão */
+    --scheme-button-bg: #c62828;
+    --scheme-button-hover: #ff5f52;
+    --scheme-button-active: #8e0000;
+    --scheme-button-text: #ffffff;
+    
+    /* Cores de tabela */
+    --scheme-table-header-bg: #8e0000;
+    --scheme-table-hover: rgba(198,40,40,0.15);
+    
+    /* Cores de destaque */
+    --scheme-accent: #ef5350;
+    --scheme-info-bg: rgba(198,40,40,0.1);
+    --scheme-info-border: rgba(198,40,40,0.3);
+    
+    /* Cores de elementos interativos */
+    --scheme-link: #ff5f52;
+    --scheme-link-hover: #ff8a80;
+}
+
+/* ==================== CORES FUNCIONAIS (Não mudam com o tema) ==================== */
+:root,
+[data-color-scheme="blue"],
+[data-color-scheme="red"] {
+    /* Cores de indicação de informação - mantêm-se sempre */
+    --functional-whatsapp: #25D366;
+    --functional-success: #66bb6a;
+    --functional-warning: #fb8c00;
+    --functional-error: #e53935;
+    
+    /* Cores de mapa - verde neon sempre preservado */
+    --neon-green: #0FFF50;
+    --neon-green-glow: rgba(15,255,80,0.5);
+    --neon-green-shadow: 0 0 10px rgba(15,255,80,0.5);
+}
