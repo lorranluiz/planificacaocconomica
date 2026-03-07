@@ -327,6 +327,97 @@
         box-shadow: 0 0 0 26px rgba(255,196,0,0);
       }
     }
+
+    /* Menu de contexto (botão direito) */
+    .context-menu {
+      position: absolute;
+      display: none;
+      background: #f0f0f0;
+      border: 1px solid #bbb;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+      border-radius: 2px;
+      min-width: 180px;
+      z-index: 10000;
+      font-family: 'Segoe UI', Tahoma, sans-serif;
+      font-size: 12px;
+      color: #000;
+    }
+
+    body.dark-mode .context-menu {
+      background: #2d2d2d;
+      border: 1px solid #555;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+      color: #e0e0e0;
+    }
+
+    .context-menu-item {
+      padding: 6px 30px 6px 20px;
+      cursor: pointer;
+      position: relative;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .context-menu-item:hover {
+      background: #2196F3;
+      color: white;
+    }
+
+    body.dark-mode .context-menu-item:hover {
+      background: #0FFF50;
+      color: #000;
+    }
+
+    .context-menu-item .submenu-arrow {
+      margin-left: auto;
+      font-size: 10px;
+    }
+
+    .context-submenu {
+      position: absolute;
+      left: 100%;
+      top: -1px;
+      background: #f0f0f0;
+      border: 1px solid #bbb;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+      border-radius: 2px;
+      min-width: 140px;
+      display: none;
+      z-index: 10001;
+    }
+
+    body.dark-mode .context-submenu {
+      background: #2d2d2d;
+      border: 1px solid #555;
+      box-shadow: 2px 2px 8px rgba(0,0,0,0.5);
+    }
+
+    .context-menu-item:hover .context-submenu {
+      display: block;
+    }
+
+    .context-submenu-item {
+      padding: 6px 20px;
+      cursor: pointer;
+      user-select: none;
+      color: #000;
+    }
+
+    body.dark-mode .context-submenu-item {
+      color: #e0e0e0;
+    }
+
+    .context-submenu-item:hover {
+      background: #2196F3;
+      color: white;
+    }
+
+    body.dark-mode .context-submenu-item:hover {
+      background: #0FFF50;
+      color: #000;
+    }
   </style>
 </head>
 <body>
@@ -701,6 +792,77 @@ function inicializarPegmanStreetView() {
 
 inicializarPegmanStreetView();
 
+// Menu de contexto (botão direito)
+let contextMenuElement = null;
+
+function createContextMenu() {
+  if (contextMenuElement) return contextMenuElement;
+  
+  const menu = document.createElement('div');
+  menu.className = 'context-menu';
+  menu.innerHTML = `
+    <div class="context-menu-item" data-action="cadastrar">
+      <span>Cadastrar Instância</span>
+      <span class="submenu-arrow">►</span>
+      <div class="context-submenu">
+        <div class="context-submenu-item" data-type="COMMITTEE">Comitê</div>
+        <div class="context-submenu-item" data-type="COUNCIL">Conselho</div>
+        <div class="context-submenu-item" data-type="RESIDENTS_ASSOCIATION">Associação de Moradores</div>
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(menu);
+  contextMenuElement = menu;
+  
+  // Event listeners para submenu
+  const submenuItems = menu.querySelectorAll('.context-submenu-item');
+  submenuItems.forEach(item => {
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const type = item.getAttribute('data-type');
+      
+      // Abrir em janela modal ao invés de nova aba, mantendo padrão do sistema
+      mostrarPainelInstances(type);
+      
+      hideContextMenu();
+    });
+  });
+  
+  return menu;
+}
+
+function showContextMenu(x, y) {
+  const menu = createContextMenu();
+  menu.style.display = 'block';
+  menu.style.left = x + 'px';
+  menu.style.top = y + 'px';
+}
+
+function hideContextMenu() {
+  if (contextMenuElement) {
+    contextMenuElement.style.display = 'none';
+  }
+}
+
+// Adicionar event listener para o mapa
+map.on('contextmenu', function(e) {
+  e.originalEvent.preventDefault();
+  showContextMenu(e.originalEvent.pageX, e.originalEvent.pageY);
+});
+
+// Fechar menu ao clicar em qualquer lugar
+document.addEventListener('click', function(e) {
+  if (contextMenuElement && !contextMenuElement.contains(e.target)) {
+    hideContextMenu();
+  }
+});
+
+// Fechar menu ao rolar a página ou mover o mapa
+document.addEventListener('scroll', hideContextMenu);
+map.on('move', hideContextMenu);
+map.on('zoom', hideContextMenu);
+
 // Função para remover acentos
 function removerAcentos(str) {
   return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
@@ -889,8 +1051,28 @@ const LAST_CITY_STORAGE_KEY = 'ultimaCidadeMapa_v1';
 const _geocodingBackgroundCities = new Set();
 const WARMED_CITIES_STORAGE_KEY = 'cidadesGeocodeWarmed_v1';
 
+// Constantes para janelas modais de formulários (integração sistema de planificação)
+const INSTANCES_WINDOW_KEY_PREFIX = '__INSTANCE_FORM__';
+let _instanceFormCounter = 0;
+let _instanceFormStates = {}; // Mapeia chave da janela -> {type, url}
+
+// Constantes para janelas modais de planificação
+const PLANIFICATION_WINDOW_KEY_PREFIX = '__PLANIFICATION__';
+let _planificationCounter = 0;
+let _planificationStates = {}; // Mapeia chave da janela -> {cityCode, cityName, cnpj, name, url}
+
 function isStreetViewWindow(nomeJanela) {
   return String(nomeJanela || '').toUpperCase() === STREETVIEW_WINDOW_KEY;
+}
+
+function isInstanceFormWindow(nomeJanela) {
+  const chave = String(nomeJanela || '').toUpperCase();
+  return chave.startsWith(INSTANCES_WINDOW_KEY_PREFIX);
+}
+
+function isPlanificationWindow(nomeJanela) {
+  const chave = String(nomeJanela || '').toUpperCase();
+  return chave.startsWith(PLANIFICATION_WINDOW_KEY_PREFIX);
 }
 
 function obterMapaCidadesAquecidas() {
@@ -1234,6 +1416,26 @@ function obterTituloMiniBar(cidade = _cidadeAtiva) {
   const cidadeNome = (cidade || _cidadeAtiva || 'Cidade').toUpperCase();
   const estado = _estadosMiniBarPorCidade[cidadeNome] || 'processing';
   if (estado === 'streetview') return `📷 VISÃO DA REGIÃO`;
+  if (estado === 'instance-form') {
+    // Obter tipo do formulário do estado armazenado
+    const formState = _instanceFormStates[cidadeNome];
+    if (formState) {
+      const tipoNomes = {
+        'COMMITTEE': '🏢 COMITÊ',
+        'COUNCIL': '🏛️ CONSELHO',
+        'RESIDENTS_ASSOCIATION': '🏘️ ASSOCIAÇÃO'
+      };
+      return tipoNomes[formState.type] || '📝 INSTÂNCIA';
+    }
+    return '📝 FORMULÁRIO';
+  }
+  if (estado === 'planification') {
+    const planState = _planificationStates[cidadeNome];
+    if (planState && planState.name) {
+      return `🔧 ${planState.name.substring(0, 20)}`;
+    }
+    return '🔧 PLANIFICAÇÃO';
+  }
   if (estado === 'failed') return `⚠️ ${cidadeNome}`;
   if (estado === 'paused') return `⏸️ ${cidadeNome} (Pausado)`;
   return `<span class="processamento-rotating-icon">⚙</span> ${cidadeNome}`;
@@ -1255,6 +1457,12 @@ function atualizarMiniBarProcessamento(cidade = _cidadeAtiva) {
   } else if (estado === 'streetview') {
     bar.style.background = '#5a3f00';
     bar.style.borderColor = 'rgba(255,210,82,0.55)';
+  } else if (estado === 'instance-form') {
+    bar.style.background = '#1a4d6e';
+    bar.style.borderColor = 'rgba(79,195,247,0.55)';
+  } else if (estado === 'planification') {
+    bar.style.background = '#2d5a1a';
+    bar.style.borderColor = 'rgba(139,195,74,0.55)';
   } else if (estado === 'paused') {
     bar.style.background = '#375a1e';
     bar.style.borderColor = 'rgba(170,238,134,0.55)';
@@ -1265,7 +1473,11 @@ function atualizarMiniBarProcessamento(cidade = _cidadeAtiva) {
   if (titulo) titulo.innerHTML = obterTituloMiniBar(cidadeNome);
   bar.title = estado === 'streetview'
     ? 'Visão da região aberta (clique para maximizar)'
-    : `Concluído: ${Math.max(0, Math.min(100, pct)).toFixed(1)}%`;
+    : (estado === 'instance-form'
+      ? 'Formulário de cadastro aberto (clique para maximizar)'
+      : (estado === 'planification'
+        ? 'Janela de planificação aberta (clique para maximizar)'
+        : `Concluído: ${Math.max(0, Math.min(100, pct)).toFixed(1)}%`));
 }
 
 function mostrarMiniBarProcessamento(cidade = _cidadeAtiva) {
@@ -1323,10 +1535,14 @@ function minimizarOutrasJanelasProcessamento(cidadeAtiva) {
       || estadoMiniBar === 'paused'
       || estadoMiniBar === 'failed'
       || estadoMiniBar === 'streetview'
+      || estadoMiniBar === 'instance-form'
+      || estadoMiniBar === 'planification'
       || ultimoStatus === 'processing'
       || ultimoStatus === 'paused'
       || ultimoStatus === 'failed'
       || ultimoStatus === 'streetview'
+      || ultimoStatus === 'instance-form'
+      || ultimoStatus === 'planification'
     );
 
     if (estado.visivel === false || !ativo) continue;
@@ -1343,6 +1559,22 @@ async function reabrirOverlayProcessamento(cidade = _cidadeAtiva, options = {}) 
 
   if (isStreetViewWindow(cidadeNome)) {
     mostrarPainelStreetView(_streetViewModalState.lat, _streetViewModalState.lng);
+    return;
+  }
+
+  if (isInstanceFormWindow(cidadeNome)) {
+    const formState = _instanceFormStates[cidadeNome];
+    if (formState) {
+      mostrarPainelInstances(formState.type);
+    }
+    return;
+  }
+
+  if (isPlanificationWindow(cidadeNome)) {
+    const planState = _planificationStates[cidadeNome];
+    if (planState) {
+      mostrarPainelPlanification(planState.cityCode, planState.cityName, planState.cnpj, planState.name);
+    }
     return;
   }
 
@@ -1375,6 +1607,26 @@ function acaoFecharProcessamento(cidade = _cidadeAtiva) {
     atualizarEstadoJanelaCidade(cidadeNome, { visivel: false });
     limparEstadoStreetViewPersistido();
     _streetViewModalState = { lat: null, lng: null, url: '' };
+    delete _estadosMiniBarPorCidade[cidadeNome];
+    delete _percentualPorCidade[cidadeNome];
+    if (_cidadeAtiva === cidadeNome) fecharOverlay();
+    else removerMiniBarProcessamento(cidadeNome);
+    return;
+  }
+
+  if (isInstanceFormWindow(cidadeNome)) {
+    atualizarEstadoJanelaCidade(cidadeNome, { visivel: false });
+    delete _instanceFormStates[cidadeNome];
+    delete _estadosMiniBarPorCidade[cidadeNome];
+    delete _percentualPorCidade[cidadeNome];
+    if (_cidadeAtiva === cidadeNome) fecharOverlay();
+    else removerMiniBarProcessamento(cidadeNome);
+    return;
+  }
+
+  if (isPlanificationWindow(cidadeNome)) {
+    atualizarEstadoJanelaCidade(cidadeNome, { visivel: false });
+    delete _planificationStates[cidadeNome];
     delete _estadosMiniBarPorCidade[cidadeNome];
     delete _percentualPorCidade[cidadeNome];
     if (_cidadeAtiva === cidadeNome) fecharOverlay();
@@ -2087,6 +2339,142 @@ function exibirPainelFinal(tipo, nomeCidade) {
       </div>`;
   }
   configurarOverlayPadrao({ selectedIndex: 0 });
+}
+
+/**
+ * Sistema de Janelas Modais - Integração entre Mapa de Fábricas e Sistema de Planificação
+ * 
+ * Este sistema permite abrir formulários e páginas do sistema de planificação em janelas modais
+ * reutilizando a infraestrutura existente de janelas de processamento. As janelas modais mantêm
+ * as funcionalidades de minimizar/maximizar e coexistem pacificamente com outras janelas.
+ * 
+ * Padrão: Todas as janelas modais (StreetView, Formulários, etc) compartilham o mesmo overlay
+ * mas nunca se sobrepõem - ao abrir uma nova, as outras são minimizadas automaticamente.
+ */
+
+function mostrarPainelInstances(type = 'COMMITTEE') {
+  const overlay = document.getElementById('processamento-overlay');
+  const inner = document.getElementById('overlay-inner');
+  if (!overlay || !inner) return;
+
+  // Criar chave única para esta janela
+  const instanceId = ++_instanceFormCounter;
+  const chave = `${INSTANCES_WINDOW_KEY_PREFIX}${type}_${instanceId}`;
+  const url = `http://localhost:8080/instances.html?type=${type}#create`;
+  
+  // Armazenar estado do formulário
+  _instanceFormStates[chave] = { type, url };
+
+  // Minimizar outras janelas
+  minimizarOutrasJanelasProcessamento(chave);
+  _cidadeAtiva = chave;
+  _jobAtivo = false;
+  _overlayMinimizado = false;
+  _miniBarEstado = 'instance-form';
+  _deveRetornarFocoBuscaCidade = false;
+  _estadosMiniBarPorCidade[chave] = 'instance-form';
+  _percentualPorCidade[chave] = 100;
+  atualizarEstadoJanelaCidade(chave, {
+    visivel: true,
+    minimizada: false,
+    ultimoStatus: 'instance-form',
+    ultimoPercentual: 100
+  });
+
+  overlay.dataset.overlayMode = 'instance-form';
+  overlay.style.display = 'flex';
+  ocultarMiniBarProcessamento(chave);
+  sincronizarMiniBarrasProcessamentos();
+
+  // Mapear tipos para títulos legíveis
+  const tipoTitulos = {
+    'COMMITTEE': '🏢 Cadastrar Comitê',
+    'COUNCIL': '🏛️ Cadastrar Conselho',
+    'RESIDENTS_ASSOCIATION': '🏘️ Cadastrar Associação de Moradores'
+  };
+  const titulo = tipoTitulos[type] || '📝 Cadastrar Instância';
+
+  const chaveJs = JSON.stringify(chave);
+  inner.innerHTML = `
+    <div id="overlay-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <span style="font-size:15px;font-weight:700;color:#4fc3f7;letter-spacing:.5px">${titulo}</span>
+      <div id="overlay-window-controls" data-overlay-nav-group style="display:flex;align-items:center;gap:2px">
+        <button onclick="minimizarOverlay()" aria-label="Minimizar" title="Minimizar"
+          style="width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#ffe7a8;border:1px solid transparent;border-radius:4px;cursor:pointer;font-size:16px;line-height:1;transition:all .2s"
+          onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.borderColor='rgba(255,255,255,0.14)'"
+          onmouseout="this.style.background='transparent';this.style.borderColor='transparent'">—</button>
+        <button onclick='acaoFecharProcessamento(${chaveJs})' aria-label="Fechar" title="Fechar"
+          style="width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#ffb3b3;border:1px solid transparent;border-radius:4px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s"
+          onmouseover="this.style.background='rgba(244,67,54,0.22)';this.style.borderColor='rgba(244,67,54,0.45)';this.style.color='#ffd7d7'"
+          onmouseout="this.style.background='transparent';this.style.borderColor='transparent';this.style.color='#ffb3b3'">✕</button>
+      </div>
+    </div>
+    <div style="font-size:11px;color:#aaa;margin-bottom:10px">Formulário de cadastro integrado ao sistema de planificação.</div>
+    <div style="width:100%;height:560px;border:1px solid #2e3a58;border-radius:10px;overflow:hidden;background:#0b1120">
+      <iframe src="${url}" title="${titulo}" loading="lazy"
+        style="width:100%;height:100%;border:0;display:block;background:#0b1120"></iframe>
+    </div>`;
+
+  configurarOverlayPadrao({ selectedIndex: 0, navButtonsSelector: '#overlay-window-controls button' });
+}
+
+function mostrarPainelPlanification(cityCode, cityName, cnpj, name) {
+  const overlay = document.getElementById('processamento-overlay');
+  const inner = document.getElementById('overlay-inner');
+  if (!overlay || !inner) return;
+
+  // Criar chave única para esta janela
+  const planificationId = ++_planificationCounter;
+  const chave = `${PLANIFICATION_WINDOW_KEY_PREFIX}${cnpj}_${planificationId}`;
+  const url = `http://localhost:8080/committee.html?cityCode=${cityCode}&cityName=${encodeURIComponent(cityName)}&id=${cnpj}&name=${encodeURIComponent(name)}`;
+  
+  // Armazenar estado da planificação
+  _planificationStates[chave] = { cityCode, cityName, cnpj, name, url };
+
+  // Minimizar outras janelas
+  minimizarOutrasJanelasProcessamento(chave);
+  _cidadeAtiva = chave;
+  _jobAtivo = false;
+  _overlayMinimizado = false;
+  _miniBarEstado = 'planification';
+  _deveRetornarFocoBuscaCidade = false;
+  _estadosMiniBarPorCidade[chave] = 'planification';
+  _percentualPorCidade[chave] = 100;
+  atualizarEstadoJanelaCidade(chave, {
+    visivel: true,
+    minimizada: false,
+    ultimoStatus: 'planification',
+    ultimoPercentual: 100
+  });
+
+  overlay.dataset.overlayMode = 'planification';
+  overlay.style.display = 'flex';
+  ocultarMiniBarProcessamento(chave);
+  sincronizarMiniBarrasProcessamentos();
+
+  const titulo = `🔧 Planificar - ${name}`;
+  const chaveJs = JSON.stringify(chave);
+  inner.innerHTML = `
+    <div id="overlay-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <span style="font-size:15px;font-weight:700;color:#4fc3f7;letter-spacing:.5px">${titulo}</span>
+      <div id="overlay-window-controls" data-overlay-nav-group style="display:flex;align-items:center;gap:2px">
+        <button onclick="minimizarOverlay()" aria-label="Minimizar" title="Minimizar"
+          style="width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#ffe7a8;border:1px solid transparent;border-radius:4px;cursor:pointer;font-size:16px;line-height:1;transition:all .2s"
+          onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.borderColor='rgba(255,255,255,0.14)'"
+          onmouseout="this.style.background='transparent';this.style.borderColor='transparent'">—</button>
+        <button onclick='acaoFecharProcessamento(${chaveJs})' aria-label="Fechar" title="Fechar"
+          style="width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#ffb3b3;border:1px solid transparent;border-radius:4px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s"
+          onmouseover="this.style.background='rgba(244,67,54,0.22)';this.style.borderColor='rgba(244,67,54,0.45)';this.style.color='#ffd7d7'"
+          onmouseout="this.style.background='transparent';this.style.borderColor='transparent';this.style.color='#ffb3b3'">✕</button>
+      </div>
+    </div>
+    <div style="font-size:11px;color:#aaa;margin-bottom:10px">Sistema de planificação econômica e gestão de comitês.</div>
+    <div style="width:100%;height:560px;border:1px solid #2e3a58;border-radius:10px;overflow:hidden;background:#0b1120">
+      <iframe src="${url}" name="planification-frame" title="${titulo}" loading="lazy"
+        style="width:100%;height:100%;border:0;display:block;background:#0b1120"></iframe>
+    </div>`;
+
+  configurarOverlayPadrao({ selectedIndex: 0, navButtonsSelector: '#overlay-window-controls button' });
 }
 
 function mostrarPainelStreetView(lat, lng) {
@@ -3320,7 +3708,7 @@ function atualizarMarcadores() {
     if (empresa.whatsapp) tel = '<a href="' + empresa.whatsapp + '" target="_blank" style="color: #25D366;">WhatsApp: ' + empresa.telefone + '</a>';
     const cidadeNome = extrairCidadeDoEndereco(empresa.endereco) || '';
     const marker = L.marker([coords.lat, coords.lon], { icon: icon })
-      .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="http://localhost:8080/committee.html?cityCode=${_codigoCidadeAtiva || ''}&cityName=${encodeURIComponent(cidadeNome)}&id=${empresa.cnpj}&name=${encodeURIComponent(empresa.nome)}" target="_blank" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`)
+      .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="#" onclick="event.preventDefault(); mostrarPainelPlanification('${_codigoCidadeAtiva || ''}', '${cidadeNome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${empresa.cnpj}', '${empresa.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}'); return false;" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`)
       .addTo(map);
     markerGroup.addLayer(marker);
     markers[idx].marker = marker;
@@ -3474,8 +3862,9 @@ function criarMarcadoresComCoordenadas(coordenadas) {
         let tel = empresa.telefone;
         if (empresa.whatsapp) tel = '<a href="' + empresa.whatsapp + '" target="_blank" style="color: #25D366;">WhatsApp: ' + empresa.telefone + '</a>';
         const icon = liteMode ? criarIconeClassico(obterCorPorCapital(empresa.capital)) : criarIconePiramide();
+        const cidadeNome = extrairCidadeDoEndereco(empresa.endereco) || '';
         const marker = L.marker([coords.lat, coords.lon], { icon: icon })
-          .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="http://localhost:8080/committee.html?cityCode=${_codigoCidadeAtiva || ''}&id=${empresa.cnpj}&name=${encodeURIComponent(empresa.nome)}" target="_blank" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`)
+          .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="#" onclick="event.preventDefault(); mostrarPainelPlanification('${_codigoCidadeAtiva || ''}', '${cidadeNome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${empresa.cnpj}', '${empresa.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}'); return false;" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`)
           .addTo(map);
         markerGroup.addLayer(marker);
         if (!liteMode) iniciarPiramideNoMarcador(marker, obterCorPorCapital(empresa.capital), empresa.capital);
@@ -3525,7 +3914,7 @@ async function criarMarcadoresComCoordenadasProgressivo(coordenadas, options = {
       const cidadeNome = extrairCidadeDoEndereco(empresa.endereco) || '';
       const icon = liteMode ? criarIconeClassico(obterCorPorCapital(empresa.capital)) : criarIconePiramide();
       const marker = L.marker([coords.lat, coords.lon], { icon: icon })
-        .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="http://localhost:8080/committee.html?cityCode=${_codigoCidadeAtiva || ''}&cityName=${encodeURIComponent(cidadeNome)}&id=${empresa.cnpj}&name=${encodeURIComponent(empresa.nome)}" target="_blank" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`)
+        .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="#" onclick="event.preventDefault(); mostrarPainelPlanification('${_codigoCidadeAtiva || ''}', '${cidadeNome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${empresa.cnpj}', '${empresa.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}'); return false;" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`)
         .addTo(map);
       markerGroup.addLayer(marker);
       if (!liteMode) iniciarPiramideNoMarcador(marker, obterCorPorCapital(empresa.capital), empresa.capital);
@@ -4136,11 +4525,12 @@ function renderizarGrafico() {
 <!-- Overlay de processamento de cidade -->
 <div id="processamento-overlay" style="
   display: none; position: fixed; inset: 0; z-index: 11000;
-  background: rgba(0,0,0,0.82); align-items: flex-start;
-  justify-content: center; padding-top: 80px;">
+  background: rgba(0,0,0,0.82); align-items: center;
+  justify-content: center; padding: 20px;">
   <div id="overlay-inner" style="
     background: #12121f; color: #e0e0e0; border-radius: 14px;
-    padding: 28px 32px; max-width: 580px; width: 94%;
+    padding: 28px 32px; width: calc(100vw - 350px - 40px);
+    max-height: calc(100vh - 40px); overflow-y: auto;
     box-shadow: 0 12px 48px rgba(0,0,0,0.7);
     border: 1px solid rgba(33,150,243,0.35);
     font-family: 'Segoe UI', system-ui, sans-serif;

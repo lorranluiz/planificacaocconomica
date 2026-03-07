@@ -423,6 +423,18 @@ Continuar Integração Mapa -> Planificação
 
 PRÓXIMO BLOCO DE ATUALIZAÇÕES:
 
+- Permitir que o usuário cadastre diretamente no mapa uma instância. Quando ele clicar com o botão direito no mapa abre submenu com opção "Cadastrar Instância", e submenu, quando mouse passa por cima dessa opção, com opções "Comitê" e "Conselho". Quando ele clica em "Comitê", abre "http://localhost:8080/instances.html", com a aba "Cadastrar" aberta. Se clicar em "Conselho", abre http://localhost:8080/popularcouncil.html. O menu suspenso que abre no mapa com o botão direito deve ser estilo o do windows quando o usuário clicar com o botão direito, porém com tom de cinza do menu direito desse sistema aqui.
+
+- Sempre abra as opções dos menus suspensos ou submenus em janelas modais, exatamente no mesmo estilo que demais janelas modais do sistema, ao invés de abrir esses links com seus parâmetros em uma nova aba ou janela do navegador, incluindo com mesma dinâmica de minimizar e maximizar das janelas de processamento, sem sobrescrever elas nunca nem ser sobrescrito por ela, como elas já interagem corretamente entre si. Mantenha inclusive sempre esse mesmo padrão para todas as janelas modais do sistema, deixe isso informado no código e bem organizado e programado no código. Mude o mínimo de coisa possível em relação a essa dinâmica das janelas de processamento pois elas já estão funcionando perfeitamente, só inclua essa nova funcionalidade como eu estou pedindo aqui. Isso vai deixar mais visível que o sistema está integrado, como um só, ao invés de dois, com os links abrindo em abas ou janelas diferentes do navegador.
+
+- padronizar o estilo da janela modal interna
+
+- Incluir o campo "Municipal", "Estadual", "Nacional", "Continental" e "Intercontinental". As duas ultimas opções já são internacionais, então "Internacional" não é um termo preciso, nesse caso. "Mundial" seria um termi preciso também para "Intercontinental".
+
+- 
+
+---
+
 - Condicional: Colocar que item do mapa pode ter ou não cnpj, por enquanto todos tem, mas o usuário vai pode cadastrar conselho direto no app do mapa, aparece no menu direito e no mapa, e é salvo no csv, mas na coluna cnpj aparece escrito "Conselho". Se item clicado no mapa tiver CNPJ é comitê, se não, é conselho.
 - Criar arquivo de conselhos, com mesmos dados do csv das empresas, mas onde está CNPJ aparece o ID do Conselho, sabe que é conselho pois está nesse arquivo chamado "conselhos_cidade.csv"
 - ali tem os bairros, se é de bairro etc ver melhor forma de conferir.

@@ -18,7 +18,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/planification")
+@RequestMapping("/api")
 public class SocialMaterializationController {
     
     private static final Logger logger = LoggerFactory.getLogger(SocialMaterializationController.class);
@@ -35,23 +35,36 @@ public class SocialMaterializationController {
 
     /**
      * Endpoint para listar todas as materializações sociais disponíveis
+     * Endpoint principal usado pelo frontend de instâncias
      */
-    @GetMapping("/available-materializations")
+    @GetMapping("/social-materializations")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    // Remover anotação de cache para sempre buscar dados frescos do banco de dados
-    public List<SocialMaterializationDto> getAvailableMaterializations() {
-        logger.debug("Obtendo lista de materializações disponíveis");
+    public List<SocialMaterializationDto> getAllSocialMaterializations() {
+        logger.info("Obtendo lista de materializações sociais para formulário de instâncias");
         List<SocialMaterialization> materializations = socialMaterializationRepository.findAll();
+        logger.info("Encontradas {} materializações sociais", materializations.size());
         return materializations.stream()
                 .map(this::convertToDto)
                 .collect(Collectors.toList());
     }
 
     /**
+     * Endpoint alias para compatibilidade (deprecated)
+     */
+    @GetMapping("/planification/available-materializations")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    @Deprecated
+    public List<SocialMaterializationDto> getAvailableMaterializations() {
+        logger.debug("Obtendo lista de materializações disponíveis (endpoint deprecated)");
+        return getAllSocialMaterializations();
+    }
+
+    /**
      * Endpoint para criar uma nova materialização social
      */
-    @PostMapping("/social-materializations")
+    @PostMapping("/planification/social-materializations")
     public ResponseEntity<?> createMaterialization(@RequestBody Map<String, Object> payload) {
         try {
             // Extrair dados da requisição

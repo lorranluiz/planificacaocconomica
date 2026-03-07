@@ -19,8 +19,10 @@
     <link rel="stylesheet" href="/css/theme-variables.css">
     <link rel="stylesheet" href="/css/theme-elements.css">
     <title>Instâncias - Sistema de Planejamento Econômico</title>
+    <base target="_self">
     <link rel="stylesheet" href="/css/common-styles.css">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <script src="/common-header.js"></script>
     <style>
         /* Estilos específicos para a página de instâncias */
         .badge {
@@ -74,6 +76,8 @@
 <body>
     <script>
     document.addEventListener('DOMContentLoaded', function() {
+        console.log("Página instances.html carregada!");
+        
         // Garantir que o cabeçalho comum seja inserido
         if (typeof window.insertCommonHeader === 'function') {
             window.insertCommonHeader();
@@ -94,17 +98,29 @@
                 window.applyThemeToEntirePage(event.detail.theme);
             }
         });
-    });
-    </script>
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log("Página instances.html carregada!");
         
         // Verificar se estamos na aba de criação diretamente
         if (window.location.hash === '#create') {
             setTimeout(function() {
                 console.log("Ativando aba de cadastro via hash URL");
                 document.querySelector('.tab[data-tab="create"]')?.click();
+                
+                // Verificar se há um tipo pré-selecionado na URL
+                const urlParams = new URLSearchParams(window.location.search);
+                const preSelectedType = urlParams.get('type');
+                if (preSelectedType) {
+                    console.log("Tipo pré-selecionado na URL:", preSelectedType);
+                    setTimeout(function() {
+                        const typeSelect = document.getElementById('type');
+                        if (typeSelect) {
+                            typeSelect.value = preSelectedType;
+                            // Disparar evento change para acionar updateDynamicFields()
+                            const event = new Event('change', { bubbles: true });
+                            typeSelect.dispatchEvent(event);
+                            console.log("Tipo selecionado automaticamente:", preSelectedType);
+                        }
+                    }, 300);
+                }
             }, 100);
         }
         
@@ -120,6 +136,21 @@
                     setTimeout(carregarMaterializacoes, 100);
                     // Segundo carregamento após 500ms para garantir
                     setTimeout(carregarMaterializacoes, 500);
+                    
+                    // Verificar se há tipo pré-selecionado na URL
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const preSelectedType = urlParams.get('type');
+                    if (preSelectedType) {
+                        setTimeout(() => {
+                            const typeSelect = document.getElementById('type');
+                            if (typeSelect && !typeSelect.value) {
+                                typeSelect.value = preSelectedType;
+                                const event = new Event('change', { bubbles: true });
+                                typeSelect.dispatchEvent(event);
+                                console.log('Tipo pré-selecionado aplicado (click aba):', preSelectedType);
+                            }
+                        }, 400);
+                    }
                 }
             });
         });
@@ -299,11 +330,9 @@
             </form>
         </div>
     </div>
-    <script src="/common-header.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Inserir o cabeçalho comum
-            insertCommonHeader();
+            // O cabeçalho comum já foi inserido pelo script no body
             
             // Resto do código existente...
             const loadButton = document.getElementById('loadButton');
@@ -353,6 +382,22 @@
                     if (tabId === 'create') {
                         // Adicionar um pequeno delay para garantir que o DOM está atualizado
                         setTimeout(() => loadSocialMaterializations(), 100);
+                        
+                        // Verificar se há tipo pré-selecionado na URL
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const preSelectedType = urlParams.get('type');
+                        if (preSelectedType) {
+                            setTimeout(() => {
+                                const typeSelect = document.getElementById('type');
+                                if (typeSelect && !typeSelect.value) {
+                                    typeSelect.value = preSelectedType;
+                                    // Disparar evento change
+                                    const event = new Event('change', { bubbles: true });
+                                    typeSelect.dispatchEvent(event);
+                                    console.log('Tipo pré-selecionado da URL aplicado:', preSelectedType);
+                                }
+                            }, 200);
+                        }
                     }
                 });
             });
@@ -483,49 +528,66 @@
                 formErrorMessage.style.display = 'none';
                 
                 try {
-                    // Carregar dados em paralelo
-                    const [matResponse, commResponse, councilResponse] = await Promise.all([
-                        fetch('/api/social-materializations'),
-                        fetch('/api/instances/committees'),
-                        fetch('/api/instances/councils')
-                    ]);
-                    
-                    // Processar respostas
+                    // Carregar materializações sociais (obrigatório)
+                    console.log('[DEBUG] Carregando materializações sociais...');
+                    const matResponse = await fetch('/api/social-materializations');
                     if (matResponse.ok) {
                         socialMaterializations = await matResponse.json();
-                        console.log('Materializações sociais carregadas:', socialMaterializations.length);
+                        console.log('✓ Materializações sociais carregadas:', socialMaterializations.length);
                     } else {
-                        throw new Error('Falha ao carregar materializações sociais');
+                        const errorText = await matResponse.text();
+                        console.error('Erro ao carregar materializações:', matResponse.status, errorText);
+                        throw new Error('Falha ao carregar materializações sociais (status ' + matResponse.status + ')');
                     }
                     
-                    if (commResponse.ok) {
-                        committees = await commResponse.json();
-                        console.log('Comitês carregados:', committees.length);
-                    } else {
-                        throw new Error('Falha ao carregar comitês');
-                    }
-                    
-                    if (councilResponse.ok) {
-                        councils = await councilResponse.json();
-                        console.log('Conselhos carregados:', councils);
-                        
-                        if (!councils || councils.length === 0) {
-                            console.warn('Nenhum conselho foi encontrado. Você precisa cadastrar conselhos primeiro.');
-                            formErrorMessage.textContent = 'Atenção: Nenhum conselho popular foi encontrado. Para cadastrar comitês ou associações, cadastre um conselho popular primeiro.';
-                            formErrorMessage.style.display = 'block';
+                    // Carregar comitês (opcional)
+                    try {
+                        console.log('[DEBUG] Carregando comitês...');
+                        const commResponse = await fetch('/api/instances/committees');
+                        if (commResponse.ok) {
+                            committees = await commResponse.json();
+                            console.log('✓ Comitês carregados:', committees.length);
+                        } else {
+                            console.warn('Aviso: Não foi possível carregar comitês (status ' + commResponse.status + ')');
+                            committees = [];
                         }
-                    } else {
-                        throw new Error('Falha ao carregar conselhos');
+                    } catch (err) {
+                        console.warn('Aviso: Erro ao carregar comitês:', err);
+                        committees = [];
+                    }
+                    
+                    // Carregar conselhos (opcional)
+                    try {
+                        console.log('[DEBUG] Carregando conselhos...');
+                        const councilResponse = await fetch('/api/instances/councils');
+                        if (councilResponse.ok) {
+                            councils = await councilResponse.json();
+                            console.log('✓ Conselhos carregados:', councils.length);
+                            
+                            if (!councils || councils.length === 0) {
+                                console.warn('Nenhum conselho foi encontrado. Você precisa cadastrar conselhos primeiro.');
+                                formErrorMessage.textContent = 'Atenção: Nenhum conselho popular foi encontrado. Para cadastrar comitês ou associações, cadastre um conselho popular primeiro.';
+                                formErrorMessage.style.display = 'block';
+                            }
+                        } else {
+                            console.warn('Aviso: Não foi possível carregar conselhos (status ' + councilResponse.status + ')');
+                            councils = [];
+                        }
+                    } catch (err) {
+                        console.warn('Aviso: Erro ao carregar conselhos:', err);
+                        councils = [];
                     }
                     
                     // Atualizar os campos dinâmicos se o tipo já estiver selecionado
                     if (typeSelect.value) {
+                        console.log('[DEBUG] Tipo já selecionado:', typeSelect.value, '- atualizando campos dinâmicos');
                         updateDynamicFields();
                     }
                     
+                    console.log('[DEBUG] loadFormDependencies concluído com sucesso');
                     formLoadingMessage.style.display = 'none';
                 } catch (err) {
-                    console.error("Erro ao carregar dependências:", err);
+                    console.error("Erro CRÍTICO ao carregar dependências:", err);
                     formErrorMessage.textContent = 'Erro ao carregar dados necessários: ' + err.message;
                     formErrorMessage.style.display = 'block';
                     formLoadingMessage.style.display = 'none';

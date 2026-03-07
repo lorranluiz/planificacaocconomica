@@ -115,6 +115,11 @@ function applyThemeToEntirePage(theme) {
 let headerInserted = false;
 
 function insertCommonHeader() {
+    console.log('=== insertCommonHeader() chamado ===');
+    console.log('headerInserted flag:', headerInserted);
+    console.log('Existe .nav-container?', !!document.querySelector('.nav-container'));
+    console.log('Existe .main-header?', !!document.querySelector('.main-header'));
+    
     // Verificar flag global primeiro
     if (headerInserted) {
         console.log('Cabeçalho já foi inserido (flag global), pulando inserção');
@@ -198,10 +203,15 @@ function insertCommonHeader() {
     
     // Inserir cabeçalho no container principal
     const container = document.querySelector('.container');
+    console.log('Container encontrado:', container ? 'SIM' : 'NÃO');
     if (container) {
         container.insertBefore(header, container.firstChild);
+        console.log('Cabeçalho inserido com sucesso no container');
     } else {
         console.warn('Container não encontrado para inserir o cabeçalho');
+        // Tentar inserir no body como fallback
+        document.body.insertBefore(header, document.body.firstChild);
+        console.log('Cabeçalho inserido no body (fallback)');
     }
     
     // Configurar botão de menu mobile
