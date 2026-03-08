@@ -658,27 +658,37 @@ public class CommitteeController {
                     BigDecimal totalHours = productionNeeded.multiply(proposal.getProductionTime());
                     optimizationData.put("totalHours", totalHours);
                     
-                    // Calcular horas disponíveis por trabalhador por dia
-                    BigDecimal workerHoursPerDay = proposal.getWorkerHours().multiply(
-                            proposal.getNightShift() ? new BigDecimal("2") : BigDecimal.ONE);
-                    
-                    // Calcular horas totais de trabalho disponíveis por semana
-                    BigDecimal totalWeeklyHours = workerHoursPerDay.multiply(new BigDecimal(proposal.getWeeklyScale()));
-                    
-                    // Calcular trabalhadores necessários
-                    BigDecimal workersNeeded = totalHours.divide(totalWeeklyHours, 4, RoundingMode.CEILING);
-                    optimizationData.put("workersNeeded", workersNeeded);
-                    
-                    // Calcular fábricas necessárias
-                    BigDecimal factoriesNeeded = workersNeeded.divide(new BigDecimal(proposal.getWorkerLimit()), 4, RoundingMode.CEILING);
-                    optimizationData.put("factoriesNeeded", factoriesNeeded);
-                    
-                    // Calcular tempo mínimo de produção em dias
-                    BigDecimal factoryDailyHours = new BigDecimal(proposal.getWorkerLimit()).multiply(workerHoursPerDay);
-                    BigDecimal minimumProductionTimeInDays = totalHours.divide(
-                            factoriesNeeded.setScale(0, RoundingMode.CEILING).multiply(factoryDailyHours), 
-                            4, RoundingMode.CEILING);
-                    optimizationData.put("minimumProductionTimeInDays", minimumProductionTimeInDays);
+                    // Calcular dados de otimização apenas se houver valores válidos
+                    if (proposal.getWorkerHours() != null && proposal.getWorkerHours().compareTo(BigDecimal.ZERO) > 0
+                            && proposal.getWeeklyScale() != null && proposal.getWeeklyScale() > 0
+                            && proposal.getWorkerLimit() != null && proposal.getWorkerLimit() > 0) {
+                        
+                        // Calcular horas disponíveis por trabalhador por dia
+                        BigDecimal workerHoursPerDay = proposal.getWorkerHours().multiply(
+                                proposal.getNightShift() ? new BigDecimal("2") : BigDecimal.ONE);
+                        
+                        // Calcular horas totais de trabalho disponíveis por semana
+                        BigDecimal totalWeeklyHours = workerHoursPerDay.multiply(new BigDecimal(proposal.getWeeklyScale()));
+                        
+                        // Calcular trabalhadores necessários (apenas se totalWeeklyHours > 0)
+                        if (totalWeeklyHours.compareTo(BigDecimal.ZERO) > 0) {
+                            BigDecimal workersNeeded = totalHours.divide(totalWeeklyHours, 4, RoundingMode.CEILING);
+                            optimizationData.put("workersNeeded", workersNeeded);
+                            
+                            // Calcular fábricas necessárias
+                            BigDecimal factoriesNeeded = workersNeeded.divide(new BigDecimal(proposal.getWorkerLimit()), 4, RoundingMode.CEILING);
+                            optimizationData.put("factoriesNeeded", factoriesNeeded);
+                            
+                            // Calcular tempo mínimo de produção em dias
+                            BigDecimal factoryDailyHours = new BigDecimal(proposal.getWorkerLimit()).multiply(workerHoursPerDay);
+                            if (factoriesNeeded.compareTo(BigDecimal.ZERO) > 0 && factoryDailyHours.compareTo(BigDecimal.ZERO) > 0) {
+                                BigDecimal minimumProductionTimeInDays = totalHours.divide(
+                                        factoriesNeeded.setScale(0, RoundingMode.CEILING).multiply(factoryDailyHours), 
+                                        4, RoundingMode.CEILING);
+                                optimizationData.put("minimumProductionTimeInDays", minimumProductionTimeInDays);
+                            }
+                        }
+                    }
                     
                     // Adicionar contagem de comitês existentes
                     optimizationData.put("committeeCount", committeeCount);

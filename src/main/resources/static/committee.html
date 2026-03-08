@@ -41,6 +41,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" id="theme-color" content="#c62828">
+    <!-- Desabilitar cache para sempre carregar versão atualizada -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Planificação Econômica</title>
     <base target="_self">
     <link rel="stylesheet" href="/css/color-scheme.css">
@@ -629,5 +633,17 @@
 
     <script src="js/notifications.js"></script>
     <script src="js/committee.js"></script>
+
+    <!-- Listener para navegação de volta quando dentro de modal -->
+    <script>
+    (function() {
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.action === 'navigateBack') {
+                console.log('[COMMITTEE] Recebida mensagem para voltar');
+                window.history.back();
+            }
+        });
+    })();
+    </script>
 </body>
 </html>

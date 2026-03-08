@@ -17,6 +17,7 @@ import java.util.*;
 
 @RestController
 @RequestMapping("/api/factories")
+@CrossOrigin(origins = "*")
 public class FactoryController {
     
     private static final Logger logger = LoggerFactory.getLogger(FactoryController.class);

@@ -2159,6 +2159,44 @@ function inicializarOverlayPadrao() {
   });
 }
 
+// Função para voltar página dentro do modal
+function voltarPaginaModal() {
+  const iframe = document.getElementById('modal-iframe');
+  if (!iframe || !iframe.contentWindow) {
+    console.warn('[MODAL] Iframe não encontrado ou não carregado');
+    return;
+  }
+  
+  try {
+    // Enviar mensagem ao iframe para voltar na navegação
+    iframe.contentWindow.postMessage({ action: 'navigateBack' }, '*');
+    console.log('[MODAL] Mensagem de voltar enviada ao iframe');
+  } catch (e) {
+    console.error('[MODAL] Erro ao tentar voltar:', e);
+  }
+}
+
+// Configura o estado do botão de voltar
+function configurarBotaoVoltarModal() {
+  const backBtn = document.getElementById('modal-back-btn');
+  if (!backBtn) return;
+  
+  const iframe = document.getElementById('modal-iframe');
+  if (!iframe || !iframe.contentWindow) {
+    backBtn.disabled = true;
+    backBtn.style.color = '#666';
+    backBtn.style.cursor = 'not-allowed';
+    backBtn.style.pointerEvents = 'none';
+    return;
+  }
+  
+  // Por padrão, habilitar o botão (o navegador controla se há histórico)
+  backBtn.disabled = false;
+  backBtn.style.color = '#a8d5ff';
+  backBtn.style.cursor = 'pointer';
+  backBtn.style.pointerEvents = 'auto';
+}
+
 // Formata segundos em "Xh Ym Zs", "Xm Ys" ou "Xs"
 function fmtSecs(s) {
   if (!s && s !== 0) return '—';
@@ -2728,7 +2766,9 @@ function mostrarPainelInstances(type = 'COMMITTEE') {
   const instanceId = ++_instanceFormCounter;
   const chave = `${INSTANCES_WINDOW_KEY_PREFIX}${type}_${instanceId}`;
   const currentScheme = window.ColorScheme ? window.ColorScheme.get() : 'blue';
-  const url = `http://localhost:8080/instances.html?type=${type}&colorScheme=${currentScheme}#create`;
+  // Adicionar timestamp para evitar cache do navegador
+  const cacheBuster = Date.now();
+  const url = `http://localhost:8080/instances.html?type=${type}&colorScheme=${currentScheme}&_t=${cacheBuster}#create`;
   
   // Armazenar estado do formulário
   _instanceFormStates[chave] = { type, url };
@@ -2767,6 +2807,10 @@ function mostrarPainelInstances(type = 'COMMITTEE') {
     <div id="overlay-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
       <span style="font-size:15px;font-weight:700;color:#4fc3f7;letter-spacing:.5px">${titulo}</span>
       <div id="overlay-window-controls" data-overlay-nav-group style="display:flex;align-items:center;gap:2px">
+        <button id="modal-back-btn" onclick="voltarPaginaModal()" aria-label="Voltar" title="Voltar"
+          style="width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#a8d5ff;border:1px solid transparent;border-radius:4px;cursor:pointer;font-size:16px;line-height:1;transition:all .2s"
+          onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.borderColor='rgba(255,255,255,0.14)'"
+          onmouseout="this.style.background='transparent';this.style.borderColor='transparent'">←</button>
         <button onclick="minimizarOverlay()" aria-label="Minimizar" title="Minimizar"
           style="width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#ffe7a8;border:1px solid transparent;border-radius:4px;cursor:pointer;font-size:16px;line-height:1;transition:all .2s"
           onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.borderColor='rgba(255,255,255,0.14)'"
@@ -2779,11 +2823,12 @@ function mostrarPainelInstances(type = 'COMMITTEE') {
     </div>
     <div style="font-size:11px;color:#aaa;margin-bottom:10px">Formulário de cadastro integrado ao sistema de planificação.</div>
     <div style="width:100%;height:560px;border-radius:10px;overflow:hidden;background:var(--scheme-bg-modal)">
-      <iframe src="${url}" title="${titulo}" loading="lazy"
+      <iframe id="modal-iframe" src="${url}" title="${titulo}" loading="lazy"
         style="width:100%;height:100%;border:0;display:block;background:#0b1120"></iframe>
     </div>`;
 
   configurarOverlayPadrao({ selectedIndex: 0, navButtonsSelector: '#overlay-window-controls button' });
+  configurarBotaoVoltarModal();
 }
 
 function mostrarPainelPlanification(cityCode, cityName, cnpj, name) {
@@ -2791,59 +2836,203 @@ function mostrarPainelPlanification(cityCode, cityName, cnpj, name) {
   const inner = document.getElementById('overlay-inner');
   if (!overlay || !inner) return;
 
-  // Criar chave única para esta janela
-  const planificationId = ++_planificationCounter;
-  const chave = `${PLANIFICATION_WINDOW_KEY_PREFIX}${cnpj}_${planificationId}`;
-  const currentScheme = window.ColorScheme ? window.ColorScheme.get() : 'blue';
-  const url = `http://localhost:8080/committee.html?cityCode=${cityCode}&cityName=${encodeURIComponent(cityName)}&id=${cnpj}&name=${encodeURIComponent(name)}&colorScheme=${currentScheme}`;
-  
-  // Armazenar estado da planificação
-  _planificationStates[chave] = { cityCode, cityName, cnpj, name, url };
+  console.log('🔧 mostrarPainelPlanification chamado:', { cityCode, cityName, cnpj, name });
 
+  // Mostrar loading enquanto busca/cria a fábrica
+  const loadingKey = `${PLANIFICATION_WINDOW_KEY_PREFIX}loading_${Date.now()}`;
+  
   // Minimizar outras janelas
-  minimizarOutrasJanelasProcessamento(chave);
-  _cidadeAtiva = chave;
+  minimizarOutrasJanelasProcessamento(loadingKey);
+  _cidadeAtiva = loadingKey;
   _jobAtivo = false;
   _overlayMinimizado = false;
-  _miniBarEstado = 'planification';
-  _deveRetornarFocoBuscaCidade = false;
-  _estadosMiniBarPorCidade[chave] = 'planification';
-  _percentualPorCidade[chave] = 100;
-  atualizarEstadoJanelaCidade(chave, {
-    visivel: true,
-    minimizada: false,
-    ultimoStatus: 'planification',
-    ultimoPercentual: 100
-  });
-
+  
   overlay.dataset.overlayMode = 'planification';
   overlay.style.display = 'flex';
-  ocultarMiniBarProcessamento(chave);
-  sincronizarMiniBarrasProcessamentos();
-
-  const titulo = `🔧 Planificar - ${name}`;
-  const chaveJs = JSON.stringify(chave);
+  
   inner.innerHTML = `
     <div id="overlay-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
-      <span style="font-size:15px;font-weight:700;color:#4fc3f7;letter-spacing:.5px">${titulo}</span>
-      <div id="overlay-window-controls" data-overlay-nav-group style="display:flex;align-items:center;gap:2px">
-        <button onclick="minimizarOverlay()" aria-label="Minimizar" title="Minimizar"
-          style="width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#ffe7a8;border:1px solid transparent;border-radius:4px;cursor:pointer;font-size:16px;line-height:1;transition:all .2s"
-          onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.borderColor='rgba(255,255,255,0.14)'"
-          onmouseout="this.style.background='transparent';this.style.borderColor='transparent'">—</button>
-        <button onclick='acaoFecharProcessamento(${chaveJs})' aria-label="Fechar" title="Fechar"
-          style="width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#ffb3b3;border:1px solid transparent;border-radius:4px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s"
-          onmouseover="this.style.background='rgba(244,67,54,0.22)';this.style.borderColor='rgba(244,67,54,0.45)';this.style.color='#ffd7d7'"
-          onmouseout="this.style.background='transparent';this.style.borderColor='transparent';this.style.color='#ffb3b3'">✕</button>
-      </div>
+      <span style="font-size:15px;font-weight:700;color:#4fc3f7;letter-spacing:.5px">🔧 Carregando...</span>
     </div>
-    <div style="font-size:11px;color:#aaa;margin-bottom:10px">Sistema de planificação econômica e gestão de comitês.</div>
-    <div style="width:100%;height:560px;border-radius:10px;overflow:hidden;background:var(--scheme-bg-modal)">
-      <iframe src="${url}" name="planification-frame" title="${titulo}" loading="lazy"
-        style="width:100%;height:100%;border:0;display:block;background:#0b1120"></iframe>
+    <div style="font-size:13px;color:#aaa;margin-bottom:10px;text-align:center;padding-top:200px;">
+      <div class="loading-spinner" style="border:3px solid rgba(255,255,255,0.1);border-top:3px solid #4fc3f7;border-radius:50%;width:40px;height:40px;animation:spin 1s linear infinite;margin:0 auto 20px;"></div>
+      <p>Buscando dados da fábrica...</p>
     </div>`;
 
-  configurarOverlayPadrao({ selectedIndex: 0, navButtonsSelector: '#overlay-window-controls button' });
+  // Buscar ou criar a fábrica primeiro para obter o ID real
+  const params = new URLSearchParams({
+    cnpj: cnpj
+  });
+  
+  if (cityCode) params.append('cityCode', cityCode);
+  if (cityName) params.append('cityName', cityName);
+  if (name) params.append('name', name);
+  
+  fetch(`/api/factories/find-or-create?${params.toString()}`, {
+    method: 'POST'
+  })
+  .then(response => {
+    console.log('📡 Resposta recebida:', response.status, response.statusText);
+    if (!response.ok) {
+      // Tentar ler o corpo da resposta para obter a mensagem de erro
+      return response.text().then(errorText => {
+        console.error('❌ Erro da API:', errorText);
+        throw new Error(errorText || `Erro ${response.status}: ${response.statusText}`);
+      });
+    }
+    return response.json();
+  })
+  .then(factory => {
+    console.log('✅ Fábrica obtida:', factory);
+    
+    if (!factory || !factory.id) {
+      throw new Error('Fábrica sem ID');
+    }
+    
+    // Agora construir a URL com o ID real da fábrica
+    const planificationId = ++_planificationCounter;
+    const chave = `${PLANIFICATION_WINDOW_KEY_PREFIX}${factory.id}_${planificationId}`;
+    const currentScheme = window.ColorScheme ? window.ColorScheme.get() : 'blue';
+    const cacheBuster = Date.now();
+    
+    // IMPORTANTE: Usar factory.id em vez de cnpj
+    const url = `http://localhost:8080/committee.html?cityCode=${cityCode || factory.cityCode || ''}&cityName=${encodeURIComponent(cityName || factory.city || '')}&id=${factory.id}&name=${encodeURIComponent(name || factory.name)}&colorScheme=${currentScheme}&_t=${cacheBuster}`;
+    
+    console.log('🌐 URL da planificação:', url);
+    
+    // Armazenar estado da planificação
+    _planificationStates[chave] = { 
+      cityCode: cityCode || factory.cityCode, 
+      cityName: cityName || factory.city, 
+      cnpj, 
+      name: name || factory.name, 
+      factoryId: factory.id,
+      url 
+    };
+
+    // Minimizar outras janelas
+    minimizarOutrasJanelasProcessamento(chave);
+    _cidadeAtiva = chave;
+    _jobAtivo = false;
+    _overlayMinimizado = false;
+    _miniBarEstado = 'planification';
+    _deveRetornarFocoBuscaCidade = false;
+    _estadosMiniBarPorCidade[chave] = 'planification';
+    _percentualPorCidade[chave] = 100;
+    atualizarEstadoJanelaCidade(chave, {
+      visivel: true,
+      minimizada: false,
+      ultimoStatus: 'planification',
+      ultimoPercentual: 100
+    });
+
+    overlay.dataset.overlayMode = 'planification';
+    overlay.style.display = 'flex';
+    ocultarMiniBarProcessamento(chave);
+    sincronizarMiniBarrasProcessamentos();
+
+    const titulo = `🔧 Planificar - ${name || factory.name}`;
+    const chaveJs = JSON.stringify(chave);
+    inner.innerHTML = `
+      <div id="overlay-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <span style="font-size:15px;font-weight:700;color:#4fc3f7;letter-spacing:.5px">${titulo}</span>
+        <div id="overlay-window-controls" data-overlay-nav-group style="display:flex;align-items:center;gap:2px">
+          <button id="modal-back-btn" onclick="voltarPaginaModal()" aria-label="Voltar" title="Voltar"
+            style="width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#a8d5ff;border:1px solid transparent;border-radius:4px;cursor:pointer;font-size:16px;line-height:1;transition:all .2s"
+            onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.borderColor='rgba(255,255,255,0.14)'"
+            onmouseout="this.style.background='transparent';this.style.borderColor='transparent'">←</button>
+          <button onclick="minimizarOverlay()" aria-label="Minimizar" title="Minimizar"
+            style="width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#ffe7a8;border:1px solid transparent;border-radius:4px;cursor:pointer;font-size:16px;line-height:1;transition:all .2s"
+            onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.borderColor='rgba(255,255,255,0.14)'"
+            onmouseout="this.style.background='transparent';this.style.borderColor='transparent'">—</button>
+          <button onclick='acaoFecharProcessamento(${chaveJs})' aria-label="Fechar" title="Fechar"
+            style="width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#ffb3b3;border:1px solid transparent;border-radius:4px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s"
+            onmouseover="this.style.background='rgba(244,67,54,0.22)';this.style.borderColor='rgba(244,67,54,0.45)';this.style.color='#ffd7d7'"
+            onmouseout="this.style.background='transparent';this.style.borderColor='transparent';this.style.color='#ffb3b3'">✕</button>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#aaa;margin-bottom:10px">Sistema de planificação econômica e gestão de comitês.</div>
+      <div style="width:100%;height:560px;border-radius:10px;overflow:hidden;background:var(--scheme-bg-modal)">
+        <iframe id="modal-iframe" src="${url}" name="planification-frame" title="${titulo}" loading="lazy"
+          style="width:100%;height:100%;border:0;display:block;background:#0b1120"></iframe>
+      </div>`;
+
+    configurarOverlayPadrao({ selectedIndex: 0, navButtonsSelector: '#overlay-window-controls button' });
+    configurarBotaoVoltarModal();
+  })
+  .catch(error => {
+    console.error('❌ Erro ao buscar/criar fábrica:', error);
+    console.warn('⚠️ Tentando fallback: usar CNPJ diretamente na URL');
+    
+    // FALLBACK: Se a API falhar, tentar usar o CNPJ diretamente (comportamento anterior)
+    // Isso é uma solução temporária caso haja problemas de conectividade
+    const planificationId = ++_planificationCounter;
+    const chave = `${PLANIFICATION_WINDOW_KEY_PREFIX}${cnpj}_${planificationId}`;
+    const currentScheme = window.ColorScheme ? window.ColorScheme.get() : 'blue';
+    const cacheBuster = Date.now();
+    const url = `http://localhost:8080/committee.html?cityCode=${cityCode || ''}&cityName=${encodeURIComponent(cityName || '')}&cnpj=${cnpj}&name=${encodeURIComponent(name)}&colorScheme=${currentScheme}&_t=${cacheBuster}`;
+    
+    console.log('🔄 Fallback - URL construída com CNPJ:', url);
+    
+    // Armazenar estado da planificação
+    _planificationStates[chave] = { 
+      cityCode, 
+      cityName, 
+      cnpj, 
+      name,
+      url 
+    };
+
+    // Minimizar outras janelas
+    minimizarOutrasJanelasProcessamento(chave);
+    _cidadeAtiva = chave;
+    _jobAtivo = false;
+    _overlayMinimizado = false;
+    _miniBarEstado = 'planification';
+    _deveRetornarFocoBuscaCidade = false;
+    _estadosMiniBarPorCidade[chave] = 'planification';
+    _percentualPorCidade[chave] = 100;
+    atualizarEstadoJanelaCidade(chave, {
+      visivel: true,
+      minimizada: false,
+      ultimoStatus: 'planification',
+      ultimoPercentual: 100
+    });
+
+    overlay.dataset.overlayMode = 'planification';
+    overlay.style.display = 'flex';
+    ocultarMiniBarProcessamento(chave);
+    sincronizarMiniBarrasProcessamentos();
+
+    const titulo = `🔧 Planificar - ${name}`;
+    const chaveJs = JSON.stringify(chave);
+    inner.innerHTML = `
+      <div id="overlay-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <span style="font-size:15px;font-weight:700;color:#4fc3f7;letter-spacing:.5px">${titulo}</span>
+        <div id="overlay-window-controls" data-overlay-nav-group style="display:flex;align-items:center;gap:2px">
+          <button id="modal-back-btn" onclick="voltarPaginaModal()" aria-label="Voltar" title="Voltar"
+            style="width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#a8d5ff;border:1px solid transparent;border-radius:4px;cursor:pointer;font-size:16px;line-height:1;transition:all .2s"
+            onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.borderColor='rgba(255,255,255,0.14)'"
+            onmouseout="this.style.background='transparent';this.style.borderColor='transparent'">←</button>
+          <button onclick="minimizarOverlay()" aria-label="Minimizar" title="Minimizar"
+            style="width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#ffe7a8;border:1px solid transparent;border-radius:4px;cursor:pointer;font-size:16px;line-height:1;transition:all .2s"
+            onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.borderColor='rgba(255,255,255,0.14)'"
+            onmouseout="this.style.background='transparent';this.style.borderColor='transparent'">—</button>
+          <button onclick='acaoFecharProcessamento(${chaveJs})' aria-label="Fechar" title="Fechar"
+            style="width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#ffb3b3;border:1px solid transparent;border-radius:4px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s"
+            onmouseover="this.style.background='rgba(244,67,54,0.22)';this.style.borderColor='rgba(244,67,54,0.45)';this.style.color='#ffd7d7'"
+            onmouseout="this.style.background='transparent';this.style.borderColor='transparent';this.style.color='#ffb3b3'">✕</button>
+        </div>
+      </div>
+      <div style="font-size:11px;color:#ffe7a8;margin-bottom:10px">⚠️ Modo de compatibilidade ativo (erro ao buscar ID da fábrica)</div>
+      <div style="width:100%;height:560px;border-radius:10px;overflow:hidden;background:var(--scheme-bg-modal)">
+        <iframe id="modal-iframe" src="${url}" name="planification-frame" title="${titulo}" loading="lazy"
+          style="width:100%;height:100%;border:0;display:block;background:#0b1120"></iframe>
+      </div>`;
+
+    configurarOverlayPadrao({ selectedIndex: 0, navButtonsSelector: '#overlay-window-controls button' });
+    configurarBotaoVoltarModal();
+  });
 }
 
 function mostrarPainelStreetView(lat, lng) {

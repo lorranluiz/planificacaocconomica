@@ -41,6 +41,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" id="theme-color" content="#c62828">
+    <!-- Desabilitar cache para sempre carregar versão atualizada -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <title>Instâncias - Sistema de Planejamento Econômico</title>
     <base target="_self">
     <link rel="stylesheet" href="/css/color-scheme.css">
@@ -820,7 +824,9 @@
     newMatButton.className = 'secondary';
     newMatButton.style.minWidth = '80px';
     newMatButton.onclick = function() {
-        window.open('/social-materializations.html#create', '_blank');
+        // Adicionar timestamp para evitar cache
+        const cacheBuster = Date.now();
+        window.location.href = `/social-materializations.html?_t=${cacheBuster}#create`;
     };
     matSelectContainer.appendChild(newMatButton);
     
@@ -1312,6 +1318,19 @@ window.addEventListener('load', function() {
     });
 })();
 </script>
+
+<!-- Listener para navegação de volta quando dentro de modal -->
+<script>
+(function() {
+    window.addEventListener('message', function(event) {
+        if (event.data && event.data.action === 'navigateBack') {
+            console.log('[INSTANCES] Recebida mensagem para voltar');
+            window.history.back();
+        }
+    });
+})();
+</script>
+
 <script src="/restricted-page.js"></script>
 </body>
 </html>

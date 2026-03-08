@@ -22,8 +22,8 @@
   processing is enabled explicitly (-proc:only, -proc:full).
   Use -Xlint:-options to suppress this message.
   Use -proc:none to disable annotation processing.
-[WARNING] /home/lorranluiz/planecon/src/main/java/xyz/planecon/model/entity/DemandStock.java:[40,5] Not generating equals and hashCode: A method with one of those names already exists. (Either both or none of these methods will be generated).
 [WARNING] /home/lorranluiz/planecon/src/main/java/xyz/planecon/model/entity/WorkersProposal.java:[45,5] Not generating equals and hashCode: A method with one of those names already exists. (Either both or none of these methods will be generated).
+[WARNING] /home/lorranluiz/planecon/src/main/java/xyz/planecon/model/entity/DemandStock.java:[40,5] Not generating equals and hashCode: A method with one of those names already exists. (Either both or none of these methods will be generated).
 [WARNING] /home/lorranluiz/planecon/src/main/java/xyz/planecon/model/entity/DemandVector.java:[68,5] Not generating equals and hashCode: A method with one of those names already exists. (Either both or none of these methods will be generated).
 [INFO] /home/lorranluiz/planecon/src/main/java/xyz/planecon/config/DatabaseSeeder.java: /home/lorranluiz/planecon/src/main/java/xyz/planecon/config/DatabaseSeeder.java uses or overrides a deprecated API.
 [INFO] /home/lorranluiz/planecon/src/main/java/xyz/planecon/config/DatabaseSeeder.java: Recompile with -Xlint:deprecation for details.
@@ -46,6 +46,6 @@
 [INFO] ------------------------------------------------------------------------
 [INFO] BUILD SUCCESS
 [INFO] ------------------------------------------------------------------------
-[INFO] Total time:  03:25 min
-[INFO] Finished at: 2026-03-07T12:49:32-03:00
+[INFO] Total time:  36.714 s
+[INFO] Finished at: 2026-03-07T21:30:08-03:00
 [INFO] ------------------------------------------------------------------------

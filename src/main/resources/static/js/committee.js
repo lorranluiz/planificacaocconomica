@@ -135,7 +135,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const urlParams = new URLSearchParams(window.location.search);
     let cityCode = urlParams.get('cityCode');
     let cityName = urlParams.get('cityName');
-    const cnpj = urlParams.get('id');
+    const idParam = urlParams.get('id'); // Pode ser ID numérico ou CNPJ
+    const cnpjParam = urlParams.get('cnpj'); // CNPJ explícito (URL antiga)
     const factoryName = urlParams.get('name');
     const instanceName = urlParams.get('instance');
     
@@ -143,7 +144,26 @@ document.addEventListener('DOMContentLoaded', function() {
     if (cityCode === '') cityCode = null;
     if (cityName === '') cityName = null;
     
-    console.log('Parâmetros URL:', { cityCode, cityName, cnpj, factoryName, instanceName });
+    console.log('Parâmetros URL:', { cityCode, cityName, idParam, cnpjParam, factoryName, instanceName });
+    
+    // Determinar se temos um ID numérico ou CNPJ
+    let factoryId = null;
+    let cnpj = null;
+    
+    if (idParam) {
+        // Se idParam tem 14 dígitos, é CNPJ
+        if (idParam.length === 14 && /^\d{14}$/.test(idParam)) {
+            cnpj = idParam;
+            console.log('📋 Detectado CNPJ no parâmetro id:', cnpj);
+        } else {
+            // Caso contrário, é ID numérico
+            factoryId = parseInt(idParam);
+            console.log('🔢 Detectado ID numérico no parâmetro id:', factoryId);
+        }
+    } else if (cnpjParam) {
+        cnpj = cnpjParam;
+        console.log('📋 CNPJ fornecido explicitamente:', cnpj);
+    }
     
     // Event listener para seleção de instância
     const instanceSelect = document.getElementById('instanceSelect');
@@ -198,9 +218,38 @@ document.addEventListener('DOMContentLoaded', function() {
         btnShowPlan.addEventListener('click', showProductPlan);
     }
     
+    // Caso 0: URL com ID numérico direto (novo fluxo)
+    if (factoryId) {
+        console.log('🎯 CASO 0: Carregando diretamente pelo ID da fábrica:', factoryId);
+        
+        // Determinar cityCode para filtrar a lista
+        if (cityCode) {
+            console.log('📋 Carregando lista de fábricas da cidade:', cityCode);
+            loadInstanceSelect(cityCode)
+                .then(() => {
+                    console.log('✅ Lista carregada, agora selecionando fábrica ID:', factoryId);
+                    return selectInstanceById(factoryId);
+                })
+                .catch(error => {
+                    console.error('❌ Erro ao carregar lista ou selecionar fábrica:', error);
+                    alert(`Erro ao carregar dados:\n${error.message}`);
+                });
+        } else {
+            console.warn('⚠️ Sem cityCode, carregando TODAS as comissões');
+            loadInstanceSelect(null)
+                .then(() => {
+                    console.log('✅ Lista completa carregada, selecionando fábrica ID:', factoryId);
+                    return selectInstanceById(factoryId);
+                })
+                .catch(error => {
+                    console.error('❌ Erro ao carregar lista ou selecionar fábrica:', error);
+                    alert(`Erro ao carregar dados:\n${error.message}`);
+                });
+        }
+    }
     // Caso 1: URL vinda do mapa com CNPJ (com ou sem cityCode/cityName)
-    if (cnpj) {
-        console.log('🏭 CASO 1: Carregando fábrica do mapa', { cityCode, cityName, cnpj, factoryName });
+    else if (cnpj) {
+        console.log('🏭 CASO 1: Carregando fábrica do mapa via CNPJ', { cityCode, cityName, cnpj, factoryName });
         
         // Buscar ou criar a fábrica primeiro
         findOrCreateFactory(cityCode, cityName, cnpj, factoryName)
@@ -211,6 +260,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 
                 console.log('✅ Fábrica retornada:', factory);
+                
+                // Atualizar a URL para usar o ID real da fábrica em vez do CNPJ
+                const urlParams = new URLSearchParams(window.location.search);
+                urlParams.set('id', factory.id);
+                urlParams.delete('cnpj'); // Remover CNPJ se existir
+                window.history.replaceState({}, '', `${window.location.pathname}?${urlParams}`);
+                console.log('🔄 URL atualizada para usar ID da fábrica:', factory.id);
                 
                 // Usar cityCode da fábrica se não veio na URL
                 const factoryCityCode = cityCode || factory.cityCode;
@@ -1256,6 +1312,12 @@ function updateTechnologicalMatrixTable() {
 function saveCommitteeState() {
     // Atualizar o estado com os valores atuais dos inputs
     updateStateFromUI();
+    
+    // Validar: produção não pode ser maior ou igual à meta
+    if (pageState.producedQuantity >= pageState.targetQuantity) {
+        showErrorMessage(`A quantidade produzida (${formatNumberForDisplay(pageState.producedQuantity)}) não pode ser maior ou igual à meta (${formatNumberForDisplay(pageState.targetQuantity)}). Ajuste os valores antes de salvar.`);
+        return;
+    }
     
     // Mostrar indicador de carregamento
     const loadingSpinner = document.getElementById('loadingSpinner');

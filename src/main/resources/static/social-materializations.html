@@ -16,6 +16,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" id="theme-color" content="#2c3e50">
+    <!-- Desabilitar cache para sempre carregar versão atualizada -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link rel="stylesheet" href="/css/theme-variables.css">
     <link rel="stylesheet" href="/css/theme-elements.css">
     <title>Materializações Sociais - Sistema de Planejamento Econômico</title>
@@ -111,7 +115,7 @@
                         <select id="sector" name="sector" required style="flex: 1">
                             <option value="">Carregando setores...</option>
                         </select>
-                        <button type="button" class="secondary" style="min-width: 80px" onclick="window.open('/sectors.html#create', '_blank')">Novo</button>
+                        <button type="button" class="secondary" style="min-width: 80px" onclick="window.location.href = '/sectors.html?_t=' + Date.now() + '#create'">Novo</button>
                     </div>
                 </div>
                 
@@ -124,9 +128,14 @@
     </div> <!-- Fechamento do container -->
     <script src="/common-header.js"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        // Função principal de inicialização
+        function initializePage() {
+            console.log('[INIT] Iniciando página social-materializations.html');
+            
             // Inserir o cabeçalho comum
-            insertCommonHeader();
+            if (typeof insertCommonHeader === 'function') {
+                insertCommonHeader();
+            }
             
             // Elementos da página
             const loadButton = document.getElementById('loadButton');
@@ -144,27 +153,98 @@
             const tabs = document.querySelectorAll('.tab');
             const tabContents = document.querySelectorAll('.tab-content');
             
-            // Carregar dados automaticamente ao abrir a página
-            loadMaterializations();
+            console.log('[INIT] Número de abas encontradas:', tabs.length);
+            console.log('[INIT] Número de tab-contents encontrados:', tabContents.length);
+            
+            // Função para ativar a aba de cadastro
+            function activateCreateTab() {
+                console.log('[TAB] Ativando aba de CADASTRO...');
+                
+                // Remover classe ativa de todas as abas
+                tabs.forEach(t => {
+                    const tabName = t.getAttribute('data-tab');
+                    console.log('[TAB] Removendo active da aba:', tabName);
+                    t.classList.remove('active');
+                });
+                
+                tabContents.forEach(c => {
+                    console.log('[TAB] Removendo active do conteúdo:', c.id);
+                    c.classList.remove('active');
+                });
+                
+                // Ativar aba de cadastro
+                const createTab = document.querySelector('.tab[data-tab="create"]');
+                const createTabContent = document.getElementById('create-tab');
+                
+                console.log('[TAB] createTab encontrada?', !!createTab);
+                console.log('[TAB] createTabContent encontrado?', !!createTabContent);
+                
+                if (createTab && createTabContent) {
+                    createTab.classList.add('active');
+                    createTabContent.classList.add('active');
+                    
+                    console.log('[TAB] ✅ Aba CADASTRAR ativada!');
+                    console.log('[TAB] Classe da aba:', createTab.className);
+                    console.log('[TAB] Classe do conteúdo:', createTabContent.className);
+                    console.log('[TAB] Display do conteúdo:', window.getComputedStyle(createTabContent).display);
+                    
+                    // Carregar setores para o formulário de cadastro
+                    loadSectors();
+                } else {
+                    console.error('[TAB] ❌ Erro: elementos da aba não encontrados!');
+                }
+            }
             
             // ----------------- GERENCIAMENTO DE ABAS -----------------
-            tabs.forEach(tab => {
-                tab.addEventListener('click', function() {
+            console.log('[TAB] Registrando event listeners das abas...');
+            tabs.forEach((tab, index) => {
+                const tabId = tab.getAttribute('data-tab');
+                console.log(`[TAB] Registrando listener para aba ${index}: ${tabId}`);
+                
+                tab.addEventListener('click', function(e) {
+                    console.log(`[TAB] Clique na aba: ${tabId}`);
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
                     // Remover classe ativa de todas as abas
                     tabs.forEach(t => t.classList.remove('active'));
                     tabContents.forEach(c => c.classList.remove('active'));
                     
                     // Adicionar classe ativa na aba clicada
                     this.classList.add('active');
-                    const tabId = this.getAttribute('data-tab');
-                    document.getElementById(tabId + '-tab').classList.add('active');
+                    const targetTabContent = document.getElementById(tabId + '-tab');
+                    if (targetTabContent) {
+                        targetTabContent.classList.add('active');
+                        console.log(`[TAB] ✅ Aba ${tabId} ativada!`);
+                    } else {
+                        console.error(`[TAB] ❌ Conteúdo da aba ${tabId}-tab não encontrado!`);
+                    }
                     
                     // Se a aba for de cadastro, carregar setores
                     if (tabId === 'create') {
                         loadSectors();
+                    } else if (tabId === 'list') {
+                        loadMaterializations();
                     }
                 });
             });
+            
+            // Verificar se deve abrir a aba de cadastro (via hash #create)
+            const currentHash = window.location.hash;
+            console.log('[HASH] URL completa:', window.location.href);
+            console.log('[HASH] Hash da URL:', currentHash);
+            console.log('[HASH] Deve abrir aba de cadastro?', currentHash === '#create');
+            
+            if (currentHash === '#create') {
+                // Usar setTimeout para garantir que o CSS esteja aplicado
+                setTimeout(function() {
+                    console.log('[HASH] Executando activateCreateTab por causa do hash #create');
+                    activateCreateTab();
+                }, 150);
+            } else {
+                // Carregar dados automaticamente ao abrir a página (apenas se não for cadastro)
+                loadMaterializations();
+            }
             
             // ----------------- LISTAR MATERIALIZAÇÕES -----------------
             loadButton.addEventListener('click', loadMaterializations);
@@ -394,7 +474,17 @@
                 if (type === 'PRODUCT') return 'PRODUTO';
                 return type;
             }
-        });
+        }
+        
+        // Chamar a função de inicialização
+        // Verificar se o DOM já está carregado ou aguardar
+        if (document.readyState === 'loading') {
+            console.log('[INIT] DOM ainda carregando, aguardando DOMContentLoaded...');
+            document.addEventListener('DOMContentLoaded', initializePage);
+        } else {
+            console.log('[INIT] DOM já carregado, inicializando imediatamente...');
+            initializePage();
+        }
     </script>
     <script>
     // Verificar integridade do sistema quando a página terminar de carregar
@@ -457,6 +547,18 @@
                     }
                 });
             });
+        });
+    })();
+    </script>
+
+    <!-- Listener para navegação de volta quando dentro de modal -->
+    <script>
+    (function() {
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.action === 'navigateBack') {
+                console.log('[SOCIAL-MAT] Recebida mensagem para voltar');
+                window.history.back();
+            }
         });
     })();
     </script>

@@ -16,6 +16,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" id="theme-color" content="#2c3e50">
+    <!-- Desabilitar cache para sempre carregar versão atualizada -->
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
     <link rel="stylesheet" href="/css/theme-variables.css">
     <link rel="stylesheet" href="/css/theme-elements.css">
     <title>Setores - Sistema de Planejamento Econômico</title>
@@ -143,8 +147,24 @@
             });
             
             // Verificar se a URL contém um hash para abrir uma aba específica
-            if (window.location.hash === '#create') {
-                document.querySelector('.tab[data-tab="create"]').click();
+            const currentHash = window.location.hash;
+            console.log('[SECTORS] Hash da URL:', currentHash);
+            
+            if (currentHash === '#create') {
+                console.log('[SECTORS] Detectado #create, ativando aba de cadastro...');
+                // Remover classe ativa de todas as abas
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+                
+                // Ativar aba de cadastro
+                const createTab = document.querySelector('.tab[data-tab="create"]');
+                const createTabContent = document.getElementById('create-tab');
+                
+                if (createTab && createTabContent) {
+                    createTab.classList.add('active');
+                    createTabContent.classList.add('active');
+                    console.log('[SECTORS] ✅ Aba de cadastro ativada!');
+                }
             } else {
                 // Carregar dados automaticamente ao abrir a página
                 loadSectors();
@@ -372,6 +392,18 @@
                     }
                 });
             });
+        });
+    })();
+    </script>
+
+    <!-- Listener para navegação de volta quando dentro de modal -->
+    <script>
+    (function() {
+        window.addEventListener('message', function(event) {
+            if (event.data && event.data.action === 'navigateBack') {
+                console.log('[SECTORS] Recebida mensagem para voltar');
+                window.history.back();
+            }
         });
     })();
     </script>
