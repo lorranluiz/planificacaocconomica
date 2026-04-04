@@ -19,8 +19,9 @@ Sistema de planejamento econômico baseado em conselhos populares.
 7. [How to Use](#how-to-use)
     1. [Clone the Repository](#clone-the-repository)
     2. [Install](#install)
-    3. [Calculate Estimates (Council)](#calculate-estimates-council)
-    4. [Update Demands and Goals (Committee)](#update-demands-and-goals-committee)
+    3. [Start All Servers](#start-servers)
+    4. [Calculate Estimates (Council)](#calculate-estimates-council)
+    5. [Update Demands and Goals (Committee)](#update-demands-and-goals-committee)
 8. [Support](#support)
 9. [Contact](#contact)
 10. [New Features](#new-features)
@@ -82,8 +83,27 @@ chmod +x build.sh
 ./build.sh
 ```
 
+<a id="start-servers"></a>
+### 3. Start All Servers
+```bash
+./start-all-servers.sh
+```
+
+This single command starts all project servers:
+- **Node.js server** (factorsMap) - http://localhost:3000
+- **Java/Spring Boot server** - http://localhost:8080 and https://localhost:8443
+
+#### To stop all servers:
+```bash
+./stop-all-servers.sh
+```
+
+#### Server logs:
+- Node.js: `factorsmap-server.log`
+- Spring Boot: `spring-boot.log`
+
 <a id="calculate-estimates-council"></a>
-### 3. Calculate Estimates (Council)
+### 4. Calculate Estimates (Council)
 1. Acesse a página do conselho.
 2. Selecione o conselho desejado no dropdown.
 3. Clique no botão "Calcular Estimativas".
@@ -92,7 +112,7 @@ chmod +x build.sh
 6. Clique em "Salvar Alterações" para persistir os dados.
 
 <a id="update-demands-and-goals-committee"></a>
-### 4. Update Demands and Goals (Committee)
+### 5. Update Demands and Goals (Committee)
 1. Acesse a página do comitê.
 2. Selecione o comitê desejado no dropdown.
 3. Clique no botão "Atualizar Demandas e Metas".

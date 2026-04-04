@@ -1,8 +1,12 @@
 # Ignore the backups directory
 data/
 
-# FactorsMap - dados sensíveis e temporários
+# Links simbólicos
+public
+factorsMap/data
 factorsMap/data/
+
+# FactorsMap - dados sensíveis e temporários
 factorsMap/node_modules/
 factorsMap/geocache.json
 factorsMap/client-logs.json

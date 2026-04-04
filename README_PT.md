@@ -14,8 +14,9 @@
 6. [Como Usar](#-como-usar)
     1. [Clonar o Repositório](#1-clonar-o-repositório)
     2. [Instalar](#2-instalar)
-8. [Apoie Este Projeto](#-apoie-este-projeto)
-9. [Contato](#-contato)
+    3. [Iniciar Todos os Servidores](#3-iniciar-todos-os-servidores)
+7. [Apoie Este Projeto](#-apoie-este-projeto)
+8. [Contato](#-contato)
 
 # 🚀 Introdução
 Planificação Econômica
@@ -57,6 +58,24 @@ cd planificacaocconomica
 chmod +x build.sh
 ./build.sh
 ```
+
+### 3. Iniciar Todos os Servidores
+```bash
+./start-all-servers.sh
+```
+
+Este único comando inicia todos os servidores do projeto:
+- **Servidor Node.js** (factorsMap) - http://localhost:3000
+- **Servidor Java/Spring Boot** - http://localhost:8080 e https://localhost:8443
+
+#### Para parar todos os servidores:
+```bash
+./stop-all-servers.sh
+```
+
+#### Logs dos servidores:
+- Node.js: `factorsmap-server.log`
+- Spring Boot: `spring-boot.log`
 
 ## 💖 Apoie Este Projeto
 Este projeto é open-source e foi desenvolvido com dedicação para ajudar a comunidade. Se você acha útil e deseja apoiar seu desenvolvimento, considere fazer uma doação. Seu apoio ajuda a manter este projeto ativo e evoluindo! 🚀
