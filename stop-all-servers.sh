@@ -16,7 +16,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║         PLANECON - Parando Servidores                   ║${NC}"
+echo -e "${BLUE}║         PLANECON - Parando Servidores                    ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
@@ -29,22 +29,40 @@ cd "$PROJECT_DIR"
 
 echo -e "${YELLOW}[1/2] Parando servidor Node.js...${NC}"
 
+STOPPED=false
+
+# Tentar pelo PID salvo
 if [ -f "$PROJECT_DIR/factorsmap-server.pid" ]; then
     NODE_PID=$(cat "$PROJECT_DIR/factorsmap-server.pid")
     if kill -0 $NODE_PID 2>/dev/null; then
         kill $NODE_PID
         echo -e "${GREEN}✓ Servidor Node.js encerrado (PID: $NODE_PID)${NC}"
-    else
-        echo -e "${YELLOW}  Processo já não está rodando${NC}"
+        STOPPED=true
     fi
     rm -f "$PROJECT_DIR/factorsmap-server.pid"
-else
-    # Tentar matar por nome do processo
-    if pkill -f "node.*factorsMap/server.js"; then
-        echo -e "${GREEN}✓ Servidor Node.js encerrado${NC}"
-    else
-        echo -e "${YELLOW}  Nenhum servidor Node.js encontrado${NC}"
+fi
+
+# Tentar parar pela porta 3000
+PORT_PID=$(lsof -ti:3000 2>/dev/null)
+if [ -n "$PORT_PID" ]; then
+    kill $PORT_PID 2>/dev/null
+    sleep 1
+    # Se ainda estiver rodando, forçar
+    if kill -0 $PORT_PID 2>/dev/null; then
+        kill -9 $PORT_PID 2>/dev/null
     fi
+    echo -e "${GREEN}✓ Servidor na porta 3000 encerrado (PID: $PORT_PID)${NC}"
+    STOPPED=true
+fi
+
+# Tentar matar processos que contenham factorsMap/server.js
+if pkill -f "factorsMap.*server\.js" 2>/dev/null; then
+    echo -e "${GREEN}✓ Processos factorsMap encerrados${NC}"
+    STOPPED=true
+fi
+
+if [ "$STOPPED" = false ]; then
+    echo -e "${YELLOW}  Nenhum servidor Node.js encontrado${NC}"
 fi
 
 ##############################################################################
@@ -53,6 +71,9 @@ fi
 
 echo -e "${YELLOW}[2/2] Parando servidor Java/Spring Boot...${NC}"
 
+STOPPED=false
+
+# Tentar pelo PID salvo
 if [ -f "$PROJECT_DIR/spring-boot.pid" ]; then
     JAVA_PID=$(cat "$PROJECT_DIR/spring-boot.pid")
     if kill -0 $JAVA_PID 2>/dev/null; then
@@ -63,21 +84,46 @@ if [ -f "$PROJECT_DIR/spring-boot.pid" ]; then
             kill -9 $JAVA_PID
         fi
         echo -e "${GREEN}✓ Servidor Spring Boot encerrado (PID: $JAVA_PID)${NC}"
-    else
-        echo -e "${YELLOW}  Processo já não está rodando${NC}"
+        STOPPED=true
     fi
     rm -f "$PROJECT_DIR/spring-boot.pid"
-else
-    # Tentar matar todos os processos Java
-    if pkill -9 java 2>/dev/null; then
-        echo -e "${GREEN}✓ Processos Java encerrados${NC}"
-    else
-        echo -e "${YELLOW}  Nenhum processo Java encontrado${NC}"
+fi
+
+# Tentar parar pelas portas 8080 e 8443
+for PORT in 8080 8443; do
+    PORT_PID=$(lsof -ti:$PORT 2>/dev/null)
+    if [ -n "$PORT_PID" ]; then
+        kill $PORT_PID 2>/dev/null
+        sleep 1
+        # Se ainda estiver rodando, forçar
+        if kill -0 $PORT_PID 2>/dev/null; then
+            kill -9 $PORT_PID 2>/dev/null
+        fi
+        echo -e "${GREEN}✓ Servidor na porta $PORT encerrado (PID: $PORT_PID)${NC}"
+        STOPPED=true
     fi
+done
+
+# Tentar matar todos os processos Java do projeto
+JAVA_PIDS=$(pgrep -f "java.*planecon.*jar")
+if [ -n "$JAVA_PIDS" ]; then
+    for PID in $JAVA_PIDS; do
+        kill $PID 2>/dev/null
+        sleep 1
+        if kill -0 $PID 2>/dev/null; then
+            kill -9 $PID 2>/dev/null
+        fi
+    done
+    echo -e "${GREEN}✓ Processos Java do projeto encerrados${NC}"
+    STOPPED=true
+fi
+
+if [ "$STOPPED" = false ]; then
+    echo -e "${YELLOW}  Nenhum servidor Java encontrado${NC}"
 fi
 
 echo ""
 echo -e "${GREEN}╔══════════════════════════════════════════════════════════╗${NC}"
-echo -e "${GREEN}║          TODOS OS SERVIDORES FORAM ENCERRADOS           ║${NC}"
+echo -e "${GREEN}║          TODOS OS SERVIDORES FORAM ENCERRADOS            ║${NC}"
 echo -e "${GREEN}╚══════════════════════════════════════════════════════════╝${NC}"
 echo ""

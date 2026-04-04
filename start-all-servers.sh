@@ -22,7 +22,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║         PLANECON - Iniciando Servidores                 ║${NC}"
+echo -e "${BLUE}║         PLANECON - Iniciando Servidores                  ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
@@ -36,21 +36,30 @@ cd "$PROJECT_DIR"
 
 echo -e "${YELLOW}[1/2] Iniciando servidor Node.js (factorsMap)...${NC}"
 
-# Verificar se já está rodando
-if pgrep -f "node.*factorsMap/server.js" > /dev/null; then
-    echo -e "${GREEN}✓ Servidor Node.js já está rodando${NC}"
+# Verificar se já está rodando na porta 3000
+if lsof -ti:3000 > /dev/null 2>&1; then
+    echo -e "${GREEN}✓ Servidor Node.js já está rodando na porta 3000${NC}"
 else
     cd "$PROJECT_DIR/factorsMap"
     nohup node server.js > "$PROJECT_DIR/factorsmap-server.log" 2>&1 &
     NODE_PID=$!
     echo $NODE_PID > "$PROJECT_DIR/factorsmap-server.pid"
-    sleep 2
     
-    if pgrep -f "node.*factorsMap/server.js" > /dev/null; then
-        echo -e "${GREEN}✓ Servidor Node.js iniciado (PID: $NODE_PID)${NC}"
-        echo -e "${GREEN}  📍 Mapa de Fábricas: http://localhost:3000${NC}"
-    else
+    # Aguardar até 10 segundos para o servidor iniciar
+    echo "   Aguardando servidor inicializar..."
+    for i in {1..10}; do
+        if lsof -ti:3000 > /dev/null 2>&1; then
+            echo -e "${GREEN}✓ Servidor Node.js iniciado (PID: $NODE_PID)${NC}"
+            echo -e "${GREEN}  📍 Mapa de Fábricas: http://localhost:3000${NC}"
+            break
+        fi
+        sleep 1
+    done
+    
+    # Verificação final
+    if ! lsof -ti:3000 > /dev/null 2>&1; then
         echo -e "${RED}✗ Falha ao iniciar servidor Node.js${NC}"
+        echo -e "${RED}  Verifique o log em: factorsmap-server.log${NC}"
         exit 1
     fi
 fi
@@ -86,10 +95,17 @@ if [ $? -eq 0 ]; then
     JAVA_PID=$!
     echo $JAVA_PID > "$PROJECT_DIR/spring-boot.pid"
     
-    # Aguardar inicialização (30 segundos)
+    # Aguardar inicialização (verificar por 60 segundos)
     echo "   Aguardando inicialização do Spring Boot..."
-    for i in {1..30}; do
+    SUCCESS=false
+    for i in {1..60}; do
+        # Verificar se o log contém a mensagem de sucesso ou se as portas estão abertas
         if grep -q "Started Application" "$PROJECT_DIR/spring-boot.log" 2>/dev/null; then
+            SUCCESS=true
+            break
+        fi
+        if lsof -ti:8080 > /dev/null 2>&1 || lsof -ti:8443 > /dev/null 2>&1; then
+            SUCCESS=true
             break
         fi
         echo -n "."
@@ -97,13 +113,18 @@ if [ $? -eq 0 ]; then
     done
     echo ""
     
-    if pgrep -p $JAVA_PID > /dev/null; then
+    if [ "$SUCCESS" = true ]; then
         echo -e "${GREEN}✓ Servidor Spring Boot iniciado (PID: $JAVA_PID)${NC}"
-        echo -e "${GREEN}  📍 HTTP:  http://localhost:8080${NC}"
-        echo -e "${GREEN}  📍 HTTPS: https://localhost:8443${NC}"
+        if lsof -ti:8080 > /dev/null 2>&1; then
+            echo -e "${GREEN}  📍 HTTP:  http://localhost:8080${NC}"
+        fi
+        if lsof -ti:8443 > /dev/null 2>&1; then
+            echo -e "${GREEN}  📍 HTTPS: https://localhost:8443${NC}"
+        fi
     else
         echo -e "${RED}✗ Falha ao iniciar servidor Spring Boot${NC}"
         echo -e "${RED}  Verifique o log em: spring-boot.log${NC}"
+        tail -20 "$PROJECT_DIR/spring-boot.log"
         exit 1
     fi
 else
@@ -113,7 +134,7 @@ fi
 
 echo ""
 echo -e "${BLUE}╔══════════════════════════════════════════════════════════╗${NC}"
-echo -e "${BLUE}║              TODOS OS SERVIDORES INICIADOS              ║${NC}"
+echo -e "${BLUE}║              TODOS OS SERVIDORES INICIADOS               ║${NC}"
 echo -e "${BLUE}╚══════════════════════════════════════════════════════════╝${NC}"
 echo ""
 echo -e "${GREEN}Servidores ativos:${NC}"
