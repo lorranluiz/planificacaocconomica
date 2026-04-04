@@ -28,3 +28,5 @@ target/
 *.class
 *.jar
 *:Zone.Identifier
+spring-boot.log
+spring-boot.pid
