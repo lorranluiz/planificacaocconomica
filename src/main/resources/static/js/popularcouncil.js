@@ -1493,7 +1493,43 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Carregar lista de instâncias
     console.log('Calling loadInstances()...');
+
+    // Verifica se há um ID de conselho para auto-seleção via parâmetro URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const councilIdParam = urlParams.get('id');
+    console.log('Parâmetro URL id:', councilIdParam);
+
+    // Iniciar carregamento e auto-seleção via polling robusto
     loadInstances();
+
+    if (councilIdParam) {
+        // Polling: tenta selecionar o conselho a cada 150ms por até 10s
+        // (funciona independente de quando loadInstances() termina)
+        const targetId = String(councilIdParam);
+        let attempts = 0;
+        const maxAttempts = 67; // ~10s
+        console.log('Iniciando polling para auto-selecionar conselho ID:', targetId);
+
+        const autoSelectInterval = setInterval(function() {
+            attempts++;
+            if (attempts > maxAttempts) {
+                clearInterval(autoSelectInterval);
+                console.error('Timeout: conselho ID', targetId, 'não encontrado no select após', attempts, 'tentativas');
+                console.error('Opções disponíveis:', Array.from(instanceSelect.options).map(o => o.value + ':' + o.textContent));
+                return;
+            }
+
+            // Aguardar o select ter opções reais (mais de 1 = além do placeholder)
+            if (instanceSelect.options.length <= 1) return;
+
+            instanceSelect.value = targetId;
+            if (instanceSelect.value == targetId) {
+                clearInterval(autoSelectInterval);
+                console.log('✅ Conselho ID', targetId, 'selecionado na tentativa', attempts);
+                instanceSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }, 150);
+    }
     
     // Configurar eventos
     instanceSelect.addEventListener('change', handleInstanceChange);
@@ -1506,13 +1542,49 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     /**
-     * Carrega a lista de instâncias disponíveis
+     * Seleciona um conselho pelo ID no <select>, com retry (mesmo padrão de committee.js).
+     * @returns {Promise}
+     */
+    function selectCouncilById(councilId) {
+        return new Promise((resolve, reject) => {
+            const targetId = String(councilId);
+            console.log('🎯 selectCouncilById: tentando selecionar ID', targetId);
+
+            instanceSelect.value = targetId;
+
+            if (instanceSelect.value == targetId) {
+                console.log('✅ Conselho selecionado imediatamente');
+                instanceSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                resolve(true);
+            } else {
+                console.warn('⚠️ Seleção imediata falhou, aguardando 300ms...');
+                setTimeout(() => {
+                    instanceSelect.value = targetId;
+                    if (instanceSelect.value == targetId) {
+                        console.log('✅ Conselho selecionado na segunda tentativa');
+                        instanceSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                        resolve(true);
+                    } else {
+                        console.error('❌ Falha ao selecionar conselho ID', targetId,
+                            '— IDs disponíveis:', Array.from(instanceSelect.options).map(o => o.value).filter(v => v));
+                        reject(new Error('Conselho ID ' + targetId + ' não encontrado no select'));
+                    }
+                }, 300);
+            }
+        });
+    }
+
+    /**
+     * Carrega a lista de instâncias disponíveis. Retorna uma Promise.
      */
     function loadInstances() {
         console.log('loadInstances() called');
         console.log('Fetching from: /api/instances?type=POPULARCOUNCIL');
-        
-        fetch('/api/instances?type=POPULARCOUNCIL')
+
+        instanceSelect.innerHTML = '<option value="">Carregando...</option>';
+        instanceSelect.disabled = true;
+
+        return fetch('/api/instances?type=POPULARCOUNCIL')
             .then(response => {
                 console.log('API response status:', response.status);
                 if (!response.ok) {
@@ -1521,28 +1593,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(instances => {
-                console.log('Instances received:', instances);
-                console.log('Number of instances:', instances.length);
-                
-                // Limpar opções existentes
-                while (instanceSelect.options.length > 1) {
-                    instanceSelect.remove(1);
-                }
-                
-                // Adicionar novas opções
+                console.log('Instances received:', instances.length);
+
+                instanceSelect.innerHTML = '<option value="">Selecione uma instância...</option>';
+                instanceSelect.disabled = false;
+
                 instances.forEach(instance => {
                     const option = document.createElement('option');
                     option.value = instance.id;
                     option.textContent = instance.name || `Conselho #${instance.id}`;
                     instanceSelect.appendChild(option);
-                    console.log(`Added option: ${option.textContent} (ID: ${option.value})`);
                 });
-                
+
                 console.log('Successfully loaded', instances.length, 'councils into dropdown');
             })
             .catch(error => {
                 console.error('Error in loadInstances():', error);
+                instanceSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+                instanceSelect.disabled = false;
                 showError('Erro ao carregar instâncias de conselho: ' + error.message);
+                throw error;
             });
     }
     

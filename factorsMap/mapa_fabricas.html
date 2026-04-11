@@ -1396,6 +1396,7 @@ let _logPollingInterval = null;
 let _recursosPollingInterval = null;
 let _logOffset          = 0;
 let _cidadeAtiva       = null;
+let _cidadeAtivaMapa   = null; // exclusivo: cidade exibida no mapa (não recebe chaves de overlay)
 let _codigoCidadeAtiva = null;
 let _jobAtivo          = false;
 let _overlayMinimizado = false;
@@ -3035,6 +3036,69 @@ function mostrarPainelPlanification(cityCode, cityName, cnpj, name) {
   });
 }
 
+function mostrarPainelPlanificationConselho(conselhoId, conselhoNome) {
+  const overlay = document.getElementById('processamento-overlay');
+  const inner = document.getElementById('overlay-inner');
+  if (!overlay || !inner) return;
+
+  const planificationId = ++_planificationCounter;
+  const chave = `${PLANIFICATION_WINDOW_KEY_PREFIX}conselho_${conselhoId}_${planificationId}`;
+  const currentScheme = window.ColorScheme ? window.ColorScheme.get() : 'blue';
+  const cacheBuster = Date.now();
+  const url = `http://localhost:8080/popularcouncil.html?id=${encodeURIComponent(conselhoId)}&colorScheme=${currentScheme}&_t=${cacheBuster}`;
+
+  minimizarOutrasJanelasProcessamento(chave);
+  _cidadeAtiva = chave;
+  _jobAtivo = false;
+  _overlayMinimizado = false;
+  _miniBarEstado = 'planification';
+  _deveRetornarFocoBuscaCidade = false;
+  _estadosMiniBarPorCidade[chave] = 'planification';
+  _percentualPorCidade[chave] = 100;
+  atualizarEstadoJanelaCidade(chave, {
+    visivel: true,
+    minimizada: false,
+    ultimoStatus: 'planification',
+    ultimoPercentual: 100
+  });
+
+  _planificationStates[chave] = { conselhoId, conselhoNome, url };
+
+  overlay.dataset.overlayMode = 'planification';
+  overlay.style.display = 'flex';
+  ocultarMiniBarProcessamento(chave);
+  sincronizarMiniBarrasProcessamentos();
+
+  const titulo = `🔧 Planificar - ${conselhoNome}`;
+  const chaveJs = JSON.stringify(chave);
+  inner.innerHTML = `
+    <div id="overlay-header" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <span style="font-size:15px;font-weight:700;color:#4fc3f7;letter-spacing:.5px">${titulo}</span>
+      <div id="overlay-window-controls" data-overlay-nav-group style="display:flex;align-items:center;gap:2px">
+        <button id="modal-back-btn" onclick="voltarPaginaModal()" aria-label="Voltar" title="Voltar"
+          style="width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#a8d5ff;border:1px solid transparent;border-radius:4px;cursor:pointer;font-size:16px;line-height:1;transition:all .2s"
+          onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.borderColor='rgba(255,255,255,0.14)'"
+          onmouseout="this.style.background='transparent';this.style.borderColor='transparent'">←</button>
+        <button onclick="minimizarOverlay()" aria-label="Minimizar" title="Minimizar"
+          style="width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#ffe7a8;border:1px solid transparent;border-radius:4px;cursor:pointer;font-size:16px;line-height:1;transition:all .2s"
+          onmouseover="this.style.background='rgba(255,255,255,0.08)';this.style.borderColor='rgba(255,255,255,0.14)'"
+          onmouseout="this.style.background='transparent';this.style.borderColor='transparent'">—</button>
+        <button onclick='acaoFecharProcessamento(${chaveJs})' aria-label="Fechar" title="Fechar"
+          style="width:32px;height:28px;display:inline-flex;align-items:center;justify-content:center;background:transparent;color:#ffb3b3;border:1px solid transparent;border-radius:4px;cursor:pointer;font-size:15px;line-height:1;transition:all .2s"
+          onmouseover="this.style.background='rgba(244,67,54,0.22)';this.style.borderColor='rgba(244,67,54,0.45)';this.style.color='#ffd7d7'"
+          onmouseout="this.style.background='transparent';this.style.borderColor='transparent';this.style.color='#ffb3b3'">✕</button>
+      </div>
+    </div>
+    <div style="font-size:11px;color:#aaa;margin-bottom:10px">Sistema de planificação econômica e gestão de conselhos populares.</div>
+    <div style="width:100%;height:560px;border-radius:10px;overflow:hidden;background:var(--scheme-bg-modal)">
+      <iframe id="modal-iframe" src="${url}" name="planification-frame" title="${titulo}" loading="lazy"
+        style="width:100%;height:100%;border:0;display:block;background:#0b1120"></iframe>
+    </div>`;
+
+  configurarOverlayPadrao({ selectedIndex: 0, navButtonsSelector: '#overlay-window-controls button' });
+  configurarBotaoVoltarModal();
+}
+
 function mostrarPainelStreetView(lat, lng) {
   const latNum = Number(lat);
   const lngNum = Number(lng);
@@ -3342,6 +3406,7 @@ async function carregarCidadeNoMapa(nomeCidade) {
     atualizarOverlayCarregamentoCidade(100, novosEmpresas.length, total || novosEmpresas.length, 'Concluído');
 
     if (loadToken === _cityLoadTokenAtivo) ocultarOverlayCarregamentoCidade();
+    _cidadeAtivaMapa = nomeUpper;
     return true;
   } catch (e) {
     console.error('Erro ao carregar cidade no mapa:', e);
@@ -4503,6 +4568,32 @@ async function carregarCidadeInicial() {
 function renderizarLista(filtro = "") {
   const lista = document.getElementById("listaEmpresas"); 
   lista.innerHTML = "";
+
+  // Conselhos populares como primeira opção
+  if (typeof _conselhosCidadeAtual !== 'undefined' && Array.isArray(_conselhosCidadeAtual)) {
+    _conselhosCidadeAtual.forEach((conselho, idx) => {
+      if (filtro && !conselho.nome.toLowerCase().includes(filtro.toLowerCase())) return;
+      const div = document.createElement('div');
+      div.className = 'empresa-item conselho-item';
+      div.style.display = 'flex';
+      div.style.alignItems = 'flex-start';
+      const content = document.createElement('div');
+      content.className = 'empresa-item-content';
+      content.innerHTML = `<b style="color:#4FC3F7;">🏛️ ${conselho.nome}</b><br><font size=2>Conselho Popular · ${conselho.cidade || ''}</font>`;
+      div.appendChild(content);
+      content.addEventListener('click', () => {
+        const layers = conselhosLayer.getLayers();
+        if (layers[idx]) {
+          map.setView(layers[idx].getLatLng(), 16);
+          layers[idx].openPopup();
+        }
+        document.querySelectorAll('.empresa-item').forEach(el => el.classList.remove('active'));
+        div.classList.add('active');
+      });
+      lista.appendChild(div);
+    });
+  }
+
   const filtradas = empresas.filter(e => e.nome.toLowerCase().includes(filtro.toLowerCase()));
   filtradas.sort((a, b) => b.capital - a.capital);
   
@@ -4605,9 +4696,14 @@ function inicializarAutocompleteEmpresas() {
       return;
     }
 
-    const filtradas = nomesEmpresas
-      .filter(nome => normalizarBuscaEmpresa(nome).includes(termo))
-      .slice(0, 10);
+    const nomesConselhos = (typeof _conselhosCidadeAtual !== 'undefined' && Array.isArray(_conselhosCidadeAtual))
+      ? _conselhosCidadeAtual.filter(c => normalizarBuscaEmpresa(c.nome || '').includes(termo)).map(c => c.nome)
+      : [];
+
+    const filtradas = [
+      ...nomesConselhos,
+      ...nomesEmpresas.filter(nome => normalizarBuscaEmpresa(nome).includes(termo))
+    ].slice(0, 10);
 
     if (!filtradas.length) {
       fecharAutocomplete();
@@ -5103,15 +5199,7 @@ window.addEventListener('DOMContentLoaded', inicializarOverlayPadrao);
 // ─── Conselhos Populares no mapa ─────────────────────────────────────────────
 const conselhosLayer = L.featureGroup();
 const _conselhosCarregados = {};
-
-function criarIconeConselho(cor) {
-  const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="46" viewBox="0 0 24 30">
-    <path d="M12 2C6.48 2 2 6.48 2 12c0 4.41 3.05 8.1 7.01 8.93V28h-6v2h16v-2h-6v-4.07C18.95 20.1 22 16.41 22 12c0-5.52-4.48-10-10-10z" stroke="#fff" stroke-width="1.2" fill="${cor}"/>
-    <text x="12" y="14" text-anchor="middle" font-size="8" fill="#fff" font-family="sans-serif" font-weight="bold">CP</text>
-  </svg>`;
-  const encodedSVG = btoa(unescape(encodeURIComponent(iconSVG)));
-  return L.icon({ iconUrl: 'data:image/svg+xml;base64,' + encodedSVG, iconSize: [36, 46], iconAnchor: [18, 46], popupAnchor: [0, -46] });
-}
+let _conselhosCidadeAtual = [];
 
 async function carregarConselhosMapa(nomeCidade) {
   if (!nomeCidade) return;
@@ -5125,8 +5213,8 @@ async function carregarConselhosMapa(nomeCidade) {
     const conselhos = await resp.json();
     if (!Array.isArray(conselhos) || !conselhos.length) return;
 
-    // Remover marcadores de conselho anteriores (se cidade mudou)
     conselhosLayer.clearLayers();
+    _conselhosCidadeAtual = conselhos;
 
     conselhos.forEach(conselho => {
       let lat = conselho.latitude != null ? Number(conselho.latitude) : null;
@@ -5134,7 +5222,6 @@ async function carregarConselhosMapa(nomeCidade) {
       let coordComputada = false;
 
       if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
-        // Calcular centroide das fábricas com coordenadas + offset de ~300 m ao norte
         const comCoords = empresas.filter(e => e.coordenadas && Number.isFinite(e.coordenadas.lat) && Number.isFinite(e.coordenadas.lon));
         if (!comCoords.length) return;
         const centroLat = comCoords.reduce((s, e) => s + e.coordenadas.lat, 0) / comCoords.length;
@@ -5143,7 +5230,6 @@ async function carregarConselhosMapa(nomeCidade) {
         lon = centroLon + 0.003;
         coordComputada = true;
 
-        // Persistir coordenadas calculadas no banco para cargas futuras
         fetch(`/api/conselhos-cidade/${conselho.id}/coordenadas`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -5151,20 +5237,27 @@ async function carregarConselhosMapa(nomeCidade) {
         }).catch(() => {});
       }
 
-      const iconAzul = criarIconeConselho('#4FC3F7');
+      const icon = liteMode ? criarIconeClassico('#4FC3F7') : criarIconePiramide();
       const aviso = coordComputada
         ? '<br><em style="color:#aaa;font-size:11px;">📍 Localização estimada — será corrigida</em>'
         : '';
 
-      const marker = L.marker([lat, lon], { icon: iconAzul, zIndexOffset: 1000 })
+      const _cNome = (conselho.nome || 'Conselho Popular').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const marker = L.marker([lat, lon], { icon: icon, zIndexOffset: 1000 })
         .bindPopup(`<div style="font-size:13px;width:260px;">
           <b style="color:#4FC3F7;font-size:14px;">🏛️ ${conselho.nome || 'Conselho Popular'}</b><br>
-          <span style="color:#aaa">Conselho Popular · ${conselho.cidade || cidade}</span>${aviso}
+          <span style="color:#aaa">Conselho Popular · ${conselho.cidade || cidade}</span>${aviso}<br><br>
+          <a href="#" onclick="event.preventDefault(); mostrarPainelPlanificationConselho('${conselho.id}', '${_cNome}'); return false;" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a>
         </div>`);
 
       conselhosLayer.addLayer(marker);
       marker.addTo(map);
+      if (!liteMode) iniciarPiramideNoMarcador(marker, '#4FC3F7', 0);
     });
+
+    // Atualizar lista lateral para exibir o conselho
+    const inputEmpresa = document.getElementById('searchInput');
+    renderizarLista(inputEmpresa ? inputEmpresa.value : '');
 
   } catch (e) {
     console.warn('Erro ao carregar conselhos no mapa:', e);
@@ -5176,25 +5269,24 @@ async function carregarConselhosMapa(nomeCidade) {
   let _ultimaCidadeConselhos = null;
 
   function verificarMudancaCidade() {
-    // _cidadeAtiva é a variável global que indica a cidade em exibição no mapa
-    const cidadeAtual = (typeof _cidadeAtiva !== 'undefined' ? _cidadeAtiva : null);
+    // Usar _cidadeAtivaMapa que é exclusivo para a cidade no mapa,
+    // evitando confusão com chaves de janelas de overlay/planificação
+    const cidadeAtual = (typeof _cidadeAtivaMapa !== 'undefined' ? _cidadeAtivaMapa : null);
     if (!cidadeAtual || cidadeAtual === _ultimaCidadeConselhos) return;
     _ultimaCidadeConselhos = cidadeAtual;
-    // Resetar cache para que re-carregue na nova cidade
     _conselhosCarregados[cidadeAtual.toUpperCase()] = false;
     conselhosLayer.clearLayers();
-    // Aguardar os marcadores das fábricas estarem carregados antes de adicionar conselhos
+    _conselhosCidadeAtual = [];
     setTimeout(() => carregarConselhosMapa(cidadeAtual), 2000);
   }
 
-  // Verificar mudança de cidade a cada 3 segundos
   setInterval(verificarMudancaCidade, 3000);
 })();
 
 // Carregar conselhos para a cidade inicial após os marcadores de fábricas
 window.addEventListener('DOMContentLoaded', function() {
   setTimeout(function() {
-    const cidadeInicial = _cidadeAtiva || (empresas[0] ? extrairCidadeDoEndereco(empresas[0].endereco) : null);
+    const cidadeInicial = _cidadeAtivaMapa || (empresas[0] ? extrairCidadeDoEndereco(empresas[0].endereco) : null);
     if (cidadeInicial) carregarConselhosMapa(cidadeInicial);
   }, 2500);
 });
