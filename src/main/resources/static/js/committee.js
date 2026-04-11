@@ -10,6 +10,7 @@ const pageState = {
     workerEffectiveLimit: 0,
     socialMaterializationId: null,
     councilId: null,
+    councilName: null,
 
     // Proposta de trabalhadores
     workerProposal: {
@@ -813,6 +814,7 @@ function initializePageState(committeeId) {
             pageState.workerEffectiveLimit = data.workerEffectiveLimit || 0;
             pageState.socialMaterializationId = data.socialMaterializationId;
             pageState.councilId = data.councilId;
+            pageState.councilName = data.councilName;
             pageState.workerProposal = data.workerProposal || {
                 workerLimit: 0,
                 workerHours: 0,
@@ -832,6 +834,7 @@ function initializePageState(committeeId) {
                 workerEffectiveLimit: pageState.workerEffectiveLimit,
                 socialMaterializationId: pageState.socialMaterializationId,
                 councilId: pageState.councilId,
+                councilName: pageState.councilName,
                 workerProposal: pageState.workerProposal,
                 members: pageState.members,
                 materializations: pageState.materializations
@@ -898,9 +901,36 @@ function resetPageState() {
  */
 function updateAllUI() {
     updateBasicDataUI();
+    updateCouncilInfoUI();
     updateWorkerProposalUI();
     updateMembersUI();
     updateMaterializationsUI();
+}
+
+/**
+ * Atualiza a interface com as informações do Conselho Popular
+ */
+function updateCouncilInfoUI() {
+    const councilInfo = document.getElementById('councilInfo');
+    const councilNameDisplay = document.getElementById('councilNameDisplay');
+    
+    if (!councilInfo || !councilNameDisplay) {
+        console.log('Elementos de informação do conselho não encontrados');
+        return;
+    }
+    
+    if (pageState.councilName) {
+        councilNameDisplay.textContent = pageState.councilName;
+        councilInfo.style.display = 'block';
+        console.log('Exibindo informação do conselho:', pageState.councilName);
+    } else if (pageState.councilId) {
+        councilNameDisplay.textContent = `Conselho ID: ${pageState.councilId}`;
+        councilInfo.style.display = 'block';
+        console.log('Exibindo ID do conselho (nome não disponível):', pageState.councilId);
+    } else {
+        councilInfo.style.display = 'none';
+        console.log('Nenhum conselho associado');
+    }
 }
 
 /**

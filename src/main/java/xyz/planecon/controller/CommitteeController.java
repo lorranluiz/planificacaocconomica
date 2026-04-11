@@ -61,6 +61,9 @@ public class CommitteeController {
     @Autowired
     private OptimizationInputsResultsRepository optimizationInputsResultsRepository;
 
+    @Autowired
+    private CityRepository cityRepository;
+
     /**
      * Endpoint para salvar o estado completo de um comitê em uma única transação.
      * 
@@ -514,9 +517,66 @@ public class CommitteeController {
     }
     
     /**
+     * Busca ou cria um Conselho Popular para uma cidade específica.
+     * Garante que exista apenas um Conselho Popular por cidade.
+     */
+    private Instance findOrCreatePopularCouncilForCity(String cityCode, String cityName) {
+        logger.info("Buscando Conselho Popular para cidade: {} ({})", cityName, cityCode);
+        
+        // Buscar conselho popular existente para esta cidade
+        List<Instance> existingCouncils = instanceRepository
+            .findByCityCodeAndType(cityCode, InstanceType.POPULARCOUNCIL);
+        
+        // Se já existe, retornar o primeiro (deve haver apenas um por cidade)
+        if (!existingCouncils.isEmpty()) {
+            Instance council = existingCouncils.get(0);
+            logger.info("Conselho Popular encontrado: {} (ID: {})", 
+                council.getCommitteeName(), council.getId());
+            
+            // Se existir mais de um, logar warning
+            if (existingCouncils.size() > 1) {
+                logger.warn("ATENÇÃO: Foram encontrados {} Conselhos Populares para a cidade {} - deveria haver apenas um!", 
+                    existingCouncils.size(), cityName);
+            }
+            
+            return council;
+        }
+        
+        // Se não existe, criar novo Conselho Popular
+        logger.info("Conselho Popular não encontrado. Criando novo para cidade: {}", cityName);
+        
+        Instance newCouncil = new Instance();
+        newCouncil.setType(InstanceType.POPULARCOUNCIL);
+        newCouncil.setCommitteeName("Conselho Popular de " + cityName);
+        newCouncil.setCityCode(cityCode);
+        newCouncil.setCity(cityName);
+        newCouncil.setCreatedAt(LocalDateTime.now());
+        
+        // Buscar dados de localização da cidade no repositório de cidades
+        Optional<City> cityOpt = cityRepository.findByCode(cityCode);
+        if (cityOpt.isPresent()) {
+            City city = cityOpt.get();
+            
+            // Definir estado
+            if (city.getState() != null) {
+                newCouncil.setState(city.getState());
+            }
+            newCouncil.setCountry("Brasil");
+        }
+        
+        // Salvar novo conselho
+        newCouncil = instanceRepository.save(newCouncil);
+        logger.info("Novo Conselho Popular criado: {} (ID: {})", 
+            newCouncil.getCommitteeName(), newCouncil.getId());
+        
+        return newCouncil;
+    }
+    
+    /**
      * Endpoint para obter o estado completo de um comitê.
      */
     @GetMapping("/{id}/state")
+    @Transactional
     public ResponseEntity<?> getCommitteeState(@PathVariable Integer id) {
         try {
             logger.info("Buscando estado completo para comitê ID: {}", id);
@@ -537,6 +597,41 @@ public class CommitteeController {
                 ));
             }
             
+            // 2.5. Verificar e corrigir associação do Conselho Popular
+            if (committee.getCityCode() != null && committee.getCity() != null) {
+                Instance currentCouncil = committee.getPopularCouncilAssociatedWithCommitteeOrWorker();
+                
+                // Buscar ou criar o conselho correto para esta cidade
+                Instance correctCouncil = findOrCreatePopularCouncilForCity(
+                    committee.getCityCode(),
+                    committee.getCity()
+                );
+                
+                // Se não tem conselho associado OU o conselho associado é de outra cidade
+                boolean needsUpdate = false;
+                if (currentCouncil == null) {
+                    logger.info("Comitê {} não tem conselho associado. Associando ao conselho da cidade: {}",
+                        committee.getId(), correctCouncil.getCommitteeName());
+                    needsUpdate = true;
+                } else if (!currentCouncil.getId().equals(correctCouncil.getId())) {
+                    // Verificar se o conselho atual é da mesma cidade
+                    if (!committee.getCityCode().equals(currentCouncil.getCityCode())) {
+                        logger.warn("Comitê {} estava associado ao conselho {} (cidade: {}), mas deveria estar associado ao conselho {} (cidade: {}). Corrigindo...",
+                            committee.getId(),
+                            currentCouncil.getCommitteeName(), currentCouncil.getCity(),
+                            correctCouncil.getCommitteeName(), correctCouncil.getCity());
+                        needsUpdate = true;
+                    }
+                }
+                
+                if (needsUpdate) {
+                    committee.setPopularCouncilAssociatedWithCommitteeOrWorker(correctCouncil);
+                    committee = instanceRepository.save(committee);
+                    logger.info("Associação atualizada: Comitê {} agora está associado ao Conselho {}",
+                        committee.getId(), correctCouncil.getCommitteeName());
+                }
+            }
+            
             // 3. Criar DTO para resposta
             CommitteeStateDTO committeeStateDTO = new CommitteeStateDTO();
             
@@ -552,9 +647,9 @@ public class CommitteeController {
             }
             
             if (committee.getPopularCouncilAssociatedWithCommitteeOrWorker() != null) {
-                committeeStateDTO.setCouncilId(
-                    committee.getPopularCouncilAssociatedWithCommitteeOrWorker().getId()
-                );
+                Instance council = committee.getPopularCouncilAssociatedWithCommitteeOrWorker();
+                committeeStateDTO.setCouncilId(council.getId());
+                committeeStateDTO.setCouncilName(council.getCommitteeName());
             }
             
             // 5. Buscar e preencher proposta de trabalhadores

@@ -346,6 +346,8 @@
             
             <div id="matrixSection" style="display: none;">
                 <div class="container-fluid mt-4">
+                    <h2>Matriz Tecnológica</h2>
+                    
                     <div class="mb-3">
                         <button id="btnCalculateEstimates" class="btn btn-primary">
                             <i class="fas fa-calculator mr-2"></i> Calcular Estimativas
@@ -354,6 +356,22 @@
                             <i class="fas fa-spinner fa-spin"></i> Processando...
                         </span>
                     </div>
+                </div>
+                
+                <p>A matriz tecnológica representa quanto do produto de cada linha é necessário para produzir uma unidade do produto de cada coluna.</p>
+                
+                <div class="matrix-container">
+                    <table id="technologicalMatrix" class="editable-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <!-- Colunas serão adicionadas dinamicamente -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Linhas serão adicionadas dinamicamente -->
+                        </tbody>
+                    </table>
                 </div>
                 
                 <h2>Vetor de Demanda Final</h2>

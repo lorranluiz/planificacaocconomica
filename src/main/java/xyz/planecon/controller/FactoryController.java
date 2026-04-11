@@ -131,6 +131,24 @@ public class FactoryController {
                 Instance factory = factoryOpt.get();
                 logger.info("Fábrica encontrada: {} (ID: {})", factory.getCommitteeName(), factory.getId());
                 
+                // NOVO: Verificar se o comitê tem conselho popular associado
+                // Se não tiver e tiver cityCode, associar automaticamente
+                if (factory.getPopularCouncilAssociatedWithCommitteeOrWorker() == null 
+                    && factory.getCityCode() != null 
+                    && !factory.getCityCode().trim().isEmpty()) {
+                    
+                    logger.info("Comitê sem conselho associado. Buscando/criando conselho para cidade...");
+                    Instance popularCouncil = findOrCreatePopularCouncilForCity(
+                        factory.getCityCode(), 
+                        factory.getCity() != null ? factory.getCity() : cityName
+                    );
+                    
+                    factory.setPopularCouncilAssociatedWithCommitteeOrWorker(popularCouncil);
+                    factory = instanceRepository.save(factory);
+                    logger.info("Comitê associado ao Conselho Popular: {} (ID: {})", 
+                        popularCouncil.getCommitteeName(), popularCouncil.getId());
+                }
+                
                 // Retornar DTO simples
                 FactoryResponse response = new FactoryResponse(
                     factory.getId(),
@@ -211,8 +229,13 @@ public class FactoryController {
             // Copiar dados do placeholder
             newFactory.setSocialMaterialization(placeholder.getSocialMaterialization());
             newFactory.setWorkerEffectiveLimit(placeholder.getWorkerEffectiveLimit());
-            newFactory.setPopularCouncilAssociatedWithCommitteeOrWorker(
-                placeholder.getPopularCouncilAssociatedWithCommitteeOrWorker());
+            
+            // NOVO: Buscar ou criar Conselho Popular para esta cidade
+            Instance popularCouncil = findOrCreatePopularCouncilForCity(finalCityCode, finalCityName);
+            newFactory.setPopularCouncilAssociatedWithCommitteeOrWorker(popularCouncil);
+            logger.info("Comitê associado ao Conselho Popular: {} (ID: {})", 
+                popularCouncil.getCommitteeName(), popularCouncil.getId());
+            
             newFactory.setProducedQuantity(placeholder.getProducedQuantity());
             newFactory.setTargetQuantity(placeholder.getTargetQuantity());
             newFactory.setTotalSocialWorkOfThisJurisdiction(placeholder.getTotalSocialWorkOfThisJurisdiction());
@@ -353,5 +376,65 @@ public class FactoryController {
         } catch (Exception e) {
             logger.error("Erro ao copiar estoques de demanda", e);
         }
+    }
+    
+    /**
+     * Busca ou cria um Conselho Popular para uma cidade específica.
+     * Garante que existe apenas UM conselho popular por cidade.
+     * 
+     * @param cityCode Código IBGE da cidade
+     * @param cityName Nome da cidade
+     * @return Conselho Popular da cidade (existente ou recém-criado)
+     */
+    private Instance findOrCreatePopularCouncilForCity(String cityCode, String cityName) {
+        logger.info("Buscando Conselho Popular para cidade: {} ({})", cityName, cityCode);
+        
+        // Buscar conselho popular existente para esta cidade
+        List<Instance> existingCouncils = instanceRepository
+            .findByCityCodeAndType(cityCode, InstanceType.POPULARCOUNCIL);
+        
+        // Se já existe, retornar o primeiro (deve haver apenas um por cidade)
+        if (!existingCouncils.isEmpty()) {
+            Instance council = existingCouncils.get(0);
+            logger.info("Conselho Popular encontrado: {} (ID: {})", 
+                council.getCommitteeName(), council.getId());
+            
+            // Se existir mais de um, logar warning
+            if (existingCouncils.size() > 1) {
+                logger.warn("ATENÇÃO: Foram encontrados {} Conselhos Populares para a cidade {} - deveria haver apenas um!", 
+                    existingCouncils.size(), cityName);
+            }
+            
+            return council;
+        }
+        
+        // Se não existe, criar novo Conselho Popular
+        logger.info("Conselho Popular não encontrado. Criando novo para cidade: {}", cityName);
+        
+        Instance newCouncil = new Instance();
+        newCouncil.setType(InstanceType.POPULARCOUNCIL);
+        newCouncil.setCommitteeName("Conselho Popular de " + cityName);
+        newCouncil.setCityCode(cityCode);
+        newCouncil.setCity(cityName);
+        newCouncil.setCreatedAt(LocalDateTime.now());
+        
+        // Buscar dados de localização da cidade no repositório de cidades
+        Optional<City> cityOpt = cityRepository.findByCode(cityCode);
+        if (cityOpt.isPresent()) {
+            City city = cityOpt.get();
+            
+            // Definir estado
+            if (city.getState() != null) {
+                newCouncil.setState(city.getState());
+            }
+            newCouncil.setCountry("Brasil");
+        }
+        
+        // Salvar novo conselho
+        newCouncil = instanceRepository.save(newCouncil);
+        logger.info("Novo Conselho Popular criado: {} (ID: {})", 
+            newCouncil.getCommitteeName(), newCouncil.getId());
+        
+        return newCouncil;
     }
 }

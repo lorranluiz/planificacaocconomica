@@ -17,6 +17,7 @@ public class CommitteeStateDTO {
     private Integer workerEffectiveLimit;
     private Integer socialMaterializationId;
     private Integer councilId; // ID do conselho associado
+    private String councilName; // Nome do conselho associado
 
     // Dados da proposta de trabalhadores
     private WorkerProposalDTO workerProposal;
@@ -85,6 +86,14 @@ public class CommitteeStateDTO {
 
     public void setCouncilId(Integer councilId) {
         this.councilId = councilId;
+    }
+
+    public String getCouncilName() {
+        return councilName;
+    }
+
+    public void setCouncilName(String councilName) {
+        this.councilName = councilName;
     }
 
     public WorkerProposalDTO getWorkerProposal() {

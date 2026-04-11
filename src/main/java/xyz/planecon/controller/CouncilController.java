@@ -100,4 +100,89 @@ public class CouncilController {
             throw e;
         }
     }
+    
+    /**
+     * Endpoint administrativo para corrigir os nomes de todos os Conselhos Populares
+     * Define o nome como "Conselho Popular de [nome da cidade]"
+     * Também preenche dados de cidade baseado nos comitês associados
+     * 
+     * @return Número de conselhos atualizados
+     */
+    @PostMapping("/admin/fix-council-names")
+    public ResponseEntity<?> fixCouncilNames() {
+        logger.info("Iniciando correção dos nomes dos Conselhos Populares...");
+        
+        try {
+            // Buscar todos os conselhos populares
+            List<Instance> councils = instanceRepository.findByType(
+                xyz.planecon.model.enums.InstanceType.POPULARCOUNCIL
+            );
+            
+            int updated = 0;
+            int alreadyCorrect = 0;
+            
+            for (Instance council : councils) {
+                // Se não tem cidade, tentar preencher a partir dos comitês associados
+                if (council.getCity() == null || council.getCity().isEmpty()) {
+                    // Buscar comitês que apontam para este conselho e que têm cidade
+                    List<Instance> associatedCommittees = instanceRepository
+                        .findByPopularCouncilAssociatedWithCommitteeOrWorker(council);
+                    
+                    for (Instance committee : associatedCommittees) {
+                        if (committee.getCity() != null && !committee.getCity().isEmpty()) {
+                            council.setCity(committee.getCity());
+                            if (committee.getCityCode() != null) {
+                                council.setCityCode(committee.getCityCode());
+                            }
+                            logger.info("Preenchendo cidade do conselho {} a partir do comitê {}: {}",
+                                council.getId(), committee.getId(), committee.getCity());
+                            break;
+                        }
+                    }
+                }
+                
+                // Definir nome se tiver cidade
+                if (council.getCity() != null && !council.getCity().isEmpty()) {
+                    String correctName = "Conselho Popular de " + council.getCity();
+                    
+                    if (council.getCommitteeName() == null || 
+                        !council.getCommitteeName().equals(correctName)) {
+                        
+                        logger.info("Atualizando conselho ID {}: '{}' -> '{}'",
+                            council.getId(),
+                            council.getCommitteeName(),
+                            correctName);
+                        
+                        council.setCommitteeName(correctName);
+                        instanceRepository.save(council);
+                        updated++;
+                    } else {
+                        alreadyCorrect++;
+                    }
+                } else {
+                    logger.warn("Conselho ID {} não tem cidade definida nem em comitês associados", council.getId());
+                }
+            }
+            
+            logger.info("Correção concluída. {} conselhos atualizados, {} já estavam corretos",
+                updated, alreadyCorrect);
+            
+            return ResponseEntity.ok(java.util.Map.of(
+                "success", true,
+                "message", "Correção concluída",
+                "updated", updated,
+                "alreadyCorrect", alreadyCorrect,
+                "total", councils.size()
+            ));
+            
+        } catch (Exception e) {
+            logger.error("Erro ao corrigir nomes dos conselhos: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                java.util.Map.of(
+                    "success", false,
+                    "message", "Erro ao corrigir nomes: " + e.getMessage()
+                )
+            );
+        }
+    }
 }
