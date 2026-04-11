@@ -27,13 +27,12 @@ public class MapController {
     public ResponseEntity<List<Map<String, Object>>> getConselhosPorCidade(
             @RequestParam(value = "cidade", required = false, defaultValue = "") String cidade) {
 
-        List<Instance> conselhos = instanceRepository.findAllByType(InstanceType.POPULARCOUNCIL);
+        List<Instance> conselhos = cidade.isBlank()
+                ? instanceRepository.findAllByType(InstanceType.POPULARCOUNCIL)
+                : instanceRepository.findAllByTypeAndCity(InstanceType.POPULARCOUNCIL, cidade);
 
         List<Map<String, Object>> result = new ArrayList<>();
         for (Instance c : conselhos) {
-            if (!cidade.isBlank() && !cidade.equalsIgnoreCase(c.getCity())) {
-                continue;
-            }
             Map<String, Object> item = new LinkedHashMap<>();
             item.put("id", c.getId());
             item.put("nome", c.getCommitteeName());

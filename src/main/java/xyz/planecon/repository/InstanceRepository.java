@@ -40,6 +40,9 @@ public interface InstanceRepository extends JpaRepository<Instance, Integer> {
      */
     @Query("SELECT i FROM Instance i WHERE i.type = :type")
     List<Instance> findAllByType(@Param("type") InstanceType type);
+
+    @Query("SELECT i FROM Instance i WHERE i.type = :type AND UPPER(i.city) = UPPER(:city)")
+    List<Instance> findAllByTypeAndCity(@Param("type") InstanceType type, @Param("city") String city);
     
     // Corrigir as consultas para usar os nomes corretos dos atributos
     @Query("SELECT i FROM Instance i WHERE i.popularCouncilAssociatedWithCommitteeOrWorker = :instance")

@@ -3407,6 +3407,13 @@ async function carregarCidadeNoMapa(nomeCidade) {
 
     if (loadToken === _cityLoadTokenAtivo) ocultarOverlayCarregamentoCidade();
     _cidadeAtivaMapa = nomeUpper;
+    // Carregar conselho da cidade imediatamente após as fábricas estarem no mapa
+    if (typeof carregarConselhosMapa === 'function') {
+      _conselhosCarregados[nomeUpper] = false;
+      conselhosLayer.clearLayers();
+      _conselhosCidadeAtual = [];
+      carregarConselhosMapa(nomeUpper);
+    }
     return true;
   } catch (e) {
     console.error('Erro ao carregar cidade no mapa:', e);
@@ -4337,6 +4344,14 @@ function atualizarMarcadores() {
     markers[idx].marker = marker;
     if (!liteMode) iniciarPiramideNoMarcador(marker, obterCorPorCapital(empresa.capital), empresa.capital);
   });
+
+  // Reconstruir marcadores de conselhos populares respeitando o liteMode atual
+  if (typeof carregarConselhosMapa === 'function' && _cidadeAtivaMapa) {
+    _conselhosCarregados[_cidadeAtivaMapa] = false;
+    conselhosLayer.clearLayers();
+    _conselhosCidadeAtual = [];
+    carregarConselhosMapa(_cidadeAtivaMapa);
+  }
 }
 
 // Função para carregar coordenadas do servidor (com cache)
@@ -5264,31 +5279,16 @@ async function carregarConselhosMapa(nomeCidade) {
   }
 }
 
-// Carregar conselhos quando a cidade atual muda
-(function() {
-  let _ultimaCidadeConselhos = null;
-
-  function verificarMudancaCidade() {
-    // Usar _cidadeAtivaMapa que é exclusivo para a cidade no mapa,
-    // evitando confusão com chaves de janelas de overlay/planificação
-    const cidadeAtual = (typeof _cidadeAtivaMapa !== 'undefined' ? _cidadeAtivaMapa : null);
-    if (!cidadeAtual || cidadeAtual === _ultimaCidadeConselhos) return;
-    _ultimaCidadeConselhos = cidadeAtual;
-    _conselhosCarregados[cidadeAtual.toUpperCase()] = false;
-    conselhosLayer.clearLayers();
-    _conselhosCidadeAtual = [];
-    setTimeout(() => carregarConselhosMapa(cidadeAtual), 2000);
-  }
-
-  setInterval(verificarMudancaCidade, 3000);
-})();
-
-// Carregar conselhos para a cidade inicial após os marcadores de fábricas
+// Carregar conselhos para a cidade inicial (quando a página já tem uma cidade ao carregar)
 window.addEventListener('DOMContentLoaded', function() {
+  // _cidadeAtivaMapa só estará preenchida se a cidade foi carregada antes do DOMContentLoaded
+  // (raro). O fluxo normal é via carregarCidadeNoMapa → carregarConselhosMapa acima.
   setTimeout(function() {
-    const cidadeInicial = _cidadeAtivaMapa || (empresas[0] ? extrairCidadeDoEndereco(empresas[0].endereco) : null);
-    if (cidadeInicial) carregarConselhosMapa(cidadeInicial);
-  }, 2500);
+    const cidadeInicial = _cidadeAtivaMapa;
+    if (cidadeInicial && !_conselhosCarregados[cidadeInicial]) {
+      carregarConselhosMapa(cidadeInicial);
+    }
+  }, 500);
 });
 // ─────────────────────────────────────────────────────────────────────────────
 </script>
