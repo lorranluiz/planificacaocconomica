@@ -1354,41 +1354,6 @@ function updateLoginLogoutButton() {
     }
 }
 
-// Função para atualizar estado de login/logout no cabeçalho
-function updateLoginLogoutButton() {
-    const loginLogoutBtn = document.getElementById('loginLogoutBtn');
-    if (!loginLogoutBtn) return;
-    
-    const token = localStorage.getItem('token');
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    
-    if (token && user.id) {
-        // Usuário está logado
-        loginLogoutBtn.textContent = 'Minha Conta';
-        loginLogoutBtn.classList.add('logged-in');
-        
-        // Alterar comportamento do botão (via modificação do onclick)
-        loginLogoutBtn.onclick = function(e) {
-            e.preventDefault();
-            window.location.href = '/login.html';
-        };
-    } else {
-        // Usuário não está logado
-        loginLogoutBtn.textContent = 'Login';
-        loginLogoutBtn.classList.remove('logged-in');
-        
-        // Restaurar comportamento padrão do link
-        loginLogoutBtn.onclick = null;
-    }
-}
-    
-    // Expor funções para uso global
-    window.handleLoginButtonClick = handleLoginButtonClick;
-    window.createLoginModal = createLoginModal;
-    window.handleLoginSubmit = handleLoginSubmit;
-    window.handleLogout = handleLogout;
-}
-
 // Criar modal de login
 function createLoginModal() {
     // Remover modal existente caso exista (para evitar duplicação)

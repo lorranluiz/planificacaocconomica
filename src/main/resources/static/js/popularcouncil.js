@@ -1463,8 +1463,15 @@ function logDemandVectorStatus() {
 
 // Mantém o restante do código dentro do evento DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
+    console.log('=== DOMContentLoaded event fired in popularcouncil.js ===');
+    
     // Inicializar cabeçalho comum - APENAS UMA VEZ
-    ensureHeader();
+    try {
+        ensureHeader();
+        console.log('ensureHeader() executed successfully');
+    } catch (error) {
+        console.error('Error in ensureHeader():', error);
+    }
     
     // Elementos principais da interface
     const instanceSelect = document.getElementById('instanceSelect');
@@ -1476,7 +1483,16 @@ document.addEventListener('DOMContentLoaded', function() {
     const productionVectorTable = document.getElementById('productionVector');
     const optimizationResultsTable = document.getElementById('optimizationResults');
     
+    // Debug: Check if instanceSelect exists
+    console.log('instanceSelect element:', instanceSelect);
+    if (!instanceSelect) {
+        console.error('ERROR: instanceSelect element not found!');
+        showError('Erro crítico: Elemento de seleção de instância não encontrado.');
+        return;
+    }
+    
     // Carregar lista de instâncias
+    console.log('Calling loadInstances()...');
     loadInstances();
     
     // Configurar eventos
@@ -1493,14 +1509,21 @@ document.addEventListener('DOMContentLoaded', function() {
      * Carrega a lista de instâncias disponíveis
      */
     function loadInstances() {
+        console.log('loadInstances() called');
+        console.log('Fetching from: /api/instances?type=POPULARCOUNCIL');
+        
         fetch('/api/instances?type=POPULARCOUNCIL')
             .then(response => {
+                console.log('API response status:', response.status);
                 if (!response.ok) {
                     throw new Error('Erro ao carregar instâncias de conselho');
                 }
                 return response.json();
             })
             .then(instances => {
+                console.log('Instances received:', instances);
+                console.log('Number of instances:', instances.length);
+                
                 // Limpar opções existentes
                 while (instanceSelect.options.length > 1) {
                     instanceSelect.remove(1);
@@ -1512,9 +1535,13 @@ document.addEventListener('DOMContentLoaded', function() {
                     option.value = instance.id;
                     option.textContent = instance.name || `Conselho #${instance.id}`;
                     instanceSelect.appendChild(option);
+                    console.log(`Added option: ${option.textContent} (ID: ${option.value})`);
                 });
+                
+                console.log('Successfully loaded', instances.length, 'councils into dropdown');
             })
             .catch(error => {
+                console.error('Error in loadInstances():', error);
                 showError('Erro ao carregar instâncias de conselho: ' + error.message);
             });
     }

@@ -7,37 +7,37 @@
  =========|_|==============|___/=/_/_/_/
  :: Spring Boot ::                (v3.2.5)
 
-2026-04-04T04:05:30.644-03:00  INFO 34225 --- [           main] xyz.planecon.Application                 : Starting Application v0.2.4.1-alpha-SNAPSHOT using Java 21.0.10 with PID 34225 (/home/lorranluiz/planecon/target/planecon-0.2.4.1-alpha-SNAPSHOT.jar started by root in /home/lorranluiz/planecon)
-2026-04-04T04:05:30.666-03:00  INFO 34225 --- [           main] xyz.planecon.Application                 : No active profile set, falling back to 1 default profile: "default"
-2026-04-04T04:05:35.184-03:00  INFO 34225 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
-2026-04-04T04:05:35.728-03:00  INFO 34225 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 498 ms. Found 10 JPA repository interfaces.
+2026-04-11T00:20:07.994-03:00  INFO 316026 --- [           main] xyz.planecon.Application                 : Starting Application v0.2.4.1-alpha-SNAPSHOT using Java 21.0.10 with PID 316026 (/home/lorranluiz/planecon/target/planecon-0.2.4.1-alpha-SNAPSHOT.jar started by root in /home/lorranluiz/planecon)
+2026-04-11T00:20:08.100-03:00  INFO 316026 --- [           main] xyz.planecon.Application                 : No active profile set, falling back to 1 default profile: "default"
+2026-04-11T00:20:41.443-03:00  INFO 316026 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Bootstrapping Spring Data JPA repositories in DEFAULT mode.
+2026-04-11T00:20:43.926-03:00  INFO 316026 --- [           main] .s.d.r.c.RepositoryConfigurationDelegate : Finished Spring Data repository scanning in 2277 ms. Found 10 JPA repository interfaces.
 Production keystore not found. Using self-signed certificate.
-2026-04-04T04:05:43.417-03:00  INFO 34225 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with ports 8443 (https), 8080 (http)
-2026-04-04T04:05:43.492-03:00  INFO 34225 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
-2026-04-04T04:05:43.493-03:00  INFO 34225 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.20]
-2026-04-04T04:05:43.695-03:00  INFO 34225 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
-2026-04-04T04:05:43.702-03:00  INFO 34225 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 12622 ms
-2026-04-04T04:05:47.275-03:00  INFO 34225 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
-2026-04-04T04:05:47.607-03:00  INFO 34225 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.0.Final
-2026-04-04T04:05:47.757-03:00  INFO 34225 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000025: Second-level cache region factory [org.hibernate.cache.jcache.internal.JCacheRegionFactory]
-2026-04-04T04:05:48.850-03:00  INFO 34225 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
-2026-04-04T04:05:48.959-03:00  INFO 34225 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
-2026-04-04T04:05:50.606-03:00  INFO 34225 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6fcc0a1
-2026-04-04T04:05:50.613-03:00  INFO 34225 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
-2026-04-04T04:05:50.706-03:00  WARN 34225 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
-2026-04-04T04:05:53.730-03:00  WARN 34225 --- [           main] org.hibernate.orm.cache                  : HHH90001006: Missing cache[default-update-timestamps-region] was created on-the-fly. The created cache will use a provider-specific default configuration: make sure you defined one. You can disable this warning by setting 'hibernate.javax.cache.missing_cache_strategy' to 'create'.
-2026-04-04T04:05:54.220-03:00  INFO 34225 --- [           main] org.ehcache.core.EhcacheManager          : Cache 'default-update-timestamps-region' created in EhcacheManager.
-2026-04-04T04:05:54.258-03:00  WARN 34225 --- [           main] org.hibernate.orm.cache                  : HHH90001006: Missing cache[default-query-results-region] was created on-the-fly. The created cache will use a provider-specific default configuration: make sure you defined one. You can disable this warning by setting 'hibernate.javax.cache.missing_cache_strategy' to 'create'.
-2026-04-04T04:05:54.271-03:00  INFO 34225 --- [           main] org.ehcache.core.EhcacheManager          : Cache 'default-query-results-region' created in EhcacheManager.
-2026-04-04T04:05:54.323-03:00  WARN 34225 --- [           main] org.hibernate.orm.cache                  : HHH90001006: Missing cache[xyz.planecon.model.entity.SocialMaterialization] was created on-the-fly. The created cache will use a provider-specific default configuration: make sure you defined one. You can disable this warning by setting 'hibernate.javax.cache.missing_cache_strategy' to 'create'.
-2026-04-04T04:05:54.334-03:00  INFO 34225 --- [           main] org.ehcache.core.EhcacheManager          : Cache 'xyz.planecon.model.entity.SocialMaterialization' created in EhcacheManager.
-2026-04-04T04:05:54.352-03:00  WARN 34225 --- [           main] org.hibernate.orm.cache                  : HHH90001006: Missing cache[xyz.planecon.model.entity.City] was created on-the-fly. The created cache will use a provider-specific default configuration: make sure you defined one. You can disable this warning by setting 'hibernate.javax.cache.missing_cache_strategy' to 'create'.
-2026-04-04T04:05:54.369-03:00  INFO 34225 --- [           main] org.ehcache.core.EhcacheManager          : Cache 'xyz.planecon.model.entity.City' created in EhcacheManager.
-2026-04-04T04:05:54.372-03:00  WARN 34225 --- [           main] org.hibernate.orm.cache                  : HHH90001006: Missing cache[xyz.planecon.model.entity.Instance] was created on-the-fly. The created cache will use a provider-specific default configuration: make sure you defined one. You can disable this warning by setting 'hibernate.javax.cache.missing_cache_strategy' to 'create'.
-2026-04-04T04:05:54.389-03:00  INFO 34225 --- [           main] org.ehcache.core.EhcacheManager          : Cache 'xyz.planecon.model.entity.Instance' created in EhcacheManager.
-2026-04-04T04:05:57.894-03:00  INFO 34225 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
-2026-04-04T04:05:57.901-03:00  INFO 34225 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
-2026-04-04T04:05:58.728-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:21:38.719-03:00  INFO 316026 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat initialized with ports 8443 (https), 8080 (http)
+2026-04-11T00:21:42.502-03:00  INFO 316026 --- [           main] o.apache.catalina.core.StandardService   : Starting service [Tomcat]
+2026-04-11T00:21:42.514-03:00  INFO 316026 --- [           main] o.apache.catalina.core.StandardEngine    : Starting Servlet engine: [Apache Tomcat/10.1.20]
+2026-04-11T00:21:43.665-03:00  INFO 316026 --- [           main] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring embedded WebApplicationContext
+2026-04-11T00:21:43.749-03:00  INFO 316026 --- [           main] w.s.c.ServletWebServerApplicationContext : Root WebApplicationContext: initialization completed in 92587 ms
+2026-04-11T00:21:58.507-03:00  INFO 316026 --- [           main] o.hibernate.jpa.internal.util.LogHelper  : HHH000204: Processing PersistenceUnitInfo [name: default]
+2026-04-11T00:22:00.660-03:00  INFO 316026 --- [           main] org.hibernate.Version                    : HHH000412: Hibernate ORM core version 6.4.0.Final
+2026-04-11T00:22:01.701-03:00  INFO 316026 --- [           main] o.h.c.internal.RegionFactoryInitiator    : HHH000025: Second-level cache region factory [org.hibernate.cache.jcache.internal.JCacheRegionFactory]
+2026-04-11T00:22:09.392-03:00  INFO 316026 --- [           main] o.s.o.j.p.SpringPersistenceUnitInfo      : No LoadTimeWeaver setup: ignoring JPA class transformer
+2026-04-11T00:22:10.292-03:00  INFO 316026 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Starting...
+2026-04-11T00:22:22.467-03:00  INFO 316026 --- [           main] com.zaxxer.hikari.pool.HikariPool        : HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@3909a854
+2026-04-11T00:22:22.485-03:00  INFO 316026 --- [           main] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Start completed.
+2026-04-11T00:22:23.160-03:00  WARN 316026 --- [           main] org.hibernate.orm.deprecation            : HHH90000025: PostgreSQLDialect does not need to be specified explicitly using 'hibernate.dialect' (remove the property setting and it will be selected by default)
+2026-04-11T00:22:37.559-03:00  WARN 316026 --- [           main] org.hibernate.orm.cache                  : HHH90001006: Missing cache[default-update-timestamps-region] was created on-the-fly. The created cache will use a provider-specific default configuration: make sure you defined one. You can disable this warning by setting 'hibernate.javax.cache.missing_cache_strategy' to 'create'.
+2026-04-11T00:22:39.948-03:00  INFO 316026 --- [           main] org.ehcache.core.EhcacheManager          : Cache 'default-update-timestamps-region' created in EhcacheManager.
+2026-04-11T00:22:40.110-03:00  WARN 316026 --- [           main] org.hibernate.orm.cache                  : HHH90001006: Missing cache[default-query-results-region] was created on-the-fly. The created cache will use a provider-specific default configuration: make sure you defined one. You can disable this warning by setting 'hibernate.javax.cache.missing_cache_strategy' to 'create'.
+2026-04-11T00:22:40.180-03:00  INFO 316026 --- [           main] org.ehcache.core.EhcacheManager          : Cache 'default-query-results-region' created in EhcacheManager.
+2026-04-11T00:22:40.387-03:00  WARN 316026 --- [           main] org.hibernate.orm.cache                  : HHH90001006: Missing cache[xyz.planecon.model.entity.Instance] was created on-the-fly. The created cache will use a provider-specific default configuration: make sure you defined one. You can disable this warning by setting 'hibernate.javax.cache.missing_cache_strategy' to 'create'.
+2026-04-11T00:22:40.433-03:00  INFO 316026 --- [           main] org.ehcache.core.EhcacheManager          : Cache 'xyz.planecon.model.entity.Instance' created in EhcacheManager.
+2026-04-11T00:22:40.487-03:00  WARN 316026 --- [           main] org.hibernate.orm.cache                  : HHH90001006: Missing cache[xyz.planecon.model.entity.City] was created on-the-fly. The created cache will use a provider-specific default configuration: make sure you defined one. You can disable this warning by setting 'hibernate.javax.cache.missing_cache_strategy' to 'create'.
+2026-04-11T00:22:40.570-03:00  INFO 316026 --- [           main] org.ehcache.core.EhcacheManager          : Cache 'xyz.planecon.model.entity.City' created in EhcacheManager.
+2026-04-11T00:22:40.583-03:00  WARN 316026 --- [           main] org.hibernate.orm.cache                  : HHH90001006: Missing cache[xyz.planecon.model.entity.SocialMaterialization] was created on-the-fly. The created cache will use a provider-specific default configuration: make sure you defined one. You can disable this warning by setting 'hibernate.javax.cache.missing_cache_strategy' to 'create'.
+2026-04-11T00:22:40.669-03:00  INFO 316026 --- [           main] org.ehcache.core.EhcacheManager          : Cache 'xyz.planecon.model.entity.SocialMaterialization' created in EhcacheManager.
+2026-04-11T00:22:58.124-03:00  INFO 316026 --- [           main] o.h.e.t.j.p.i.JtaPlatformInitiator       : HHH000489: No JTA platform available (set 'hibernate.transaction.jta.platform' to enable JTA platform integration)
+2026-04-11T00:22:58.192-03:00  INFO 316026 --- [           main] j.LocalContainerEntityManagerFactoryBean : Initialized JPA EntityManagerFactory for persistence unit 'default'
+2026-04-11T00:23:03.689-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -49,7 +49,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:05:58.732-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:03.704-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -61,7 +61,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:05:59.356-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:08.002-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -73,8 +73,8 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:05:59.636-03:00  INFO 34225 --- [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
-2026-04-04T04:05:59.689-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:09.618-03:00  INFO 316026 --- [           main] o.s.d.j.r.query.QueryEnhancerFactory     : Hibernate is in classpath; If applicable, HQL parser will be used.
+2026-04-11T00:23:14.376-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -86,7 +86,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:05:59.696-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:14.402-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -98,7 +98,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:00.506-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:22.329-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -110,7 +110,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:00.508-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:22.447-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -122,7 +122,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:01.539-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:22.464-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -134,7 +134,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:01.551-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:22.596-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -146,7 +146,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:01.552-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:22.641-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -158,7 +158,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:01.561-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:22.642-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -170,7 +170,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:01.672-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:22.713-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -182,7 +182,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:01.673-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:22.804-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -194,7 +194,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:01.864-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:22.820-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -206,7 +206,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:01.872-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:22.905-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -218,7 +218,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:01.873-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:22.936-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -230,7 +230,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:01.881-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:23.620-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -242,7 +242,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:01.889-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:23.621-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -254,7 +254,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:01.890-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:23.695-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -266,7 +266,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:01.921-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:23.710-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -278,7 +278,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:01.923-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:23.888-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -290,7 +290,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:01.931-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:23.901-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -302,7 +302,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:01.940-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:24.510-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -314,7 +314,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.110-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:24.512-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -326,7 +326,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.114-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:26.000-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -338,7 +338,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.129-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:26.031-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -350,7 +350,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.132-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:26.034-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -362,7 +362,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.157-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:26.105-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -374,7 +374,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.158-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:26.107-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -386,7 +386,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.547-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:27.137-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -398,7 +398,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.594-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:27.169-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -410,7 +410,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.649-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:27.720-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -422,7 +422,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.652-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:27.747-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -434,7 +434,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.692-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:27.809-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -446,7 +446,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.694-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:27.882-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -458,7 +458,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.709-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:27.883-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -470,7 +470,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.759-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:28.016-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -482,7 +482,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.762-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:28.018-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -494,7 +494,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.773-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:28.121-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -506,7 +506,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.776-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:28.151-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -518,7 +518,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.778-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:28.152-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -530,7 +530,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.789-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:28.296-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -542,7 +542,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.791-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:28.297-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -554,7 +554,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.819-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:28.459-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -566,7 +566,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.828-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:28.535-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -578,7 +578,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.829-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:28.537-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -590,7 +590,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.838-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:28.568-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -602,7 +602,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.840-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:28.609-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -614,7 +614,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.864-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:28.760-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -626,7 +626,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.866-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:28.773-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -638,7 +638,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.902-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:29.031-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -650,7 +650,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.906-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:29.047-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -662,7 +662,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.908-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:29.073-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -674,7 +674,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.913-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:29.121-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -686,7 +686,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:02.915-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:29.313-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -698,7 +698,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.026-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:30.267-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -710,7 +710,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.037-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:30.282-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -722,7 +722,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.102-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:30.432-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -734,7 +734,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.103-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:30.433-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -746,7 +746,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.177-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:30.818-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -758,7 +758,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.181-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:30.833-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -770,7 +770,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.183-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:30.834-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -782,7 +782,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.188-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:30.877-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -794,7 +794,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.190-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:30.878-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -806,7 +806,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.246-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:31.354-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -818,7 +818,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.250-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:31.357-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -830,7 +830,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.270-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:31.714-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -842,7 +842,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.271-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:31.741-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -854,7 +854,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.275-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:31.938-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -866,7 +866,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.278-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:31.982-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -878,7 +878,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.279-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:31.983-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -890,7 +890,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.310-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:31.999-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -902,7 +902,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.311-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.043-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -914,7 +914,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.358-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.070-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -926,7 +926,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.366-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.086-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -938,7 +938,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.367-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.162-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -950,7 +950,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.371-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.203-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -962,7 +962,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.376-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.249-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -974,7 +974,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.377-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.278-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -986,7 +986,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.386-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.293-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -998,7 +998,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.391-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.340-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1010,7 +1010,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.392-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.367-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1022,7 +1022,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.397-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.413-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1034,7 +1034,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.402-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.427-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1046,7 +1046,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.404-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.517-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1058,7 +1058,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.409-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.547-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1070,7 +1070,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.410-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.549-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1082,7 +1082,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.418-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.594-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1094,7 +1094,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.419-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.621-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1106,7 +1106,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.429-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.694-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1118,7 +1118,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.433-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.696-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1130,7 +1130,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.435-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.755-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1142,7 +1142,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.440-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.773-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1154,7 +1154,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.441-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.800-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1166,7 +1166,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.451-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.832-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1178,7 +1178,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.452-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.890-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1190,7 +1190,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.459-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.891-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1202,7 +1202,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.466-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.921-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1214,7 +1214,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.468-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.935-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1226,7 +1226,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.474-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:32.937-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1238,7 +1238,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.480-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:33.009-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1250,7 +1250,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.482-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:33.010-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1262,7 +1262,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.486-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:33.067-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1274,7 +1274,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.559-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:33.769-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1286,7 +1286,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.562-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:33.798-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1298,7 +1298,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.576-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:33.964-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1310,7 +1310,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.578-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:33.965-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1322,7 +1322,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.586-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:33.995-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1334,7 +1334,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.591-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:34.053-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1346,7 +1346,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.595-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:34.054-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1358,7 +1358,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.602-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:34.140-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1370,7 +1370,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.609-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:34.143-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1382,7 +1382,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.612-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:34.170-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1394,7 +1394,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.620-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:34.204-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1406,7 +1406,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.624-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:34.246-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1418,7 +1418,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.625-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:34.338-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1430,7 +1430,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.638-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:34.350-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1442,7 +1442,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:03.640-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:34.454-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1454,7 +1454,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.114-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:37.440-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1466,7 +1466,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.118-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:37.470-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1478,7 +1478,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.135-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:37.620-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1490,7 +1490,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.136-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:37.622-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1502,7 +1502,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.139-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:37.651-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1514,7 +1514,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.145-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:37.710-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1526,7 +1526,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.148-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:37.738-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1538,7 +1538,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.154-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:37.901-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1550,7 +1550,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.159-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:37.904-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1562,7 +1562,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.166-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:37.948-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1574,7 +1574,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.172-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:37.990-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1586,7 +1586,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.173-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:37.991-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1598,7 +1598,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.179-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:38.051-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1610,7 +1610,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.183-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:38.053-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1622,7 +1622,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.184-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:38.124-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1634,7 +1634,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.190-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:38.141-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1646,7 +1646,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.191-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:38.142-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1658,7 +1658,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.261-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:38.930-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1670,7 +1670,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.266-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:38.945-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1682,7 +1682,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.284-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:39.137-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1694,7 +1694,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.285-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:39.139-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1706,7 +1706,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.289-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:39.170-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1718,7 +1718,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.291-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:39.199-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1730,7 +1730,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.292-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:39.225-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1742,7 +1742,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.555-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:45.082-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1754,7 +1754,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.558-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:45.112-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1766,7 +1766,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.567-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:45.176-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1778,7 +1778,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.568-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:45.177-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1790,7 +1790,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.738-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:46.139-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1802,7 +1802,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.742-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:46.170-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1814,7 +1814,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.762-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:46.265-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1826,7 +1826,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.764-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:46.267-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1838,7 +1838,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.767-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:46.298-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1850,7 +1850,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.769-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:46.345-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1862,7 +1862,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.770-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:46.347-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1874,7 +1874,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.858-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:46.956-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1886,7 +1886,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.896-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:47.130-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1898,7 +1898,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.907-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:47.195-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1910,7 +1910,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.908-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:47.196-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1922,7 +1922,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.923-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:47.225-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1934,7 +1934,7 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:04.924-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:23:47.227-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -1946,10 +1946,10 @@ Production keystore not found. Using self-signed certificate.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:06.073-03:00  WARN 34225 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
-2026-04-04T04:06:09.854-03:00  INFO 34225 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
-2026-04-04T04:06:10.920-03:00  INFO 34225 --- [           main] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-8443], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [/root/.keystore] using alias [tomcat] with trust store [null]
-2026-04-04T04:06:11.042-03:00  INFO 34225 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on ports 8443 (https), 8080 (http) with context path ''
+2026-04-11T00:23:55.317-03:00  WARN 316026 --- [           main] JpaBaseConfiguration$JpaWebConfiguration : spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning
+2026-04-11T00:24:17.825-03:00  INFO 316026 --- [           main] o.s.b.a.e.web.EndpointLinksResolver      : Exposing 1 endpoint(s) beneath base path '/actuator'
+2026-04-11T00:24:20.986-03:00  INFO 316026 --- [           main] o.a.t.util.net.NioEndpoint.certificate   : Connector [https-jsse-nio-8443], TLS virtual host [_default_], certificate type [UNDEFINED] configured from keystore [/root/.keystore] using alias [tomcat] with trust store [null]
+2026-04-11T00:24:21.159-03:00  INFO 316026 --- [           main] o.s.b.w.embedded.tomcat.TomcatWebServer  : Tomcat started on ports 8443 (https), 8080 (http) with context path ''
 
 ----------------------------------------------------------
 Application is running!
@@ -1957,7 +1957,7 @@ Access URL: https://localhost:8443/
 HTTP requests will be redirected to HTTPS
 ----------------------------------------------------------
 
-2026-04-04T04:06:11.125-03:00  INFO 34225 --- [           main] xyz.planecon.Application                 : Started Application in 45.396 seconds (process running for 51.243)
+2026-04-11T00:24:21.281-03:00  INFO 316026 --- [           main] xyz.planecon.Application                 : Started Application in 269.898 seconds (process running for 269.629)
 Hibernate: 
     select
         count(i1_0.id) 
@@ -1979,27 +1979,27 @@ Hibernate:
     from
         social_materialization sm1_0
 Banco de dados verificado: já contém dados
-- Instâncias: 6039
+- Instâncias: 6041
 - Setores: 13
 - Usuários: 6012
 - Materializações Sociais: 14
 Banco de dados já está populado. Pulando etapa de seed.
-2026-04-04T04:06:11.529-03:00  INFO 34225 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
-    2233067 nanoseconds spent acquiring 1 JDBC connections;
+2026-04-11T00:24:21.942-03:00  INFO 316026 --- [           main] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    7596748 nanoseconds spent acquiring 1 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
-    7904739 nanoseconds spent preparing 4 JDBC statements;
-    35778575 nanoseconds spent executing 4 JDBC statements;
+    23417023 nanoseconds spent preparing 4 JDBC statements;
+    63451284 nanoseconds spent executing 4 JDBC statements;
     0 nanoseconds spent executing 0 JDBC batches;
     0 nanoseconds spent performing 0 L2C puts;
     0 nanoseconds spent performing 0 L2C hits;
     0 nanoseconds spent performing 0 L2C misses;
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
-    112003 nanoseconds spent executing 4 partial-flushes (flushing a total of 0 entities and 0 collections)
+    126526 nanoseconds spent executing 4 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:28.806-03:00  INFO 34225 --- [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
-2026-04-04T04:06:28.807-03:00  INFO 34225 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
-2026-04-04T04:06:28.810-03:00  INFO 34225 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
-2026-04-04T04:06:28.951-03:00  INFO 34225 --- [nio-8080-exec-1] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:24:47.160-03:00  INFO 316026 --- [nio-8080-exec-1] o.a.c.c.C.[Tomcat].[localhost].[/]       : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2026-04-11T00:24:47.160-03:00  INFO 316026 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2026-04-11T00:24:47.163-03:00  INFO 316026 --- [nio-8080-exec-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 3 ms
+2026-04-11T00:24:47.381-03:00  INFO 316026 --- [nio-8080-exec-1] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -2011,7 +2011,7 @@ Banco de dados já está populado. Pulando etapa de seed.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:29.031-03:00  INFO 34225 --- [nio-8080-exec-2] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:24:47.463-03:00  INFO 316026 --- [nio-8080-exec-2] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -2023,55 +2023,7 @@ Banco de dados já está populado. Pulando etapa de seed.
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:29.280-03:00  INFO 34225 --- [nio-8080-exec-3] i.StatisticalLoggingSessionEventListener : Session Metrics {
-    0 nanoseconds spent acquiring 0 JDBC connections;
-    0 nanoseconds spent releasing 0 JDBC connections;
-    0 nanoseconds spent preparing 0 JDBC statements;
-    0 nanoseconds spent executing 0 JDBC statements;
-    0 nanoseconds spent executing 0 JDBC batches;
-    0 nanoseconds spent performing 0 L2C puts;
-    0 nanoseconds spent performing 0 L2C hits;
-    0 nanoseconds spent performing 0 L2C misses;
-    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
-    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
-}
-2026-04-04T04:06:29.348-03:00  INFO 34225 --- [nio-8080-exec-5] i.StatisticalLoggingSessionEventListener : Session Metrics {
-    0 nanoseconds spent acquiring 0 JDBC connections;
-    0 nanoseconds spent releasing 0 JDBC connections;
-    0 nanoseconds spent preparing 0 JDBC statements;
-    0 nanoseconds spent executing 0 JDBC statements;
-    0 nanoseconds spent executing 0 JDBC batches;
-    0 nanoseconds spent performing 0 L2C puts;
-    0 nanoseconds spent performing 0 L2C hits;
-    0 nanoseconds spent performing 0 L2C misses;
-    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
-    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
-}
-2026-04-04T04:06:29.362-03:00  INFO 34225 --- [nio-8080-exec-4] i.StatisticalLoggingSessionEventListener : Session Metrics {
-    0 nanoseconds spent acquiring 0 JDBC connections;
-    0 nanoseconds spent releasing 0 JDBC connections;
-    0 nanoseconds spent preparing 0 JDBC statements;
-    0 nanoseconds spent executing 0 JDBC statements;
-    0 nanoseconds spent executing 0 JDBC batches;
-    0 nanoseconds spent performing 0 L2C puts;
-    0 nanoseconds spent performing 0 L2C hits;
-    0 nanoseconds spent performing 0 L2C misses;
-    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
-    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
-}
-2026-04-04T04:06:29.378-03:00  INFO 34225 --- [nio-8080-exec-6] i.StatisticalLoggingSessionEventListener : Session Metrics {
-    0 nanoseconds spent acquiring 0 JDBC connections;
-    0 nanoseconds spent releasing 0 JDBC connections;
-    0 nanoseconds spent preparing 0 JDBC statements;
-    0 nanoseconds spent executing 0 JDBC statements;
-    0 nanoseconds spent executing 0 JDBC batches;
-    0 nanoseconds spent performing 0 L2C puts;
-    0 nanoseconds spent performing 0 L2C hits;
-    0 nanoseconds spent performing 0 L2C misses;
-    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
-    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
-}
-2026-04-04T04:06:29.958-03:00  INFO 34225 --- [nio-8080-exec-8] x.p.c.SocialMaterializationController    : Obtendo lista de materializações sociais para formulário de instâncias
+2026-04-11T00:24:48.431-03:00  INFO 316026 --- [nio-8080-exec-6] x.p.c.SocialMaterializationController    : Obtendo lista de materializações sociais para formulário de instâncias
 Hibernate: 
     select
         s1_0.id,
@@ -2079,18 +2031,6 @@ Hibernate:
         s1_0.name 
     from
         sector s1_0
-2026-04-04T04:06:30.389-03:00  INFO 34225 --- [nio-8080-exec-2] i.StatisticalLoggingSessionEventListener : Session Metrics {
-    0 nanoseconds spent acquiring 0 JDBC connections;
-    0 nanoseconds spent releasing 0 JDBC connections;
-    0 nanoseconds spent preparing 0 JDBC statements;
-    0 nanoseconds spent executing 0 JDBC statements;
-    0 nanoseconds spent executing 0 JDBC batches;
-    0 nanoseconds spent performing 0 L2C puts;
-    0 nanoseconds spent performing 0 L2C hits;
-    0 nanoseconds spent performing 0 L2C misses;
-    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
-    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
-}
 Hibernate: 
     select
         i1_0.id,
@@ -2274,6 +2214,15 @@ Hibernate:
         s1_0.id=?
 Hibernate: 
     select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
         i1_0.id,
         i1_0.address_complement,
         i1_0.id_associated_worker_committee,
@@ -2306,101 +2255,104 @@ Hibernate:
         instance i1_0 
     where
         i1_0.id=?
-Hibernate: 
-    select
-        s1_0.id,
-        s1_0.created_at,
-        s1_0.name 
-    from
-        sector s1_0 
-    where
-        s1_0.id=?
-Hibernate: 
-    select
-        s1_0.id,
-        s1_0.created_at,
-        s1_0.name 
-    from
-        sector s1_0 
-    where
-        s1_0.id=?
-Hibernate: 
-    select
-        s1_0.id,
-        s1_0.created_at,
-        s1_0.name 
-    from
-        sector s1_0 
-    where
-        s1_0.id=?
-Hibernate: 
-    select
-        s1_0.id,
-        s1_0.created_at,
-        s1_0.name 
-    from
-        sector s1_0 
-    where
-        s1_0.id=?
-Hibernate: 
-    select
-        s1_0.id,
-        s1_0.created_at,
-        s1_0.name 
-    from
-        sector s1_0 
-    where
-        s1_0.id=?
-2026-04-04T04:06:31.251-03:00  INFO 34225 --- [nio-8080-exec-8] x.p.c.SocialMaterializationController    : Encontradas 14 materializações sociais
-2026-04-04T04:06:31.292-03:00  INFO 34225 --- [io-8080-exec-10] i.StatisticalLoggingSessionEventListener : Session Metrics {
-    1469782 nanoseconds spent acquiring 1 JDBC connections;
+2026-04-11T00:24:50.892-03:00  INFO 316026 --- [nio-8080-exec-5] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    5666494 nanoseconds spent acquiring 1 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
-    285896 nanoseconds spent preparing 1 JDBC statements;
-    31167490 nanoseconds spent executing 1 JDBC statements;
+    490692 nanoseconds spent preparing 1 JDBC statements;
+    15234910 nanoseconds spent executing 1 JDBC statements;
     0 nanoseconds spent executing 0 JDBC batches;
     0 nanoseconds spent performing 0 L2C puts;
     0 nanoseconds spent performing 0 L2C hits;
     0 nanoseconds spent performing 0 L2C misses;
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
-    10200 nanoseconds spent executing 1 partial-flushes (flushing a total of 0 entities and 0 collections)
+    10347 nanoseconds spent executing 1 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:31.317-03:00  INFO 34225 --- [nio-8080-exec-9] i.StatisticalLoggingSessionEventListener : Session Metrics {
-    1277383 nanoseconds spent acquiring 1 JDBC connections;
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+2026-04-11T00:24:51.000-03:00  INFO 316026 --- [nio-8080-exec-4] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    42348537 nanoseconds spent acquiring 1 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
-    3566451 nanoseconds spent preparing 2 JDBC statements;
-    58153425 nanoseconds spent executing 2 JDBC statements;
+    44566412 nanoseconds spent preparing 2 JDBC statements;
+    88844166 nanoseconds spent executing 2 JDBC statements;
     0 nanoseconds spent executing 0 JDBC batches;
-    277023510 nanoseconds spent performing 5 L2C puts;
+    939082541 nanoseconds spent performing 5 L2C puts;
     0 nanoseconds spent performing 0 L2C hits;
-    203697 nanoseconds spent performing 1 L2C misses;
+    76571282 nanoseconds spent performing 1 L2C misses;
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:31.516-03:00  INFO 34225 --- [nio-8080-exec-8] i.StatisticalLoggingSessionEventListener : Session Metrics {
-    1459782 nanoseconds spent acquiring 1 JDBC connections;
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+2026-04-11T00:24:51.135-03:00  INFO 316026 --- [nio-8080-exec-6] x.p.c.SocialMaterializationController    : Encontradas 14 materializações sociais
+2026-04-11T00:24:51.802-03:00  INFO 316026 --- [nio-8080-exec-6] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    11235949 nanoseconds spent acquiring 1 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
-    2488166 nanoseconds spent preparing 14 JDBC statements;
-    68108872 nanoseconds spent executing 14 JDBC statements;
+    2075608 nanoseconds spent preparing 14 JDBC statements;
+    138804336 nanoseconds spent executing 14 JDBC statements;
     0 nanoseconds spent executing 0 JDBC batches;
-    256991984 nanoseconds spent performing 14 L2C puts;
+    853397943 nanoseconds spent performing 14 L2C puts;
     0 nanoseconds spent performing 0 L2C hits;
     0 nanoseconds spent performing 0 L2C misses;
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
-    9600 nanoseconds spent executing 1 partial-flushes (flushing a total of 0 entities and 0 collections)
+    12678 nanoseconds spent executing 1 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:31.539-03:00  INFO 34225 --- [nio-8080-exec-1] i.StatisticalLoggingSessionEventListener : Session Metrics {
-    7234304 nanoseconds spent acquiring 1 JDBC connections;
+2026-04-11T00:24:51.865-03:00  INFO 316026 --- [nio-8080-exec-8] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    1654767 nanoseconds spent acquiring 1 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
-    8444588 nanoseconds spent preparing 1 JDBC statements;
-    40530766 nanoseconds spent executing 1 JDBC statements;
+    3088801 nanoseconds spent preparing 1 JDBC statements;
+    101585925 nanoseconds spent executing 1 JDBC statements;
     0 nanoseconds spent executing 0 JDBC batches;
-    485342970 nanoseconds spent performing 26 L2C puts;
+    1457648706 nanoseconds spent performing 28 L2C puts;
     0 nanoseconds spent performing 0 L2C hits;
     0 nanoseconds spent performing 0 L2C misses;
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:47.391-03:00  INFO 34225 --- [nio-8080-exec-3] i.StatisticalLoggingSessionEventListener : Session Metrics {
+2026-04-11T00:25:05.802-03:00  INFO 316026 --- [nio-8080-exec-3] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    12192544 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    950125 nanoseconds spent preparing 1 JDBC statements;
+    1483520985 nanoseconds spent executing 1 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    7912135543 nanoseconds spent performing 6041 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    12375 nanoseconds spent executing 1 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:25:17.639-03:00  INFO 316026 --- [nio-8080-exec-7] i.StatisticalLoggingSessionEventListener : Session Metrics {
     0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
     0 nanoseconds spent preparing 0 JDBC statements;
@@ -2412,55 +2364,6 @@ Hibernate:
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:48.359-03:00  INFO 34225 --- [nio-8080-exec-5] x.planecon.controller.FactoryController  : Buscando ou criando fábrica com CNPJ: 14012554002833
-2026-04-04T04:06:48.371-03:00  INFO 34225 --- [nio-8080-exec-5] x.planecon.controller.FactoryController  :   cityCode: null, cityName: NITEROI
-Hibernate: 
-    select
-        i1_0.id,
-        i1_0.address_complement,
-        i1_0.id_associated_worker_committee,
-        i1_0.city,
-        i1_0.city_code,
-        i1_0.cnpj,
-        i1_0.committee_name,
-        i1_0.continent,
-        i1_0.country,
-        i1_0.created_at,
-        i1_0.estimated_individual_participation_in_social_work,
-        i1_0.hours_at_electronic_point,
-        i1_0.id_associated_worker_residents_association,
-        i1_0.latitude,
-        i1_0.longitude,
-        i1_0.popular_council_associated_with_committee_or_worker,
-        i1_0.popular_council_associated_with_popular_council,
-        i1_0.postal_code,
-        i1_0.produced_quantity,
-        i1_0.id_social_materialization,
-        i1_0.state,
-        i1_0.street,
-        i1_0.street_number,
-        i1_0.suburb,
-        i1_0.target_quantity,
-        i1_0.total_social_work_of_this_jurisdiction,
-        i1_0.type,
-        i1_0.worker_effective_limit 
-    from
-        instance i1_0 
-    where
-        i1_0.cnpj=?
-2026-04-04T04:06:48.453-03:00  INFO 34225 --- [nio-8080-exec-5] x.planecon.controller.FactoryController  : Buscando código da cidade a partir do nome: NITEROI
-Hibernate: 
-    select
-        c1_0.code,
-        c1_0.created_at,
-        c1_0.name,
-        c1_0.state 
-    from
-        city c1_0 
-    where
-        upper(c1_0.name)=upper(?)
-2026-04-04T04:06:49.067-03:00  INFO 34225 --- [nio-8080-exec-5] x.planecon.controller.FactoryController  : Código da cidade encontrado: 5865
-2026-04-04T04:06:49.067-03:00  INFO 34225 --- [nio-8080-exec-5] x.planecon.controller.FactoryController  : Fábrica não encontrada. Buscando PLACEHOLDER_INSTANCE...
 Hibernate: 
     select
         i1_0.id,
@@ -2495,305 +2398,42 @@ Hibernate:
         instance i1_0 
     where
         i1_0.type=?
-2026-04-04T04:06:49.645-03:00  INFO 34225 --- [nio-8080-exec-5] x.planecon.controller.FactoryController  : Criando nova fábrica: DRESS TO CLOTHING - BOUTIQUE LTDA
-2026-04-04T04:06:49.646-03:00  INFO 34225 --- [nio-8080-exec-5] x.planecon.controller.FactoryController  :   Cidade: NITEROI (5865)
-Hibernate: 
-    insert 
-    into
-        instance
-        (address_complement, id_associated_worker_committee, city, city_code, cnpj, committee_name, continent, country, created_at, estimated_individual_participation_in_social_work, hours_at_electronic_point, id_associated_worker_residents_association, latitude, longitude, popular_council_associated_with_committee_or_worker, popular_council_associated_with_popular_council, postal_code, produced_quantity, id_social_materialization, state, street, street_number, suburb, target_quantity, total_social_work_of_this_jurisdiction, type, worker_effective_limit) 
-    values
-        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-2026-04-04T04:06:50.393-03:00  INFO 34225 --- [nio-8080-exec-5] x.planecon.controller.FactoryController  : Nova fábrica criada: DRESS TO CLOTHING - BOUTIQUE LTDA (ID: 6049)
-2026-04-04T04:06:50.411-03:00  INFO 34225 --- [nio-8080-exec-5] x.planecon.controller.FactoryController  : Copiando tensores tecnológicos de PLACEHOLDER_INSTANCE para DRESS TO CLOTHING - BOUTIQUE LTDA
-Hibernate: 
-    select
-        tt1_0.id_production_input,
-        tt1_0.id_instance,
-        tt1_0.id_social_materialization,
-        tt1_0.created_at,
-        tt1_0.technical_coefficient_element_value 
-    from
-        technological_tensor tt1_0 
-    where
-        tt1_0.id_instance=?
-Hibernate: 
-    select
-        tt1_0.id_production_input,
-        tt1_0.id_instance,
-        tt1_0.id_social_materialization,
-        tt1_0.created_at,
-        tt1_0.technical_coefficient_element_value 
-    from
-        technological_tensor tt1_0 
-    where
-        (
-            tt1_0.id_production_input, tt1_0.id_instance, tt1_0.id_social_materialization
-        ) in ((?, ?, ?))
-Hibernate: 
-    select
-        tt1_0.id_production_input,
-        tt1_0.id_instance,
-        tt1_0.id_social_materialization,
-        tt1_0.created_at,
-        tt1_0.technical_coefficient_element_value 
-    from
-        technological_tensor tt1_0 
-    where
-        (
-            tt1_0.id_production_input, tt1_0.id_instance, tt1_0.id_social_materialization
-        ) in ((?, ?, ?))
-2026-04-04T04:06:51.238-03:00  INFO 34225 --- [nio-8080-exec-5] x.planecon.controller.FactoryController  : Copiados 2 tensores tecnológicos
-2026-04-04T04:06:51.239-03:00  INFO 34225 --- [nio-8080-exec-5] x.planecon.controller.FactoryController  : Copiando vetores de demanda de PLACEHOLDER_INSTANCE para DRESS TO CLOTHING - BOUTIQUE LTDA
-Hibernate: 
-    select
-        dv1_0.id_instance,
-        dv1_0.id_social_materialization,
-        dv1_0.created_at,
-        dv1_0.demand 
-    from
-        demand_vector dv1_0 
-    where
-        dv1_0.id_instance=?
-Hibernate: 
-    select
-        dv1_0.id_instance,
-        dv1_0.id_social_materialization,
-        dv1_0.created_at,
-        dv1_0.demand 
-    from
-        demand_vector dv1_0 
-    where
-        (
-            dv1_0.id_instance, dv1_0.id_social_materialization
-        ) in ((?, ?))
-Hibernate: 
-    select
-        dv1_0.id_instance,
-        dv1_0.id_social_materialization,
-        dv1_0.created_at,
-        dv1_0.demand 
-    from
-        demand_vector dv1_0 
-    where
-        (
-            dv1_0.id_instance, dv1_0.id_social_materialization
-        ) in ((?, ?))
-2026-04-04T04:06:51.716-03:00  INFO 34225 --- [nio-8080-exec-5] x.planecon.controller.FactoryController  : Copiados 2 vetores de demanda
-2026-04-04T04:06:51.717-03:00  INFO 34225 --- [nio-8080-exec-5] x.planecon.controller.FactoryController  : Copiando estoques de demanda de PLACEHOLDER_INSTANCE para DRESS TO CLOTHING - BOUTIQUE LTDA
-Hibernate: 
-    select
-        ds1_0.id_instance,
-        ds1_0.id_social_materialization,
-        ds1_0.created_at,
-        ds1_0.demand,
-        ds1_0.stock 
-    from
-        demand_stock ds1_0 
-    where
-        ds1_0.id_instance=?
-Hibernate: 
-    select
-        s1_0.id,
-        s1_0.created_at,
-        s1_0.name 
-    from
-        sector s1_0 
-    where
-        s1_0.id=?
-Hibernate: 
-    select
-        s1_0.id,
-        s1_0.created_at,
-        s1_0.name 
-    from
-        sector s1_0 
-    where
-        s1_0.id=?
-Hibernate: 
-    select
-        ds1_0.id_instance,
-        i1_0.id,
-        i1_0.address_complement,
-        i1_0.id_associated_worker_committee,
-        i1_0.city,
-        i1_0.city_code,
-        i1_0.cnpj,
-        i1_0.committee_name,
-        i1_0.continent,
-        i1_0.country,
-        i1_0.created_at,
-        i1_0.estimated_individual_participation_in_social_work,
-        i1_0.hours_at_electronic_point,
-        i1_0.id_associated_worker_residents_association,
-        i1_0.latitude,
-        i1_0.longitude,
-        i1_0.popular_council_associated_with_committee_or_worker,
-        i1_0.popular_council_associated_with_popular_council,
-        i1_0.postal_code,
-        i1_0.produced_quantity,
-        i1_0.id_social_materialization,
-        i1_0.state,
-        i1_0.street,
-        i1_0.street_number,
-        i1_0.suburb,
-        i1_0.target_quantity,
-        i1_0.total_social_work_of_this_jurisdiction,
-        i1_0.type,
-        i1_0.worker_effective_limit,
-        ds1_0.id_social_materialization,
-        sm2_0.id,
-        sm2_0.created_at,
-        sm2_0.name,
-        sm2_0.id_sector,
-        s1_0.id,
-        s1_0.created_at,
-        s1_0.name,
-        sm2_0.type,
-        ds1_0.created_at,
-        ds1_0.demand,
-        ds1_0.stock 
-    from
-        demand_stock ds1_0 
-    join
-        instance i1_0 
-            on i1_0.id=ds1_0.id_instance 
-    join
-        social_materialization sm2_0 
-            on sm2_0.id=ds1_0.id_social_materialization 
-    left join
-        sector s1_0 
-            on s1_0.id=sm2_0.id_sector 
-    where
-        (
-            ds1_0.id_instance, ds1_0.id_social_materialization
-        ) in ((?, ?))
-Hibernate: 
-    select
-        ds1_0.id_instance,
-        i1_0.id,
-        i1_0.address_complement,
-        i1_0.id_associated_worker_committee,
-        i1_0.city,
-        i1_0.city_code,
-        i1_0.cnpj,
-        i1_0.committee_name,
-        i1_0.continent,
-        i1_0.country,
-        i1_0.created_at,
-        i1_0.estimated_individual_participation_in_social_work,
-        i1_0.hours_at_electronic_point,
-        i1_0.id_associated_worker_residents_association,
-        i1_0.latitude,
-        i1_0.longitude,
-        i1_0.popular_council_associated_with_committee_or_worker,
-        i1_0.popular_council_associated_with_popular_council,
-        i1_0.postal_code,
-        i1_0.produced_quantity,
-        i1_0.id_social_materialization,
-        i1_0.state,
-        i1_0.street,
-        i1_0.street_number,
-        i1_0.suburb,
-        i1_0.target_quantity,
-        i1_0.total_social_work_of_this_jurisdiction,
-        i1_0.type,
-        i1_0.worker_effective_limit,
-        ds1_0.id_social_materialization,
-        sm2_0.id,
-        sm2_0.created_at,
-        sm2_0.name,
-        sm2_0.id_sector,
-        s1_0.id,
-        s1_0.created_at,
-        s1_0.name,
-        sm2_0.type,
-        ds1_0.created_at,
-        ds1_0.demand,
-        ds1_0.stock 
-    from
-        demand_stock ds1_0 
-    join
-        instance i1_0 
-            on i1_0.id=ds1_0.id_instance 
-    join
-        social_materialization sm2_0 
-            on sm2_0.id=ds1_0.id_social_materialization 
-    left join
-        sector s1_0 
-            on s1_0.id=sm2_0.id_sector 
-    where
-        (
-            ds1_0.id_instance, ds1_0.id_social_materialization
-        ) in ((?, ?))
-2026-04-04T04:06:53.012-03:00  INFO 34225 --- [nio-8080-exec-5] x.planecon.controller.FactoryController  : Copiados 2 estoques de demanda
-Hibernate: 
-    insert 
-    into
-        technological_tensor
-        (created_at, technical_coefficient_element_value, id_production_input, id_instance, id_social_materialization) 
-    values
-        (?, ?, ?, ?, ?)
-Hibernate: 
-    insert 
-    into
-        technological_tensor
-        (created_at, technical_coefficient_element_value, id_production_input, id_instance, id_social_materialization) 
-    values
-        (?, ?, ?, ?, ?)
-Hibernate: 
-    insert 
-    into
-        demand_vector
-        (created_at, demand, id_instance, id_social_materialization) 
-    values
-        (?, ?, ?, ?)
-Hibernate: 
-    insert 
-    into
-        demand_vector
-        (created_at, demand, id_instance, id_social_materialization) 
-    values
-        (?, ?, ?, ?)
-Hibernate: 
-    insert 
-    into
-        demand_stock
-        (created_at, demand, stock, id_instance, id_social_materialization) 
-    values
-        (?, ?, ?, ?, ?)
-Hibernate: 
-    insert 
-    into
-        demand_stock
-        (created_at, demand, stock, id_instance, id_social_materialization) 
-    values
-        (?, ?, ?, ?, ?)
-2026-04-04T04:06:54.104-03:00  INFO 34225 --- [nio-8080-exec-5] i.StatisticalLoggingSessionEventListener : Session Metrics {
-    2446605 nanoseconds spent acquiring 1 JDBC connections;
+2026-04-11T00:25:26.272-03:00  INFO 316026 --- [nio-8080-exec-9] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    1602517 nanoseconds spent acquiring 1 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
-    113260606 nanoseconds spent preparing 18 JDBC statements;
-    915784701 nanoseconds spent executing 15 JDBC statements;
-    373182738 nanoseconds spent executing 3 JDBC batches;
-    314500747 nanoseconds spent performing 39 L2C puts;
-    12714420 nanoseconds spent performing 2 L2C hits;
-    0 nanoseconds spent performing 0 L2C misses;
-    767964969 nanoseconds spent executing 1 flushes (flushing a total of 44 entities and 136 collections);
-    625158706 nanoseconds spent executing 6 partial-flushes (flushing a total of 97 entities and 97 collections)
-}
-2026-04-04T04:06:54.288-03:00  INFO 34225 --- [nio-8080-exec-7] i.StatisticalLoggingSessionEventListener : Session Metrics {
-    1549480 nanoseconds spent acquiring 1 JDBC connections;
-    0 nanoseconds spent releasing 0 JDBC connections;
-    1041986 nanoseconds spent preparing 1 JDBC statements;
-    613707710 nanoseconds spent executing 1 JDBC statements;
+    2233275 nanoseconds spent preparing 1 JDBC statements;
+    10285918 nanoseconds spent executing 1 JDBC statements;
     0 nanoseconds spent executing 0 JDBC batches;
-    11200413922 nanoseconds spent performing 6039 L2C puts;
+    4277076 nanoseconds spent performing 4 L2C puts;
     0 nanoseconds spent performing 0 L2C hits;
     0 nanoseconds spent performing 0 L2C misses;
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
-    10000 nanoseconds spent executing 1 partial-flushes (flushing a total of 0 entities and 0 collections)
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:54.579-03:00  INFO 34225 --- [nio-8080-exec-4] x.planecon.controller.FactoryController  : Buscando fábricas da cidade: 5865
+2026-04-11T00:25:26.704-03:00  INFO 316026 --- [io-8080-exec-10] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:25:34.043-03:00  INFO 316026 --- [nio-8080-exec-2] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
 Hibernate: 
     select
         i1_0.id,
@@ -2827,193 +2467,314 @@ Hibernate:
     from
         instance i1_0 
     where
-        i1_0.city_code=? 
-        and i1_0.type=?
-2026-04-04T04:06:54.791-03:00  INFO 34225 --- [nio-8080-exec-4] x.planecon.controller.FactoryController  : Encontradas 16 fábricas
-2026-04-04T04:06:54.823-03:00  INFO 34225 --- [nio-8080-exec-4] i.StatisticalLoggingSessionEventListener : Session Metrics {
-    116201 nanoseconds spent acquiring 1 JDBC connections;
+        i1_0.type=?
+2026-04-11T00:25:34.378-03:00  INFO 316026 --- [nio-8080-exec-5] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    1263741 nanoseconds spent acquiring 1 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
-    13606815 nanoseconds spent preparing 1 JDBC statements;
-    16136937 nanoseconds spent executing 1 JDBC statements;
+    2279302 nanoseconds spent preparing 1 JDBC statements;
+    4266595 nanoseconds spent executing 1 JDBC statements;
     0 nanoseconds spent executing 0 JDBC batches;
-    89586158 nanoseconds spent performing 16 L2C puts;
+    511063 nanoseconds spent performing 1 L2C puts;
     0 nanoseconds spent performing 0 L2C hits;
     0 nanoseconds spent performing 0 L2C misses;
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
-2026-04-04T04:06:54.915-03:00  INFO 34225 --- [nio-8080-exec-6] x.p.controller.CommitteeController       : Buscando estado completo para comitê ID: 6049
-Hibernate: 
-    select
-        wp1_0.id_instance,
-        wp1_0.created_at,
-        i1_0.id,
-        i1_0.address_complement,
-        i1_0.id_associated_worker_committee,
-        i1_0.city,
-        i1_0.city_code,
-        i1_0.cnpj,
-        i1_0.committee_name,
-        i1_0.continent,
-        i1_0.country,
-        i1_0.created_at,
-        i1_0.estimated_individual_participation_in_social_work,
-        i1_0.hours_at_electronic_point,
-        i1_0.id_associated_worker_residents_association,
-        i1_0.latitude,
-        i1_0.longitude,
-        i1_0.popular_council_associated_with_committee_or_worker,
-        i1_0.popular_council_associated_with_popular_council,
-        i1_0.postal_code,
-        i1_0.produced_quantity,
-        i1_0.id_social_materialization,
-        i1_0.state,
-        i1_0.street,
-        i1_0.street_number,
-        i1_0.suburb,
-        i1_0.target_quantity,
-        i1_0.total_social_work_of_this_jurisdiction,
-        i1_0.type,
-        i1_0.worker_effective_limit,
-        wp1_0.night_shift,
-        wp1_0.production_time,
-        wp1_0.weekly_scale,
-        wp1_0.worker_hours,
-        wp1_0.worker_limit 
-    from
-        workers_proposal wp1_0 
-    join
-        instance i1_0 
-            on i1_0.id=wp1_0.id_instance 
-    where
-        wp1_0.id_instance=?
-Hibernate: 
-    select
-        u1_0.id,
-        u1_0.created_at,
-        u1_0.id_instance,
-        u1_0.name,
-        u1_0.password,
-        u1_0.pronoun,
-        u1_0.type,
-        u1_0.username 
-    from
-        "user" u1_0 
-    where
-        u1_0.id_instance=?
-Hibernate: 
-    select
-        ds1_0.id_instance,
-        ds1_0.id_social_materialization,
-        ds1_0.created_at,
-        ds1_0.demand,
-        ds1_0.stock 
-    from
-        demand_stock ds1_0 
-    where
-        ds1_0.id_instance=?
-Hibernate: 
-    select
-        s1_0.id,
-        s1_0.created_at,
-        s1_0.name 
-    from
-        sector s1_0 
-    where
-        s1_0.id=?
-Hibernate: 
-    select
-        s1_0.id,
-        s1_0.created_at,
-        s1_0.name 
-    from
-        sector s1_0 
-    where
-        s1_0.id=?
-Hibernate: 
-    select
-        tt1_0.id_production_input,
-        tt1_0.id_instance,
-        tt1_0.id_social_materialization,
-        tt1_0.created_at,
-        tt1_0.technical_coefficient_element_value 
-    from
-        technological_tensor tt1_0 
-    where
-        tt1_0.id_instance=?
-Hibernate: 
-    select
-        s1_0.id,
-        s1_0.created_at,
-        s1_0.name 
-    from
-        sector s1_0 
-    where
-        s1_0.id=?
-Hibernate: 
-    select
-        dv1_0.id_instance,
-        dv1_0.id_social_materialization,
-        dv1_0.created_at,
-        dv1_0.demand 
-    from
-        demand_vector dv1_0 
-    where
-        dv1_0.id_instance=?
-Hibernate: 
-    select
-        wp1_0.id_instance,
-        wp1_0.created_at,
-        i1_0.id,
-        i1_0.address_complement,
-        i1_0.id_associated_worker_committee,
-        i1_0.city,
-        i1_0.city_code,
-        i1_0.cnpj,
-        i1_0.committee_name,
-        i1_0.continent,
-        i1_0.country,
-        i1_0.created_at,
-        i1_0.estimated_individual_participation_in_social_work,
-        i1_0.hours_at_electronic_point,
-        i1_0.id_associated_worker_residents_association,
-        i1_0.latitude,
-        i1_0.longitude,
-        i1_0.popular_council_associated_with_committee_or_worker,
-        i1_0.popular_council_associated_with_popular_council,
-        i1_0.postal_code,
-        i1_0.produced_quantity,
-        i1_0.id_social_materialization,
-        i1_0.state,
-        i1_0.street,
-        i1_0.street_number,
-        i1_0.suburb,
-        i1_0.target_quantity,
-        i1_0.total_social_work_of_this_jurisdiction,
-        i1_0.type,
-        i1_0.worker_effective_limit,
-        wp1_0.night_shift,
-        wp1_0.production_time,
-        wp1_0.weekly_scale,
-        wp1_0.worker_hours,
-        wp1_0.worker_limit 
-    from
-        workers_proposal wp1_0 
-    join
-        instance i1_0 
-            on i1_0.id=wp1_0.id_instance 
-    where
-        wp1_0.id_instance=?
-2026-04-04T04:06:55.633-03:00  INFO 34225 --- [nio-8080-exec-6] x.p.controller.CommitteeController       : Estado completo do comitê 6049 obtido com sucesso
-2026-04-04T04:06:55.924-03:00  INFO 34225 --- [nio-8080-exec-6] i.StatisticalLoggingSessionEventListener : Session Metrics {
-    178101 nanoseconds spent acquiring 1 JDBC connections;
+2026-04-11T00:27:06.289-03:00  INFO 316026 --- [nio-8080-exec-9] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
     0 nanoseconds spent releasing 0 JDBC connections;
-    14664518 nanoseconds spent preparing 9 JDBC statements;
-    131444963 nanoseconds spent executing 9 JDBC statements;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
     0 nanoseconds spent executing 0 JDBC batches;
-    67868746 nanoseconds spent performing 1 L2C puts;
-    4766038 nanoseconds spent performing 4 L2C hits;
-    111201 nanoseconds spent performing 1 L2C misses;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:27:19.057-03:00  INFO 316026 --- [io-8080-exec-10] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:27:19.784-03:00  INFO 316026 --- [nio-8080-exec-2] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:27:19.798-03:00  INFO 316026 --- [nio-8080-exec-1] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:27:19.945-03:00  INFO 316026 --- [nio-8080-exec-5] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:27:20.049-03:00  INFO 316026 --- [nio-8080-exec-4] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:28:37.629-03:00  INFO 316026 --- [io-8080-exec-10] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:28:58.445-03:00  INFO 316026 --- [nio-8080-exec-2] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:28:58.775-03:00  INFO 316026 --- [nio-8080-exec-5] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:29:30.822-03:00  INFO 316026 --- [nio-8080-exec-8] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:29:31.207-03:00  INFO 316026 --- [nio-8080-exec-6] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:29:31.290-03:00  INFO 316026 --- [nio-8080-exec-3] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:29:31.363-03:00  INFO 316026 --- [nio-8080-exec-7] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:29:31.368-03:00  INFO 316026 --- [nio-8080-exec-9] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:29:31.385-03:00  INFO 316026 --- [nio-8080-exec-2] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:29:31.394-03:00  INFO 316026 --- [io-8080-exec-10] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:29:31.409-03:00  INFO 316026 --- [nio-8080-exec-1] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:29:31.531-03:00  INFO 316026 --- [nio-8080-exec-5] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:29:31.532-03:00  INFO 316026 --- [nio-8080-exec-4] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:29:31.581-03:00  INFO 316026 --- [nio-8080-exec-8] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit 
+    from
+        instance i1_0 
+    where
+        i1_0.type=?
+2026-04-11T00:29:32.896-03:00  INFO 316026 --- [nio-8080-exec-6] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    1518275 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    2213291 nanoseconds spent preparing 1 JDBC statements;
+    9186468 nanoseconds spent executing 1 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    591983 nanoseconds spent performing 1 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T00:29:33.323-03:00  INFO 316026 --- [nio-8080-exec-3] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
