@@ -4832,3 +4832,11 @@ Hibernate:
     75618873 nanoseconds spent executing 1 flushes (flushing a total of 18 entities and 16 collections);
     2705110 nanoseconds spent executing 1 partial-flushes (flushing a total of 5 entities and 5 collections)
 }
+2026-04-11T03:55:17.827-03:00  INFO 380803 --- [ionShutdownHook] j.LocalContainerEntityManagerFactoryBean : Closing JPA EntityManagerFactory for persistence unit 'default'
+2026-04-11T03:55:17.879-03:00  INFO 380803 --- [ionShutdownHook] org.ehcache.core.EhcacheManager          : Cache 'default-query-results-region' removed from EhcacheManager.
+2026-04-11T03:55:17.888-03:00  INFO 380803 --- [ionShutdownHook] org.ehcache.core.EhcacheManager          : Cache 'xyz.planecon.model.entity.Instance' removed from EhcacheManager.
+2026-04-11T03:55:17.895-03:00  INFO 380803 --- [ionShutdownHook] org.ehcache.core.EhcacheManager          : Cache 'xyz.planecon.model.entity.SocialMaterialization' removed from EhcacheManager.
+2026-04-11T03:55:17.897-03:00  INFO 380803 --- [ionShutdownHook] org.ehcache.core.EhcacheManager          : Cache 'xyz.planecon.model.entity.City' removed from EhcacheManager.
+2026-04-11T03:55:17.914-03:00  INFO 380803 --- [ionShutdownHook] org.ehcache.core.EhcacheManager          : Cache 'default-update-timestamps-region' removed from EhcacheManager.
+2026-04-11T03:55:18.071-03:00  INFO 380803 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown initiated...
+2026-04-11T03:55:18.193-03:00  INFO 380803 --- [ionShutdownHook] com.zaxxer.hikari.HikariDataSource       : HikariPool-1 - Shutdown completed.

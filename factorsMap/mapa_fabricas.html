@@ -5098,5 +5098,108 @@ function renderizarGrafico() {
 <script>
 window.addEventListener('DOMContentLoaded', inicializarOverlayPadrao);
 </script>
+
+<script>
+// ─── Conselhos Populares no mapa ─────────────────────────────────────────────
+const conselhosLayer = L.featureGroup();
+const _conselhosCarregados = {};
+
+function criarIconeConselho(cor) {
+  const iconSVG = `<svg xmlns="http://www.w3.org/2000/svg" width="36" height="46" viewBox="0 0 24 30">
+    <path d="M12 2C6.48 2 2 6.48 2 12c0 4.41 3.05 8.1 7.01 8.93V28h-6v2h16v-2h-6v-4.07C18.95 20.1 22 16.41 22 12c0-5.52-4.48-10-10-10z" stroke="#fff" stroke-width="1.2" fill="${cor}"/>
+    <text x="12" y="14" text-anchor="middle" font-size="8" fill="#fff" font-family="sans-serif" font-weight="bold">CP</text>
+  </svg>`;
+  const encodedSVG = btoa(unescape(encodeURIComponent(iconSVG)));
+  return L.icon({ iconUrl: 'data:image/svg+xml;base64,' + encodedSVG, iconSize: [36, 46], iconAnchor: [18, 46], popupAnchor: [0, -46] });
+}
+
+async function carregarConselhosMapa(nomeCidade) {
+  if (!nomeCidade) return;
+  const cidade = nomeCidade.toUpperCase().trim();
+  if (_conselhosCarregados[cidade]) return;
+  _conselhosCarregados[cidade] = true;
+
+  try {
+    const resp = await fetch(`/api/conselhos-cidade?nome=${encodeURIComponent(cidade)}`);
+    if (!resp.ok) return;
+    const conselhos = await resp.json();
+    if (!Array.isArray(conselhos) || !conselhos.length) return;
+
+    // Remover marcadores de conselho anteriores (se cidade mudou)
+    conselhosLayer.clearLayers();
+
+    conselhos.forEach(conselho => {
+      let lat = conselho.latitude != null ? Number(conselho.latitude) : null;
+      let lon = conselho.longitude != null ? Number(conselho.longitude) : null;
+      let coordComputada = false;
+
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) {
+        // Calcular centroide das fábricas com coordenadas + offset de ~300 m ao norte
+        const comCoords = empresas.filter(e => e.coordenadas && Number.isFinite(e.coordenadas.lat) && Number.isFinite(e.coordenadas.lon));
+        if (!comCoords.length) return;
+        const centroLat = comCoords.reduce((s, e) => s + e.coordenadas.lat, 0) / comCoords.length;
+        const centroLon = comCoords.reduce((s, e) => s + e.coordenadas.lon, 0) / comCoords.length;
+        lat = centroLat + 0.003;
+        lon = centroLon + 0.003;
+        coordComputada = true;
+
+        // Persistir coordenadas calculadas no banco para cargas futuras
+        fetch(`/api/conselhos-cidade/${conselho.id}/coordenadas`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ latitude: lat, longitude: lon })
+        }).catch(() => {});
+      }
+
+      const iconAzul = criarIconeConselho('#4FC3F7');
+      const aviso = coordComputada
+        ? '<br><em style="color:#aaa;font-size:11px;">📍 Localização estimada — será corrigida</em>'
+        : '';
+
+      const marker = L.marker([lat, lon], { icon: iconAzul, zIndexOffset: 1000 })
+        .bindPopup(`<div style="font-size:13px;width:260px;">
+          <b style="color:#4FC3F7;font-size:14px;">🏛️ ${conselho.nome || 'Conselho Popular'}</b><br>
+          <span style="color:#aaa">Conselho Popular · ${conselho.cidade || cidade}</span>${aviso}
+        </div>`);
+
+      conselhosLayer.addLayer(marker);
+      marker.addTo(map);
+    });
+
+  } catch (e) {
+    console.warn('Erro ao carregar conselhos no mapa:', e);
+  }
+}
+
+// Carregar conselhos quando a cidade atual muda
+(function() {
+  let _ultimaCidadeConselhos = null;
+
+  function verificarMudancaCidade() {
+    // _cidadeAtiva é a variável global que indica a cidade em exibição no mapa
+    const cidadeAtual = (typeof _cidadeAtiva !== 'undefined' ? _cidadeAtiva : null);
+    if (!cidadeAtual || cidadeAtual === _ultimaCidadeConselhos) return;
+    _ultimaCidadeConselhos = cidadeAtual;
+    // Resetar cache para que re-carregue na nova cidade
+    _conselhosCarregados[cidadeAtual.toUpperCase()] = false;
+    conselhosLayer.clearLayers();
+    // Aguardar os marcadores das fábricas estarem carregados antes de adicionar conselhos
+    setTimeout(() => carregarConselhosMapa(cidadeAtual), 2000);
+  }
+
+  // Verificar mudança de cidade a cada 3 segundos
+  setInterval(verificarMudancaCidade, 3000);
+})();
+
+// Carregar conselhos para a cidade inicial após os marcadores de fábricas
+window.addEventListener('DOMContentLoaded', function() {
+  setTimeout(function() {
+    const cidadeInicial = _cidadeAtiva || (empresas[0] ? extrairCidadeDoEndereco(empresas[0].endereco) : null);
+    if (cidadeInicial) carregarConselhosMapa(cidadeInicial);
+  }, 2500);
+});
+// ─────────────────────────────────────────────────────────────────────────────
+</script>
+
 </body>
 </html>

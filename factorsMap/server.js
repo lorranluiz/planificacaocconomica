@@ -1941,6 +1941,63 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // API: Conselhos Populares de uma cidade (proxy para Spring Boot)
+  // GET /api/conselhos-cidade?nome=NITEROI
+  if (pathname === '/api/conselhos-cidade' && req.method === 'GET') {
+    const nomeCidade = (parsedUrl.query.nome || '').toUpperCase().trim();
+    if (!nomeCidade) {
+      res.writeHead(400, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ erro: 'Parâmetro "nome" obrigatório' }));
+      return;
+    }
+    const springUrl = `http://localhost:8080/api/map/conselhos?cidade=${encodeURIComponent(nomeCidade)}`;
+    http.get(springUrl, (springRes) => {
+      let data = '';
+      springRes.on('data', chunk => { data += chunk; });
+      springRes.on('end', () => {
+        res.writeHead(springRes.statusCode, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(data);
+      });
+    }).on('error', (e) => {
+      res.writeHead(502, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ erro: 'Serviço indisponível: ' + e.message, conselhos: [] }));
+    });
+    return;
+  }
+
+  // API: Salvar coordenadas de um conselho (proxy para Spring Boot)
+  // PUT /api/conselhos-cidade/:id/coordenadas
+  if (/^\/api\/conselhos-cidade\/(\d+)\/coordenadas$/.test(pathname) && req.method === 'PUT') {
+    const match = pathname.match(/^\/api\/conselhos-cidade\/(\d+)\/coordenadas$/);
+    const id = match[1];
+    let body = '';
+    req.on('data', chunk => { body += chunk; });
+    req.on('end', () => {
+      const springOptions = {
+        hostname: 'localhost',
+        port: 8080,
+        path: `/api/map/conselhos/${id}/coordenadas`,
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) }
+      };
+      const springReq = http.request(springOptions, (springRes) => {
+        let data = '';
+        springRes.on('data', chunk => { data += chunk; });
+        springRes.on('end', () => {
+          res.writeHead(springRes.statusCode, { 'Content-Type': 'application/json; charset=utf-8' });
+          res.end(data);
+        });
+      });
+      springReq.on('error', (e) => {
+        res.writeHead(502, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ erro: 'Serviço indisponível: ' + e.message }));
+      });
+      springReq.write(body);
+      springReq.end();
+    });
+    return;
+  }
+
   // Servir arquivos estáticos
   let filePath = path.join(__dirname, pathname);
   
