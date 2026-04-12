@@ -40,7 +40,8 @@ public class MapController {
      */
     @GetMapping("/conselhos-globais")
     public ResponseEntity<List<Map<String, Object>>> getConselhosGlobais() {
-        List<Instance> conselhos = instanceRepository.findGlobalCouncils(InstanceType.POPULARCOUNCIL);
+        List<Instance> conselhos = new ArrayList<>(instanceRepository.findGlobalCouncils(InstanceType.POPULARCOUNCIL));
+        conselhos.addAll(instanceRepository.findGlobalCouncils(InstanceType.PLANNERCOUNCIL));
         return ResponseEntity.ok(toConselhoList(conselhos));
     }
 
@@ -50,6 +51,7 @@ public class MapController {
             Map<String, Object> item = new LinkedHashMap<>();
             item.put("id", c.getId());
             item.put("nome", c.getCommitteeName());
+            item.put("tipo", c.getType() != null ? c.getType().name() : null);
             item.put("cidade", c.getCity());
             item.put("codigoCidade", c.getCityCode());
             item.put("estado", c.getState());
@@ -77,7 +79,7 @@ public class MapController {
             return ResponseEntity.notFound().build();
         }
         Instance conselho = opt.get();
-        if (conselho.getType() != InstanceType.POPULARCOUNCIL) {
+        if (conselho.getType() != InstanceType.POPULARCOUNCIL && conselho.getType() != InstanceType.PLANNERCOUNCIL) {
             return ResponseEntity.badRequest().build();
         }
 

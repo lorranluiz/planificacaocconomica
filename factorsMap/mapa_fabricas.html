@@ -3087,7 +3087,7 @@ function mostrarPainelPlanification(cityCode, cityName, cnpj, name) {
   });
 }
 
-function mostrarPainelPlanificationConselho(conselhoId, conselhoNome) {
+function mostrarPainelPlanificationConselho(conselhoId, conselhoNome, tipo) {
   const overlay = document.getElementById('processamento-overlay');
   const inner = document.getElementById('overlay-inner');
   if (!overlay || !inner) return;
@@ -3096,7 +3096,8 @@ function mostrarPainelPlanificationConselho(conselhoId, conselhoNome) {
   const chave = `${PLANIFICATION_WINDOW_KEY_PREFIX}conselho_${conselhoId}_${planificationId}`;
   const currentScheme = window.ColorScheme ? window.ColorScheme.get() : 'blue';
   const cacheBuster = Date.now();
-  const url = `http://localhost:8080/popularcouncil.html?id=${encodeURIComponent(conselhoId)}&colorScheme=${currentScheme}&_t=${cacheBuster}`;
+  const pagina = (tipo === 'PLANNERCOUNCIL') ? 'plannercouncil.html' : 'popularcouncil.html';
+  const url = `http://localhost:8080/${pagina}?id=${encodeURIComponent(conselhoId)}&colorScheme=${currentScheme}&_t=${cacheBuster}`;
 
   minimizarOutrasJanelasProcessamento(chave);
   _cidadeAtiva = chave;
@@ -5438,11 +5439,12 @@ async function carregarConselhosGlobais() {
 
       const icon = liteMode ? criarIconeClassico('#FFD54F') : criarIconePiramide();
       const _cNome = (conselho.nome || 'Conselho Popular').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const _cTipo = conselho.tipo || 'POPULARCOUNCIL';
       const marker = L.marker([lat, lon], { icon: icon, zIndexOffset: 2000 })
         .bindPopup(`<div style="font-size:13px;width:280px;">
           <b style="color:#FFD54F;font-size:14px;">🏛️ ${conselho.nome || 'Conselho Popular'}</b><br>
           <span style="color:#aaa">${nivel}</span><br><br>
-          <a href="#" onclick="event.preventDefault(); mostrarPainelPlanificationConselho('${conselho.id}', '${_cNome}'); return false;" style="color: #FFD54F; font-weight: bold; text-decoration: underline;">🔧 Planificar</a>
+          <a href="#" onclick="event.preventDefault(); mostrarPainelPlanificationConselho('${conselho.id}', '${_cNome}', '${_cTipo}'); return false;" style="color: #FFD54F; font-weight: bold; text-decoration: underline;">🔧 Planificar</a>
         </div>`);
 
       conselhosGlobaisLayer.addLayer(marker);
