@@ -7,9 +7,22 @@
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 
   <style>
+    /* Cluster custom styles - override defaults */
+    .marker-cluster-custom {
+      background: transparent !important;
+    }
+    .marker-cluster-small, .marker-cluster-medium, .marker-cluster-large {
+      background: transparent !important;
+    }
+    .marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div {
+      background: transparent !important;
+    }
     /* ==================== SISTEMA DE ESQUEMA DE CORES ==================== */
     /* Tema Azul (Padrão) */
     :root,
@@ -4312,7 +4325,73 @@ function iniciarPiramideNoMarcador(marker, cor, capital) {
 let empresasAtivasByCNPJ = new Set(empresas.map(e => e.cnpj));
 
 const markers = {}; 
-const markerGroup = L.featureGroup();
+
+// ─── Cluster: formatação de número abreviado ─────────────────────────────────
+function _clusterFormatCount(n) {
+  if (n >= 1e12) return (n / 1e12).toFixed(n >= 10e12 ? 0 : 1).replace(/\.0$/, '') + 'T';
+  if (n >= 1e9)  return (n / 1e9).toFixed(n >= 10e9 ? 0 : 1).replace(/\.0$/, '') + 'B';
+  if (n >= 1e6)  return (n / 1e6).toFixed(n >= 10e6 ? 0 : 1).replace(/\.0$/, '') + 'M';
+  if (n >= 1e3)  return (n / 1e3).toFixed(n >= 10e3 ? 0 : 1).replace(/\.0$/, '') + 'K';
+  return String(n);
+}
+
+// ─── Cluster: calcular raio do círculo (escala logarítmica) ──────────────────
+function _clusterRadius(count) {
+  const minR = 18, maxR = 50;
+  const logCount = Math.log10(Math.max(10, count));
+  const logMin = 1;   // log10(10)
+  const logMax = 12;  // log10(1e12)
+  const t = Math.min(1, (logCount - logMin) / (logMax - logMin));
+  return Math.round(minR + t * (maxR - minR));
+}
+
+// ─── Cluster: cor do círculo por nível ───────────────────────────────────────
+function _clusterColor(count) {
+  if (count < 50)     return 'rgba(0,180,255,0.7)';
+  if (count < 250)    return 'rgba(0,200,150,0.7)';
+  if (count < 1000)   return 'rgba(80,220,80,0.7)';
+  if (count < 5000)   return 'rgba(200,200,0,0.7)';
+  if (count < 25000)  return 'rgba(255,170,0,0.7)';
+  if (count < 100000) return 'rgba(255,100,0,0.7)';
+  return 'rgba(255,50,50,0.7)';
+}
+
+// ─── Cluster: criar ícone de agrupamento ─────────────────────────────────────
+function _clusterIconCreate(cluster) {
+  const count = cluster.getChildCount();
+  const r = _clusterRadius(count);
+  const d = r * 2;
+  const color = _clusterColor(count);
+  const fontSize = r < 22 ? 11 : (r < 30 ? 12 : (r < 40 ? 13 : 14));
+  const label = _clusterFormatCount(count);
+  return L.divIcon({
+    html: '<div style="' +
+      'width:' + d + 'px;height:' + d + 'px;' +
+      'border-radius:50%;' +
+      'background:' + color + ';' +
+      'border:2px solid rgba(255,255,255,0.8);' +
+      'display:flex;align-items:center;justify-content:center;' +
+      'color:#fff;font-weight:bold;font-size:' + fontSize + 'px;' +
+      'text-shadow:0 1px 3px rgba(0,0,0,0.6);' +
+      'box-shadow:0 0 8px rgba(0,0,0,0.3);' +
+      '">' + label + '</div>',
+    className: 'marker-cluster-custom',
+    iconSize: L.point(d, d),
+    iconAnchor: L.point(r, r)
+  });
+}
+
+const markerGroup = L.markerClusterGroup({
+  maxClusterRadius: 60,
+  disableClusteringAtZoom: 18,
+  spiderfyOnMaxZoom: true,
+  showCoverageOnHover: false,
+  zoomToBoundsOnClick: true,
+  animate: true,
+  chunkedLoading: true,
+  iconCreateFunction: _clusterIconCreate
+});
+markerGroup.addTo(map);
 
 // Função para atualizar todos os marcadores do mapa conforme o modo
 function atualizarMarcadores() {
@@ -4338,8 +4417,7 @@ function atualizarMarcadores() {
     if (empresa.whatsapp) tel = '<a href="' + empresa.whatsapp + '" target="_blank" style="color: #25D366;">WhatsApp: ' + empresa.telefone + '</a>';
     const cidadeNome = extrairCidadeDoEndereco(empresa.endereco) || '';
     const marker = L.marker([coords.lat, coords.lon], { icon: icon })
-      .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="#" onclick="event.preventDefault(); mostrarPainelPlanification('${_codigoCidadeAtiva || ''}', '${cidadeNome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${empresa.cnpj}', '${empresa.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}'); return false;" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`)
-      .addTo(map);
+      .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="#" onclick="event.preventDefault(); mostrarPainelPlanification('${_codigoCidadeAtiva || ''}', '${cidadeNome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${empresa.cnpj}', '${empresa.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}'); return false;" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`);
     markerGroup.addLayer(marker);
     markers[idx].marker = marker;
     if (!liteMode) iniciarPiramideNoMarcador(marker, obterCorPorCapital(empresa.capital), empresa.capital);
@@ -4502,8 +4580,7 @@ function criarMarcadoresComCoordenadas(coordenadas) {
         const icon = liteMode ? criarIconeClassico(obterCorPorCapital(empresa.capital)) : criarIconePiramide();
         const cidadeNome = extrairCidadeDoEndereco(empresa.endereco) || '';
         const marker = L.marker([coords.lat, coords.lon], { icon: icon })
-          .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="#" onclick="event.preventDefault(); mostrarPainelPlanification('${_codigoCidadeAtiva || ''}', '${cidadeNome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${empresa.cnpj}', '${empresa.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}'); return false;" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`)
-          .addTo(map);
+          .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="#" onclick="event.preventDefault(); mostrarPainelPlanification('${_codigoCidadeAtiva || ''}', '${cidadeNome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${empresa.cnpj}', '${empresa.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}'); return false;" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`);
         markerGroup.addLayer(marker);
         if (!liteMode) iniciarPiramideNoMarcador(marker, obterCorPorCapital(empresa.capital), empresa.capital);
         markers[idx] = { marker, empresa };
@@ -4552,8 +4629,7 @@ async function criarMarcadoresComCoordenadasProgressivo(coordenadas, options = {
       const cidadeNome = extrairCidadeDoEndereco(empresa.endereco) || '';
       const icon = liteMode ? criarIconeClassico(obterCorPorCapital(empresa.capital)) : criarIconePiramide();
       const marker = L.marker([coords.lat, coords.lon], { icon: icon })
-        .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="#" onclick="event.preventDefault(); mostrarPainelPlanification('${_codigoCidadeAtiva || ''}', '${cidadeNome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${empresa.cnpj}', '${empresa.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}'); return false;" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`)
-        .addTo(map);
+        .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="#" onclick="event.preventDefault(); mostrarPainelPlanification('${_codigoCidadeAtiva || ''}', '${cidadeNome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${empresa.cnpj}', '${empresa.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}'); return false;" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`);
       markerGroup.addLayer(marker);
       if (!liteMode) iniciarPiramideNoMarcador(marker, obterCorPorCapital(empresa.capital), empresa.capital);
       markers[idx] = { marker, empresa };

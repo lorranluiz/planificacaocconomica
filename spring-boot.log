@@ -4060,3 +4060,1799 @@ Hibernate:
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     42767 nanoseconds spent executing 6 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit 
+    from
+        instance i1_0 
+    where
+        i1_0.type=? 
+        and upper(i1_0.city)=upper(?)
+2026-04-11T22:10:30.746-03:00  INFO 686698 --- [nio-8080-exec-3] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    1406378 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    1704456 nanoseconds spent preparing 1 JDBC statements;
+    40986895 nanoseconds spent executing 1 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    2271725 nanoseconds spent performing 1 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit 
+    from
+        instance i1_0 
+    where
+        i1_0.type=? 
+        and upper(i1_0.city)=upper(?)
+2026-04-11T22:10:46.869-03:00  INFO 686698 --- [nio-8080-exec-7] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    1245516 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    1375183 nanoseconds spent preparing 1 JDBC statements;
+    11690668 nanoseconds spent executing 1 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T22:11:07.783-03:00  INFO 686698 --- [nio-8080-exec-9] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T22:11:08.137-03:00  INFO 686698 --- [nio-8080-exec-4] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T22:11:08.760-03:00  INFO 686698 --- [io-8080-exec-10] x.planecon.controller.FactoryController  : Buscando ou criando fábrica com CNPJ: 33258401000103
+2026-04-11T22:11:08.761-03:00  INFO 686698 --- [io-8080-exec-10] x.planecon.controller.FactoryController  :   cityCode: 6001, cityName: RIO DE JANEIRO
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit 
+    from
+        instance i1_0 
+    where
+        i1_0.cnpj=?
+2026-04-11T22:11:08.879-03:00  INFO 686698 --- [io-8080-exec-10] x.planecon.controller.FactoryController  : Fábrica não encontrada. Buscando PLACEHOLDER_INSTANCE...
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit 
+    from
+        instance i1_0 
+    where
+        i1_0.type=?
+2026-04-11T22:11:09.402-03:00  INFO 686698 --- [io-8080-exec-10] x.planecon.controller.FactoryController  : Criando nova fábrica: INSTITUTO BIOCHIMICO INDUSTRIA FARMACEUTICA LTDA
+2026-04-11T22:11:09.402-03:00  INFO 686698 --- [io-8080-exec-10] x.planecon.controller.FactoryController  :   Cidade: RIO DE JANEIRO (6001)
+2026-04-11T22:11:09.403-03:00  INFO 686698 --- [io-8080-exec-10] x.planecon.controller.FactoryController  : Buscando Conselho Popular para cidade: RIO DE JANEIRO (6001)
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit 
+    from
+        instance i1_0 
+    where
+        i1_0.city_code=? 
+        and i1_0.type=?
+2026-04-11T22:11:09.542-03:00  INFO 686698 --- [io-8080-exec-10] x.planecon.controller.FactoryController  : Conselho Popular não encontrado. Criando novo para cidade: RIO DE JANEIRO
+Hibernate: 
+    select
+        c1_0.code,
+        c1_0.created_at,
+        c1_0.name,
+        c1_0.state 
+    from
+        city c1_0 
+    where
+        c1_0.code=?
+Hibernate: 
+    insert 
+    into
+        instance
+        (address_complement, id_associated_worker_committee, city, city_code, cnpj, committee_name, continent, country, created_at, estimated_individual_participation_in_social_work, hours_at_electronic_point, id_associated_worker_residents_association, latitude, longitude, popular_council_associated_with_committee_or_worker, popular_council_associated_with_popular_council, postal_code, produced_quantity, id_social_materialization, state, street, street_number, suburb, target_quantity, total_social_work_of_this_jurisdiction, type, worker_effective_limit) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+2026-04-11T22:11:09.979-03:00  INFO 686698 --- [io-8080-exec-10] x.planecon.controller.FactoryController  : Novo Conselho Popular criado: Conselho Popular de RIO DE JANEIRO (ID: 6061)
+2026-04-11T22:11:09.979-03:00  INFO 686698 --- [io-8080-exec-10] x.planecon.controller.FactoryController  : Comitê associado ao Conselho Popular: Conselho Popular de RIO DE JANEIRO (ID: 6061)
+Hibernate: 
+    insert 
+    into
+        instance
+        (address_complement, id_associated_worker_committee, city, city_code, cnpj, committee_name, continent, country, created_at, estimated_individual_participation_in_social_work, hours_at_electronic_point, id_associated_worker_residents_association, latitude, longitude, popular_council_associated_with_committee_or_worker, popular_council_associated_with_popular_council, postal_code, produced_quantity, id_social_materialization, state, street, street_number, suburb, target_quantity, total_social_work_of_this_jurisdiction, type, worker_effective_limit) 
+    values
+        (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+2026-04-11T22:11:10.081-03:00  INFO 686698 --- [io-8080-exec-10] x.planecon.controller.FactoryController  : Nova fábrica criada: INSTITUTO BIOCHIMICO INDUSTRIA FARMACEUTICA LTDA (ID: 6062)
+2026-04-11T22:11:10.081-03:00  INFO 686698 --- [io-8080-exec-10] x.planecon.controller.FactoryController  : Copiando tensores tecnológicos de PLACEHOLDER_INSTANCE para INSTITUTO BIOCHIMICO INDUSTRIA FARMACEUTICA LTDA
+Hibernate: 
+    select
+        tt1_0.id_production_input,
+        tt1_0.id_instance,
+        tt1_0.id_social_materialization,
+        tt1_0.created_at,
+        tt1_0.technical_coefficient_element_value 
+    from
+        technological_tensor tt1_0 
+    where
+        tt1_0.id_instance=?
+Hibernate: 
+    select
+        tt1_0.id_production_input,
+        tt1_0.id_instance,
+        tt1_0.id_social_materialization,
+        tt1_0.created_at,
+        tt1_0.technical_coefficient_element_value 
+    from
+        technological_tensor tt1_0 
+    where
+        (
+            tt1_0.id_production_input, tt1_0.id_instance, tt1_0.id_social_materialization
+        ) in ((?, ?, ?))
+Hibernate: 
+    select
+        tt1_0.id_production_input,
+        tt1_0.id_instance,
+        tt1_0.id_social_materialization,
+        tt1_0.created_at,
+        tt1_0.technical_coefficient_element_value 
+    from
+        technological_tensor tt1_0 
+    where
+        (
+            tt1_0.id_production_input, tt1_0.id_instance, tt1_0.id_social_materialization
+        ) in ((?, ?, ?))
+2026-04-11T22:11:10.296-03:00  INFO 686698 --- [io-8080-exec-10] x.planecon.controller.FactoryController  : Copiados 2 tensores tecnológicos
+2026-04-11T22:11:10.297-03:00  INFO 686698 --- [io-8080-exec-10] x.planecon.controller.FactoryController  : Copiando vetores de demanda de PLACEHOLDER_INSTANCE para INSTITUTO BIOCHIMICO INDUSTRIA FARMACEUTICA LTDA
+Hibernate: 
+    select
+        dv1_0.id_instance,
+        dv1_0.id_social_materialization,
+        dv1_0.created_at,
+        dv1_0.demand 
+    from
+        demand_vector dv1_0 
+    where
+        dv1_0.id_instance=?
+Hibernate: 
+    select
+        dv1_0.id_instance,
+        dv1_0.id_social_materialization,
+        dv1_0.created_at,
+        dv1_0.demand 
+    from
+        demand_vector dv1_0 
+    where
+        (
+            dv1_0.id_instance, dv1_0.id_social_materialization
+        ) in ((?, ?))
+Hibernate: 
+    select
+        dv1_0.id_instance,
+        dv1_0.id_social_materialization,
+        dv1_0.created_at,
+        dv1_0.demand 
+    from
+        demand_vector dv1_0 
+    where
+        (
+            dv1_0.id_instance, dv1_0.id_social_materialization
+        ) in ((?, ?))
+2026-04-11T22:11:10.396-03:00  INFO 686698 --- [io-8080-exec-10] x.planecon.controller.FactoryController  : Copiados 2 vetores de demanda
+2026-04-11T22:11:10.397-03:00  INFO 686698 --- [io-8080-exec-10] x.planecon.controller.FactoryController  : Copiando estoques de demanda de PLACEHOLDER_INSTANCE para INSTITUTO BIOCHIMICO INDUSTRIA FARMACEUTICA LTDA
+Hibernate: 
+    select
+        ds1_0.id_instance,
+        ds1_0.id_social_materialization,
+        ds1_0.created_at,
+        ds1_0.demand,
+        ds1_0.stock 
+    from
+        demand_stock ds1_0 
+    where
+        ds1_0.id_instance=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        ds1_0.id_instance,
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit,
+        ds1_0.id_social_materialization,
+        sm2_0.id,
+        sm2_0.created_at,
+        sm2_0.name,
+        sm2_0.id_sector,
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name,
+        sm2_0.type,
+        ds1_0.created_at,
+        ds1_0.demand,
+        ds1_0.stock 
+    from
+        demand_stock ds1_0 
+    join
+        instance i1_0 
+            on i1_0.id=ds1_0.id_instance 
+    join
+        social_materialization sm2_0 
+            on sm2_0.id=ds1_0.id_social_materialization 
+    left join
+        sector s1_0 
+            on s1_0.id=sm2_0.id_sector 
+    where
+        (
+            ds1_0.id_instance, ds1_0.id_social_materialization
+        ) in ((?, ?))
+Hibernate: 
+    select
+        ds1_0.id_instance,
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit,
+        ds1_0.id_social_materialization,
+        sm2_0.id,
+        sm2_0.created_at,
+        sm2_0.name,
+        sm2_0.id_sector,
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name,
+        sm2_0.type,
+        ds1_0.created_at,
+        ds1_0.demand,
+        ds1_0.stock 
+    from
+        demand_stock ds1_0 
+    join
+        instance i1_0 
+            on i1_0.id=ds1_0.id_instance 
+    join
+        social_materialization sm2_0 
+            on sm2_0.id=ds1_0.id_social_materialization 
+    left join
+        sector s1_0 
+            on s1_0.id=sm2_0.id_sector 
+    where
+        (
+            ds1_0.id_instance, ds1_0.id_social_materialization
+        ) in ((?, ?))
+2026-04-11T22:11:10.765-03:00  INFO 686698 --- [io-8080-exec-10] x.planecon.controller.FactoryController  : Copiados 2 estoques de demanda
+Hibernate: 
+    insert 
+    into
+        technological_tensor
+        (created_at, technical_coefficient_element_value, id_production_input, id_instance, id_social_materialization) 
+    values
+        (?, ?, ?, ?, ?)
+Hibernate: 
+    insert 
+    into
+        technological_tensor
+        (created_at, technical_coefficient_element_value, id_production_input, id_instance, id_social_materialization) 
+    values
+        (?, ?, ?, ?, ?)
+Hibernate: 
+    insert 
+    into
+        demand_vector
+        (created_at, demand, id_instance, id_social_materialization) 
+    values
+        (?, ?, ?, ?)
+Hibernate: 
+    insert 
+    into
+        demand_vector
+        (created_at, demand, id_instance, id_social_materialization) 
+    values
+        (?, ?, ?, ?)
+Hibernate: 
+    insert 
+    into
+        demand_stock
+        (created_at, demand, stock, id_instance, id_social_materialization) 
+    values
+        (?, ?, ?, ?, ?)
+Hibernate: 
+    insert 
+    into
+        demand_stock
+        (created_at, demand, stock, id_instance, id_social_materialization) 
+    values
+        (?, ?, ?, ?, ?)
+2026-04-11T22:11:13.383-03:00  INFO 686698 --- [io-8080-exec-10] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    1274327 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    5404688 nanoseconds spent preparing 20 JDBC statements;
+    432999131 nanoseconds spent executing 17 JDBC statements;
+    210430195 nanoseconds spent executing 3 JDBC batches;
+    211682266 nanoseconds spent performing 48 L2C puts;
+    2253019 nanoseconds spent performing 2 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    419767272 nanoseconds spent executing 1 flushes (flushing a total of 53 entities and 178 collections);
+    299510512 nanoseconds spent executing 7 partial-flushes (flushing a total of 191 entities and 191 collections)
+}
+2026-04-11T22:11:13.757-03:00  INFO 686698 --- [nio-8080-exec-2] x.planecon.controller.FactoryController  : Buscando fábricas da cidade: 6001
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit 
+    from
+        instance i1_0 
+    where
+        i1_0.city_code=? 
+        and i1_0.type=?
+2026-04-11T22:11:13.802-03:00  INFO 686698 --- [nio-8080-exec-2] x.planecon.controller.FactoryController  : Encontradas 1 fábricas
+2026-04-11T22:11:13.816-03:00  INFO 686698 --- [nio-8080-exec-2] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    76443 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    177797 nanoseconds spent preparing 1 JDBC statements;
+    2796169 nanoseconds spent executing 1 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    1946396 nanoseconds spent performing 1 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T22:11:14.192-03:00  INFO 686698 --- [nio-8080-exec-1] x.p.controller.CommitteeController       : Buscando estado completo para comitê ID: 6062
+2026-04-11T22:11:14.197-03:00  INFO 686698 --- [nio-8080-exec-1] x.p.controller.CommitteeController       : Buscando Conselho Popular para cidade: RIO DE JANEIRO (6001)
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit 
+    from
+        instance i1_0 
+    where
+        i1_0.city_code=? 
+        and i1_0.type=?
+2026-04-11T22:11:14.256-03:00  INFO 686698 --- [nio-8080-exec-1] x.p.controller.CommitteeController       : Conselho Popular encontrado: Conselho Popular de RIO DE JANEIRO (ID: 6061)
+Hibernate: 
+    select
+        wp1_0.id_instance,
+        wp1_0.created_at,
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit,
+        wp1_0.night_shift,
+        wp1_0.production_time,
+        wp1_0.weekly_scale,
+        wp1_0.worker_hours,
+        wp1_0.worker_limit 
+    from
+        workers_proposal wp1_0 
+    join
+        instance i1_0 
+            on i1_0.id=wp1_0.id_instance 
+    where
+        wp1_0.id_instance=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.id_instance,
+        u1_0.name,
+        u1_0.password,
+        u1_0.pronoun,
+        u1_0.type,
+        u1_0.username 
+    from
+        "user" u1_0 
+    where
+        u1_0.id_instance=?
+Hibernate: 
+    select
+        ds1_0.id_instance,
+        ds1_0.id_social_materialization,
+        ds1_0.created_at,
+        ds1_0.demand,
+        ds1_0.stock 
+    from
+        demand_stock ds1_0 
+    where
+        ds1_0.id_instance=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        tt1_0.id_production_input,
+        tt1_0.id_instance,
+        tt1_0.id_social_materialization,
+        tt1_0.created_at,
+        tt1_0.technical_coefficient_element_value 
+    from
+        technological_tensor tt1_0 
+    where
+        tt1_0.id_instance=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        dv1_0.id_instance,
+        dv1_0.id_social_materialization,
+        dv1_0.created_at,
+        dv1_0.demand 
+    from
+        demand_vector dv1_0 
+    where
+        dv1_0.id_instance=?
+Hibernate: 
+    select
+        wp1_0.id_instance,
+        wp1_0.created_at,
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit,
+        wp1_0.night_shift,
+        wp1_0.production_time,
+        wp1_0.weekly_scale,
+        wp1_0.worker_hours,
+        wp1_0.worker_limit 
+    from
+        workers_proposal wp1_0 
+    join
+        instance i1_0 
+            on i1_0.id=wp1_0.id_instance 
+    where
+        wp1_0.id_instance=?
+2026-04-11T22:11:14.571-03:00  INFO 686698 --- [nio-8080-exec-1] x.p.controller.CommitteeController       : Estado completo do comitê 6062 obtido com sucesso
+2026-04-11T22:11:14.665-03:00  INFO 686698 --- [nio-8080-exec-1] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    71133 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    1497916 nanoseconds spent preparing 10 JDBC statements;
+    91898689 nanoseconds spent executing 10 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    1399400 nanoseconds spent performing 1 L2C puts;
+    4312128 nanoseconds spent performing 4 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    4242432 nanoseconds spent executing 1 flushes (flushing a total of 14 entities and 16 collections);
+    28793643 nanoseconds spent executing 5 partial-flushes (flushing a total of 25 entities and 25 collections)
+}
+2026-04-11T22:12:31.338-03:00  INFO 686698 --- [nio-8080-exec-8] x.p.controller.CommitteeController       : Iniciando salvamento em lote para comitê ID: 6062
+2026-04-11T22:12:31.350-03:00  INFO 686698 --- [nio-8080-exec-8] x.p.controller.CommitteeController       : Comitê existente encontrado: 6062
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+2026-04-11T22:12:31.391-03:00  INFO 686698 --- [nio-8080-exec-8] x.p.controller.CommitteeController       : Comitê salvo com ID: 6062
+Hibernate: 
+    select
+        wp1_0.id_instance,
+        wp1_0.created_at,
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit,
+        wp1_0.night_shift,
+        wp1_0.production_time,
+        wp1_0.weekly_scale,
+        wp1_0.worker_hours,
+        wp1_0.worker_limit 
+    from
+        workers_proposal wp1_0 
+    join
+        instance i1_0 
+            on i1_0.id=wp1_0.id_instance 
+    where
+        wp1_0.id_instance=?
+Hibernate: 
+    select
+        wp1_0.id_instance,
+        wp1_0.created_at,
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit,
+        wp1_0.night_shift,
+        wp1_0.production_time,
+        wp1_0.weekly_scale,
+        wp1_0.worker_hours,
+        wp1_0.worker_limit 
+    from
+        workers_proposal wp1_0 
+    join
+        instance i1_0 
+            on i1_0.id=wp1_0.id_instance 
+    where
+        wp1_0.id_instance=?
+2026-04-11T22:12:31.451-03:00  INFO 686698 --- [nio-8080-exec-8] x.p.controller.CommitteeController       : Proposta de trabalhadores salva para comitê ID: 6062
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.id_instance,
+        u1_0.name,
+        u1_0.password,
+        u1_0.pronoun,
+        u1_0.type,
+        u1_0.username 
+    from
+        "user" u1_0 
+    where
+        u1_0.id_instance=?
+Hibernate: 
+    select
+        ds1_0.id_instance,
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit,
+        ds1_0.id_social_materialization,
+        sm2_0.id,
+        sm2_0.created_at,
+        sm2_0.name,
+        sm2_0.id_sector,
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name,
+        sm2_0.type,
+        ds1_0.created_at,
+        ds1_0.demand,
+        ds1_0.stock 
+    from
+        demand_stock ds1_0 
+    join
+        instance i1_0 
+            on i1_0.id=ds1_0.id_instance 
+    join
+        social_materialization sm2_0 
+            on sm2_0.id=ds1_0.id_social_materialization 
+    left join
+        sector s1_0 
+            on s1_0.id=sm2_0.id_sector 
+    where
+        (
+            ds1_0.id_instance, ds1_0.id_social_materialization
+        ) in ((?, ?))
+Hibernate: 
+    select
+        ds1_0.id_instance,
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit,
+        ds1_0.id_social_materialization,
+        sm2_0.id,
+        sm2_0.created_at,
+        sm2_0.name,
+        sm2_0.id_sector,
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name,
+        sm2_0.type,
+        ds1_0.created_at,
+        ds1_0.demand,
+        ds1_0.stock 
+    from
+        demand_stock ds1_0 
+    join
+        instance i1_0 
+            on i1_0.id=ds1_0.id_instance 
+    join
+        social_materialization sm2_0 
+            on sm2_0.id=ds1_0.id_social_materialization 
+    left join
+        sector s1_0 
+            on s1_0.id=sm2_0.id_sector 
+    where
+        (
+            ds1_0.id_instance, ds1_0.id_social_materialization
+        ) in ((?, ?))
+2026-04-11T22:12:31.529-03:00  INFO 686698 --- [nio-8080-exec-8] x.p.controller.CommitteeController       : Estoque de demanda salvo para comitê 6062 e materialização 1
+2026-04-11T22:12:31.529-03:00  INFO 686698 --- [nio-8080-exec-8] x.p.controller.CommitteeController       : Estoque/demanda salvo para materialização 1: estoque=0, demanda=0
+Hibernate: 
+    select
+        dv1_0.id_instance,
+        dv1_0.id_social_materialization,
+        dv1_0.created_at,
+        dv1_0.demand 
+    from
+        demand_vector dv1_0 
+    where
+        (
+            dv1_0.id_instance, dv1_0.id_social_materialization
+        ) in ((?, ?))
+Hibernate: 
+    select
+        dv1_0.id_instance,
+        dv1_0.id_social_materialization,
+        dv1_0.created_at,
+        dv1_0.demand 
+    from
+        demand_vector dv1_0 
+    where
+        (
+            dv1_0.id_instance, dv1_0.id_social_materialization
+        ) in ((?, ?))
+2026-04-11T22:12:31.567-03:00  INFO 686698 --- [nio-8080-exec-8] x.p.controller.CommitteeController       : Vetor de demanda salvo para comitê 6062 e materialização 1
+Hibernate: 
+    select
+        tt1_0.id_production_input,
+        tt1_0.id_instance,
+        tt1_0.id_social_materialization,
+        tt1_0.created_at,
+        tt1_0.technical_coefficient_element_value 
+    from
+        technological_tensor tt1_0 
+    where
+        (
+            tt1_0.id_production_input, tt1_0.id_instance, tt1_0.id_social_materialization
+        ) in ((?, ?, ?))
+Hibernate: 
+    select
+        tt1_0.id_production_input,
+        tt1_0.id_instance,
+        tt1_0.id_social_materialization,
+        tt1_0.created_at,
+        tt1_0.technical_coefficient_element_value 
+    from
+        technological_tensor tt1_0 
+    where
+        (
+            tt1_0.id_production_input, tt1_0.id_instance, tt1_0.id_social_materialization
+        ) in ((?, ?, ?))
+2026-04-11T22:12:31.612-03:00  INFO 686698 --- [nio-8080-exec-8] x.p.controller.CommitteeController       : Tensor tecnológico salvo: input=1, output=1, coefficient=0
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        ds1_0.id_instance,
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit,
+        ds1_0.id_social_materialization,
+        sm2_0.id,
+        sm2_0.created_at,
+        sm2_0.name,
+        sm2_0.id_sector,
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name,
+        sm2_0.type,
+        ds1_0.created_at,
+        ds1_0.demand,
+        ds1_0.stock 
+    from
+        demand_stock ds1_0 
+    join
+        instance i1_0 
+            on i1_0.id=ds1_0.id_instance 
+    join
+        social_materialization sm2_0 
+            on sm2_0.id=ds1_0.id_social_materialization 
+    left join
+        sector s1_0 
+            on s1_0.id=sm2_0.id_sector 
+    where
+        (
+            ds1_0.id_instance, ds1_0.id_social_materialization
+        ) in ((?, ?))
+Hibernate: 
+    select
+        ds1_0.id_instance,
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit,
+        ds1_0.id_social_materialization,
+        sm2_0.id,
+        sm2_0.created_at,
+        sm2_0.name,
+        sm2_0.id_sector,
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name,
+        sm2_0.type,
+        ds1_0.created_at,
+        ds1_0.demand,
+        ds1_0.stock 
+    from
+        demand_stock ds1_0 
+    join
+        instance i1_0 
+            on i1_0.id=ds1_0.id_instance 
+    join
+        social_materialization sm2_0 
+            on sm2_0.id=ds1_0.id_social_materialization 
+    left join
+        sector s1_0 
+            on s1_0.id=sm2_0.id_sector 
+    where
+        (
+            ds1_0.id_instance, ds1_0.id_social_materialization
+        ) in ((?, ?))
+2026-04-11T22:12:31.671-03:00  INFO 686698 --- [nio-8080-exec-8] x.p.controller.CommitteeController       : Estoque de demanda salvo para comitê 6062 e materialização 2
+2026-04-11T22:12:31.672-03:00  INFO 686698 --- [nio-8080-exec-8] x.p.controller.CommitteeController       : Estoque/demanda salvo para materialização 2: estoque=345, demanda=6789
+Hibernate: 
+    select
+        dv1_0.id_instance,
+        dv1_0.id_social_materialization,
+        dv1_0.created_at,
+        dv1_0.demand 
+    from
+        demand_vector dv1_0 
+    where
+        (
+            dv1_0.id_instance, dv1_0.id_social_materialization
+        ) in ((?, ?))
+2026-04-11T22:12:31.697-03:00  INFO 686698 --- [nio-8080-exec-8] x.p.controller.CommitteeController       : Vetor de demanda salvo para comitê 6062 e materialização 2
+Hibernate: 
+    select
+        tt1_0.id_production_input,
+        tt1_0.id_instance,
+        tt1_0.id_social_materialization,
+        tt1_0.created_at,
+        tt1_0.technical_coefficient_element_value 
+    from
+        technological_tensor tt1_0 
+    where
+        (
+            tt1_0.id_production_input, tt1_0.id_instance, tt1_0.id_social_materialization
+        ) in ((?, ?, ?))
+2026-04-11T22:12:31.722-03:00  INFO 686698 --- [nio-8080-exec-8] x.p.controller.CommitteeController       : Tensor tecnológico salvo: input=2, output=1, coefficient=0.01
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        ds1_0.id_instance,
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit,
+        ds1_0.id_social_materialization,
+        sm2_0.id,
+        sm2_0.created_at,
+        sm2_0.name,
+        sm2_0.id_sector,
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name,
+        sm2_0.type,
+        ds1_0.created_at,
+        ds1_0.demand,
+        ds1_0.stock 
+    from
+        demand_stock ds1_0 
+    join
+        instance i1_0 
+            on i1_0.id=ds1_0.id_instance 
+    join
+        social_materialization sm2_0 
+            on sm2_0.id=ds1_0.id_social_materialization 
+    left join
+        sector s1_0 
+            on s1_0.id=sm2_0.id_sector 
+    where
+        (
+            ds1_0.id_instance, ds1_0.id_social_materialization
+        ) in ((?, ?))
+Hibernate: 
+    select
+        ds1_0.id_instance,
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit,
+        ds1_0.id_social_materialization,
+        sm2_0.id,
+        sm2_0.created_at,
+        sm2_0.name,
+        sm2_0.id_sector,
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name,
+        sm2_0.type,
+        ds1_0.created_at,
+        ds1_0.demand,
+        ds1_0.stock 
+    from
+        demand_stock ds1_0 
+    join
+        instance i1_0 
+            on i1_0.id=ds1_0.id_instance 
+    join
+        social_materialization sm2_0 
+            on sm2_0.id=ds1_0.id_social_materialization 
+    left join
+        sector s1_0 
+            on s1_0.id=sm2_0.id_sector 
+    where
+        (
+            ds1_0.id_instance, ds1_0.id_social_materialization
+        ) in ((?, ?))
+2026-04-11T22:12:31.780-03:00  INFO 686698 --- [nio-8080-exec-8] x.p.controller.CommitteeController       : Estoque de demanda salvo para comitê 6062 e materialização 4
+2026-04-11T22:12:31.791-03:00  INFO 686698 --- [nio-8080-exec-8] x.p.controller.CommitteeController       : Estoque/demanda salvo para materialização 4: estoque=101, demanda=1234
+Hibernate: 
+    select
+        dv1_0.id_instance,
+        dv1_0.id_social_materialization,
+        dv1_0.created_at,
+        dv1_0.demand 
+    from
+        demand_vector dv1_0 
+    where
+        (
+            dv1_0.id_instance, dv1_0.id_social_materialization
+        ) in ((?, ?))
+2026-04-11T22:12:31.811-03:00  INFO 686698 --- [nio-8080-exec-8] x.p.controller.CommitteeController       : Vetor de demanda salvo para comitê 6062 e materialização 4
+Hibernate: 
+    select
+        tt1_0.id_production_input,
+        tt1_0.id_instance,
+        tt1_0.id_social_materialization,
+        tt1_0.created_at,
+        tt1_0.technical_coefficient_element_value 
+    from
+        technological_tensor tt1_0 
+    where
+        (
+            tt1_0.id_production_input, tt1_0.id_instance, tt1_0.id_social_materialization
+        ) in ((?, ?, ?))
+2026-04-11T22:12:31.846-03:00  INFO 686698 --- [nio-8080-exec-8] x.p.controller.CommitteeController       : Tensor tecnológico salvo: input=4, output=1, coefficient=0.02
+2026-04-11T22:12:31.847-03:00  INFO 686698 --- [nio-8080-exec-8] x.p.controller.CommitteeController       : Salvamento em lote concluído com sucesso para comitê ID: 6062
+Hibernate: 
+    insert 
+    into
+        workers_proposal
+        (created_at, night_shift, production_time, weekly_scale, worker_hours, worker_limit, id_instance) 
+    values
+        (?, ?, ?, ?, ?, ?, ?)
+Hibernate: 
+    insert 
+    into
+        demand_stock
+        (created_at, demand, stock, id_instance, id_social_materialization) 
+    values
+        (?, ?, ?, ?, ?)
+Hibernate: 
+    insert 
+    into
+        demand_vector
+        (created_at, demand, id_instance, id_social_materialization) 
+    values
+        (?, ?, ?, ?)
+Hibernate: 
+    insert 
+    into
+        technological_tensor
+        (created_at, technical_coefficient_element_value, id_production_input, id_instance, id_social_materialization) 
+    values
+        (?, ?, ?, ?, ?)
+Hibernate: 
+    update
+        demand_stock 
+    set
+        created_at=?,
+        demand=?,
+        stock=? 
+    where
+        id_instance=? 
+        and id_social_materialization=?
+Hibernate: 
+    update
+        demand_stock 
+    set
+        created_at=?,
+        demand=?,
+        stock=? 
+    where
+        id_instance=? 
+        and id_social_materialization=?
+2026-04-11T22:12:32.005-03:00  INFO 686698 --- [nio-8080-exec-8] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    1397610 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    11458980 nanoseconds spent preparing 25 JDBC statements;
+    108001890 nanoseconds spent executing 20 JDBC statements;
+    20109150 nanoseconds spent executing 5 JDBC batches;
+    3231810 nanoseconds spent performing 9 L2C puts;
+    4698180 nanoseconds spent performing 5 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    75700800 nanoseconds spent executing 1 flushes (flushing a total of 18 entities and 16 collections);
+    2247660 nanoseconds spent executing 1 partial-flushes (flushing a total of 5 entities and 5 collections)
+}
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit 
+    from
+        instance i1_0 
+    where
+        i1_0.type=? 
+        and upper(i1_0.city)=upper(?)
+2026-04-11T22:12:48.241-03:00  INFO 686698 --- [nio-8080-exec-6] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    1466667 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    1546337 nanoseconds spent preparing 1 JDBC statements;
+    2226905 nanoseconds spent executing 1 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    899117 nanoseconds spent performing 1 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+Hibernate: 
+    update
+        instance 
+    set
+        address_complement=?,
+        id_associated_worker_committee=?,
+        city=?,
+        city_code=?,
+        cnpj=?,
+        committee_name=?,
+        continent=?,
+        country=?,
+        created_at=?,
+        estimated_individual_participation_in_social_work=?,
+        hours_at_electronic_point=?,
+        id_associated_worker_residents_association=?,
+        latitude=?,
+        longitude=?,
+        popular_council_associated_with_committee_or_worker=?,
+        popular_council_associated_with_popular_council=?,
+        postal_code=?,
+        produced_quantity=?,
+        id_social_materialization=?,
+        state=?,
+        street=?,
+        street_number=?,
+        suburb=?,
+        target_quantity=?,
+        total_social_work_of_this_jurisdiction=?,
+        type=?,
+        worker_effective_limit=? 
+    where
+        id=?
+2026-04-11T22:12:48.682-03:00  INFO 686698 --- [nio-8080-exec-3] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    54851 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    511278 nanoseconds spent preparing 1 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    13848167 nanoseconds spent executing 1 JDBC batches;
+    4277982 nanoseconds spent performing 4 L2C puts;
+    870887 nanoseconds spent performing 1 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    60313989 nanoseconds spent executing 1 flushes (flushing a total of 1 entities and 5 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T22:12:59.970-03:00  INFO 686698 --- [nio-8080-exec-7] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit 
+    from
+        instance i1_0 
+    where
+        i1_0.type=?
+2026-04-11T22:13:01.333-03:00  INFO 686698 --- [nio-8080-exec-9] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    14070767 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    14308206 nanoseconds spent preparing 1 JDBC statements;
+    3393194 nanoseconds spent executing 1 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    45177514 nanoseconds spent performing 9 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+Hibernate: 
+    select
+        distinct sm1_0.id,
+        sm1_0.created_at,
+        sm1_0.name,
+        sm1_0.id_sector,
+        sm1_0.type 
+    from
+        social_materialization sm1_0 
+    join
+        technological_tensor tt1_0 
+            on tt1_0.id_production_input=sm1_0.id 
+            or tt1_0.id_social_materialization=sm1_0.id 
+    where
+        tt1_0.id_instance=?
+Hibernate: 
+    select
+        dv1_0.id_instance,
+        dv1_0.id_social_materialization,
+        dv1_0.created_at,
+        dv1_0.demand 
+    from
+        demand_vector dv1_0 
+    where
+        dv1_0.id_instance=?
+2026-04-11T22:13:02.940-03:00  INFO 686698 --- [nio-8080-exec-4] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    10714724 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    15971064 nanoseconds spent preparing 2 JDBC statements;
+    7445369 nanoseconds spent executing 2 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T22:13:03.288-03:00  INFO 686698 --- [io-8080-exec-10] x.p.controller.PlanificationController   : Buscando vetor de demanda diretamente para instância 6061
+2026-04-11T22:13:03.290-03:00  INFO 686698 --- [io-8080-exec-10] x.p.controller.PlanificationController   : Nenhum vetor de demanda encontrado para instância 6061
+2026-04-11T22:13:03.303-03:00  INFO 686698 --- [io-8080-exec-10] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+Hibernate: 
+    select
+        oir1_0.id_instance,
+        oir1_0.id_social_materialization,
+        oir1_0.created_at,
+        oir1_0.current_factories,
+        oir1_0.factories_needed,
+        oir1_0.factory_daily_operating_hours,
+        oir1_0.minimum_production_time,
+        oir1_0.needed_factories_to_build,
+        oir1_0.night_shift,
+        oir1_0.planned_final_demand,
+        oir1_0.planned_weekly_scale,
+        oir1_0.production_goal,
+        oir1_0.production_time,
+        oir1_0.total_employment_period,
+        oir1_0.total_hours,
+        oir1_0.total_shifts,
+        oir1_0.weekly_scale,
+        oir1_0.worker_hours,
+        oir1_0.worker_limit,
+        oir1_0.workers_needed,
+        oir1_0.workers_to_contract 
+    from
+        optimization_inputs_results oir1_0 
+    where
+        oir1_0.id_instance=?
+2026-04-11T22:13:03.768-03:00  INFO 686698 --- [nio-8080-exec-2] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    1276129 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    1777238 nanoseconds spent preparing 1 JDBC statements;
+    3372619 nanoseconds spent executing 1 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+Hibernate: 
+    select
+        distinct sm1_0.id,
+        sm1_0.created_at,
+        sm1_0.name,
+        sm1_0.id_sector,
+        sm1_0.type 
+    from
+        social_materialization sm1_0 
+    join
+        technological_tensor tt1_0 
+            on tt1_0.id_production_input=sm1_0.id 
+            or tt1_0.id_social_materialization=sm1_0.id 
+    where
+        tt1_0.id_instance=?
+2026-04-11T22:13:04.006-03:00  INFO 686698 --- [nio-8080-exec-1] x.p.controller.PlanificationController   : Nenhuma materialização social encontrada para instância 6061
+2026-04-11T22:13:04.008-03:00  INFO 686698 --- [nio-8080-exec-1] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    70793 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    209064 nanoseconds spent preparing 1 JDBC statements;
+    2586777 nanoseconds spent executing 1 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-04-11T22:13:07.897-03:00  INFO 686698 --- [nio-8080-exec-5] xyz.planecon.service.CouncilService      : Buscando instâncias filhas para conselho ID: 6061
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit 
+    from
+        instance i1_0 
+    where
+        i1_0.popular_council_associated_with_committee_or_worker=?
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit 
+    from
+        instance i1_0 
+    where
+        i1_0.popular_council_associated_with_popular_council=?
+2026-04-11T22:13:07.943-03:00  INFO 686698 --- [nio-8080-exec-5] xyz.planecon.service.CouncilService      : Encontradas 1 instâncias filhas para conselho ID: 6061 (após filtrar a própria instância)
+2026-04-11T22:13:07.954-03:00  INFO 686698 --- [nio-8080-exec-5] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    1402200 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    805500 nanoseconds spent preparing 2 JDBC statements;
+    9525150 nanoseconds spent executing 2 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    1474650 nanoseconds spent performing 1 L2C puts;
+    1322370 nanoseconds spent performing 1 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    18540 nanoseconds spent executing 2 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
