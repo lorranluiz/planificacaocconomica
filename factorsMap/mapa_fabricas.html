@@ -2006,12 +2006,20 @@ function acaoFecharProcessamento(cidade = _cidadeAtiva) {
   }
 
   if (isPlanificationWindow(cidadeNome)) {
+    const planState = _planificationStates[cidadeNome];
     atualizarEstadoJanelaCidade(cidadeNome, { visivel: false });
     delete _planificationStates[cidadeNome];
     delete _estadosMiniBarPorCidade[cidadeNome];
     delete _percentualPorCidade[cidadeNome];
     if (_cidadeAtiva === cidadeNome) fecharOverlay();
     else removerMiniBarProcessamento(cidadeNome);
+
+    // Recarregar conselhos populares no mapa (pode ter sido criado automaticamente)
+    const cidadeConselho = (planState && planState.cityName) ? planState.cityName.toUpperCase().trim() : (_cidadeAtivaMapa || '').toUpperCase().trim();
+    if (cidadeConselho) {
+      _conselhosCarregados[cidadeConselho] = false;
+      carregarConselhosMapa(cidadeConselho);
+    }
     return;
   }
 
