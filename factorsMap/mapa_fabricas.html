@@ -4542,6 +4542,10 @@ function atualizarMarcadores() {
     _conselhosCidadeAtual = [];
     carregarConselhosMapa(_cidadeAtivaMapa);
   }
+  // Reconstruir marcadores de conselhos globais respeitando o liteMode atual
+  _conselhosGlobaisCarregados = false;
+  conselhosGlobaisLayer.clearLayers();
+  carregarConselhosGlobais();
 }
 
 // Função para carregar coordenadas do servidor (com cache)
