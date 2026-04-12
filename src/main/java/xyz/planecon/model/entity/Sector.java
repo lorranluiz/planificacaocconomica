@@ -2,6 +2,8 @@ package xyz.planecon.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -22,5 +24,7 @@ public class Sector {
     private LocalDateTime createdAt;
     
     @OneToMany(mappedBy = "sector")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Set<SocialMaterialization> socialMaterializations = new HashSet<>();
 }

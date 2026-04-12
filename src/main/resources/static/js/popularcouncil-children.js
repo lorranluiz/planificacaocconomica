@@ -261,7 +261,22 @@ function proceedCalculation() {
     .then(data => {
         console.log("Dados completos recebidos do servidor:", data);
         
-        // Atualizar apenas o vetor de demanda (removida referência à matriz tecnológica)
+        // Atualizar matriz tecnológica
+        if (data.technologicalMatrix && data.technologicalMatrix.matrix) {
+            console.log("Atualizando matriz tecnológica:", data.technologicalMatrix);
+            technologicalMatrix = data.technologicalMatrix.matrix;
+            if (data.technologicalMatrix.productNames) {
+                productNames = data.technologicalMatrix.productNames;
+            }
+            if (data.technologicalMatrix.productIds) {
+                productIds = data.technologicalMatrix.productIds;
+            }
+            renderTechnologicalMatrix();
+        } else {
+            console.error("Matriz tecnológica não encontrada na resposta");
+        }
+        
+        // Atualizar vetor de demanda
         if (data.demandVector) {
             console.log("Atualizando vetor de demanda:", data.demandVector);
             updateDemandVector(data.demandVector);
@@ -327,7 +342,20 @@ function calculateEstimates(instanceId) {
 function processEstimatesData(data) {
     console.log("Dados completos recebidos do servidor:", data);
     
-    // Atualizar apenas o vetor de demanda
+    // Atualizar matriz tecnológica
+    if (data.technologicalMatrix && data.technologicalMatrix.matrix) {
+        console.log("Atualizando matriz tecnológica:", data.technologicalMatrix);
+        technologicalMatrix = data.technologicalMatrix.matrix;
+        if (data.technologicalMatrix.productNames) {
+            productNames = data.technologicalMatrix.productNames;
+        }
+        if (data.technologicalMatrix.productIds) {
+            productIds = data.technologicalMatrix.productIds;
+        }
+        renderTechnologicalMatrix();
+    }
+    
+    // Atualizar vetor de demanda
     if (data.demandVector) {
         console.log("Atualizando vetor de demanda:", data.demandVector);
         updateDemandVector(data.demandVector);

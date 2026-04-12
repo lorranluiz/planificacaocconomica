@@ -169,16 +169,25 @@ public class PlanificationController {
      */
     @GetMapping("/instances/{instanceId}/technological-matrix")
     public ResponseEntity<Map<String, Object>> getTechnologicalMatrix(@PathVariable Integer instanceId) {
-        // Buscar materializações sociais da instância
+        // Buscar materializações sociais via tensores tecnológicos
         List<SocialMaterialization> materializations = materializationRepository.findByInstanceId(instanceId);
         
+        // Se não encontrou materializações via tensores, tentar via vetores de demanda
+        // (caso de conselhos que ainda não tiveram "Calcular Estimativas" executado)
         if (materializations.isEmpty()) {
-            return ResponseEntity.notFound().build();
+            List<DemandVector> demandVectors = demandVectorRepository.findByInstanceId(instanceId);
+            if (demandVectors.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            // Extrair materializações dos vetores de demanda
+            Set<SocialMaterialization> matSet = demandVectors.stream()
+                .map(DemandVector::getSocialMaterialization)
+                .collect(Collectors.toCollection(java.util.LinkedHashSet::new));
+            materializations = new ArrayList<>(matSet);
         }
         
-        // Organizar as materializações por ID
-        Map<Integer, SocialMaterialization> materializationsMap = materializations.stream()
-            .collect(Collectors.toMap(SocialMaterialization::getId, mat -> mat));
+        // Ordenar por ID para consistência
+        materializations.sort(Comparator.comparing(SocialMaterialization::getId));
         
         // Buscar tensores tecnológicos
         List<TechnologicalTensor> tensors = tensorRepository.findByInstanceId(instanceId);

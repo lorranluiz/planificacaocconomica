@@ -54,7 +54,7 @@ public class CouncilService {
      * @throws ResourceNotFoundException se o conselho não for encontrado
      * @throws IllegalArgumentException se a instância não for um conselho ou não tiver instâncias filhas
      */
-    @Transactional(readOnly = true)
+    @Transactional
     public EstimatesResponseDTO calculateEstimates(Integer councilId) {
         logger.info("Iniciando cálculo de estimativas para conselho ID: {}", councilId);
 
@@ -81,11 +81,11 @@ public class CouncilService {
         // 4. Buscar todas as materializações de uma vez para evitar múltiplas consultas
         List<SocialMaterialization> allMaterializations = materializationRepository.findAllById(allMaterializationIds);
 
-        // 5. Calcular matriz tecnológica média usando TODOS os comitês do sistema
-        EstimatesResponseDTO.TechnologicalMatrixDTO techMatrix = calculateAverageTechnologicalMatrixFromAllCommittees(allMaterializations);
+        // 5. Calcular matriz tecnológica média usando apenas as instâncias filhas
+        EstimatesResponseDTO.TechnologicalMatrixDTO techMatrix = calculateAverageTechnologicalMatrixFromChildren(councilId, allMaterializations);
 
-        // 6. Calcular vetor de demanda médio usando apenas instâncias POPULARCOUNCIL filhas
-        EstimatesResponseDTO.DemandVectorDTO demandVector = calculateAverageDemandVectorFromPopularCouncilChildren(councilId, allMaterializations);
+        // 6. Calcular vetor de demanda médio usando TODAS as instâncias filhas (comitês + conselhos)
+        EstimatesResponseDTO.DemandVectorDTO demandVector = calculateAverageDemandVectorFromAllChildren(councilId, allMaterializations);
 
         logger.info("Cálculo de estimativas concluído com sucesso para conselho ID: {}", councilId);
 
@@ -101,27 +101,27 @@ public class CouncilService {
 
     /**
      * Encontra todos os IDs de materializações sociais relevantes para os cálculos
-     * Inclui materializações de TODOS os comitês e dos conselhos populares filhos
+     * Inclui materializações apenas das instâncias filhas do conselho
      */
     private Set<Integer> findAllRelevantMaterializationIds(Integer councilId) {
         Set<Integer> materializationIds = new HashSet<>();
 
-        // 1. Coletar IDs das materializações dos tensores tecnológicos de TODOS os comitês
-        List<Object[]> committeeTensorsData = tensorRepository
-                .calculateAverageCoefficientsByMaterializationPairForAllCommittees();
+        // 1. Coletar IDs das materializações dos tensores tecnológicos apenas das instâncias filhas
+        List<Object[]> childTensorsData = tensorRepository
+                .calculateAverageCoefficientsByMaterializationPairForCouncilChildren(councilId);
 
-        for (Object[] row : committeeTensorsData) {
+        for (Object[] row : childTensorsData) {
             Integer inputId = ((Number) row[0]).intValue();
             Integer outputId = ((Number) row[1]).intValue();
             materializationIds.add(inputId);
             materializationIds.add(outputId);
         }
 
-        // 2. Coletar IDs das materializações dos vetores de demanda apenas de filhos POPULARCOUNCIL
-        List<Object[]> popularCouncilDemandsData = demandVectorRepository
-                .calculateAverageDemandsByMaterializationForPopularCouncilChildren(councilId);
+        // 2. Coletar IDs das materializações dos vetores de demanda das instâncias filhas
+        List<Object[]> childDemandsData = demandVectorRepository
+                .calculateAverageDemandsByMaterializationForCouncilChildren(councilId);
 
-        for (Object[] row : popularCouncilDemandsData) {
+        for (Object[] row : childDemandsData) {
             Integer matId = ((Number) row[0]).intValue();
             materializationIds.add(matId);
         }
@@ -130,9 +130,10 @@ public class CouncilService {
     }
 
     /**
-     * Calcula a matriz tecnológica média baseada em TODOS os comitês do sistema
+     * Calcula a matriz tecnológica média baseada apenas nas instâncias filhas do conselho
      */
-    private EstimatesResponseDTO.TechnologicalMatrixDTO calculateAverageTechnologicalMatrixFromAllCommittees(
+    private EstimatesResponseDTO.TechnologicalMatrixDTO calculateAverageTechnologicalMatrixFromChildren(
+            Integer councilId,
             List<SocialMaterialization> allMaterializations) {
 
         // 1. Ordenar materializações para garantir consistência
@@ -158,11 +159,11 @@ public class CouncilService {
             resultMatrix.add(row);
         }
 
-        // 4. Buscar médias pré-calculadas de TODOS os comitês do sistema
+        // 4. Buscar médias pré-calculadas apenas das instâncias filhas do conselho
         List<Object[]> tensorsData = tensorRepository
-                .calculateAverageCoefficientsByMaterializationPairForAllCommittees();
+                .calculateAverageCoefficientsByMaterializationPairForCouncilChildren(councilId);
 
-        logger.info("Obtidos {} coeficientes médios de tensores de todos os comitês", tensorsData.size());
+        logger.info("Obtidos {} coeficientes médios de tensores das instâncias filhas do conselho {}", tensorsData.size(), councilId);
 
         // 5. Preencher a matriz com as médias calculadas
         for (Object[] row : tensorsData) {
@@ -197,9 +198,9 @@ public class CouncilService {
     }
 
     /**
-     * Calcula o vetor de demanda médio baseado apenas nas instâncias POPULARCOUNCIL filhas
+     * Calcula o vetor de demanda médio baseado em TODAS as instâncias filhas (comitês + conselhos)
      */
-    private EstimatesResponseDTO.DemandVectorDTO calculateAverageDemandVectorFromPopularCouncilChildren(
+    private EstimatesResponseDTO.DemandVectorDTO calculateAverageDemandVectorFromAllChildren(
             Integer councilId,
             List<SocialMaterialization> allMaterializations) {
 
@@ -217,11 +218,11 @@ public class CouncilService {
         // 3. Criar vetor de resultados inicializado com zeros
         List<Double> resultVector = new ArrayList<>(Collections.nCopies(sortedMaterializations.size(), 0.0));
 
-        // 4. Buscar médias pré-calculadas apenas de filhos POPULARCOUNCIL
+        // 4. Buscar médias pré-calculadas de TODOS os filhos (comitês + conselhos)
         List<Object[]> demandsData = demandVectorRepository
-                .calculateAverageDemandsByMaterializationForPopularCouncilChildren(councilId);
+                .calculateAverageDemandsByMaterializationForCouncilChildren(councilId);
 
-        logger.info("Obtidos {} valores médios de demanda de filhos POPULARCOUNCIL", demandsData.size());
+        logger.info("Obtidos {} valores médios de demanda de todos os filhos", demandsData.size());
 
         // 5. Preencher o vetor com as médias calculadas
         for (Object[] row : demandsData) {

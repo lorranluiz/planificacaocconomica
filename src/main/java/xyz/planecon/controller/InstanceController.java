@@ -492,4 +492,98 @@ public class InstanceController {
             return type.toString();
         }
     }
+
+    /**
+     * Retorna todas as instâncias filhas de uma dada instância
+     */
+    @GetMapping("/{id}/children")
+    public ResponseEntity<?> getChildInstances(@PathVariable Integer id) {
+        try {
+            Instance instance = instanceRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Instância não encontrada: " + id));
+
+            List<Instance> children = new ArrayList<>();
+            children.addAll(instanceRepository.findByPopularCouncilAssociatedWithCommitteeOrWorker(instance));
+            children.addAll(instanceRepository.findByPopularCouncilAssociatedWithPopularCouncil(instance));
+
+            // Workers associados como membros de um comitê
+            List<Instance> workerMembers = instanceRepository.findByAssociatedWorkerCommitteeId(id);
+            for (Instance w : workerMembers) {
+                if (children.stream().noneMatch(c -> c.getId().equals(w.getId()))) {
+                    children.add(w);
+                }
+            }
+
+            // Filtrar para não incluir a própria instância
+            children = children.stream()
+                    .filter(c -> !c.getId().equals(id))
+                    .collect(Collectors.toList());
+
+            List<Map<String, Object>> result = children.stream().map(c -> {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", c.getId());
+                map.put("type", c.getType() != null ? c.getType().toString() : "");
+                map.put("typeName", c.getType() != null ? getInstanceTypeDescription(c.getType()) : "");
+                map.put("committeeName", c.getCommitteeName());
+                return map;
+            }).collect(Collectors.toList());
+
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Erro ao buscar instâncias filhas", e.getMessage()));
+        }
+    }
+
+    /**
+     * Exclui uma instância e todos os seus dados relacionados
+     */
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity<?> deleteInstance(@PathVariable Integer id) {
+        try {
+            Instance instance = instanceRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Instância não encontrada: " + id));
+
+            // Verificar se tem instâncias filhas
+            List<Instance> children = new ArrayList<>();
+            children.addAll(instanceRepository.findByPopularCouncilAssociatedWithCommitteeOrWorker(instance));
+            children.addAll(instanceRepository.findByPopularCouncilAssociatedWithPopularCouncil(instance));
+
+            List<Instance> workerMembers = instanceRepository.findByAssociatedWorkerCommitteeId(id);
+            for (Instance w : workerMembers) {
+                if (children.stream().noneMatch(c -> c.getId().equals(w.getId()))) {
+                    children.add(w);
+                }
+            }
+            children = children.stream().filter(c -> !c.getId().equals(id)).collect(Collectors.toList());
+
+            if (!children.isEmpty()) {
+                Map<String, Object> errorBody = new HashMap<>();
+                errorBody.put("message", "Esta instância possui instâncias filhas associadas. Exclua-as primeiro.");
+                errorBody.put("childCount", children.size());
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(errorBody);
+            }
+
+            // Excluir dados relacionados via native queries
+            entityManager.createNativeQuery("DELETE FROM demand_vector WHERE id_instance = :id")
+                    .setParameter("id", id).executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM demand_stock WHERE id_instance = :id")
+                    .setParameter("id", id).executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM technological_tensor WHERE id_instance = :id")
+                    .setParameter("id", id).executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM optimization_inputs_results WHERE id_instance = :id")
+                    .setParameter("id", id).executeUpdate();
+            entityManager.createNativeQuery("DELETE FROM workers_proposal WHERE instance_id = :id")
+                    .setParameter("id", id).executeUpdate();
+
+            // Excluir a instância
+            instanceRepository.delete(instance);
+
+            return ResponseEntity.ok(Map.of("message", "Instância excluída com sucesso", "id", id));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Erro ao excluir instância", e.getMessage()));
+        }
+    }
 }

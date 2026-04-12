@@ -108,6 +108,87 @@
         .radio-option input {
             margin-right: 5px;
         }
+
+        .btn-delete {
+            background: none;
+            border: none;
+            color: #e53935;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+        .btn-delete:hover {
+            background: rgba(229, 57, 53, 0.15);
+        }
+        .btn-delete:disabled {
+            color: #888;
+            cursor: not-allowed;
+        }
+
+        /* Modal de exclusão */
+        .delete-modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+        }
+        .delete-modal-overlay.active {
+            display: flex;
+        }
+        .delete-modal {
+            background: var(--card-bg, #1e1e2e);
+            color: var(--text-color, #f5f5f5);
+            border-radius: 12px;
+            padding: 24px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        .delete-modal h3 {
+            margin-top: 0;
+        }
+        .delete-modal table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+        }
+        .delete-modal th, .delete-modal td {
+            padding: 8px;
+            text-align: left;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .delete-modal .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            margin-top: 16px;
+        }
+        .delete-modal .modal-actions button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .delete-modal .btn-cancel {
+            background: #555;
+            color: #fff;
+        }
+        .delete-modal .btn-danger {
+            background: #e53935;
+            color: #fff;
+        }
+        .delete-modal .btn-danger:disabled {
+            background: #888;
+            cursor: not-allowed;
+        }
     </style>
 </head>
 <body>
@@ -324,6 +405,7 @@
                             <th>Materialização Social</th>
                             <th>Associações</th>
                             <th>Criado em</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -535,6 +617,7 @@
                                 : '-';
                             
                             // Adicionar células
+                            const escapedName = (item.committeeName || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
                             row.innerHTML = `
                                 <td>${item.id || ''}</td>
                                 <td>${typeBadge}</td>
@@ -542,6 +625,7 @@
                                 <td>${socialMat}</td>
                                 <td>${associationsText}</td>
                                 <td>${createdAt || '-'}</td>
+                                <td><button class="btn-delete" onclick="confirmDeleteInstance(${item.id}, '${escapedName}')" title="Excluir instância"><i class="fas fa-trash-alt"></i></button></td>
                             `;
                             
                             tableBody.appendChild(row);
@@ -1329,6 +1413,185 @@ window.addEventListener('load', function() {
         }
     });
 })();
+</script>
+
+<!-- Modal de exclusão de instância -->
+<div id="deleteModalOverlay" class="delete-modal-overlay">
+    <div class="delete-modal">
+        <h3 id="deleteModalTitle">Excluir Instância</h3>
+        <p id="deleteModalMessage"></p>
+        <div id="deleteChildrenSection" style="display:none;">
+            <table>
+                <thead>
+                    <tr>
+                        <th><input type="checkbox" id="selectAllChildren" title="Marcar todas"></th>
+                        <th>ID</th>
+                        <th>Tipo</th>
+                        <th>Nome</th>
+                        <th>Ação</th>
+                    </tr>
+                </thead>
+                <tbody id="childrenTableBody"></tbody>
+            </table>
+            <div class="modal-actions">
+                <button class="btn-danger" id="deleteSelectedBtn" disabled onclick="deleteSelectedChildren()">Excluir selecionadas</button>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn-cancel" onclick="closeDeleteModal()">Cancelar</button>
+            <button class="btn-danger" id="deleteConfirmBtn" style="display:none;" onclick="executeDelete()">Confirmar Exclusão</button>
+        </div>
+    </div>
+</div>
+
+<script>
+let _deleteTargetId = null;
+let _deleteChildrenList = [];
+
+function confirmDeleteInstance(id, name) {
+    _deleteTargetId = id;
+    const overlay = document.getElementById('deleteModalOverlay');
+    const msg = document.getElementById('deleteModalMessage');
+    const childrenSection = document.getElementById('deleteChildrenSection');
+    const confirmBtn = document.getElementById('deleteConfirmBtn');
+    const title = document.getElementById('deleteModalTitle');
+
+    title.textContent = 'Excluir Instância';
+    msg.textContent = 'Verificando dependências...';
+    childrenSection.style.display = 'none';
+    confirmBtn.style.display = 'none';
+    overlay.classList.add('active');
+
+    fetch(`/api/instances/${id}/children`)
+        .then(r => r.json())
+        .then(children => {
+            _deleteChildrenList = children;
+            if (children.length === 0) {
+                msg.textContent = `Tem certeza que deseja excluir a instância "${name}" (ID: ${id})?`;
+                confirmBtn.style.display = '';
+            } else {
+                msg.textContent = `A instância "${name}" (ID: ${id}) possui ${children.length} instância(s) filha(s). É necessário excluí-las primeiro:`;
+                renderChildrenTable(children);
+                childrenSection.style.display = '';
+            }
+        })
+        .catch(err => {
+            msg.textContent = 'Erro ao verificar dependências: ' + err.message;
+        });
+}
+
+function renderChildrenTable(children) {
+    const tbody = document.getElementById('childrenTableBody');
+    const selectAll = document.getElementById('selectAllChildren');
+    selectAll.checked = false;
+    tbody.innerHTML = '';
+
+    children.forEach(c => {
+        const tr = document.createElement('tr');
+        tr.setAttribute('data-child-id', c.id);
+        const escapedName = (c.committeeName || '').replace(/</g, '&lt;');
+        tr.innerHTML = `
+            <td><input type="checkbox" class="child-check" value="${c.id}"></td>
+            <td>${c.id}</td>
+            <td><span class="badge badge-${c.type}">${c.typeName || c.type}</span></td>
+            <td>${escapedName || '-'}</td>
+            <td><button class="btn-delete" onclick="deleteSingleChild(${c.id}, this)" title="Excluir"><i class="fas fa-trash-alt"></i></button></td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    updateDeleteSelectedBtn();
+
+    selectAll.onchange = function() {
+        document.querySelectorAll('.child-check').forEach(cb => cb.checked = selectAll.checked);
+        updateDeleteSelectedBtn();
+    };
+    tbody.addEventListener('change', function(e) {
+        if (e.target.classList.contains('child-check')) updateDeleteSelectedBtn();
+    });
+}
+
+function updateDeleteSelectedBtn() {
+    const checked = document.querySelectorAll('.child-check:checked').length;
+    const btn = document.getElementById('deleteSelectedBtn');
+    btn.disabled = checked === 0;
+    btn.textContent = checked > 0 ? `Excluir selecionadas (${checked})` : 'Excluir selecionadas';
+}
+
+async function deleteSingleChild(childId, btnEl) {
+    if (btnEl) btnEl.disabled = true;
+    try {
+        const resp = await fetch(`/api/instances/${childId}`, { method: 'DELETE' });
+        if (!resp.ok) {
+            const data = await resp.json().catch(() => ({}));
+            throw new Error(data.message || `Erro ${resp.status}`);
+        }
+        // Remove row
+        const row = document.querySelector(`tr[data-child-id="${childId}"]`);
+        if (row) row.remove();
+        _deleteChildrenList = _deleteChildrenList.filter(c => c.id !== childId);
+        updateDeleteSelectedBtn();
+
+        // If no more children, allow parent delete
+        if (_deleteChildrenList.length === 0) {
+            document.getElementById('deleteChildrenSection').style.display = 'none';
+            document.getElementById('deleteModalMessage').textContent =
+                `Todas as instâncias filhas foram excluídas. Agora você pode excluir a instância pai (ID: ${_deleteTargetId}).`;
+            document.getElementById('deleteConfirmBtn').style.display = '';
+        }
+    } catch (err) {
+        alert('Erro ao excluir instância ' + childId + ': ' + err.message);
+        if (btnEl) btnEl.disabled = false;
+    }
+}
+
+async function deleteSelectedChildren() {
+    const checkboxes = document.querySelectorAll('.child-check:checked');
+    const ids = Array.from(checkboxes).map(cb => parseInt(cb.value));
+    const btn = document.getElementById('deleteSelectedBtn');
+    btn.disabled = true;
+    btn.textContent = 'Excluindo...';
+
+    for (const id of ids) {
+        await deleteSingleChild(id, null);
+    }
+    updateDeleteSelectedBtn();
+}
+
+async function executeDelete() {
+    const btn = document.getElementById('deleteConfirmBtn');
+    btn.disabled = true;
+    btn.textContent = 'Excluindo...';
+
+    try {
+        const resp = await fetch(`/api/instances/${_deleteTargetId}`, { method: 'DELETE' });
+        if (!resp.ok) {
+            const data = await resp.json().catch(() => ({}));
+            throw new Error(data.message || `Erro ${resp.status}`);
+        }
+        closeDeleteModal();
+        // Reload table
+        if (typeof loadInstances === 'function') {
+            // loadInstances is in the DOMContentLoaded scope, trigger via button
+            document.getElementById('loadButton').click();
+        }
+    } catch (err) {
+        alert('Erro ao excluir: ' + err.message);
+        btn.disabled = false;
+        btn.textContent = 'Confirmar Exclusão';
+    }
+}
+
+function closeDeleteModal() {
+    document.getElementById('deleteModalOverlay').classList.remove('active');
+    _deleteTargetId = null;
+    _deleteChildrenList = [];
+}
+
+// Close modal on overlay click
+document.getElementById('deleteModalOverlay').addEventListener('click', function(e) {
+    if (e.target === this) closeDeleteModal();
+});
 </script>
 
 <script src="/restricted-page.js"></script>

@@ -59,11 +59,28 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
+     * Trata exceções de cliente desconectado (Broken pipe, ClientAbortException).
+     * Essas exceções ocorrem quando o navegador fecha a conexão antes do servidor
+     * terminar de escrever a resposta. São inofensivas — os dados já foram salvos.
+     */
+    @ExceptionHandler(org.springframework.web.context.request.async.AsyncRequestNotUsableException.class)
+    public ResponseEntity<Object> handleClientDisconnect(Exception ex, WebRequest request) {
+        logger.warn("Cliente desconectou antes da resposta ser enviada: {}", ex.getMessage());
+        return null;
+    }
+
+    /**
      * Trata todas as outras exceções não mapeadas
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleAllUncaughtException(
             Exception ex, WebRequest request) {
+        
+        // Verificar se é uma desconexão de cliente (Broken pipe)
+        if (isBrokenPipe(ex)) {
+            logger.warn("Cliente desconectou antes da resposta ser enviada: {}", ex.getMessage());
+            return null;
+        }
         
         logger.error("Erro inesperado: {}", ex.getMessage(), ex);
         
@@ -74,5 +91,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         body.put("message", "Ocorreu um erro inesperado. Por favor, tente novamente mais tarde.");
         
         return new ResponseEntity<>(body, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private boolean isBrokenPipe(Throwable ex) {
+        while (ex != null) {
+            if (ex.getMessage() != null && ex.getMessage().contains("Broken pipe")) {
+                return true;
+            }
+            if (ex instanceof org.apache.catalina.connector.ClientAbortException) {
+                return true;
+            }
+            ex = ex.getCause();
+        }
+        return false;
     }
 }

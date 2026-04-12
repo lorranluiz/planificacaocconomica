@@ -1365,7 +1365,41 @@ function saveChanges() {
             });
         }
         
-        // 4. Create promises to save/update each entry in the demand vector
+        // 4. Create promises to save/update each entry in the technological matrix
+        if (technologicalMatrix && technologicalMatrix.length > 0 && productIds && productIds.length > 0) {
+            console.log("Salvando matriz tecnológica:", technologicalMatrix.length, "x", technologicalMatrix[0].length);
+            for (let row = 0; row < technologicalMatrix.length; row++) {
+                for (let col = 0; col < technologicalMatrix[row].length; col++) {
+                    const inputMaterializationId = productIds[row];
+                    const outputMaterializationId = productIds[col];
+                    const value = technologicalMatrix[row][col];
+
+                    if (!inputMaterializationId || !outputMaterializationId) continue;
+
+                    const tensorPayload = {
+                        inputMaterializationId: inputMaterializationId,
+                        outputMaterializationId: outputMaterializationId,
+                        instanceId: parseInt(currentInstanceId),
+                        quantity: value
+                    };
+
+                    const tensorPromise = fetch('/api/planification/technological-tensor', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(tensorPayload)
+                    }).then(response => {
+                        if (!response.ok) {
+                            console.error(`Erro ao salvar tensor [${row}][${col}]:`, response.statusText);
+                        }
+                        return response;
+                    });
+
+                    allPromises.push(tensorPromise);
+                }
+            }
+        }
+
+        // 5. Create promises to save/update each entry in the demand vector
         for (let i = 0; i < demandVector.length; i++) {
             const materializationId = productIds[i];
             const value = demandVector[i];
@@ -1412,7 +1446,7 @@ function saveChanges() {
             allPromises.push(demandPromise);
         }
         
-        // 5. Execute all promises
+        // 6. Execute all promises
         Promise.all(allPromises)
             .then(responses => {
                 // Check if all responses were successful
@@ -1632,6 +1666,44 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     /**
+     * Carrega a matriz tecnológica da instância selecionada
+     */
+    function loadTechnologicalMatrix(instanceId) {
+        console.log(`Carregando matriz tecnológica para instância ${instanceId}`);
+        
+        return fetch(`/api/planification/instances/${instanceId}/technological-matrix`)
+            .then(response => {
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        console.warn('Nenhuma matriz tecnológica encontrada para esta instância');
+                        technologicalMatrix = [];
+                        renderTechnologicalMatrix();
+                        return;
+                    }
+                    throw new Error(`Erro ao carregar matriz tecnológica: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (!data) return;
+                
+                console.log("Dados da matriz tecnológica recebidos:", data);
+                
+                if (data.matrix) {
+                    technologicalMatrix = data.matrix;
+                }
+                if (data.productNames) {
+                    productNames = data.productNames;
+                }
+                if (data.productIds) {
+                    productIds = data.productIds;
+                }
+                
+                renderTechnologicalMatrix();
+            });
+    }
+    
+    /**
      * Carrega o vetor de demanda da instância selecionada
      */
     function loadDemandVector(instanceId) {
@@ -1730,8 +1802,9 @@ document.addEventListener('DOMContentLoaded', function() {
         // Limpar configurações de otimização existentes
         Object.keys(optimizationConfigs).forEach(key => delete optimizationConfigs[key]);
         
-        // Carregar vetor de demanda
-        loadDemandVector(instanceId)
+        // Carregar matriz tecnológica primeiro e vetor de demanda em seguida
+        loadTechnologicalMatrix(instanceId)
+            .then(() => loadDemandVector(instanceId))
             .then(() => {
                 // Carregar configurações de otimização existentes
                 return loadOptimizationConfigs();

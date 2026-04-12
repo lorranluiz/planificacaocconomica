@@ -22,13 +22,11 @@ public interface TechnologicalTensorRepository extends JpaRepository<Technologic
     List<TechnologicalTensor> findByInstance(Instance instance);
 
     @Query("SELECT t FROM TechnologicalTensor t WHERE t.id.instanceId = :instanceId")
-    @QueryHints({@QueryHint(name = "org.hibernate.cacheable", value = "true")})
     List<TechnologicalTensor> findByInstanceId(@Param("instanceId") Integer instanceId);
 
     @Query("SELECT t FROM TechnologicalTensor t WHERE t.id.instanceId = :instanceId AND " +
            "(t.id.inputSocialMaterializationId = :materializationId OR " +
            "t.id.outputSocialMaterializationId = :materializationId)")
-    @QueryHints({@QueryHint(name = "org.hibernate.cacheable", value = "true")})
     List<TechnologicalTensor> findByInstanceIdAndMaterializationId(
             @Param("instanceId") Integer instanceId,
             @Param("materializationId") Integer materializationId);

@@ -99,4 +99,7 @@ public interface InstanceRepository extends JpaRepository<Instance, Integer> {
      * @return Lista de fábricas/comitês da cidade
      */
     List<Instance> findByCityCodeAndType(String cityCode, InstanceType type);
+
+    @Query("SELECT i FROM Instance i WHERE i.associatedWorkerCommittee.id = :committeeId")
+    List<Instance> findByAssociatedWorkerCommitteeId(@Param("committeeId") Integer committeeId);
 }

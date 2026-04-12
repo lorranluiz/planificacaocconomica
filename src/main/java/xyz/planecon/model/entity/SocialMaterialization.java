@@ -2,6 +2,8 @@ package xyz.planecon.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 import xyz.planecon.model.enums.SocialMaterializationType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -35,8 +37,12 @@ public class SocialMaterialization {
     
     @ManyToOne
     @JoinColumn(name = "id_sector", nullable = false)
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Sector sector;
     
     @OneToMany(mappedBy = "socialMaterialization")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
     private Set<DemandStock> demandStocks = new HashSet<>();
 }
