@@ -1,0 +1,25 @@
+  id  |           committee_name           |     state      | city_code | parent_id 
+------+------------------------------------+----------------+-----------+-----------
+    1 | Conselho Popular Internacional     | Alagoas        |           |         1
+    2 |                                    |                |           |         1
+    3 |                                    |                |           |         1
+    4 |                                    |                |           |         2
+    5 |                                    |                |           |         1
+ 6067 | Conselho Popular da América do Sul |                |           |         1
+ 6068 | Conselho Popular do Brasil         | Pará           |           |      6067
+ 6069 | Conselho Popular da Argentina      |                |           |      6067
+ 6070 | Conselho Popular da Bolívia        |                |           |      6067
+ 6071 | Conselho Popular do Chile          |                |           |      6067
+ 6072 | Conselho Popular da Colômbia       |                |           |      6067
+ 6073 | Conselho Popular do Equador        |                |           |      6067
+ 6074 | Conselho Popular da Guiana         |                |           |      6067
+ 6075 | Conselho Popular do Paraguai       |                |           |      6067
+ 6076 | Conselho Popular do Peru           |                |           |      6067
+ 6077 | Conselho Popular do Suriname       |                |           |      6067
+ 6078 | Conselho Popular do Uruguai        |                |           |      6067
+ 6079 | Conselho Popular da Venezuela      |                |           |      6067
+ 6080 | Conselho Popular do Rio de Janeiro | Rio de Janeiro |           |      6068
+ 6081 | Conselho Popular de São Paulo      | São Paulo      |           |      6068
+ 6082 | Conselho Popular do Paraná         | Paraná         |           |      6068
+(21 rows)
+

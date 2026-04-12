@@ -109,4 +109,10 @@ public interface InstanceRepository extends JpaRepository<Instance, Integer> {
      */
     @Query("SELECT i FROM Instance i WHERE i.type = :type AND (i.cityCode IS NULL OR i.cityCode = '') AND i.latitude IS NOT NULL AND i.committeeName IS NOT NULL")
     List<Instance> findGlobalCouncils(@Param("type") InstanceType type);
+
+    /**
+     * Busca conselho estadual pelo nome do estado e tipo POPULARCOUNCIL (sem city_code).
+     */
+    @Query("SELECT i FROM Instance i WHERE i.type = :type AND i.state = :state AND (i.cityCode IS NULL OR i.cityCode = '')")
+    List<Instance> findStateCouncilByStateAndType(@Param("state") String state, @Param("type") InstanceType type);
 }

@@ -11,6 +11,7 @@ import xyz.planecon.dto.FactoryResponse;
 import xyz.planecon.model.entity.*;
 import xyz.planecon.model.enums.InstanceType;
 import xyz.planecon.repository.*;
+import xyz.planecon.util.BrazilianStateUtil;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -381,6 +382,7 @@ public class FactoryController {
     /**
      * Busca ou cria um Conselho Popular para uma cidade específica.
      * Garante que existe apenas UM conselho popular por cidade.
+     * Também cria automaticamente o conselho estadual se não existir.
      * 
      * @param cityCode Código IBGE da cidade
      * @param cityName Nome da cidade
@@ -405,6 +407,15 @@ public class FactoryController {
                     existingCouncils.size(), cityName);
             }
             
+            // Garantir que o conselho da cidade está vinculado ao conselho estadual
+            if (council.getPopularCouncilAssociatedWithPopularCouncil() == null && council.getState() != null) {
+                Instance stateCouncil = findOrCreateStateCouncil(council.getState());
+                council.setPopularCouncilAssociatedWithPopularCouncil(stateCouncil);
+                council = instanceRepository.save(council);
+                logger.info("Conselho da cidade {} vinculado ao conselho estadual: {}", 
+                    cityName, stateCouncil.getCommitteeName());
+            }
+            
             return council;
         }
         
@@ -419,13 +430,13 @@ public class FactoryController {
         newCouncil.setCreatedAt(LocalDateTime.now());
         
         // Buscar dados de localização da cidade no repositório de cidades
+        String stateName = null;
         Optional<City> cityOpt = cityRepository.findByCode(cityCode);
         if (cityOpt.isPresent()) {
             City city = cityOpt.get();
-            
-            // Definir estado
-            if (city.getState() != null) {
-                newCouncil.setState(city.getState());
+            stateName = city.getState();
+            if (stateName != null) {
+                newCouncil.setState(stateName);
             }
             newCouncil.setCountry("Brasil");
         }
@@ -435,6 +446,57 @@ public class FactoryController {
         logger.info("Novo Conselho Popular criado: {} (ID: {})", 
             newCouncil.getCommitteeName(), newCouncil.getId());
         
+        // Vincular ao conselho estadual (criando-o se necessário)
+        if (stateName != null) {
+            Instance stateCouncil = findOrCreateStateCouncil(stateName);
+            newCouncil.setPopularCouncilAssociatedWithPopularCouncil(stateCouncil);
+            newCouncil = instanceRepository.save(newCouncil);
+            logger.info("Conselho da cidade {} vinculado ao conselho estadual: {}", 
+                cityName, stateCouncil.getCommitteeName());
+        }
+        
         return newCouncil;
+    }
+
+    private static final int BRASIL_COUNCIL_ID = 6068;
+
+    private Instance findOrCreateStateCouncil(String stateName) {
+        // Buscar conselho estadual existente
+        List<Instance> stateCouncils = instanceRepository
+            .findStateCouncilByStateAndType(stateName, InstanceType.POPULARCOUNCIL);
+        
+        if (!stateCouncils.isEmpty()) {
+            return stateCouncils.get(0);
+        }
+        
+        // Criar novo conselho estadual
+        logger.info("Criando conselho estadual para: {}", stateName);
+        Instance stateCouncil = new Instance();
+        stateCouncil.setType(InstanceType.POPULARCOUNCIL);
+        stateCouncil.setCommitteeName(BrazilianStateUtil.getCouncilName(stateName));
+        stateCouncil.setState(stateName);
+        stateCouncil.setCountry("Brasil");
+        stateCouncil.setContinent("América do Sul");
+        stateCouncil.setCreatedAt(LocalDateTime.now());
+        
+        // Coordenadas da capital do estado
+        java.math.BigDecimal[] coords = BrazilianStateUtil.getCapitalCoords(stateName);
+        if (coords != null) {
+            stateCouncil.setLatitude(coords[0]);
+            stateCouncil.setLongitude(coords[1]);
+        }
+        
+        // Vincular ao conselho do Brasil
+        Optional<Instance> brasilCouncil = instanceRepository.findById(BRASIL_COUNCIL_ID);
+        if (brasilCouncil.isPresent()) {
+            stateCouncil.setPopularCouncilAssociatedWithPopularCouncil(brasilCouncil.get());
+            logger.info("Conselho estadual de {} vinculado ao Conselho do Brasil", stateName);
+        }
+        
+        stateCouncil = instanceRepository.save(stateCouncil);
+        logger.info("Conselho estadual criado: {} (ID: {})", 
+            stateCouncil.getCommitteeName(), stateCouncil.getId());
+        
+        return stateCouncil;
     }
 }
