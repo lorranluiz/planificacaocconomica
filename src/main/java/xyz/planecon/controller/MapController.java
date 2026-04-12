@@ -31,6 +31,20 @@ public class MapController {
                 ? instanceRepository.findAllByType(InstanceType.POPULARCOUNCIL)
                 : instanceRepository.findAllByTypeAndCity(InstanceType.POPULARCOUNCIL, cidade);
 
+        return ResponseEntity.ok(toConselhoList(conselhos));
+    }
+
+    /**
+     * Returns all "global" councils (state, country, continent, international level)
+     * that should always appear on the map regardless of which city is being viewed.
+     */
+    @GetMapping("/conselhos-globais")
+    public ResponseEntity<List<Map<String, Object>>> getConselhosGlobais() {
+        List<Instance> conselhos = instanceRepository.findGlobalCouncils(InstanceType.POPULARCOUNCIL);
+        return ResponseEntity.ok(toConselhoList(conselhos));
+    }
+
+    private List<Map<String, Object>> toConselhoList(List<Instance> conselhos) {
         List<Map<String, Object>> result = new ArrayList<>();
         for (Instance c : conselhos) {
             Map<String, Object> item = new LinkedHashMap<>();
@@ -38,11 +52,14 @@ public class MapController {
             item.put("nome", c.getCommitteeName());
             item.put("cidade", c.getCity());
             item.put("codigoCidade", c.getCityCode());
+            item.put("estado", c.getState());
+            item.put("pais", c.getCountry());
+            item.put("continente", c.getContinent());
             item.put("latitude", c.getLatitude());
             item.put("longitude", c.getLongitude());
             result.add(item);
         }
-        return ResponseEntity.ok(result);
+        return result;
     }
 
     /**

@@ -102,4 +102,11 @@ public interface InstanceRepository extends JpaRepository<Instance, Integer> {
 
     @Query("SELECT i FROM Instance i WHERE i.associatedWorkerCommittee.id = :committeeId")
     List<Instance> findByAssociatedWorkerCommitteeId(@Param("committeeId") Integer committeeId);
+
+    /**
+     * Retorna conselhos populares "globais" (sem city_code), com coordenadas definidas.
+     * Estes são conselhos de nível estadual, nacional, continental ou internacional.
+     */
+    @Query("SELECT i FROM Instance i WHERE i.type = :type AND (i.cityCode IS NULL OR i.cityCode = '') AND i.latitude IS NOT NULL AND i.committeeName IS NOT NULL")
+    List<Instance> findGlobalCouncils(@Param("type") InstanceType type);
 }

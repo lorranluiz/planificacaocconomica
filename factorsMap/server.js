@@ -1965,6 +1965,24 @@ const server = http.createServer(async (req, res) => {
     return;
   }
 
+  // API: Conselhos globais (estaduais, nacionais, continentais, internacionais)
+  // GET /api/conselhos-globais
+  if (pathname === '/api/conselhos-globais' && req.method === 'GET') {
+    const springUrl = 'http://localhost:8080/api/map/conselhos-globais';
+    http.get(springUrl, (springRes) => {
+      let data = '';
+      springRes.on('data', chunk => { data += chunk; });
+      springRes.on('end', () => {
+        res.writeHead(springRes.statusCode, { 'Content-Type': 'application/json; charset=utf-8' });
+        res.end(data);
+      });
+    }).on('error', (e) => {
+      res.writeHead(502, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ erro: 'Serviço indisponível: ' + e.message, conselhos: [] }));
+    });
+    return;
+  }
+
   // API: Salvar coordenadas de um conselho (proxy para Spring Boot)
   // PUT /api/conselhos-cidade/:id/coordenadas
   if (/^\/api\/conselhos-cidade\/(\d+)\/coordenadas$/.test(pathname) && req.method === 'PUT') {

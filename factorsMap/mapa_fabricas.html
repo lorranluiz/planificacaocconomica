@@ -5363,8 +5363,53 @@ window.addEventListener('DOMContentLoaded', inicializarOverlayPadrao);
 <script>
 // ─── Conselhos Populares no mapa ─────────────────────────────────────────────
 const conselhosLayer = L.featureGroup().addTo(map);
+const conselhosGlobaisLayer = L.featureGroup().addTo(map);
 const _conselhosCarregados = {};
 let _conselhosCidadeAtual = [];
+let _conselhosGlobaisCarregados = false;
+
+/**
+ * Carrega conselhos globais (estaduais, nacionais, continentais, internacionais)
+ * que devem aparecer no mapa independentemente de qual cidade está selecionada.
+ */
+async function carregarConselhosGlobais() {
+  if (_conselhosGlobaisCarregados) return;
+  _conselhosGlobaisCarregados = true;
+  try {
+    const resp = await fetch('/api/conselhos-globais');
+    if (!resp.ok) return;
+    const conselhos = await resp.json();
+    if (!Array.isArray(conselhos) || !conselhos.length) return;
+
+    conselhos.forEach(conselho => {
+      const lat = Number(conselho.latitude);
+      const lon = Number(conselho.longitude);
+      if (!Number.isFinite(lat) || !Number.isFinite(lon)) return;
+
+      // Determinar o nível do conselho para o rótulo
+      let nivel = 'Conselho Popular';
+      if (conselho.estado && !conselho.codigoCidade) nivel = 'Conselho Estadual';
+      if (conselho.pais && !conselho.estado) nivel = 'Conselho Nacional';
+      if (conselho.continente && !conselho.pais) nivel = 'Conselho Continental';
+      if (conselho.id === 1) nivel = 'Conselho Internacional';
+
+      const icon = liteMode ? criarIconeClassico('#FFD54F') : criarIconePiramide();
+      const _cNome = (conselho.nome || 'Conselho Popular').replace(/'/g, "\\'").replace(/"/g, '&quot;');
+      const marker = L.marker([lat, lon], { icon: icon, zIndexOffset: 2000 })
+        .bindPopup(`<div style="font-size:13px;width:280px;">
+          <b style="color:#FFD54F;font-size:14px;">🏛️ ${conselho.nome || 'Conselho Popular'}</b><br>
+          <span style="color:#aaa">${nivel}</span><br><br>
+          <a href="#" onclick="event.preventDefault(); mostrarPainelPlanificationConselho('${conselho.id}', '${_cNome}'); return false;" style="color: #FFD54F; font-weight: bold; text-decoration: underline;">🔧 Planificar</a>
+        </div>`);
+
+      conselhosGlobaisLayer.addLayer(marker);
+      if (!liteMode) iniciarPiramideNoMarcador(marker, '#FFD54F', 0);
+    });
+  } catch (e) {
+    console.warn('Erro ao carregar conselhos globais:', e);
+    _conselhosGlobaisCarregados = false;
+  }
+}
 
 async function carregarConselhosMapa(nomeCidade) {
   if (!nomeCidade) return;
@@ -5434,6 +5479,9 @@ async function carregarConselhosMapa(nomeCidade) {
 
 // Carregar conselhos para a cidade inicial (quando a página já tem uma cidade ao carregar)
 window.addEventListener('DOMContentLoaded', function() {
+  // Carregar conselhos globais (sempre visíveis no mapa)
+  carregarConselhosGlobais();
+
   // _cidadeAtivaMapa só estará preenchida se a cidade foi carregada antes do DOMContentLoaded
   // (raro). O fluxo normal é via carregarCidadeNoMapa → carregarConselhosMapa acima.
   setTimeout(function() {
