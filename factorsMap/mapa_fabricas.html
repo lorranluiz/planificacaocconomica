@@ -7,22 +7,9 @@
 
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
-  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
 
   <style>
-    /* Cluster custom styles - override defaults */
-    .marker-cluster-custom {
-      background: transparent !important;
-    }
-    .marker-cluster-small, .marker-cluster-medium, .marker-cluster-large {
-      background: transparent !important;
-    }
-    .marker-cluster-small div, .marker-cluster-medium div, .marker-cluster-large div {
-      background: transparent !important;
-    }
     /* ==================== SISTEMA DE ESQUEMA DE CORES ==================== */
     /* Tema Azul (Padrão) */
     :root,
@@ -3308,6 +3295,10 @@ async function carregarCidadeNoMapa(nomeCidade) {
   const pctAteMarcadores = pctAteGeocodificar + STAGE_PCT.marcadores;
 
   try {
+    // Limpar conselhos da cidade anterior imediatamente ao trocar de cidade
+    conselhosLayer.clearLayers();
+    _conselhosCidadeAtual = [];
+
     atualizarMetaProgresso(0, 0, 0, 'Iniciando download dos dados...');
 
     let offset = 0;
@@ -4364,42 +4355,107 @@ function _clusterColor(count) {
   return 'rgba(255,50,50,0.7)';
 }
 
-// ─── Cluster: criar ícone de agrupamento ─────────────────────────────────────
-function _clusterIconCreate(cluster) {
-  const count = cluster.getChildCount();
-  const r = _clusterRadius(count);
-  const d = r * 2;
-  const color = _clusterColor(count);
-  const fontSize = r < 22 ? 11 : (r < 30 ? 12 : (r < 40 ? 13 : 14));
-  const label = _clusterFormatCount(count);
-  return L.divIcon({
-    html: '<div style="' +
-      'width:' + d + 'px;height:' + d + 'px;' +
-      'border-radius:50%;' +
-      'background:' + color + ';' +
-      'border:2px solid rgba(255,255,255,0.8);' +
-      'display:flex;align-items:center;justify-content:center;' +
-      'color:#fff;font-weight:bold;font-size:' + fontSize + 'px;' +
-      'text-shadow:0 1px 3px rgba(0,0,0,0.6);' +
-      'box-shadow:0 0 8px rgba(0,0,0,0.3);' +
-      '">' + label + '</div>',
-    className: 'marker-cluster-custom',
-    iconSize: L.point(d, d),
-    iconAnchor: L.point(r, r)
+const markerGroup = L.featureGroup().addTo(map);
+
+// ─── Agrupamento visual customizado por zoom ─────────────────────────────────
+const _clusterLayer = L.layerGroup().addTo(map);
+const CLUSTER_ZOOM_THRESHOLD = 14; // abaixo desse zoom, agrupa; acima, mostra individuais
+const CLUSTER_GRID_SIZE = 80; // pixels de grid para agrupar marcadores
+
+function _markerShow(marker) {
+  marker.setOpacity(1);
+  var el = marker.getElement();
+  if (el) el.style.pointerEvents = '';
+}
+function _markerHide(marker) {
+  marker.setOpacity(0);
+  var el = marker.getElement();
+  if (el) el.style.pointerEvents = 'none';
+}
+
+function _atualizarClusters() {
+  var zoom = map.getZoom();
+
+  if (zoom >= CLUSTER_ZOOM_THRESHOLD) {
+    // Zoom próximo: mostrar marcadores individuais, esconder clusters
+    _clusterLayer.clearLayers();
+    Object.keys(markers).forEach(function(idx) {
+      if (markers[idx] && markers[idx].marker) _markerShow(markers[idx].marker);
+    });
+    return;
+  }
+
+  // Zoom afastado: esconder todos os individuais primeiro
+  Object.keys(markers).forEach(function(idx) {
+    if (markers[idx] && markers[idx].marker) _markerHide(markers[idx].marker);
+  });
+
+  _clusterLayer.clearLayers();
+
+  // Agrupar marcadores por grid de pixels
+  // Cada marcador pertence a exatamente uma célula — sem duplicação possível
+  var grid = {};
+  Object.keys(markers).forEach(function(idx) {
+    var m = markers[idx];
+    if (!m || !m.marker) return;
+    var ll = m.marker.getLatLng();
+    var pt = map.latLngToContainerPoint(ll);
+    var gx = Math.floor(pt.x / CLUSTER_GRID_SIZE);
+    var gy = Math.floor(pt.y / CLUSTER_GRID_SIZE);
+    var key = gx + ':' + gy;
+    if (!grid[key]) grid[key] = { lats: [], lngs: [], indices: [], count: 0 };
+    grid[key].lats.push(ll.lat);
+    grid[key].lngs.push(ll.lng);
+    grid[key].indices.push(idx);
+    grid[key].count++;
+  });
+
+  Object.keys(grid).forEach(function(key) {
+    var g = grid[key];
+
+    if (g.count === 1) {
+      // Marcador isolado: mostrar normalmente
+      var m = markers[g.indices[0]];
+      if (m && m.marker) _markerShow(m.marker);
+      return;
+    }
+
+    var lat = g.lats.reduce(function(a, b) { return a + b; }, 0) / g.count;
+    var lng = g.lngs.reduce(function(a, b) { return a + b; }, 0) / g.count;
+
+    // Criar circulo de cluster
+    var r = _clusterRadius(g.count);
+    var d = r * 2;
+    var color = _clusterColor(g.count);
+    var fontSize = r < 22 ? 11 : (r < 30 ? 12 : (r < 40 ? 13 : 14));
+    var label = _clusterFormatCount(g.count);
+    var icon = L.divIcon({
+      html: '<div style="' +
+        'width:' + d + 'px;height:' + d + 'px;' +
+        'border-radius:50%;' +
+        'background:' + color + ';' +
+        'border:2px solid rgba(255,255,255,0.8);' +
+        'display:flex;align-items:center;justify-content:center;' +
+        'color:#fff;font-weight:bold;font-size:' + fontSize + 'px;' +
+        'text-shadow:0 1px 3px rgba(0,0,0,0.6);' +
+        'box-shadow:0 0 8px rgba(0,0,0,0.3);' +
+        'cursor:pointer;' +
+        '">' + label + '</div>',
+      className: '',
+      iconSize: L.point(d, d),
+      iconAnchor: L.point(r, r)
+    });
+    var clusterBounds = L.latLngBounds(g.lats.map(function(lt, i) { return [lt, g.lngs[i]]; }));
+    var clusterMarker = L.marker([lat, lng], { icon: icon, interactive: true });
+    clusterMarker.on('click', function() {
+      if (clusterBounds.isValid()) map.fitBounds(clusterBounds.pad(0.3));
+    });
+    _clusterLayer.addLayer(clusterMarker);
   });
 }
 
-const markerGroup = L.markerClusterGroup({
-  maxClusterRadius: 60,
-  disableClusteringAtZoom: 18,
-  spiderfyOnMaxZoom: true,
-  showCoverageOnHover: false,
-  zoomToBoundsOnClick: true,
-  animate: true,
-  chunkedLoading: true,
-  iconCreateFunction: _clusterIconCreate
-});
-markerGroup.addTo(map);
+map.on('zoomend', _atualizarClusters);
+map.on('moveend', _atualizarClusters);
 
 // Função para atualizar todos os marcadores do mapa conforme o modo
 function atualizarMarcadores() {
@@ -4410,6 +4466,7 @@ function atualizarMarcadores() {
     }
   });
   markerGroup.clearLayers();
+  _clusterLayer.clearLayers();
 
   Object.keys(markers).forEach(idx => {
     const { empresa } = markers[idx];
@@ -4426,10 +4483,13 @@ function atualizarMarcadores() {
     const cidadeNome = extrairCidadeDoEndereco(empresa.endereco) || '';
     const marker = L.marker([coords.lat, coords.lon], { icon: icon })
       .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="#" onclick="event.preventDefault(); mostrarPainelPlanification('${_codigoCidadeAtiva || ''}', '${cidadeNome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${empresa.cnpj}', '${empresa.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}'); return false;" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`);
+    marker.addTo(map);
     markerGroup.addLayer(marker);
     markers[idx].marker = marker;
     if (!liteMode) iniciarPiramideNoMarcador(marker, obterCorPorCapital(empresa.capital), empresa.capital);
   });
+
+  _atualizarClusters();
 
   // Reconstruir marcadores de conselhos populares respeitando o liteMode atual
   if (typeof carregarConselhosMapa === 'function' && _cidadeAtivaMapa) {
@@ -4575,6 +4635,7 @@ function criarMarcadoresComCoordenadas(coordenadas) {
     delete markers[idx];
   });
   markerGroup.clearLayers();
+  _clusterLayer.clearLayers();
 
   const cnpjsAdicionados = new Set();
   empresas.forEach((empresa, idx) => {
@@ -4589,6 +4650,7 @@ function criarMarcadoresComCoordenadas(coordenadas) {
         const cidadeNome = extrairCidadeDoEndereco(empresa.endereco) || '';
         const marker = L.marker([coords.lat, coords.lon], { icon: icon })
           .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="#" onclick="event.preventDefault(); mostrarPainelPlanification('${_codigoCidadeAtiva || ''}', '${cidadeNome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${empresa.cnpj}', '${empresa.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}'); return false;" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`);
+        marker.addTo(map);
         markerGroup.addLayer(marker);
         if (!liteMode) iniciarPiramideNoMarcador(marker, obterCorPorCapital(empresa.capital), empresa.capital);
         markers[idx] = { marker, empresa };
@@ -4600,6 +4662,7 @@ function criarMarcadoresComCoordenadas(coordenadas) {
     map.fitBounds(markerGroup.getBounds().pad(0.1));
     console.log(`✅ ${markerGroup.getLayers().length} marcadores adicionados ao mapa`);
   }
+  _atualizarClusters();
 }
 
 async function criarMarcadoresComCoordenadasProgressivo(coordenadas, options = {}) {
@@ -4612,6 +4675,7 @@ async function criarMarcadoresComCoordenadasProgressivo(coordenadas, options = {
     delete markers[idx];
   });
   markerGroup.clearLayers();
+  _clusterLayer.clearLayers();
 
   const cnpjsAdicionados = new Set();
   const processaveis = [];
@@ -4638,6 +4702,7 @@ async function criarMarcadoresComCoordenadasProgressivo(coordenadas, options = {
       const icon = liteMode ? criarIconeClassico(obterCorPorCapital(empresa.capital)) : criarIconePiramide();
       const marker = L.marker([coords.lat, coords.lon], { icon: icon })
         .bindPopup(`<div style="font-size:13px;width:250px;"><b>${empresa.nome}</b><br>CNPJ: ${empresa.cnpj}<br>Capital: <span style="color:${obterCorPorCapital(empresa.capital)};font-weight:bold;">R$ ${formatarCapital(empresa.capital)}</span><br>Endereco: ${formatarEnderecoComBairro(empresa)}<br>Telefone: ${tel}<br>Porte: ${empresa.porte}<br><br><a href="#" onclick="event.preventDefault(); mostrarPainelPlanification('${_codigoCidadeAtiva || ''}', '${cidadeNome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}', '${empresa.cnpj}', '${empresa.nome.replace(/'/g, "\\'").replace(/"/g, '&quot;')}'); return false;" style="color: #2196F3; font-weight: bold; text-decoration: underline;">🔧 Planificar</a></div>`);
+      marker.addTo(map);
       markerGroup.addLayer(marker);
       if (!liteMode) iniciarPiramideNoMarcador(marker, obterCorPorCapital(empresa.capital), empresa.capital);
       markers[idx] = { marker, empresa };
@@ -4650,6 +4715,7 @@ async function criarMarcadoresComCoordenadasProgressivo(coordenadas, options = {
   if (markerGroup.getLayers().length > 0) {
     console.log(`✅ ${markerGroup.getLayers().length} marcadores adicionados ao mapa`);
   }
+  _atualizarClusters();
 }
 
 // Carregar cidade inicial (última cidade aberta) com fallback para dataset embutido
@@ -5296,7 +5362,7 @@ window.addEventListener('DOMContentLoaded', inicializarOverlayPadrao);
 
 <script>
 // ─── Conselhos Populares no mapa ─────────────────────────────────────────────
-const conselhosLayer = L.featureGroup();
+const conselhosLayer = L.featureGroup().addTo(map);
 const _conselhosCarregados = {};
 let _conselhosCidadeAtual = [];
 
@@ -5310,7 +5376,11 @@ async function carregarConselhosMapa(nomeCidade) {
     const resp = await fetch(`/api/conselhos-cidade?nome=${encodeURIComponent(cidade)}`);
     if (!resp.ok) return;
     const conselhos = await resp.json();
-    if (!Array.isArray(conselhos) || !conselhos.length) return;
+    if (!Array.isArray(conselhos) || !conselhos.length) {
+      conselhosLayer.clearLayers();
+      _conselhosCidadeAtual = [];
+      return;
+    }
 
     conselhosLayer.clearLayers();
     _conselhosCidadeAtual = conselhos;
@@ -5350,7 +5420,6 @@ async function carregarConselhosMapa(nomeCidade) {
         </div>`);
 
       conselhosLayer.addLayer(marker);
-      marker.addTo(map);
       if (!liteMode) iniciarPiramideNoMarcador(marker, '#4FC3F7', 0);
     });
 
