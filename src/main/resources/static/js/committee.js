@@ -1913,7 +1913,7 @@ function updateDemandsAndGoals() {
     const processingNotification = showNotification('Processando atualização de demandas e metas...', 'info');
     
     // Chamar a API para atualizar as demandas e metas
-    fetch(`/api/committee/${instanceId}/update-demands-goals`, {
+    fetch(`/api/committees/${instanceId}/update-demands-goals`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
