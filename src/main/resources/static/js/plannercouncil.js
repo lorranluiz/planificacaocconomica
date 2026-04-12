@@ -975,6 +975,35 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log('Calling loadInstances()...');
     loadInstances();
     
+    // Auto-seleção via parâmetro URL ?id=
+    const urlParams = new URLSearchParams(window.location.search);
+    const councilIdParam = urlParams.get('id');
+    console.log('Parâmetro URL id:', councilIdParam);
+
+    if (councilIdParam) {
+        const targetId = String(councilIdParam);
+        let attempts = 0;
+        const maxAttempts = 67; // ~10s
+        console.log('Iniciando polling para auto-selecionar conselho ID:', targetId);
+
+        const autoSelectInterval = setInterval(function() {
+            attempts++;
+            if (attempts > maxAttempts) {
+                clearInterval(autoSelectInterval);
+                console.error('Timeout: conselho ID', targetId, 'não encontrado no select após', attempts, 'tentativas');
+                return;
+            }
+            if (instanceSelect.options.length <= 1) return;
+
+            instanceSelect.value = targetId;
+            if (instanceSelect.value == targetId) {
+                clearInterval(autoSelectInterval);
+                console.log('✅ Conselho ID', targetId, 'selecionado na tentativa', attempts);
+                instanceSelect.dispatchEvent(new Event('change', { bubbles: true }));
+            }
+        }, 150);
+    }
+    
     // Configurar eventos
     instanceSelect.addEventListener('change', handleInstanceChange);
     planifyButton.addEventListener('click', performPlanification);
