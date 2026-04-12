@@ -2877,13 +2877,26 @@ function mostrarPainelPlanification(cityCode, cityName, cnpj, name) {
   if (cityName) params.append('cityName', cityName);
   if (name) params.append('name', name);
   
-  fetch(`/api/factories/find-or-create?${params.toString()}`, {
-    method: 'POST'
+  // Detectar estado via geocodificação reversa (OpenStreetMap/Nominatim)
+  let _estadoDetectado = null;
+  const _empMatch = empresas.find(e => e.cnpj === cnpj);
+  const _empCoords = _empMatch && _empMatch.coordenadas;
+  const _detectEstado = (_empCoords && Number.isFinite(_empCoords.lat) && Number.isFinite(_empCoords.lon))
+    ? fetch(`https://nominatim.openstreetmap.org/reverse?lat=${_empCoords.lat}&lon=${_empCoords.lon}&format=json&addressdetails=1`, { headers: { 'Accept-Language': 'pt-BR' } })
+      .then(r => r.json()).then(d => (d && d.address && d.address.state) || null).catch(() => null)
+    : Promise.resolve(null);
+  
+  _detectEstado.then(estadoGeo => {
+    _estadoDetectado = estadoGeo;
+    if (estadoGeo) {
+      console.log('🌍 Estado detectado via geocodificação:', estadoGeo);
+      params.append('state', estadoGeo);
+    }
+    return fetch(`/api/factories/find-or-create?${params.toString()}`, { method: 'POST' });
   })
   .then(response => {
     console.log('📡 Resposta recebida:', response.status, response.statusText);
     if (!response.ok) {
-      // Tentar ler o corpo da resposta para obter a mensagem de erro
       return response.text().then(errorText => {
         console.error('❌ Erro da API:', errorText);
         throw new Error(errorText || `Erro ${response.status}: ${response.statusText}`);
@@ -2898,6 +2911,36 @@ function mostrarPainelPlanification(cityCode, cityName, cnpj, name) {
       throw new Error('Fábrica sem ID');
     }
     
+    // Se o estado não foi resolvido nem pelo banco nem pela geocodificação, perguntar ao usuário
+    if (!factory.state && !_estadoDetectado) {
+      const _cidadePrompt = cityName || factory.cityName || '';
+      const _userState = prompt('A qual Estado a cidade ' + _cidadePrompt + ' pertence?');
+      if (_userState && _userState.trim()) {
+        // Reenviar com o estado informado pelo usuário para criar o conselho estadual
+        const retryParams = new URLSearchParams({ cnpj: cnpj, state: _userState.trim() });
+        if (cityCode || factory.cityCode) retryParams.append('cityCode', cityCode || factory.cityCode);
+        if (cityName || factory.cityName) retryParams.append('cityName', cityName || factory.cityName);
+        fetch('/api/factories/find-or-create?' + retryParams.toString(), { method: 'POST' })
+        .then(() => {
+          const _cnR = (cityName || factory.cityName || '').toUpperCase().trim();
+          if (_cnR) { _conselhosCarregados[_cnR] = false; carregarConselhosMapa(_cnR); }
+          _conselhosGlobaisCarregados = false;
+          conselhosGlobaisLayer.clearLayers();
+          carregarConselhosGlobais();
+        }).catch(() => {});
+      }
+    }
+    
+    // Atualizar conselhos no mapa (podem ter sido criados automaticamente)
+    const _cn = (cityName || factory.cityName || '').toUpperCase().trim();
+    if (_cn) {
+      _conselhosCarregados[_cn] = false;
+      carregarConselhosMapa(_cn);
+    }
+    _conselhosGlobaisCarregados = false;
+    conselhosGlobaisLayer.clearLayers();
+    carregarConselhosGlobais();
+    
     // Agora construir a URL com o ID real da fábrica
     const planificationId = ++_planificationCounter;
     const chave = `${PLANIFICATION_WINDOW_KEY_PREFIX}${factory.id}_${planificationId}`;
@@ -2905,14 +2948,14 @@ function mostrarPainelPlanification(cityCode, cityName, cnpj, name) {
     const cacheBuster = Date.now();
     
     // IMPORTANTE: Usar factory.id em vez de cnpj
-    const url = `http://localhost:8080/committee.html?cityCode=${cityCode || factory.cityCode || ''}&cityName=${encodeURIComponent(cityName || factory.city || '')}&id=${factory.id}&name=${encodeURIComponent(name || factory.name)}&colorScheme=${currentScheme}&_t=${cacheBuster}`;
+    const url = `http://localhost:8080/committee.html?cityCode=${cityCode || factory.cityCode || ''}&cityName=${encodeURIComponent(cityName || factory.cityName || '')}&id=${factory.id}&name=${encodeURIComponent(name || factory.name)}&colorScheme=${currentScheme}&_t=${cacheBuster}`;
     
     console.log('🌐 URL da planificação:', url);
     
     // Armazenar estado da planificação
     _planificationStates[chave] = { 
       cityCode: cityCode || factory.cityCode, 
-      cityName: cityName || factory.city, 
+      cityName: cityName || factory.cityName, 
       cnpj, 
       name: name || factory.name, 
       factoryId: factory.id,

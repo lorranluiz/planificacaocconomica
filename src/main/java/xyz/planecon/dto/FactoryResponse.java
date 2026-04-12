@@ -17,4 +17,14 @@ public class FactoryResponse {
     private String cityCode;
     private String cityName;
     private String type;
+    private String state;
+
+    public FactoryResponse(Integer id, String name, String cnpj, String cityCode, String cityName, String type) {
+        this.id = id;
+        this.name = name;
+        this.cnpj = cnpj;
+        this.cityCode = cityCode;
+        this.cityName = cityName;
+        this.type = type;
+    }
 }

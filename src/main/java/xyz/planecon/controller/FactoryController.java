@@ -120,7 +120,8 @@ public class FactoryController {
             @RequestParam String cnpj, 
             @RequestParam(required = false) String cityCode,
             @RequestParam(required = false) String cityName,
-            @RequestParam(required = false) String name) {
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String state) {
         try {
             logger.info("Buscando ou criando fábrica com CNPJ: {}", cnpj);
             logger.info("  cityCode: {}, cityName: {}", cityCode, cityName);
@@ -134,20 +135,19 @@ public class FactoryController {
                 
                 // NOVO: Verificar se o comitê tem conselho popular associado
                 // Se não tiver e tiver cityCode, associar automaticamente
-                if (factory.getPopularCouncilAssociatedWithCommitteeOrWorker() == null 
-                    && factory.getCityCode() != null 
-                    && !factory.getCityCode().trim().isEmpty()) {
-                    
-                    logger.info("Comitê sem conselho associado. Buscando/criando conselho para cidade...");
+                if (factory.getCityCode() != null && !factory.getCityCode().trim().isEmpty()) {
                     Instance popularCouncil = findOrCreatePopularCouncilForCity(
                         factory.getCityCode(), 
-                        factory.getCity() != null ? factory.getCity() : cityName
+                        factory.getCity() != null ? factory.getCity() : cityName,
+                        state
                     );
                     
-                    factory.setPopularCouncilAssociatedWithCommitteeOrWorker(popularCouncil);
-                    factory = instanceRepository.save(factory);
-                    logger.info("Comitê associado ao Conselho Popular: {} (ID: {})", 
-                        popularCouncil.getCommitteeName(), popularCouncil.getId());
+                    if (factory.getPopularCouncilAssociatedWithCommitteeOrWorker() == null) {
+                        factory.setPopularCouncilAssociatedWithCommitteeOrWorker(popularCouncil);
+                        factory = instanceRepository.save(factory);
+                        logger.info("Comitê associado ao Conselho Popular: {} (ID: {})", 
+                            popularCouncil.getCommitteeName(), popularCouncil.getId());
+                    }
                 }
                 
                 // Retornar DTO simples
@@ -159,6 +159,9 @@ public class FactoryController {
                     factory.getCity(),
                     factory.getType() != null ? factory.getType().toString() : "COMMITTEE"
                 );
+                // Incluir estado do conselho na resposta
+                Instance council = factory.getPopularCouncilAssociatedWithCommitteeOrWorker();
+                if (council != null) response.setState(council.getState());
                 return ResponseEntity.ok(response);
             }
             
@@ -232,7 +235,7 @@ public class FactoryController {
             newFactory.setWorkerEffectiveLimit(placeholder.getWorkerEffectiveLimit());
             
             // NOVO: Buscar ou criar Conselho Popular para esta cidade
-            Instance popularCouncil = findOrCreatePopularCouncilForCity(finalCityCode, finalCityName);
+            Instance popularCouncil = findOrCreatePopularCouncilForCity(finalCityCode, finalCityName, state);
             newFactory.setPopularCouncilAssociatedWithCommitteeOrWorker(popularCouncil);
             logger.info("Comitê associado ao Conselho Popular: {} (ID: {})", 
                 popularCouncil.getCommitteeName(), popularCouncil.getId());
@@ -263,6 +266,7 @@ public class FactoryController {
                 newFactory.getCity(),
                 newFactory.getType() != null ? newFactory.getType().toString() : "COMMITTEE"
             );
+            if (popularCouncil != null) response.setState(popularCouncil.getState());
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             logger.error("Erro ao buscar/criar fábrica", e);
@@ -388,7 +392,7 @@ public class FactoryController {
      * @param cityName Nome da cidade
      * @return Conselho Popular da cidade (existente ou recém-criado)
      */
-    private Instance findOrCreatePopularCouncilForCity(String cityCode, String cityName) {
+    private Instance findOrCreatePopularCouncilForCity(String cityCode, String cityName, String suggestedState) {
         logger.info("Buscando Conselho Popular para cidade: {} ({})", cityName, cityCode);
         
         // Buscar conselho popular existente para esta cidade
@@ -405,6 +409,14 @@ public class FactoryController {
             if (existingCouncils.size() > 1) {
                 logger.warn("ATENÇÃO: Foram encontrados {} Conselhos Populares para a cidade {} - deveria haver apenas um!", 
                     existingCouncils.size(), cityName);
+            }
+            
+            // Se o estado está faltando mas temos sugestão, definir
+            if (council.getState() == null && suggestedState != null && !suggestedState.trim().isEmpty()) {
+                council.setState(suggestedState.trim());
+                council.setCountry("Brasil");
+                council = instanceRepository.save(council);
+                logger.info("Estado '{}' definido para conselho da cidade: {}", suggestedState, cityName);
             }
             
             // Garantir que o conselho da cidade está vinculado ao conselho estadual
@@ -439,6 +451,14 @@ public class FactoryController {
                 newCouncil.setState(stateName);
             }
             newCouncil.setCountry("Brasil");
+        }
+        
+        // Fallback: usar estado sugerido (via geocodificação reversa ou input do usuário)
+        if (stateName == null && suggestedState != null && !suggestedState.trim().isEmpty()) {
+            stateName = suggestedState.trim();
+            newCouncil.setState(stateName);
+            newCouncil.setCountry("Brasil");
+            logger.info("Usando estado sugerido '{}' para cidade: {}", stateName, cityName);
         }
         
         // Salvar novo conselho

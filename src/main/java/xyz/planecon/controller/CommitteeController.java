@@ -522,7 +522,7 @@ public class CommitteeController {
      * Garante que exista apenas um Conselho Popular por cidade.
      * Também cria automaticamente o conselho estadual se não existir.
      */
-    private Instance findOrCreatePopularCouncilForCity(String cityCode, String cityName) {
+    private Instance findOrCreatePopularCouncilForCity(String cityCode, String cityName, String suggestedState) {
         logger.info("Buscando Conselho Popular para cidade: {} ({})", cityName, cityCode);
         
         // Buscar conselho popular existente para esta cidade
@@ -539,6 +539,14 @@ public class CommitteeController {
             if (existingCouncils.size() > 1) {
                 logger.warn("ATENÇÃO: Foram encontrados {} Conselhos Populares para a cidade {} - deveria haver apenas um!", 
                     existingCouncils.size(), cityName);
+            }
+            
+            // Se o estado está faltando mas temos sugestão, definir
+            if (council.getState() == null && suggestedState != null && !suggestedState.trim().isEmpty()) {
+                council.setState(suggestedState.trim());
+                council.setCountry("Brasil");
+                council = instanceRepository.save(council);
+                logger.info("Estado '{}' definido para conselho da cidade: {}", suggestedState, cityName);
             }
             
             // Garantir que o conselho da cidade está vinculado ao conselho estadual
@@ -573,6 +581,14 @@ public class CommitteeController {
                 newCouncil.setState(stateName);
             }
             newCouncil.setCountry("Brasil");
+        }
+        
+        // Fallback: usar estado sugerido (via geocodificação reversa ou input do usuário)
+        if (stateName == null && suggestedState != null && !suggestedState.trim().isEmpty()) {
+            stateName = suggestedState.trim();
+            newCouncil.setState(stateName);
+            newCouncil.setCountry("Brasil");
+            logger.info("Usando estado sugerido '{}' para cidade: {}", stateName, cityName);
         }
         
         // Salvar novo conselho
@@ -666,7 +682,8 @@ public class CommitteeController {
                 // Buscar ou criar o conselho correto para esta cidade
                 Instance correctCouncil = findOrCreatePopularCouncilForCity(
                     committee.getCityCode(),
-                    committee.getCity()
+                    committee.getCity(),
+                    null
                 );
                 
                 // Se não tem conselho associado OU o conselho associado é de outra cidade
