@@ -1791,10 +1791,34 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     /**
+     * Carrega informação do conselho pai (jurisdição)
+     */
+    function loadParentCouncilInfo(instanceId) {
+        const councilInfo = document.getElementById('councilInfo');
+        const councilNameDisplay = document.getElementById('councilNameDisplay');
+        if (!councilInfo || !councilNameDisplay) return;
+        
+        fetch(`/api/council/${instanceId}/parent`)
+            .then(response => response.ok ? response.json() : null)
+            .then(data => {
+                if (data && data.name) {
+                    councilNameDisplay.textContent = data.name;
+                    councilInfo.style.display = 'block';
+                } else {
+                    councilInfo.style.display = 'none';
+                }
+            })
+            .catch(() => { councilInfo.style.display = 'none'; });
+    }
+    
+    /**
      * Carrega todos os dados da instância selecionada
      */
     function loadInstanceData(instanceId) {
         currentInstanceId = instanceId;
+        
+        // Carregar jurisdição (conselho pai)
+        loadParentCouncilInfo(instanceId);
         
         // Mostrar spinner de carregamento
         document.getElementById('loadingSpinner').style.display = 'inline-block';

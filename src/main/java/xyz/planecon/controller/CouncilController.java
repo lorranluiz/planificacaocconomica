@@ -102,6 +102,24 @@ public class CouncilController {
     }
     
     /**
+     * Retorna o conselho pai (jurisdição) de um conselho popular
+     */
+    @GetMapping("/{councilId}/parent")
+    public ResponseEntity<?> getParentCouncil(@PathVariable Integer councilId) {
+        Instance council = instanceRepository.findById(councilId)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conselho não encontrado: " + councilId));
+        
+        Instance parent = council.getPopularCouncilAssociatedWithPopularCouncil();
+        if (parent != null) {
+            return ResponseEntity.ok(java.util.Map.of(
+                "id", parent.getId(),
+                "name", parent.getCommitteeName() != null ? parent.getCommitteeName() : ""
+            ));
+        }
+        return ResponseEntity.ok(java.util.Map.of());
+    }
+
+    /**
      * Endpoint administrativo para corrigir os nomes de todos os Conselhos Populares
      * Define o nome como "Conselho Popular de [nome da cidade]"
      * Também preenche dados de cidade baseado nos comitês associados
