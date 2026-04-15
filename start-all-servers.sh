@@ -67,68 +67,56 @@ fi
 echo ""
 
 ##############################################################################
-# 2. COMPILAR E INICIAR SERVIDOR JAVA/SPRING BOOT
+# 2. COMPILAR E INICIAR SERVIDOR JAVA/SPRING BOOT (com DevTools hot reload)
 ##############################################################################
 
-echo -e "${YELLOW}[2/2] Compilando e iniciando servidor Java/Spring Boot...${NC}"
+echo -e "${YELLOW}[2/2] Iniciando servidor Java/Spring Boot (modo dev com hot reload)...${NC}"
 
 cd "$PROJECT_DIR"
 
 # Matar processos Java existentes
 echo "   Encerrando processos Java antigos..."
+pkill -f "spring-boot:run" 2>/dev/null || true
+pkill -f "planecon.*jar" 2>/dev/null || true
 pkill -9 java 2>/dev/null || true
 sleep 2
 
-# Limpar target
-echo "   Limpando diretório target..."
-rm -rf target/
+echo "   Iniciando Spring Boot com DevTools (mvn spring-boot:run)..."
+echo -e "${YELLOW}   → Alterações em Java: restart automático (~2-5s)${NC}"
+echo -e "${YELLOW}   → Alterações em HTML/CSS/JS: basta recarregar o navegador${NC}"
+nohup ./mvnw spring-boot:run -Dspring-boot.run.fork=false > "$PROJECT_DIR/spring-boot.log" 2>&1 &
+JAVA_PID=$!
+echo $JAVA_PID > "$PROJECT_DIR/spring-boot.pid"
 
-# Compilar projeto
-echo "   Compilando projeto Maven..."
-./mvnw clean package -DskipTests -q
+# Aguardar inicialização (verificar por 120 segundos - inclui tempo de compilação)
+echo "   Aguardando compilação e inicialização do Spring Boot..."
+SUCCESS=false
+for i in {1..120}; do
+    if grep -q "Started Application" "$PROJECT_DIR/spring-boot.log" 2>/dev/null; then
+        SUCCESS=true
+        break
+    fi
+    if lsof -ti:8080 > /dev/null 2>&1 || lsof -ti:8443 > /dev/null 2>&1; then
+        SUCCESS=true
+        break
+    fi
+    echo -n "."
+    sleep 1
+done
+echo ""
 
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}   ✓ Compilação bem-sucedida${NC}"
-    echo ""
-    echo "   Iniciando servidor Spring Boot..."
-    nohup java -jar target/*.jar > "$PROJECT_DIR/spring-boot.log" 2>&1 &
-    JAVA_PID=$!
-    echo $JAVA_PID > "$PROJECT_DIR/spring-boot.pid"
-    
-    # Aguardar inicialização (verificar por 60 segundos)
-    echo "   Aguardando inicialização do Spring Boot..."
-    SUCCESS=false
-    for i in {1..60}; do
-        # Verificar se o log contém a mensagem de sucesso ou se as portas estão abertas
-        if grep -q "Started Application" "$PROJECT_DIR/spring-boot.log" 2>/dev/null; then
-            SUCCESS=true
-            break
-        fi
-        if lsof -ti:8080 > /dev/null 2>&1 || lsof -ti:8443 > /dev/null 2>&1; then
-            SUCCESS=true
-            break
-        fi
-        echo -n "."
-        sleep 1
-    done
-    echo ""
-    
-    if [ "$SUCCESS" = true ]; then
-        echo -e "${GREEN}✓ Servidor Spring Boot iniciado (PID: $JAVA_PID)${NC}"
-        if lsof -ti:8080 > /dev/null 2>&1; then
-            echo -e "${GREEN}  📍 HTTP:  http://localhost:8080${NC}"
-        fi
-        if lsof -ti:8443 > /dev/null 2>&1; then
-            echo -e "${GREEN}  📍 HTTPS: https://localhost:8443${NC}"
-        fi
-    else
-        echo -e "${RED}✗ Falha ao iniciar servidor Spring Boot${NC}"
-        echo -e "${RED}  Verifique o log em: spring-boot.log${NC}"
-        tail -20 "$PROJECT_DIR/spring-boot.log"
-        exit 1
+if [ "$SUCCESS" = true ]; then
+    echo -e "${GREEN}✓ Servidor Spring Boot iniciado com DevTools (PID: $JAVA_PID)${NC}"
+    if lsof -ti:8080 > /dev/null 2>&1; then
+        echo -e "${GREEN}  📍 HTTP:  http://localhost:8080${NC}"
+    fi
+    if lsof -ti:8443 > /dev/null 2>&1; then
+        echo -e "${GREEN}  📍 HTTPS: https://localhost:8443${NC}"
     fi
 else
-    echo -e "${RED}✗ Erro na compilação!${NC}"
+    echo -e "${RED}✗ Falha ao iniciar servidor Spring Boot${NC}"
+    echo -e "${RED}  Verifique o log em: spring-boot.log${NC}"
+    tail -20 "$PROJECT_DIR/spring-boot.log"
     exit 1
 fi
 

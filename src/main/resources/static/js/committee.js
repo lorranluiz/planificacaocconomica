@@ -1540,8 +1540,45 @@ function openPropostaModal() {
     document.getElementById('weeklyScaleProposta').value = pageState.workerProposal.weeklyScale || 5;
     document.getElementById('nightShiftProposta').checked = pageState.workerProposal.nightShift || false;
     
+    // Configurar abas do modal e exibir a primeira aba por padrão
+    setupPropostaModalTabs();
+
     // Exibir o modal
     document.getElementById('propostaModal').style.display = 'flex';
+}
+
+/**
+ * Configura as abas do modal de produtividade
+ */
+function setupPropostaModalTabs() {
+    const tabsContainer = document.getElementById('propostaModalTabs');
+    if (!tabsContainer) return;
+
+    const tabs = tabsContainer.querySelectorAll('.tab');
+    tabs.forEach(tab => {
+        const newTab = tab.cloneNode(true);
+        tab.parentNode.replaceChild(newTab, tab);
+
+        newTab.addEventListener('click', function() {
+            tabsContainer.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            const modalBody = document.getElementById('propostaModal').querySelector('.modal-body');
+            modalBody.querySelectorAll(':scope > .tab-content').forEach(c => c.classList.remove('active'));
+
+            newTab.classList.add('active');
+            const tabId = newTab.getAttribute('data-tab');
+            const content = document.getElementById(tabId + '-content');
+            if (content) content.classList.add('active');
+        });
+    });
+
+    // Garantir que a primeira aba está ativa por padrão
+    const allTabs = tabsContainer.querySelectorAll('.tab');
+    const modalBody = document.getElementById('propostaModal').querySelector('.modal-body');
+    const allContents = modalBody.querySelectorAll(':scope > .tab-content');
+    allTabs.forEach(t => t.classList.remove('active'));
+    allContents.forEach(c => c.classList.remove('active'));
+    if (allTabs.length > 0) allTabs[0].classList.add('active');
+    if (allContents.length > 0) allContents[0].classList.add('active');
 }
 
 function closePropostaModal() {

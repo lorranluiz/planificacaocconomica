@@ -118,6 +118,12 @@ if [ -n "$JAVA_PIDS" ]; then
     STOPPED=true
 fi
 
+# Tentar matar processos spring-boot:run (modo dev)
+if pkill -f "spring-boot:run" 2>/dev/null; then
+    echo -e "${GREEN}✓ Processos spring-boot:run encerrados${NC}"
+    STOPPED=true
+fi
+
 if [ "$STOPPED" = false ]; then
     echo -e "${YELLOW}  Nenhum servidor Java encontrado${NC}"
 fi
