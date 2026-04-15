@@ -525,10 +525,25 @@
         <div class="modal-content">
             <span class="close" onclick="closeOptimizationResultModal()">&times;</span>
             <h2>Resultados da Otimização</h2>
-            <p class="product-info">Materialização Social: <strong><span class="optimization-product-name">Carregando...</span></strong></p>
-            
-            <div id="optimizationModalContent">
-                <!-- O conteúdo será preenchido dinamicamente -->
+
+            <!-- Abas do modal -->
+            <div class="tabs" id="optimizationModalTabs">
+                <div class="tab active" data-tab="unidade-produtiva">Dessa Unidade Produtiva</div>
+                <div class="tab" data-tab="materializacao-social">Da Materialização Social</div>
+            </div>
+
+            <!-- Conteúdo da aba "Dessa Unidade Produtiva" -->
+            <div id="unidade-produtiva-content" class="tab-content active">
+                <!-- Conteúdo será adicionado futuramente -->
+            </div>
+
+            <!-- Conteúdo da aba "Da Materialização Social" -->
+            <div id="materializacao-social-content" class="tab-content">
+                <p class="product-info">Materialização Social: <strong><span class="optimization-product-name">Carregando...</span></strong></p>
+                
+                <div id="optimizationModalContent">
+                    <!-- O conteúdo será preenchido dinamicamente -->
+                </div>
             </div>
             
             <div class="modal-footer">

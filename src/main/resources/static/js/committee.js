@@ -1882,6 +1882,43 @@ function closeOptimizationResultModal() {
 }
 
 /**
+ * Configura as abas do modal de resultados de otimização
+ */
+function setupOptimizationModalTabs() {
+    const tabsContainer = document.getElementById('optimizationModalTabs');
+    if (!tabsContainer) return;
+
+    const tabs = tabsContainer.querySelectorAll('.tab');
+    tabs.forEach(tab => {
+        // Remover listeners antigos clonando o elemento
+        const newTab = tab.cloneNode(true);
+        tab.parentNode.replaceChild(newTab, tab);
+
+        newTab.addEventListener('click', function() {
+            // Desativar todas as abas e conteúdos
+            tabsContainer.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            const modal = document.getElementById('optimizationResultModal');
+            modal.querySelectorAll(':scope > .modal-content > .tab-content').forEach(c => c.classList.remove('active'));
+
+            // Ativar a aba clicada e o conteúdo correspondente
+            newTab.classList.add('active');
+            const tabId = newTab.getAttribute('data-tab');
+            const content = document.getElementById(tabId + '-content');
+            if (content) content.classList.add('active');
+        });
+    });
+
+    // Garantir que a primeira aba está ativa por padrão
+    const allTabs = tabsContainer.querySelectorAll('.tab');
+    const allContents = document.getElementById('optimizationResultModal')
+        .querySelectorAll(':scope > .modal-content > .tab-content');
+    allTabs.forEach(t => t.classList.remove('active'));
+    allContents.forEach(c => c.classList.remove('active'));
+    if (allTabs.length > 0) allTabs[0].classList.add('active');
+    if (allContents.length > 0) allContents[0].classList.add('active');
+}
+
+/**
  * Fecha o modal de configuração de otimização
  */
 function closeOptimizationConfigModal() {
@@ -2085,6 +2122,9 @@ function showProductPlan() {
     
     // Exibir indicador de carregamento
     modalContent.innerHTML = '<div class="loading-container"><div class="spinner"></div><p>Carregando dados de otimização...</p></div>';
+    
+    // Configurar abas do modal e exibir a primeira aba por padrão
+    setupOptimizationModalTabs();
     
     // Exibir a modal
     modal.style.display = 'block';
