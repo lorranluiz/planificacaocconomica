@@ -324,6 +324,11 @@ public class OptimizationConfigController {
             optimization.setNeededFactoriesToBuild(getIntegerValue(payload, "neededFactoriesToBuild", 0));
             optimization.setFactoryDailyOperatingHours(getBigDecimalValue(payload, "factoryDailyOperatingHours", BigDecimal.ZERO));
             
+            // Capacidade produtiva mensal total desta materialização (c_total_i)
+            if (payload.containsKey("totalMaterializationCapacity")) {
+                optimization.setTotalMaterializationCapacity(getBigDecimalValue(payload, "totalMaterializationCapacity", null));
+            }
+            
             // Definir período de emprego total (pode ser calculado com base em outros campos)
             optimization.setTotalEmploymentPeriodSeconds(86400L); // 1 dia em segundos como valor padrão
             

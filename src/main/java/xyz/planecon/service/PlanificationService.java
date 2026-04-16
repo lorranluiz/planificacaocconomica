@@ -232,7 +232,8 @@ public class PlanificationService {
                             config.getWorkerLimit(),
                             config.getMinimumProductionTime().doubleValue(),
                             config.getNightShift(),
-                            committeeCount
+                            committeeCount,
+                            null // totalMaterializationCapacity
                         );
 
                         optimizationResults.add(result);
@@ -331,17 +332,38 @@ public class PlanificationService {
             }
         }
 
+        // Calcular capacidade produtiva mensal por materialização (c_total_i) e total (c_total)
+        // c_trabalhador = 4 semanas * escala_semanal * carga_horária_diária
+        // T_mensal = limite_trabalhadores * c_trabalhador
+        // c_total_i = quantidade_comitês * T_mensal
+        double cTotal = 0.0;
+        for (OptimizationResult result : optimizationResults) {
+            int committees = result.getCommitteeCount() != null ? result.getCommitteeCount() : 0;
+            double wHours = result.getWorkerHours() != null ? result.getWorkerHours() : 8.0;
+            double wScale = result.getWeeklyScale() != null ? result.getWeeklyScale() : 5.0;
+            int wLimit = result.getWorkerLimit() != null ? result.getWorkerLimit() : 100;
+
+            double monthlyWorkerCapacity = 4.0 * wScale * wHours;
+            double monthlyCommitteeCapacity = wLimit * monthlyWorkerCapacity;
+            double totalMaterializationCapacity = committees * monthlyCommitteeCapacity;
+
+            result.setTotalMaterializationCapacity(totalMaterializationCapacity);
+            cTotal += totalMaterializationCapacity;
+        }
+
         // Converter o vetor de produção para Double[]
         Double[] boxedProductionVector = new Double[productionVector.length];
         for (int i = 0; i < productionVector.length; i++) {
             boxedProductionVector[i] = productionVector[i];
         }
 
-        return new PlanificationResponse(
+        PlanificationResponse response = new PlanificationResponse(
             instanceId,
             boxedProductionVector,
             optimizationResults
         );
+        response.setTotalSocialProductionCapacity(cTotal);
+        return response;
     }
 
     /**
@@ -399,7 +421,8 @@ public class PlanificationService {
             0,    // workerLimit
             0.0,  // minimumProductionTimeInDays
             false, // nightShift
-            committeeCount
+            committeeCount,
+            null  // totalMaterializationCapacity
         );
     }
 }

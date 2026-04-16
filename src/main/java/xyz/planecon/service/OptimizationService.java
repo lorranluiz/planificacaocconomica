@@ -197,7 +197,8 @@ public class OptimizationService {
                 workerLimit,
                 minimumProductionTimeInDays,
                 nightShift,
-                committeeCount
+                committeeCount,
+                null
             );
             
             logger.info("Otimização concluída com sucesso para materialização {} ({})", 
@@ -317,7 +318,8 @@ public class OptimizationService {
                 workerLimit,
                 minimumProductionTimeInDays,
                 nightShift,
-                committeeCount
+                committeeCount,
+                null
             );
             
         } catch (Exception e) {
@@ -397,7 +399,8 @@ public class OptimizationService {
             0,    // workerLimit
             0.0,  // minimumProductionTimeInDays
             false, // nightShift
-            0     // committeeCount (default to 0)
+            0,    // committeeCount
+            null  // totalMaterializationCapacity
         );
     }
 }

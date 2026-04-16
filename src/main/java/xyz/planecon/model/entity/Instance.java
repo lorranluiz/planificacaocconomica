@@ -146,6 +146,10 @@ public class Instance {
     // Usado para auditoria posterior.
     @Column(name = "planification_data_tampered")
     private Boolean planificationDataTampered;
+
+    // c_total: soma de toda a capacidade produtiva mensal de todos os comitês de todas as materializações
+    @Column(name = "total_social_production_capacity", precision = 38, scale = 10)
+    private BigDecimal totalSocialProductionCapacity;
     
     // Relationships
     @JsonIgnoreProperties("instance")

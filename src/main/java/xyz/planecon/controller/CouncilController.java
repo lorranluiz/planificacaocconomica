@@ -258,7 +258,8 @@ public class CouncilController {
     @PostMapping("/{instanceId}/mark-planner-estimates-saved")
     public ResponseEntity<?> markPlannerEstimatesSaved(
             @PathVariable Integer instanceId,
-            @org.springframework.web.bind.annotation.RequestParam(name = "tampered", defaultValue = "false") boolean tampered) {
+            @org.springframework.web.bind.annotation.RequestParam(name = "tampered", defaultValue = "false") boolean tampered,
+            @org.springframework.web.bind.annotation.RequestParam(name = "totalSocialProductionCapacity", required = false) java.math.BigDecimal totalSocialProductionCapacity) {
         logger.info("Marcando estimativas planificadas salvas para Conselho Planificador ID: {}, tampered: {}", instanceId, tampered);
         
         try {
@@ -271,6 +272,11 @@ public class CouncilController {
             // Campo de auditoria: registra se o usuário alterou dados após clicar em "Planificar"
             // antes de clicar em "Salvar Alterações". Usado para auditoria posterior.
             plannerCouncil.setPlanificationDataTampered(tampered);
+
+            // c_total: capacidade produtiva mensal total de todos os comitês
+            if (totalSocialProductionCapacity != null) {
+                plannerCouncil.setTotalSocialProductionCapacity(totalSocialProductionCapacity);
+            }
             
             instanceRepository.save(plannerCouncil);
             

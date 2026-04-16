@@ -622,7 +622,8 @@ public class PlanificationController {
                         config.getWorkerLimit(),
                         config.getMinimumProductionTime().doubleValue(),
                         config.getNightShift(),
-                        committeeCount // Adicionar o número de comitês
+                        committeeCount, // Adicionar o número de comitês
+                        null // totalMaterializationCapacity
                     );
                     
                     optimizationResults.add(result);

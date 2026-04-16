@@ -1363,6 +1363,9 @@ public class CommitteeController {
                         InstanceType.COMMITTEE, materializationId);
                 defaultConfig.put("committeeCount", committeeCount);
                 
+                defaultConfig.put("requiredProductionForCommittee", null);
+                defaultConfig.put("estimatedParticipation", null);
+                
                 return ResponseEntity.ok(defaultConfig);
             }
             
@@ -1404,6 +1407,57 @@ public class CommitteeController {
             int committeeCount = (int) instanceRepository.countByTypeAndSocialMaterializationId(
                     InstanceType.COMMITTEE, materializationId);
             optimizationData.put("committeeCount", committeeCount);
+            
+            // Calcular Produção Necessária do comitê (Q_ij) e Participação Estimada
+            // usando dados planificados do comitê e capacidades armazenadas
+            BigDecimal requiredProductionForCommittee = null;
+            BigDecimal estimatedParticipation = null;
+            
+            WorkersProposal.WorkersProposalId wpId = new WorkersProposal.WorkersProposalId();
+            wpId.setInstanceId(committeeId);
+            Optional<WorkersProposal> wpOpt = workersProposalRepository.findById(wpId);
+            
+            if (wpOpt.isPresent()) {
+                WorkersProposal wp = wpOpt.get();
+                Integer planifiedWeeklyScale = wp.getPlanifiedWeeklyScale();
+                BigDecimal planifiedWorkerHours = wp.getPlanifiedWorkerHours();
+                Integer planifiedWorkerLimit = wp.getPlanifiedWorkerLimit();
+                
+                if (planifiedWeeklyScale != null && planifiedWorkerHours != null && planifiedWorkerLimit != null) {
+                    // c_trabalhador = 4 semanas * escala_semanal * carga_horária_diária
+                    BigDecimal monthlyWorkerCapacity = BigDecimal.valueOf(4)
+                        .multiply(BigDecimal.valueOf(planifiedWeeklyScale))
+                        .multiply(planifiedWorkerHours);
+                    
+                    // T_mensal = limite_trabalhadores * c_trabalhador
+                    BigDecimal monthlyCommitteeCapacity = BigDecimal.valueOf(planifiedWorkerLimit)
+                        .multiply(monthlyWorkerCapacity);
+                    
+                    // c_total_i: capacidade total da materialização
+                    BigDecimal cTotalI = optimizationConfig.getTotalMaterializationCapacity();
+                    
+                    // Q_total_i: produção necessária total da materialização
+                    BigDecimal qTotalI = optimizationConfig.getProductionGoal();
+                    
+                    // p_ij = T_mensal / c_total_i (produtividade do comitê)
+                    // Q_ij = p_ij * Q_total_i (produção necessária para este comitê)
+                    if (cTotalI != null && cTotalI.compareTo(BigDecimal.ZERO) > 0 && qTotalI != null) {
+                        BigDecimal productivity = monthlyCommitteeCapacity.divide(cTotalI, 10, java.math.RoundingMode.HALF_UP);
+                        requiredProductionForCommittee = productivity.multiply(qTotalI);
+                    }
+                    
+                    // c_total: capacidade produtiva total de todos os comitês
+                    BigDecimal cTotal = plannerCouncil.getTotalSocialProductionCapacity();
+                    
+                    // participacao_estimada = c_trabalhador / c_total
+                    if (cTotal != null && cTotal.compareTo(BigDecimal.ZERO) > 0) {
+                        estimatedParticipation = monthlyWorkerCapacity.divide(cTotal, 10, java.math.RoundingMode.HALF_UP);
+                    }
+                }
+            }
+            
+            optimizationData.put("requiredProductionForCommittee", requiredProductionForCommittee);
+            optimizationData.put("estimatedParticipation", estimatedParticipation);
             
             logger.info("Dados de otimização central obtidos com sucesso para comitê {} e materialização {}", committeeId, materializationId);
             

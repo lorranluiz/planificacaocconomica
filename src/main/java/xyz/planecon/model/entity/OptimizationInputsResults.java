@@ -102,6 +102,10 @@ public class OptimizationInputsResults {
     
     @Column(name = "worker_limit", nullable = false)
     private Integer workerLimit;
+
+    // c_total_i: capacidade produtiva mensal total de todos os comitês desta materialização
+    @Column(name = "total_materialization_capacity", precision = 38, scale = 10)
+    private BigDecimal totalMaterializationCapacity;
     
     @Transient // Adicionar esta anotação
     private Double minimumProductionTimeInDays;

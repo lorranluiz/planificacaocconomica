@@ -15,7 +15,7 @@ public class Application {
     }
     
     @Bean
-    public ApplicationListener<ServletWebServerInitializedEvent> serverPortLogger(Environment environment) {
+    public static ApplicationListener<ServletWebServerInitializedEvent> serverPortLogger(Environment environment) {
         return event -> {
             Integer port = event.getWebServer().getPort();
             String protocol = "https"; // We know it's HTTPS now

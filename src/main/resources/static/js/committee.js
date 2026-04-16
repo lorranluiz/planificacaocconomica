@@ -2258,6 +2258,9 @@ function showProductPlan() {
             
             // Exibir os dados de otimização
             displayOptimizationResults(result);
+            
+            // Preencher aba "Dessa Unidade Produtiva"
+            displayUnitPlanData(result);
         })
         .catch(error => {
             console.error('Erro ao buscar dados de otimização central:', error);
@@ -2419,5 +2422,41 @@ function displayOptimizationResults(result) {
             }
         `;
         document.head.appendChild(style);
+    }
+}
+
+/**
+ * Preenche a aba "Dessa Unidade Produtiva" com Produção Necessária e Participação Estimada
+ */
+function displayUnitPlanData(result) {
+    const emptyMessage = document.getElementById('unitPlanEmptyMessage');
+    const fieldsContainer = document.getElementById('unitPlanFieldsContainer');
+    const requiredProdEl = document.getElementById('unitRequiredProduction');
+    const estimatedPartEl = document.getElementById('unitEstimatedParticipation');
+    
+    if (!emptyMessage || !fieldsContainer) return;
+    
+    const hasData = result.requiredProductionForCommittee != null && result.estimatedParticipation != null;
+    
+    if (hasData) {
+        emptyMessage.style.display = 'none';
+        fieldsContainer.style.display = 'block';
+        
+        // Produção Necessária: valor com formatação adequada
+        const reqProd = result.requiredProductionForCommittee;
+        if (requiredProdEl) {
+            requiredProdEl.textContent = (Math.abs(reqProd) < 0.01 && reqProd !== 0)
+                ? reqProd.toExponential(4)
+                : parseFloat(reqProd).toFixed(2);
+        }
+        
+        // Participação Estimada: multiplicar por 10^8 para exibição em ℳ (mesmo padrão de worker.html)
+        if (estimatedPartEl) {
+            const participationDisplay = parseFloat(result.estimatedParticipation) * 100000000;
+            estimatedPartEl.textContent = participationDisplay.toFixed(2);
+        }
+    } else {
+        emptyMessage.style.display = 'block';
+        fieldsContainer.style.display = 'none';
     }
 }

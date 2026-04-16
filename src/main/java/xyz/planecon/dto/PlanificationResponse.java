@@ -13,6 +13,13 @@ public class PlanificationResponse {
     private Integer instanceId;
     private Double[] productionVector;  // Vetor de produção calculado
     private List<OptimizationResult> optimizationResults;  // Resultados de otimização
+    private Double totalSocialProductionCapacity; // c_total: capacidade produtiva mensal total de todos os comitês
+    
+    public PlanificationResponse(Integer instanceId, Double[] productionVector, List<OptimizationResult> optimizationResults) {
+        this.instanceId = instanceId;
+        this.productionVector = productionVector;
+        this.optimizationResults = optimizationResults;
+    }
     
     @Data
     @NoArgsConstructor
@@ -34,5 +41,6 @@ public class PlanificationResponse {
         private Double minimumProductionTimeInDays; // Tempo mínimo de produção em dias
         private Boolean nightShift;       // Indica se usa turno noturno
         private Integer committeeCount;   // Número real de comitês (fábricas) existentes
+        private Double totalMaterializationCapacity; // c_total_i: capacidade produtiva mensal total desta materialização
     }
 }

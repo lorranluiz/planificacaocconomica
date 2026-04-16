@@ -20,6 +20,9 @@ let planificationDoneSinceLastSave = false;   // True quando "Planificar" foi ex
 // planificados no campo planification_data_tampered do banco de dados.
 let dataModifiedAfterPlanification = false;
 
+// Capacidade produtiva mensal total (c_total), calculada durante a planificação
+let totalSocialProductionCapacity = null;
+
 // Adicione esta função após a declaração de variáveis no início do arquivo
 function loadPreviousResults(instanceId) {
     console.log(`Carregando resultados anteriores da instância ${instanceId}...`);
@@ -1416,6 +1419,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     renderOptimizationResults(data.optimizationResults);
                 }
                 
+                // Armazenar capacidade produtiva total (c_total)
+                if (data.totalSocialProductionCapacity != null) {
+                    totalSocialProductionCapacity = data.totalSocialProductionCapacity;
+                }
+                
                 // Rolar para os resultados
                 results.scrollIntoView({ behavior: 'smooth' });
                 
@@ -1708,7 +1716,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         workerHours: result.workerHours || 8,
                         productionTime: result.productionTime || 1,
                         weeklyScale: result.weeklyScale || 5,
-                        nightShift: result.nightShift || false
+                        nightShift: result.nightShift || false,
+                        totalMaterializationCapacity: result.totalMaterializationCapacity || 0
                     };
                     
                     console.log(`Salvando resultado de otimização para materialização ${result.materializationId}:`, payload);
@@ -1767,7 +1776,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         // O parâmetro tampered indica se o usuário alterou dados após "Planificar"
                         // antes de "Salvar Alterações" — campo de auditoria (planification_data_tampered)
                         const tampered = dataModifiedAfterPlanification;
-                        fetch(`/api/council/${currentInstanceId}/mark-planner-estimates-saved?tampered=${tampered}`, {
+                        const cTotalParam = totalSocialProductionCapacity != null ? `&totalSocialProductionCapacity=${totalSocialProductionCapacity}` : '';
+                        fetch(`/api/council/${currentInstanceId}/mark-planner-estimates-saved?tampered=${tampered}${cTotalParam}`, {
                             method: 'POST'
                         })
                         .then(res => {
