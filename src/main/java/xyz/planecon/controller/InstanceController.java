@@ -7,6 +7,9 @@ import xyz.planecon.model.entity.Instance;
 import xyz.planecon.model.entity.SocialMaterialization;
 import xyz.planecon.model.enums.InstanceType;
 import xyz.planecon.repository.InstanceRepository;
+import xyz.planecon.model.entity.WorkerOrder;
+import xyz.planecon.model.entity.WorkerOrderItem;
+import xyz.planecon.repository.WorkerOrderRepository;
 import xyz.planecon.repository.SocialMaterializationRepository;
 import xyz.planecon.repository.WorkersProposalRepository;
 import xyz.planecon.model.entity.WorkersProposal;
@@ -43,6 +46,9 @@ public class InstanceController {
 
     @Autowired
     private WorkersProposalRepository workersProposalRepository;
+
+    @Autowired
+    private WorkerOrderRepository workerOrderRepository;
 
     @Autowired
     private EntityManager entityManager;
@@ -690,6 +696,201 @@ public class InstanceController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", "Erro ao carregar dados da loja: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Retorna o histórico de pedidos de um trabalhador.
+     */
+    @GetMapping("/{workerId}/orders")
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> getWorkerOrders(@PathVariable Integer workerId) {
+        try {
+            Instance worker = instanceRepository.findById(workerId).orElse(null);
+            if (worker == null || worker.getType() != InstanceType.WORKER) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Trabalhador não encontrado com ID: " + workerId));
+            }
+
+            List<WorkerOrder> orders = workerOrderRepository.findByWorkerIdOrderByOrderDateDesc(workerId);
+            List<Map<String, Object>> result = new ArrayList<>();
+
+            for (WorkerOrder order : orders) {
+                Map<String, Object> orderMap = new HashMap<>();
+                orderMap.put("id", order.getId());
+                orderMap.put("date", order.getOrderDate().toString());
+                orderMap.put("total", order.getTotal());
+                orderMap.put("status", order.getStatus());
+
+                List<Map<String, Object>> itemsList = new ArrayList<>();
+                for (WorkerOrderItem item : order.getItems()) {
+                    Map<String, Object> itemMap = new HashMap<>();
+                    itemMap.put("id", item.getSocialMaterializationId());
+                    itemMap.put("name", item.getProductName());
+                    itemMap.put("type", item.getProductType());
+                    itemMap.put("price", item.getPrice());
+                    itemMap.put("quantity", item.getQuantity());
+                    itemMap.put("subtotal", item.getSubtotal());
+                    itemsList.add(itemMap);
+                }
+                orderMap.put("items", itemsList);
+                result.add(orderMap);
+            }
+
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Erro ao carregar pedidos: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Cria um novo pedido para o trabalhador e deduz o saldo da participação social.
+     */
+    @PostMapping("/{workerId}/orders")
+    @Transactional
+    public ResponseEntity<?> createWorkerOrder(@PathVariable Integer workerId, @RequestBody Map<String, Object> body) {
+        try {
+            Instance worker = instanceRepository.findById(workerId).orElse(null);
+            if (worker == null || worker.getType() != InstanceType.WORKER) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Trabalhador não encontrado com ID: " + workerId));
+            }
+
+            // Parâmetros da escala
+            long numeroAproximadoDeTrabalhadores = 1600000L;
+            BigDecimal socialWorkAndCostScale = BigDecimal.valueOf(numeroAproximadoDeTrabalhadores)
+                .divide(BigDecimal.valueOf(4))
+                .multiply(BigDecimal.valueOf(10000));
+
+            // Verificar saldo
+            BigDecimal currentParticipation = worker.getEstimatedIndividualParticipationInSocialWork();
+            if (currentParticipation == null) {
+                currentParticipation = BigDecimal.ZERO;
+            }
+            BigDecimal availableBalance = currentParticipation.multiply(socialWorkAndCostScale);
+
+            @SuppressWarnings("unchecked")
+            List<Map<String, Object>> items = (List<Map<String, Object>>) body.get("items");
+            if (items == null || items.isEmpty()) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "O pedido deve conter pelo menos um item"));
+            }
+
+            // Calcular total e criar itens
+            BigDecimal orderTotal = BigDecimal.ZERO;
+            WorkerOrder order = new WorkerOrder();
+            order.setWorker(worker);
+            order.setStatus("pending");
+
+            for (Map<String, Object> itemData : items) {
+                Integer matId = ((Number) itemData.get("id")).intValue();
+                String name = (String) itemData.get("name");
+                String type = (String) itemData.get("type");
+                BigDecimal price = new BigDecimal(itemData.get("price").toString());
+                int quantity = ((Number) itemData.get("quantity")).intValue();
+                BigDecimal subtotal = price.multiply(BigDecimal.valueOf(quantity));
+
+                WorkerOrderItem orderItem = new WorkerOrderItem();
+                orderItem.setOrder(order);
+                orderItem.setSocialMaterializationId(matId);
+                orderItem.setProductName(name);
+                orderItem.setProductType(type);
+                orderItem.setPrice(price);
+                orderItem.setQuantity(quantity);
+                orderItem.setSubtotal(subtotal);
+                order.getItems().add(orderItem);
+
+                orderTotal = orderTotal.add(subtotal);
+            }
+
+            // Verificar saldo suficiente
+            if (orderTotal.compareTo(availableBalance) > 0) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Saldo insuficiente"));
+            }
+
+            order.setTotal(orderTotal);
+
+            // Deduzir do saldo: newParticipation = current - (orderTotal / scale)
+            BigDecimal deduction = orderTotal.divide(socialWorkAndCostScale, 10, RoundingMode.HALF_UP);
+            BigDecimal newParticipation = currentParticipation.subtract(deduction);
+            worker.setEstimatedIndividualParticipationInSocialWork(newParticipation);
+
+            // Salvar pedido e atualizar trabalhador
+            workerOrderRepository.save(order);
+            instanceRepository.save(worker);
+
+            // Retornar resposta
+            Map<String, Object> response = new HashMap<>();
+            response.put("orderId", order.getId());
+            response.put("total", order.getTotal());
+            response.put("status", order.getStatus());
+            response.put("newParticipation", newParticipation);
+            response.put("newBalance", newParticipation.multiply(socialWorkAndCostScale).setScale(2, RoundingMode.HALF_UP));
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Erro ao criar pedido: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Cancela e exclui um pedido pendente, ressarcindo o valor ao trabalhador.
+     */
+    @DeleteMapping("/{workerId}/orders/{orderId}")
+    @Transactional
+    public ResponseEntity<?> cancelWorkerOrder(@PathVariable Integer workerId, @PathVariable Integer orderId) {
+        try {
+            Instance worker = instanceRepository.findById(workerId).orElse(null);
+            if (worker == null || worker.getType() != InstanceType.WORKER) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Trabalhador não encontrado com ID: " + workerId));
+            }
+
+            WorkerOrder order = workerOrderRepository.findById(orderId).orElse(null);
+            if (order == null || !order.getWorker().getId().equals(workerId)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Pedido não encontrado com ID: " + orderId));
+            }
+
+            if (!"pending".equals(order.getStatus())) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Apenas pedidos com status pendente podem ser cancelados"));
+            }
+
+            // Parâmetros da escala (mesma fórmula do POST)
+            long numeroAproximadoDeTrabalhadores = 1600000L;
+            BigDecimal socialWorkAndCostScale = BigDecimal.valueOf(numeroAproximadoDeTrabalhadores)
+                .divide(BigDecimal.valueOf(4))
+                .multiply(BigDecimal.valueOf(10000));
+
+            // Ressarcir o valor: newParticipation = current + (orderTotal / scale)
+            BigDecimal currentParticipation = worker.getEstimatedIndividualParticipationInSocialWork();
+            if (currentParticipation == null) {
+                currentParticipation = BigDecimal.ZERO;
+            }
+            BigDecimal refund = order.getTotal().divide(socialWorkAndCostScale, 10, RoundingMode.HALF_UP);
+            BigDecimal newParticipation = currentParticipation.add(refund);
+            worker.setEstimatedIndividualParticipationInSocialWork(newParticipation);
+
+            // Excluir o pedido e salvar o trabalhador
+            workerOrderRepository.delete(order);
+            instanceRepository.save(worker);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Pedido cancelado e valor ressarcido com sucesso");
+            response.put("newParticipation", newParticipation);
+            response.put("newBalance", newParticipation.multiply(socialWorkAndCostScale).setScale(2, RoundingMode.HALF_UP));
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Erro ao cancelar pedido: " + e.getMessage()));
         }
     }
 }

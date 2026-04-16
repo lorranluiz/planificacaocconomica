@@ -38,7 +38,7 @@ public interface InstanceRepository extends JpaRepository<Instance, Integer> {
      * @param type Tipo de instância a ser filtrado
      * @return Lista de instâncias do tipo especificado
      */
-    @Query("SELECT i FROM Instance i WHERE i.type = :type")
+    @Query("SELECT i FROM Instance i WHERE i.type = :type ORDER BY i.id")
     List<Instance> findAllByType(@Param("type") InstanceType type);
 
     @Query("SELECT i FROM Instance i WHERE i.type = :type AND UPPER(i.city) = UPPER(:city)")

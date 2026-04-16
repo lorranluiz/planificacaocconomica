@@ -41,6 +41,11 @@ check_and_setup_database() {
         return 0
     fi
 
+    read -rp "Deseja verificar/restaurar o banco de dados de teste? (s/n) [n]: " CHECK_DB
+    if [[ ! "$CHECK_DB" =~ ^[sS]$ ]]; then
+        return 0
+    fi
+
     echo -e "${YELLOW}[0/2] Verificando banco de dados...${NC}"
 
     read -rp "   Usuário do PostgreSQL [postgres]: " PG_USER

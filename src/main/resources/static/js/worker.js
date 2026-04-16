@@ -309,6 +309,12 @@ document.addEventListener('DOMContentLoaded', function() {
             const itemTypes = order.items.map(item => item.type).filter((value, index, self) => self.indexOf(value) === index);
             const typeLabels = itemTypes.map(type => type === 'PRODUCT' ? 'Produto' : 'Serviço').join(', ');
             
+            const cancelBtn = order.status === 'pending' 
+                ? `<button class="order-action-btn cancel-btn" onclick="cancelOrder('${order.id}')" title="Cancelar pedido">
+                        <i class="fas fa-trash"></i>
+                    </button>` 
+                : '';
+            
             row.innerHTML = `
                 <td>${order.id}</td>
                 <td>${formattedDate}</td>
@@ -320,6 +326,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         <button class="order-action-btn view-btn" onclick="viewOrderDetails('${order.id}')">
                             <i class="fas fa-eye"></i> Ver Detalhes
                         </button>
+                        ${cancelBtn}
                     </div>
                 </td>
             `;
@@ -565,42 +572,35 @@ document.addEventListener('DOMContentLoaded', function() {
      * Carrega o histórico de pedidos do trabalhador
      */
     function loadOrderHistory(instanceId) {
-        // Verificar se os elementos necessários existem no DOM
-        const ordersLoadingElement = document.getElementById('ordersLoading');
-        const ordersTableElement = document.getElementById('ordersTable');
-        const emptyOrdersElement = document.getElementById('emptyOrders');
-        
-        // Se algum elemento não existir, registrar um aviso e retornar
-        if (!ordersLoadingElement || !ordersTableElement || !emptyOrdersElement) {
-            console.warn('Elementos de histórico de pedidos não encontrados no DOM. Pulando renderização.');
-            return;
-        }
-        
-        // Mostrar loader
-        ordersLoadingElement.style.display = 'flex';
-        ordersTableElement.style.display = 'none';
-        emptyOrdersElement.style.display = 'none';
-        
-        // Simular chamada de API com um atraso
-        setTimeout(() => {
-            // Como esta é uma API fictícia, vamos gerar dados de exemplo
-            // Em uma aplicação real, esta seria uma chamada fetch para a API
-            generateMockOrderHistory(instanceId);
-            
-            // Processar os resultados
-            if (orderHistory && orderHistory.length > 0) {
-                renderOrderHistory();
-                ordersTableElement.style.display = 'table';
-                emptyOrdersElement.style.display = 'none';
-            } else {
-                emptyOrdersElement.style.display = 'block';
-                ordersTableElement.style.display = 'none';
-            }
-            
-            // Esconder loader
-            ordersLoadingElement.style.display = 'none';
-            
-        }, 1500); // Simular um atraso na resposta da API
+        // Buscar pedidos reais da API
+        fetch(`/api/instances/${instanceId}/orders`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar pedidos');
+                }
+                return response.json();
+            })
+            .then(orders => {
+                // Mapear dados da API para o formato esperado pela interface
+                orderHistory = orders.map(order => ({
+                    id: order.id,
+                    date: new Date(order.date),
+                    items: order.items.map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        type: item.type,
+                        price: parseFloat(item.price),
+                        quantity: item.quantity,
+                        subtotal: parseFloat(item.subtotal)
+                    })),
+                    total: parseFloat(order.total),
+                    status: order.status,
+                    instanceId: instanceId
+                }));
+            })
+            .catch(error => {
+                console.error('Erro ao carregar pedidos:', error);
+            });
     }
     
     /**
@@ -758,45 +758,7 @@ document.addEventListener('DOMContentLoaded', function() {
     /**
      * Renderiza o histórico de pedidos na tabela
      */
-    function renderOrderHistory() {
-        const tableBody = document.getElementById('ordersTableBody');
-        tableBody.innerHTML = '';
-        
-        orderHistory.forEach(order => {
-            const row = document.createElement('tr');
-            
-            // Formatar a data
-            const formattedDate = formatDate(order.date);
-            
-            // Formatar o status
-            const statusClass = `status-${order.status}`;
-            let statusText = '';
-            switch(order.status) {
-                case 'pending': statusText = 'Pendente'; break;
-                case 'processing': statusText = 'Em Processamento'; break;
-                case 'completed': statusText = 'Concluído'; break;
-                case 'cancelled': statusText = 'Cancelado'; break;
-                default: statusText = order.status;
-            }
-            
-            row.innerHTML = `
-                <td>${order.id}</td>
-                <td>${formattedDate}</td>
-                <td>${order.items.length} ${order.items.length > 1 ? 'itens' : 'item'}</td>
-                <td>ℳ ${order.total.toFixed(2)}</td>
-                <td><span class="order-status ${statusClass}">${statusText}</span></td>
-                <td>
-                    <div class="order-actions">
-                        <button class="order-action-btn view-btn" onclick="viewOrderDetails('${order.id}')">
-                            <i class="fas fa-eye"></i> Ver Detalhes
-                        </button>
-                    </div>
-                </td>
-            `;
-            
-            tableBody.appendChild(row);
-        });
-    }
+    // Definida no escopo global abaixo para ser acessível por finalizePurchase()
     
     /**
      * Formata uma data para exibição
@@ -871,6 +833,55 @@ document.addEventListener('DOMContentLoaded', function() {
             })
     }
 });
+
+/**
+ * Renderiza o histórico de pedidos na tabela
+ */
+function renderOrderHistory() {
+    const tableBody = document.getElementById('ordersTableBody');
+    if (!tableBody) return;
+    tableBody.innerHTML = '';
+    
+    orderHistory.forEach(order => {
+        const row = document.createElement('tr');
+        
+        // Formatar a data
+        const formattedDate = formatDate(order.date);
+        
+        // Formatar o status
+        const statusClass = `status-${order.status}`;
+        let statusText = '';
+        switch(order.status) {
+            case 'pending': statusText = 'Pendente'; break;
+            case 'processing': statusText = 'Em Processamento'; break;
+            case 'completed': statusText = 'Concluído'; break;
+            case 'cancelled': statusText = 'Cancelado'; break;
+            default: statusText = order.status;
+        }
+        
+        row.innerHTML = `
+            <td>${order.id}</td>
+            <td>${formattedDate}</td>
+            <td>${order.items.length} ${order.items.length > 1 ? 'itens' : 'item'}</td>
+            <td>ℳ ${order.total.toFixed(2)}</td>
+            <td><span class="order-status ${statusClass}">${statusText}</span></td>
+            <td>
+                <div class="order-actions">
+                    <button class="order-action-btn view-btn" onclick="viewOrderDetails('${order.id}')">
+                        <i class="fas fa-eye"></i> Ver Detalhes
+                    </button>
+                    ${order.status === 'pending' 
+                        ? `<button class="order-action-btn cancel-btn" onclick="cancelOrder('${order.id}')" title="Cancelar pedido">
+                                <i class="fas fa-trash"></i>
+                            </button>` 
+                        : ''}
+                </div>
+            </td>
+        `;
+        
+        tableBody.appendChild(row);
+    });
+}
 
 /**
  * Renderiza os produtos na interface
@@ -1176,8 +1187,8 @@ function updateWithdrawButtons() {
  * Exibe os detalhes de um pedido
  */
 function viewOrderDetails(orderId) {
-    // Encontrar o pedido pelo ID
-    const order = orderHistory.find(order => order.id === orderId);
+    // Encontrar o pedido pelo ID (comparar como string para compatibilidade)
+    const order = orderHistory.find(order => String(order.id) === String(orderId));
     
     if (!order) {
         showError('Pedido não encontrado');
@@ -1229,6 +1240,116 @@ function viewOrderDetails(orderId) {
 }
 
 /**
+ * Cancela e exclui um pedido pendente, ressarcindo o valor ao trabalhador
+ */
+function cancelOrder(orderId) {
+    const order = orderHistory.find(o => String(o.id) === String(orderId));
+    if (!order) {
+        showError('Pedido não encontrado');
+        return;
+    }
+
+    if (order.status !== 'pending') {
+        showError('Apenas pedidos pendentes podem ser cancelados');
+        return;
+    }
+
+    if (!confirm(`Deseja cancelar e excluir o pedido #${orderId}? O valor de ℳ ${order.total.toFixed(2)} será ressarcido.`)) {
+        return;
+    }
+
+    fetch(`/api/instances/${currentInstanceId}/orders/${orderId}`, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => { throw new Error(err.error || 'Erro ao cancelar pedido'); });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Atualizar saldo com o valor retornado pelo backend
+        if (data.newParticipation !== undefined) {
+            availableSocialParticipation = parseFloat(data.newParticipation);
+        }
+        if (data.newBalance !== undefined) {
+            document.getElementById('socialParticipation').textContent =
+                `ℳ ${parseFloat(data.newBalance).toFixed(2)}`;
+        }
+
+        // Remover pedido do histórico local
+        orderHistory = orderHistory.filter(o => String(o.id) !== String(orderId));
+
+        // Atualizar renderização
+        renderOrderHistory();
+
+        // Se o modal de histórico estiver aberto, atualizar também
+        const historyModal = document.getElementById('historyModal');
+        if (historyModal && historyModal.style.display === 'flex') {
+            const historyTableBody = document.getElementById('historyTableBody');
+            if (historyTableBody) {
+                // Re-renderizar o modal com os dados atualizados
+                // Disparar o evento de filtro para re-renderizar
+                const emptyHistory = document.getElementById('emptyHistory');
+                const historyTable = document.getElementById('historyTable');
+                if (orderHistory.length === 0) {
+                    if (historyTable) historyTable.style.display = 'none';
+                    if (emptyHistory) emptyHistory.style.display = 'block';
+                } else {
+                    // Re-renderizar a tabela do modal
+                    historyTableBody.innerHTML = '';
+                    orderHistory.forEach(order => {
+                        const row = document.createElement('tr');
+                        const formattedDate = formatDate(order.date);
+                        const statusClass = `status-${order.status}`;
+                        let statusText = '';
+                        switch(order.status) {
+                            case 'pending': statusText = 'Pendente'; break;
+                            case 'processing': statusText = 'Em Processamento'; break;
+                            case 'completed': statusText = 'Concluído'; break;
+                            case 'cancelled': statusText = 'Cancelado'; break;
+                            default: statusText = order.status;
+                        }
+                        const itemTypes = order.items.map(item => item.type).filter((v, i, s) => s.indexOf(v) === i);
+                        const typeLabels = itemTypes.map(type => type === 'PRODUCT' ? 'Produto' : 'Serviço').join(', ');
+                        const cancelBtn = order.status === 'pending'
+                            ? `<button class="order-action-btn cancel-btn" onclick="cancelOrder('${order.id}')" title="Cancelar pedido">
+                                    <i class="fas fa-trash"></i>
+                                </button>`
+                            : '';
+                        row.innerHTML = `
+                            <td>${order.id}</td>
+                            <td>${formattedDate}</td>
+                            <td>${order.items.length} ${order.items.length > 1 ? 'itens' : 'item'} <span class="item-types">(${typeLabels})</span></td>
+                            <td>ℳ ${order.total.toFixed(2)}</td>
+                            <td><span class="order-status ${statusClass}">${statusText}</span></td>
+                            <td>
+                                <div class="order-actions">
+                                    <button class="order-action-btn view-btn" onclick="viewOrderDetails('${order.id}')">
+                                        <i class="fas fa-eye"></i> Ver Detalhes
+                                    </button>
+                                    ${cancelBtn}
+                                </div>
+                            </td>
+                        `;
+                        historyTableBody.appendChild(row);
+                    });
+                }
+            }
+        }
+
+        // Atualizar botões de retirada
+        updateWithdrawButtons();
+
+        showSuccess('Pedido cancelado com sucesso! Valor ressarcido.');
+    })
+    .catch(error => {
+        console.error('Erro ao cancelar pedido:', error);
+        showError(error.message);
+    });
+}
+
+/**
  * Finaliza a compra
  */
 function finalizePurchase() {
@@ -1243,8 +1364,7 @@ function finalizePurchase() {
         orderTotal += item.product.price * item.quantity;
     });
     
-    // Multiplicar availableSocialParticipation por 10^8 para obter o valor correto em ℳ
-    const availableBalance = availableSocialParticipation * 100000000;
+    const availableBalance = availableSocialParticipation * socialWorkAndCostScale;
     
     // Se o total for maior que o saldo disponível, mostrar mensagem e não finalizar
     if (orderTotal > availableBalance) {
@@ -1258,7 +1378,7 @@ function finalizePurchase() {
     checkoutButton.disabled = true;
     checkoutButton.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Processando...';
     
-    // Preparar os dados do pedido
+    // Preparar os dados do pedido para a API
     const orderItems = cartItems.map(item => ({
         id: item.product.id,
         name: item.product.name,
@@ -1268,19 +1388,38 @@ function finalizePurchase() {
         subtotal: item.product.price * item.quantity
     }));
     
-    const order = {
-        id: `ORD-${currentInstanceId}-${Date.now().toString().substr(-6)}-${orderHistory.length}`,
-        date: new Date(),
-        items: orderItems,
-        total: orderTotal,
-        status: 'pending',
-        instanceId: currentInstanceId
-    };
-    
-    // Simular chamada de API para salvar o pedido
-    setTimeout(() => {
-        // Em uma aplicação real, seria uma chamada fetch para a API
-        orderHistory.unshift(order); // Adicionar no início da lista (mais recente)
+    // Enviar pedido para a API (persistir no banco)
+    fetch(`/api/instances/${currentInstanceId}/orders`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: orderItems })
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => { throw new Error(err.error || 'Erro ao criar pedido'); });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Atualizar o saldo com o valor retornado pelo backend
+        if (data.newParticipation !== undefined) {
+            availableSocialParticipation = parseFloat(data.newParticipation);
+        }
+        if (data.newBalance !== undefined) {
+            document.getElementById('socialParticipation').textContent = 
+                `ℳ ${parseFloat(data.newBalance).toFixed(2)}`;
+        }
+        
+        // Adicionar pedido ao histórico local
+        const order = {
+            id: data.orderId,
+            date: new Date(),
+            items: orderItems,
+            total: orderTotal,
+            status: data.status || 'pending',
+            instanceId: currentInstanceId
+        };
+        orderHistory.unshift(order);
         
         // Atualizar o histórico de pedidos na interface
         renderOrderHistory();
@@ -1288,15 +1427,6 @@ function finalizePurchase() {
         // Limpar o carrinho
         cartItems = [];
         document.getElementById('cartCount').textContent = '0';
-        
-        // Restaurar o saldo disponível para teste (em um sistema real não faria isso)
-        // Aqui está apenas para facilitar o teste da interface
-        // Note que o valor é incrementado no formato original (sem multiplicação)
-        availableSocialParticipation += orderTotal / 100000000;
-        
-        // Exibir o valor atualizado multiplicado por 10^8
-        document.getElementById('socialParticipation').textContent = 
-            `ℳ ${(availableSocialParticipation * 100000000).toFixed(2)}`;
         
         // Atualizar os botões "Retirar"
         updateWithdrawButtons();
@@ -1312,11 +1442,19 @@ function finalizePurchase() {
         checkoutButton.textContent = originalText;
         
         // Se o histórico estava vazio antes, mostrar a tabela agora
-        if (document.getElementById('emptyOrders').style.display === 'block') {
-            document.getElementById('emptyOrders').style.display = 'none';
-            document.getElementById('ordersTable').style.display = 'table';
+        const emptyOrdersEl = document.getElementById('emptyOrders');
+        if (emptyOrdersEl && emptyOrdersEl.style.display === 'block') {
+            emptyOrdersEl.style.display = 'none';
+            const ordersTableEl = document.getElementById('ordersTable');
+            if (ordersTableEl) ordersTableEl.style.display = 'table';
         }
-    }, 2000);
+    })
+    .catch(error => {
+        console.error('Erro ao finalizar pedido:', error);
+        showError(error.message);
+        checkoutButton.disabled = false;
+        checkoutButton.textContent = originalText;
+    });
 }
 
 /**
