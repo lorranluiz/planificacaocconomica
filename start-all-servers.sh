@@ -31,6 +31,60 @@ PROJECT_DIR="/home/lorranluiz/planecon"
 cd "$PROJECT_DIR"
 
 ##############################################################################
+# 0. VERIFICAR BANCO DE DADOS E OFERECER DADOS DE TESTE
+##############################################################################
+
+check_and_setup_database() {
+    local DUMP_FILE="$PROJECT_DIR/planecon_test_db.dump"
+
+    if [[ ! -f "$DUMP_FILE" ]]; then
+        return 0
+    fi
+
+    echo -e "${YELLOW}[0/2] Verificando banco de dados...${NC}"
+
+    read -rp "   Usuário do PostgreSQL [postgres]: " PG_USER
+    PG_USER="${PG_USER:-postgres}"
+    read -rp "   Host do PostgreSQL [localhost]: " PG_HOST
+    PG_HOST="${PG_HOST:-localhost}"
+    read -rp "   Nome do banco de dados [planecon]: " PG_DB
+    PG_DB="${PG_DB:-planecon}"
+    read -rsp "   Senha do PostgreSQL: " PG_PASS
+    echo ""
+
+    # Verificar se o banco existe
+    if ! PGPASSWORD="$PG_PASS" psql -h "$PG_HOST" -U "$PG_USER" -d "$PG_DB" -c "SELECT 1" > /dev/null 2>&1; then
+        echo -e "${YELLOW}   Banco '$PG_DB' não encontrado. Criando...${NC}"
+        PGPASSWORD="$PG_PASS" createdb -h "$PG_HOST" -U "$PG_USER" "$PG_DB" 2>/dev/null || \
+            sudo -u postgres createdb "$PG_DB" 2>/dev/null || true
+    fi
+
+    # Verificar se há dados (tabela instance com registros)
+    ROW_COUNT=$(PGPASSWORD="$PG_PASS" psql -h "$PG_HOST" -U "$PG_USER" -d "$PG_DB" -t -A \
+        -c "SELECT COUNT(*) FROM instance" 2>/dev/null || echo "0")
+
+    if [[ "$ROW_COUNT" -gt 0 ]]; then
+        echo -e "${GREEN}✓ Banco de dados já possui dados ($ROW_COUNT registros).${NC}"
+    else
+        echo ""
+        echo -e "${YELLOW}   O banco de dados está vazio ou sem tabelas.${NC}"
+        read -rp "   Deseja instalar os dados de teste no banco de dados? (s/n): " INSTALL_TEST
+        if [[ "$INSTALL_TEST" =~ ^[sS]$ ]]; then
+            echo -e "${YELLOW}   Restaurando dados de teste...${NC}"
+            PGPASSWORD="$PG_PASS" pg_restore -h "$PG_HOST" -U "$PG_USER" -d "$PG_DB" \
+                --clean --if-exists --no-owner --no-privileges \
+                "$DUMP_FILE" 2>/dev/null
+            echo -e "${GREEN}✓ Dados de teste instalados com sucesso.${NC}"
+        else
+            echo -e "${GREEN}✓ Continuando sem dados de teste.${NC}"
+        fi
+    fi
+    echo ""
+}
+
+check_and_setup_database
+
+##############################################################################
 # 1. INICIAR SERVIDOR NODE.JS (FACTORSMAP)
 ##############################################################################
 

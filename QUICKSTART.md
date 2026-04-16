@@ -90,4 +90,35 @@ npm install
 
 ---
 
+## 🗄️ Banco de Dados de Teste
+
+O projeto inclui um dump completo do PostgreSQL com dados de teste equilibrados, pronto para restauração em um computador novo.
+
+### Restaurar o banco de teste
+
+```bash
+# 1. Criar o banco (se não existir)
+sudo -u postgres createdb planecon
+
+# 2. Restaurar estrutura + dados (pedirá usuário e senha)
+./restore-test-db.sh
+```
+
+### Atualizar o backup (após modificar dados)
+
+```bash
+./update-test-db.sh
+```
+
+### Arquivos relacionados
+
+| Arquivo | Descrição |
+|---------|-----------|
+| `planecon_test_db.dump` | Dump completo (estrutura + dados de teste) |
+| `schema.sql` | Apenas estrutura do banco (sem dados) |
+| `restore-test-db.sh` | Script para restaurar o dump no PostgreSQL |
+| `update-test-db.sh` | Script para gerar um novo dump a partir do banco atual |
+
+---
+
 **Última atualização**: Abril 2026

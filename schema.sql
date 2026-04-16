@@ -2,8 +2,10 @@
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 16.8 (Ubuntu 16.8-0ubuntu0.24.04.1)
--- Dumped by pg_dump version 16.1
+\restrict JYINCu4tMzTn2j0Qik2n7hhFW9zH4BPBW13A5PG57Phdn8FemlswCeYc2Thpqb6
+
+-- Dumped from database version 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1)
+-- Dumped by pg_dump version 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -273,6 +275,48 @@ ALTER SEQUENCE public.business_rule_violation_log_id_seq OWNED BY public.busines
 
 
 --
+-- Name: city; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.city (
+    code character varying(10) NOT NULL,
+    name character varying(255) NOT NULL,
+    state character varying(255),
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP
+);
+
+
+ALTER TABLE public.city OWNER TO postgres;
+
+--
+-- Name: TABLE city; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON TABLE public.city IS 'Tabela de cidades com códigos IBGE';
+
+
+--
+-- Name: COLUMN city.code; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.city.code IS 'Código IBGE da cidade';
+
+
+--
+-- Name: COLUMN city.name; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.city.name IS 'Nome da cidade';
+
+
+--
+-- Name: COLUMN city.state; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.city.state IS 'Estado (UF)';
+
+
+--
 -- Name: committee_id; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -350,6 +394,14 @@ CREATE TABLE public.instance (
     address_complement character varying(255),
     latitude numeric(10,7),
     longitude numeric(10,7),
+    city_code character varying(10),
+    cnpj character varying(18),
+    last_estimates_saved_at bigint,
+    last_council_estimates_synced_at bigint,
+    last_planner_estimates_synced_at bigint,
+    planification_data_tampered boolean,
+    total_social_production_capacity numeric(38,10),
+    total_social_work numeric(38,10) DEFAULT 0,
     CONSTRAINT chk_committee_columns CHECK ((((type)::text <> 'COMMITTEE'::text) OR ((committee_name IS NOT NULL) AND (popular_council_associated_with_committee_or_worker IS NOT NULL) AND (total_social_work_of_this_jurisdiction IS NOT NULL) AND (id_social_materialization IS NOT NULL) AND (produced_quantity IS NOT NULL) AND (target_quantity IS NOT NULL) AND (produced_quantity < target_quantity)))),
     CONSTRAINT chk_council_columns CHECK ((((type)::text <> 'COUNCIL'::text) OR ((total_social_work_of_this_jurisdiction IS NOT NULL) AND (popular_council_associated_with_popular_council IS NOT NULL)))),
     CONSTRAINT chk_worker_columns CHECK ((((type)::text <> 'WORKER'::text) OR ((popular_council_associated_with_committee_or_worker IS NOT NULL) AND (id_associated_worker_committee IS NOT NULL) AND (id_associated_worker_residents_association = 0) AND (estimated_individual_participation_in_social_work IS NOT NULL) AND (hours_at_electronic_point IS NOT NULL)))),
@@ -452,6 +504,48 @@ COMMENT ON COLUMN public.instance.hours_at_electronic_point IS 'Trabalhador não
 
 
 --
+-- Name: COLUMN instance.city_code; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.instance.city_code IS 'Código IBGE da cidade onde está localizada a instância';
+
+
+--
+-- Name: COLUMN instance.cnpj; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.instance.cnpj IS 'CNPJ da fábrica/empresa (quando aplicável)';
+
+
+--
+-- Name: COLUMN instance.last_estimates_saved_at; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.instance.last_estimates_saved_at IS 'Timestamp Unix (segundos) de quando o Conselho Popular completou Calcular Estimativas + Salvar Alterações';
+
+
+--
+-- Name: COLUMN instance.last_council_estimates_synced_at; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.instance.last_council_estimates_synced_at IS 'Timestamp Unix (segundos) do último valor sincronizado do conselho pai para este comitê';
+
+
+--
+-- Name: COLUMN instance.last_planner_estimates_synced_at; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.instance.last_planner_estimates_synced_at IS 'Timestamp Unix (segundos) do último valor sincronizado do Conselho Planificador para este comitê';
+
+
+--
+-- Name: COLUMN instance.planification_data_tampered; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.instance.planification_data_tampered IS 'Auditoria: TRUE se o usuário alterou dados após clicar em Planificar antes de Salvar no Conselho Planificador';
+
+
+--
 -- Name: instance_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
 --
 
@@ -495,6 +589,11 @@ CREATE TABLE public.optimization_inputs_results (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     id_instance integer NOT NULL,
     total_employment_period bigint,
+    workers_to_contract integer,
+    current_factories integer,
+    needed_factories_to_build integer,
+    factory_daily_operating_hours numeric(10,2),
+    total_materialization_capacity numeric(38,10),
     CONSTRAINT optimization_inputs_results_total_employment_period_check CHECK ((total_employment_period >= 0))
 );
 
@@ -520,6 +619,34 @@ COMMENT ON COLUMN public.optimization_inputs_results.id_social_materialization I
 --
 
 COMMENT ON COLUMN public.optimization_inputs_results.id_instance IS 'Referência à instância associada a este resultado de otimização';
+
+
+--
+-- Name: COLUMN optimization_inputs_results.workers_to_contract; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.optimization_inputs_results.workers_to_contract IS 'Número de trabalhadores que precisam ser contratados';
+
+
+--
+-- Name: COLUMN optimization_inputs_results.current_factories; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.optimization_inputs_results.current_factories IS 'Número atual de fábricas existentes';
+
+
+--
+-- Name: COLUMN optimization_inputs_results.needed_factories_to_build; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.optimization_inputs_results.needed_factories_to_build IS 'Número de fábricas adicionais que precisam ser construídas';
+
+
+--
+-- Name: COLUMN optimization_inputs_results.factory_daily_operating_hours; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.optimization_inputs_results.factory_daily_operating_hours IS 'Horas de operação diária por fábrica';
 
 
 --
@@ -740,7 +867,17 @@ CREATE TABLE public.workers_proposal (
     night_shift boolean NOT NULL,
     weekly_scale integer NOT NULL,
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
-    id_instance integer NOT NULL
+    id_instance integer NOT NULL,
+    planning_worker_limit integer,
+    planning_worker_hours numeric(10,2),
+    planning_production_time numeric(10,2),
+    planning_night_shift boolean,
+    planning_weekly_scale integer,
+    planified_worker_limit integer,
+    planified_worker_hours numeric(10,2),
+    planified_production_time numeric(10,2),
+    planified_night_shift boolean,
+    planified_weekly_scale integer
 );
 
 
@@ -758,6 +895,76 @@ COMMENT ON TABLE public.workers_proposal IS 'propostaTrabalhadores, de Comitê.'
 --
 
 COMMENT ON COLUMN public.workers_proposal.id_instance IS 'Referência à instância associada a este resultado de otimização';
+
+
+--
+-- Name: COLUMN workers_proposal.planning_worker_limit; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.workers_proposal.planning_worker_limit IS 'Limite de trabalhadores - aba Capacidade Produtiva em Planejamento';
+
+
+--
+-- Name: COLUMN workers_proposal.planning_worker_hours; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.workers_proposal.planning_worker_hours IS 'Carga horária diária - aba Capacidade Produtiva em Planejamento';
+
+
+--
+-- Name: COLUMN workers_proposal.planning_production_time; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.workers_proposal.planning_production_time IS 'Tempo para produzir 1 unidade - aba Capacidade Produtiva em Planejamento';
+
+
+--
+-- Name: COLUMN workers_proposal.planning_night_shift; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.workers_proposal.planning_night_shift IS 'Turno noturno - aba Capacidade Produtiva em Planejamento';
+
+
+--
+-- Name: COLUMN workers_proposal.planning_weekly_scale; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.workers_proposal.planning_weekly_scale IS 'Escala semanal - aba Capacidade Produtiva em Planejamento';
+
+
+--
+-- Name: COLUMN workers_proposal.planified_worker_limit; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.workers_proposal.planified_worker_limit IS 'Limite de trabalhadores - aba Capacidade Produtiva Planificada';
+
+
+--
+-- Name: COLUMN workers_proposal.planified_worker_hours; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.workers_proposal.planified_worker_hours IS 'Carga horária diária - aba Capacidade Produtiva Planificada';
+
+
+--
+-- Name: COLUMN workers_proposal.planified_production_time; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.workers_proposal.planified_production_time IS 'Tempo para produzir 1 unidade - aba Capacidade Produtiva Planificada';
+
+
+--
+-- Name: COLUMN workers_proposal.planified_night_shift; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.workers_proposal.planified_night_shift IS 'Turno noturno - aba Capacidade Produtiva Planificada';
+
+
+--
+-- Name: COLUMN workers_proposal.planified_weekly_scale; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.workers_proposal.planified_weekly_scale IS 'Escala semanal - aba Capacidade Produtiva Planificada';
 
 
 --
@@ -801,6 +1008,14 @@ ALTER TABLE ONLY public."user" ALTER COLUMN id SET DEFAULT nextval('public.user_
 
 ALTER TABLE ONLY public.business_rule_violation_log
     ADD CONSTRAINT business_rule_violation_log_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: city city_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.city
+    ADD CONSTRAINT city_pkey PRIMARY KEY (code);
 
 
 --
@@ -881,6 +1096,27 @@ ALTER TABLE ONLY public."user"
 
 ALTER TABLE ONLY public."user"
     ADD CONSTRAINT user_username_key UNIQUE (username);
+
+
+--
+-- Name: idx_city_name; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_city_name ON public.city USING btree (name);
+
+
+--
+-- Name: idx_instance_city_code; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_instance_city_code ON public.instance USING btree (city_code);
+
+
+--
+-- Name: idx_instance_cnpj; Type: INDEX; Schema: public; Owner: postgres
+--
+
+CREATE INDEX idx_instance_cnpj ON public.instance USING btree (cnpj);
 
 
 --
@@ -1096,4 +1332,6 @@ ALTER TABLE ONLY public.instance
 --
 -- PostgreSQL database dump complete
 --
+
+\unrestrict JYINCu4tMzTn2j0Qik2n7hhFW9zH4BPBW13A5PG57Phdn8FemlswCeYc2Thpqb6
 
