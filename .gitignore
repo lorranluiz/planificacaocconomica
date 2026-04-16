@@ -30,3 +30,5 @@ target/
 *:Zone.Identifier
 spring-boot.log
 spring-boot.pid
+spring-boot.log
+factorsmap-server.pid
