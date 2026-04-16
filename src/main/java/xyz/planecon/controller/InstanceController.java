@@ -8,9 +8,12 @@ import xyz.planecon.model.entity.SocialMaterialization;
 import xyz.planecon.model.enums.InstanceType;
 import xyz.planecon.repository.InstanceRepository;
 import xyz.planecon.repository.SocialMaterializationRepository;
+import xyz.planecon.repository.WorkersProposalRepository;
+import xyz.planecon.model.entity.WorkersProposal;
 import xyz.planecon.service.InstanceService;
 import xyz.planecon.dto.InstanceDto;
 import xyz.planecon.dto.ErrorResponse;
+import java.math.RoundingMode;
 
 import jakarta.persistence.EntityManager;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,6 +40,9 @@ public class InstanceController {
 
     @Autowired
     private SocialMaterializationRepository socialMaterializationRepository;
+
+    @Autowired
+    private WorkersProposalRepository workersProposalRepository;
 
     @Autowired
     private EntityManager entityManager;
@@ -584,6 +590,106 @@ public class InstanceController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse("Erro ao excluir instância", e.getMessage()));
+        }
+    }
+
+    /**
+     * Endpoint para a loja do trabalhador: retorna materializações com custos sociais calculados.
+     * Custo social = (productionTime / totalSocialWork) * socialWorkAndCostScale
+     */
+    @GetMapping("/{workerId}/shop")
+    @Transactional(readOnly = true)
+    public ResponseEntity<?> getWorkerShopData(@PathVariable Integer workerId) {
+        try {
+            // Buscar o trabalhador
+            Instance worker = instanceRepository.findById(workerId)
+                .orElse(null);
+            if (worker == null || worker.getType() != InstanceType.WORKER) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Trabalhador não encontrado com ID: " + workerId));
+            }
+
+            // Buscar o Conselho Planificador (ID 1 é o conselho mundial raiz)
+            Instance plannerCouncil = instanceRepository.findById(1).orElse(null);
+
+            // Obter totalSocialWork: tentar o campo novo, senão usar o legado
+            BigDecimal totalSocialWork = BigDecimal.ZERO;
+            if (plannerCouncil != null) {
+                if (plannerCouncil.getTotalSocialWork() != null 
+                    && plannerCouncil.getTotalSocialWork().compareTo(BigDecimal.ZERO) > 0) {
+                    totalSocialWork = plannerCouncil.getTotalSocialWork();
+                } else if (plannerCouncil.getTotalSocialWorkOfThisJurisdiction() != null 
+                    && plannerCouncil.getTotalSocialWorkOfThisJurisdiction() > 0) {
+                    totalSocialWork = BigDecimal.valueOf(plannerCouncil.getTotalSocialWorkOfThisJurisdiction());
+                }
+            }
+
+            // Parâmetros da escala: (numeroAproximadoDeTrabalhadores / 4) * 10^4
+            // Mesma fórmula usada em distribution.js
+            long numeroAproximadoDeTrabalhadores = 1600000L;
+            BigDecimal socialWorkAndCostScale = BigDecimal.valueOf(numeroAproximadoDeTrabalhadores)
+                .divide(BigDecimal.valueOf(4))
+                .multiply(BigDecimal.valueOf(10000));
+
+            // Buscar todas as materializações
+            List<SocialMaterialization> materializations = socialMaterializationRepository.findAll();
+
+            // Para cada materialização, calcular o custo social médio
+            List<Map<String, Object>> products = new ArrayList<>();
+            for (SocialMaterialization mat : materializations) {
+                // Buscar comitês que produzem esta materialização
+                List<Instance> committees = instanceRepository.findByTypeAndSocialMaterializationId(
+                    InstanceType.COMMITTEE, mat.getId());
+
+                // Calcular tempo de produção médio dos comitês
+                BigDecimal avgProductionTime = BigDecimal.ZERO;
+                int count = 0;
+                for (Instance committee : committees) {
+                    List<WorkersProposal> proposals = workersProposalRepository.findByInstanceId(committee.getId());
+                    if (!proposals.isEmpty()) {
+                        WorkersProposal wp = proposals.get(0);
+                        BigDecimal pt = wp.getPlanifiedProductionTime();
+                        if (pt == null || pt.compareTo(BigDecimal.ZERO) == 0) {
+                            pt = wp.getProductionTime();
+                        }
+                        if (pt != null && pt.compareTo(BigDecimal.ZERO) > 0) {
+                            avgProductionTime = avgProductionTime.add(pt);
+                            count++;
+                        }
+                    }
+                }
+                if (count > 0) {
+                    avgProductionTime = avgProductionTime.divide(BigDecimal.valueOf(count), 10, RoundingMode.HALF_UP);
+                }
+
+                // Calcular custo social: (productionTime / totalSocialWork) * socialWorkAndCostScale
+                BigDecimal socialCost = BigDecimal.ZERO;
+                if (totalSocialWork.compareTo(BigDecimal.ZERO) > 0 && avgProductionTime.compareTo(BigDecimal.ZERO) > 0) {
+                    socialCost = avgProductionTime
+                        .divide(totalSocialWork, 10, RoundingMode.HALF_UP)
+                        .multiply(socialWorkAndCostScale)
+                        .setScale(2, RoundingMode.HALF_UP);
+                }
+
+                Map<String, Object> product = new HashMap<>();
+                product.put("id", mat.getId());
+                product.put("name", mat.getName());
+                product.put("type", mat.getType().toString());
+                product.put("price", socialCost);
+                product.put("productionTime", avgProductionTime);
+                products.add(product);
+            }
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("products", products);
+            result.put("totalSocialWork", totalSocialWork);
+            result.put("socialWorkAndCostScale", socialWorkAndCostScale);
+
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Erro ao carregar dados da loja: " + e.getMessage()));
         }
     }
 }

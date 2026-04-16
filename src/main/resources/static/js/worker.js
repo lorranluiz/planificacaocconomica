@@ -8,6 +8,7 @@ let currentPage = 1;
 let productsPerPage = 20; // Exibir 20 itens por página
 let cartItems = []; // Itens no carrinho
 let availableSocialParticipation = 0;
+let socialWorkAndCostScale = (1600000/4)*Math.pow(10,4); // Mesma fórmula de distribution.js
 
 // Adicionar variáveis globais para armazenar os pedidos
 let orderHistory = [];
@@ -540,11 +541,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 workedHours.textContent = '0.00 horas';
             }
             
-            // Participação social - Multiplicar por 10^8 para exibição
+            // Participação social - Multiplicar pela escala socialWorkAndCostScale
             if (data.estimatedIndividualParticipationInSocialWork !== undefined && 
                 data.estimatedIndividualParticipationInSocialWork !== null) {
-                // Converter para número e multiplicar por 10^8 (100 milhões)
-                const participation = parseFloat(data.estimatedIndividualParticipationInSocialWork) * 100000000;
+                const participation = parseFloat(data.estimatedIndividualParticipationInSocialWork) * socialWorkAndCostScale;
                 socialParticipation.textContent = `ℳ ${participation.toFixed(2)}`;
                 
                 // Atualizar a variável global para uso na loja
@@ -824,25 +824,51 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
         
-        // Mostrar algum indicador de carregamento para os produtos, se necessário
+        // Mostrar indicador de carregamento
         productsGridElement.innerHTML = '<div class="loading-container"><span class="loading" style="display: inline-block;"></span><p>Carregando materializações disponíveis...</p></div>';
         
-        // Em uma aplicação real, você buscaria estes dados da API
-        // Por exemplo: fetch('/api/available-materializations')
-        
-        setTimeout(() => {
-            // Simular dados retornados pela API
-            allProducts = generateMockProducts();
-            
-            // Inicialmente, exibir todos os produtos
-            filteredProducts = [...allProducts];
-            
-            // Renderizar os produtos na interface
-            renderProducts();
-            
-            // Atualizar os botões de retirada com base no saldo disponível
-            updateWithdrawButtons();
-        }, 1000); // Simular um tempo de carregamento
+        // Buscar materializações reais da API
+        fetch(`/api/instances/${currentInstanceId}/shop`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao carregar materializações');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Atualizar a escala se retornada pelo backend
+                if (data.socialWorkAndCostScale) {
+                    socialWorkAndCostScale = parseFloat(data.socialWorkAndCostScale);
+                }
+                
+                // Mapear os dados da API para o formato esperado pela interface
+                allProducts = (data.products || []).map(p => ({
+                    id: p.id,
+                    name: p.name,
+                    type: p.type,
+                    price: parseFloat(p.price) || 0,
+                    description: p.name,
+                    imageUrl: null
+                }));
+                
+                // Atualizar label da escala no HTML
+                const scaleLabel = document.querySelector('.info-label-scale');
+                if (scaleLabel) {
+                    scaleLabel.textContent = `ℳ = %${socialWorkAndCostScale.toExponential(0).replace('+', '')}`;
+                }
+                
+                filteredProducts = [...allProducts];
+                renderProducts();
+                updateWithdrawButtons();
+            })
+            .catch(error => {
+                console.error('Erro ao carregar materializações:', error);
+                // Fallback: usar mock se a API falhar
+                allProducts = generateMockProducts();
+                filteredProducts = [...allProducts];
+                renderProducts();
+                updateWithdrawButtons();
+            })
     }
 });
 
@@ -1129,8 +1155,7 @@ function updateWithdrawButtons() {
     });
     
     // Verificar se estamos estourando o saldo do trabalhador
-    // Multiplicamos availableSocialParticipation por 10^8 para obter o valor correto em ℳ
-    const availableBalance = availableSocialParticipation * 100000000;
+    const availableBalance = availableSocialParticipation * socialWorkAndCostScale;
     
     // Se o total no carrinho for maior que o saldo disponível, desabilitar todos os botões
     if (cartTotal > availableBalance) {

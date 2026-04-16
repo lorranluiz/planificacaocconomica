@@ -77,6 +77,9 @@ public interface InstanceRepository extends JpaRepository<Instance, Integer> {
     
     @Query("SELECT COUNT(i) FROM Instance i WHERE i.type = :type AND i.socialMaterialization.id = :materializationId")
     Integer countByTypeAndSocialMaterializationId(InstanceType type, Integer materializationId);
+
+    @Query("SELECT i FROM Instance i WHERE i.type = :type AND i.socialMaterialization.id = :materializationId")
+    List<Instance> findByTypeAndSocialMaterializationId(@Param("type") InstanceType type, @Param("materializationId") Integer materializationId);
     
     /**
      * Busca uma instância por CNPJ

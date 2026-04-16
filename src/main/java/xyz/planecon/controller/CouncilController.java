@@ -13,11 +13,15 @@ import xyz.planecon.dto.EstimatesResponseDTO;
 import xyz.planecon.dto.InstanceDto;
 import xyz.planecon.dto.OptimizationConfigsResponseDTO;
 import xyz.planecon.model.entity.Instance;
+import xyz.planecon.model.entity.WorkersProposal;
 import xyz.planecon.service.CouncilService;
 import xyz.planecon.repository.InstanceRepository;
+import xyz.planecon.repository.WorkersProposalRepository;
+import xyz.planecon.model.enums.InstanceType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -29,6 +33,9 @@ public class CouncilController {
 
     @Autowired
     private InstanceRepository instanceRepository;
+
+    @Autowired
+    private WorkersProposalRepository workersProposalRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(CouncilController.class);
 
@@ -222,13 +229,46 @@ public class CouncilController {
             
             long unixTimestamp = System.currentTimeMillis() / 1000L;
             council.setLastEstimatesSavedAt(unixTimestamp);
+
+            // Calcular totalSocialWork desta jurisdição:
+            // 1. Somar (planifiedProductionTime * producedQuantity) de cada comitê filho
+            // 2. Somar totalSocialWork de cada conselho popular filho
+            BigDecimal totalSocialWork = BigDecimal.ZERO;
+
+            // Comitês filhos deste conselho
+            List<Instance> childCommittees = instanceRepository.findByPopularCouncilAssociatedWithCommitteeOrWorker(council);
+            for (Instance child : childCommittees) {
+                if (child.getType() == InstanceType.COMMITTEE) {
+                    BigDecimal producedQty = child.getProducedQuantity() != null ? child.getProducedQuantity() : BigDecimal.ZERO;
+                    // Obter planifiedProductionTime do WorkersProposal do comitê
+                    List<WorkersProposal> proposals = workersProposalRepository.findByInstanceId(child.getId());
+                    if (!proposals.isEmpty()) {
+                        BigDecimal planifiedProdTime = proposals.get(0).getPlanifiedProductionTime();
+                        if (planifiedProdTime != null) {
+                            totalSocialWork = totalSocialWork.add(planifiedProdTime.multiply(producedQty));
+                        }
+                    }
+                }
+            }
+
+            // Conselhos populares filhos deste conselho
+            List<Instance> childCouncils = instanceRepository.findByPopularCouncilAssociatedWithPopularCouncil(council);
+            for (Instance childCouncil : childCouncils) {
+                if (childCouncil.getTotalSocialWork() != null) {
+                    totalSocialWork = totalSocialWork.add(childCouncil.getTotalSocialWork());
+                }
+            }
+
+            council.setTotalSocialWork(totalSocialWork);
             instanceRepository.save(council);
             
-            logger.info("Timestamp de estimativas salvas atualizado para conselho {}: {}", instanceId, unixTimestamp);
+            logger.info("Timestamp de estimativas salvas atualizado para conselho {}: {}, totalSocialWork: {}",
+                instanceId, unixTimestamp, totalSocialWork);
             
             return ResponseEntity.ok(java.util.Map.of(
                 "success", true,
-                "lastEstimatesSavedAt", unixTimestamp
+                "lastEstimatesSavedAt", unixTimestamp,
+                "totalSocialWork", totalSocialWork
             ));
         } catch (Exception e) {
             logger.error("Erro ao marcar estimativas salvas para conselho {}: {}", instanceId, e.getMessage(), e);
@@ -277,6 +317,30 @@ public class CouncilController {
             if (totalSocialProductionCapacity != null) {
                 plannerCouncil.setTotalSocialProductionCapacity(totalSocialProductionCapacity);
             }
+
+            // Calcular totalSocialWork: somar totalSocialWork de cada conselho popular filho
+            BigDecimal totalSocialWork = BigDecimal.ZERO;
+            List<Instance> childCouncils = instanceRepository.findByPopularCouncilAssociatedWithPopularCouncil(plannerCouncil);
+            for (Instance childCouncil : childCouncils) {
+                if (childCouncil.getTotalSocialWork() != null) {
+                    totalSocialWork = totalSocialWork.add(childCouncil.getTotalSocialWork());
+                }
+            }
+            // Também somar comitês diretamente filhos do Conselho Planificador (se existirem)
+            List<Instance> directCommittees = instanceRepository.findByPopularCouncilAssociatedWithCommitteeOrWorker(plannerCouncil);
+            for (Instance child : directCommittees) {
+                if (child.getType() == InstanceType.COMMITTEE) {
+                    BigDecimal producedQty = child.getProducedQuantity() != null ? child.getProducedQuantity() : BigDecimal.ZERO;
+                    List<WorkersProposal> proposals = workersProposalRepository.findByInstanceId(child.getId());
+                    if (!proposals.isEmpty()) {
+                        BigDecimal planifiedProdTime = proposals.get(0).getPlanifiedProductionTime();
+                        if (planifiedProdTime != null) {
+                            totalSocialWork = totalSocialWork.add(planifiedProdTime.multiply(producedQty));
+                        }
+                    }
+                }
+            }
+            plannerCouncil.setTotalSocialWork(totalSocialWork);
             
             instanceRepository.save(plannerCouncil);
             

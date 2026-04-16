@@ -904,8 +904,32 @@ public class CommitteeController {
 
                         // Atualizar o timestamp de sincronização do comitê com o Conselho Planificador
                         committee.setLastPlannerEstimatesSyncedAt(plannerTimestamp);
+
+                        // Novo ciclo de planificação: zerar quantidade produzida e atualizar meta
+                        committee.setProducedQuantity(BigDecimal.ZERO);
+
+                        // Obter a nova meta de produção do vetor de demanda
+                        if (committee.getSocialMaterialization() != null) {
+                            Integer matId = committee.getSocialMaterialization().getId();
+                            Optional<DemandVector> dvOpt = demandVectorRepository.findByInstanceIdAndSocialMaterializationId(
+                                    committee.getId(), matId);
+                            if (dvOpt.isPresent()) {
+                                committee.setTargetQuantity(dvOpt.get().getDemand());
+                            } else {
+                                Optional<DemandStock> dsOpt = demandStockRepository.findByInstanceIdAndSocialMaterializationId(
+                                        committee.getId(), matId);
+                                if (dsOpt.isPresent()) {
+                                    committee.setTargetQuantity(dsOpt.get().getDemand());
+                                }
+                            }
+                        }
+
                         instanceRepository.save(committee);
-                        logger.info("Timestamp de sincronização com Conselho Planificador atualizado para comitê {}: {}", committee.getId(), plannerTimestamp);
+                        logger.info("Timestamp de sincronização com Conselho Planificador atualizado para comitê {}: {}. ProducedQuantity zerada.", committee.getId(), plannerTimestamp);
+
+                        // Atualizar DTO com os novos valores zerados
+                        committeeStateDTO.setProducedQuantity(BigDecimal.ZERO);
+                        committeeStateDTO.setTargetQuantity(committee.getTargetQuantity());
                     }
                 }
             }

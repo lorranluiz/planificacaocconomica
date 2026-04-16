@@ -3,7 +3,7 @@ let numeroAproximadoDeTrabalhadores = 1600000; //Ordem de trabalhadores, de test
 //let numeroAproximadoDeTrabalhadores = 4000000000; //Para quando forem 4 bilhões de trabalhadores
 //Quando tiver cerca de 4 bilhões (4*10^9) de trabalhadores "1e13", ou seja,
 // (nº trabalhadores /4)*10^4 = 1e13 (aproximadamente, quando 4 bilhões de trabalhadores)
-let socialWorkAndCostScale = (numeroAproximadoDeTrabalhadores/4)*10^4;
+let socialWorkAndCostScale = (numeroAproximadoDeTrabalhadores/4)*Math.pow(10,4);
 let unidade = "ℳ";
 let partipacaoIndividualEstimadaNoTrabalhoSocialOriginal = 0;
 let totalSocialCostDiscount = 0; //Sempre já formatado na escala

@@ -150,6 +150,11 @@ public class Instance {
     // c_total: soma de toda a capacidade produtiva mensal de todos os comitês de todas as materializações
     @Column(name = "total_social_production_capacity", precision = 38, scale = 10)
     private BigDecimal totalSocialProductionCapacity;
+
+    // Trabalho social total desta jurisdição: soma de (planifiedProductionTime * producedQuantity) dos comitês filhos,
+    // ou soma dos totalSocialWork dos conselhos filhos (para conselhos superiores).
+    @Column(name = "total_social_work", precision = 38, scale = 10)
+    private BigDecimal totalSocialWork;
     
     // Relationships
     @JsonIgnoreProperties("instance")
