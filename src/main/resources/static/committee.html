@@ -625,6 +625,8 @@
 
                 <!-- Conteúdo da aba "Capacidade Produtiva Planificada" -->
                 <div id="capacidade-produtiva-planificada-content" class="tab-content active">
+                    <p id="planifiedEmptyMessage" style="color: var(--text-secondary, #666); font-style: italic; margin-top: 10px; display: none;">Nenhuma planificação foi calculada ainda.</p>
+                    <div id="planifiedFieldsContainer">
                     <div class="form-group">
                         <label>Limite de Trabalhadores na Unidade de Produção:</label>
                         <input type="number" id="planifiedWorkerLimit" class="form-control" disabled>
@@ -646,6 +648,7 @@
                         <input type="checkbox" id="planifiedNightShift" disabled>
                     </div>
                     <p class="tab-info-text" style="color: var(--text-secondary, #666); font-style: italic; margin-top: 10px;">Estes dados são somente leitura.</p>
+                    </div>
                 </div>
 
                 <!-- Conteúdo da aba "Capacidade Produtiva em Planejamento" -->

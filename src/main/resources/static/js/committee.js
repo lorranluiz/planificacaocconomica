@@ -1583,11 +1583,22 @@ function openPropostaModal() {
     }
 
     // Preencher campos da aba "Capacidade Produtiva Planificada" (somente leitura)
-    document.getElementById('planifiedWorkerLimit').value = wp.planifiedWorkerLimit || '';
-    document.getElementById('planifiedWorkerHours').value = wp.planifiedWorkerHours || '';
-    document.getElementById('planifiedProductionTime').value = wp.planifiedProductionTime || '';
-    document.getElementById('planifiedWeeklyScale').value = wp.planifiedWeeklyScale || '';
-    document.getElementById('planifiedNightShift').checked = wp.planifiedNightShift || false;
+    const hasPlanifiedData = wp.planifiedWorkerLimit != null || wp.planifiedWorkerHours != null ||
+        wp.planifiedProductionTime != null || wp.planifiedWeeklyScale != null;
+    const planifiedEmptyMessage = document.getElementById('planifiedEmptyMessage');
+    const planifiedFieldsContainer = document.getElementById('planifiedFieldsContainer');
+    if (hasPlanifiedData) {
+        if (planifiedEmptyMessage) planifiedEmptyMessage.style.display = 'none';
+        if (planifiedFieldsContainer) planifiedFieldsContainer.style.display = 'block';
+        document.getElementById('planifiedWorkerLimit').value = wp.planifiedWorkerLimit || '';
+        document.getElementById('planifiedWorkerHours').value = wp.planifiedWorkerHours || '';
+        document.getElementById('planifiedProductionTime').value = wp.planifiedProductionTime || '';
+        document.getElementById('planifiedWeeklyScale').value = wp.planifiedWeeklyScale || '';
+        document.getElementById('planifiedNightShift').checked = wp.planifiedNightShift || false;
+    } else {
+        if (planifiedEmptyMessage) planifiedEmptyMessage.style.display = 'block';
+        if (planifiedFieldsContainer) planifiedFieldsContainer.style.display = 'none';
+    }
     
     // Configurar abas do modal e exibir a primeira aba por padrão
     setupPropostaModalTabs();
