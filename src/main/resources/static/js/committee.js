@@ -2450,7 +2450,7 @@ function displayUnitPlanData(result) {
                 : parseFloat(reqProd).toFixed(2);
         }
         
-        // Participação Estimada: multiplicar por 10^8 para exibição em ℳ (mesmo padrão de worker.html)
+        // Participação Estimada (mensal): multiplicar por 10^8 para exibição em ℳ (mesmo padrão de worker.html)
         if (estimatedPartEl) {
             const participationDisplay = parseFloat(result.estimatedParticipation) * 100000000;
             estimatedPartEl.textContent = participationDisplay.toFixed(2);
