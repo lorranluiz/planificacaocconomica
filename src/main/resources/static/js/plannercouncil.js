@@ -12,6 +12,14 @@ let optimizationResults = [];
 let loadingOrLoaded = true;
 let currentMaterializationId = null; // ID da materialização atualmente selecionada para otimização
 
+// Flags para rastrear a sequência "Calcular Estimativas" → "Planificar" → "Salvar Alterações"
+let estimatesCalculatedSinceLastSave = false; // True quando "Calcular Estimativas" foi executado
+let planificationDoneSinceLastSave = false;   // True quando "Planificar" foi executado (após Calcular Estimativas)
+// Flag de auditoria: indica se o usuário alterou dados (matriz/vetor) após clicar em "Planificar"
+// e antes de clicar em "Salvar Alterações". Usado para registrar possível distorção dos dados
+// planificados no campo planification_data_tampered do banco de dados.
+let dataModifiedAfterPlanification = false;
+
 // Adicione esta função após a declaração de variáveis no início do arquivo
 function loadPreviousResults(instanceId) {
     console.log(`Carregando resultados anteriores da instância ${instanceId}...`);
@@ -1008,6 +1016,18 @@ document.addEventListener('DOMContentLoaded', function() {
     instanceSelect.addEventListener('change', handleInstanceChange);
     planifyButton.addEventListener('click', performPlanification);
     saveButton.addEventListener('click', saveChanges);
+
+    // Rastrear modificações nos dados (matriz e vetor de demanda) após "Planificar"
+    // para detectar possível distorção dos dados planificados (auditoria).
+    document.addEventListener('change', function(e) {
+        if (planificationDoneSinceLastSave && e.target.tagName === 'INPUT') {
+            const inMatrix = e.target.closest('#technologicalMatrix');
+            const inDemand = e.target.closest('#demandVector');
+            if (inMatrix || inDemand) {
+                dataModifiedAfterPlanification = true;
+            }
+        }
+    });
     
     // Botão para calcular estimativas
     const btnCalculateEstimates = document.getElementById('btnCalculateEstimates');
@@ -1400,6 +1420,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 results.scrollIntoView({ behavior: 'smooth' });
                 
                 showSuccess("Planificação concluída com sucesso!");
+
+                // Marcar que a planificação foi executada e resetar flag de modificação pós-planificação
+                planificationDoneSinceLastSave = true;
+                dataModifiedAfterPlanification = false;
             })
             .catch(error => {
                 console.error("Erro durante a planificação:", error);
@@ -1509,6 +1533,14 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!currentInstanceId) {
             showError("Selecione uma instância primeiro");
             return;
+        }
+
+        // Se o usuário clicou em "Planificar" e depois alterou dados antes de salvar,
+        // exibir aviso sobre possível distorção dos dados planificados.
+        if (planificationDoneSinceLastSave && dataModifiedAfterPlanification) {
+            if (!confirm('Depois que clica em "Planificar" você não pode distorcer as informações calculadas, deseja salvar mesmo assim?')) {
+                return;
+            }
         }
         
         // Mostrar spinner de carregamento
@@ -1727,6 +1759,31 @@ document.addEventListener('DOMContentLoaded', function() {
                     window.originalMaterializationIds = [...productIds];
                     
                     showSuccess("Dados salvos com sucesso!");
+
+                    // Se "Calcular Estimativas" e "Planificar" foram executados antes deste save,
+                    // marcar o timestamp no servidor para que os comitês possam sincronizar
+                    // (mover dados de "Capacidade Produtiva em Planejamento" para "Capacidade Produtiva Planificada")
+                    if (estimatesCalculatedSinceLastSave && planificationDoneSinceLastSave && currentInstanceId) {
+                        // O parâmetro tampered indica se o usuário alterou dados após "Planificar"
+                        // antes de "Salvar Alterações" — campo de auditoria (planification_data_tampered)
+                        const tampered = dataModifiedAfterPlanification;
+                        fetch(`/api/council/${currentInstanceId}/mark-planner-estimates-saved?tampered=${tampered}`, {
+                            method: 'POST'
+                        })
+                        .then(res => {
+                            if (res.ok) {
+                                console.log("Timestamp de estimativas planificadas atualizado no Conselho Planificador, tampered:", tampered);
+                            } else {
+                                console.warn("Falha ao atualizar timestamp de estimativas planificadas no Conselho Planificador");
+                            }
+                        })
+                        .catch(err => console.error("Erro ao marcar estimativas planificadas salvas:", err))
+                        .finally(() => {
+                            estimatesCalculatedSinceLastSave = false;
+                            planificationDoneSinceLastSave = false;
+                            dataModifiedAfterPlanification = false;
+                        });
+                    }
                     
                     // Verificar o estado após salvar
                     setTimeout(logDemandVectorStatus, 500);
@@ -1834,6 +1891,8 @@ function calculateEstimates() {
                 'warning'
             );
         });
+
+    estimatesCalculatedSinceLastSave = true;
 }
 
 // Function to update matrix and vector data from UI

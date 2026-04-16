@@ -18,7 +18,17 @@ const pageState = {
         workerHours: 0,
         productionTime: 0,
         nightShift: false,
-        weeklyScale: 5
+        weeklyScale: 5,
+        planningWorkerLimit: null,
+        planningWorkerHours: null,
+        planningProductionTime: null,
+        planningNightShift: null,
+        planningWeeklyScale: null,
+        planifiedWorkerLimit: null,
+        planifiedWorkerHours: null,
+        planifiedProductionTime: null,
+        planifiedNightShift: null,
+        planifiedWeeklyScale: null
     },
 
     // Membros do comitê 
@@ -886,7 +896,17 @@ function resetPageState() {
         workerHours: 0,
         productionTime: 0,
         nightShift: false,
-        weeklyScale: 5
+        weeklyScale: 5,
+        planningWorkerLimit: null,
+        planningWorkerHours: null,
+        planningProductionTime: null,
+        planningNightShift: null,
+        planningWeeklyScale: null,
+        planifiedWorkerLimit: null,
+        planifiedWorkerHours: null,
+        planifiedProductionTime: null,
+        planifiedNightShift: null,
+        planifiedWeeklyScale: null
     };
     
     pageState.members = [];
@@ -1539,6 +1559,35 @@ function openPropostaModal() {
     document.getElementById('productionTimeProposta').value = pageState.workerProposal.productionTime || 0;
     document.getElementById('weeklyScaleProposta').value = pageState.workerProposal.weeklyScale || 5;
     document.getElementById('nightShiftProposta').checked = pageState.workerProposal.nightShift || false;
+
+    // Preencher campos da aba "Capacidade Produtiva em Planejamento" (somente leitura)
+    const wp = pageState.workerProposal;
+
+    // Verificar se há dados de planejamento. Se todos os campos são null/undefined,
+    // mostrar mensagem informativa ao invés dos campos.
+    const hasPlanningData = wp.planningWorkerLimit != null || wp.planningWorkerHours != null ||
+        wp.planningProductionTime != null || wp.planningWeeklyScale != null;
+    const planningEmptyMessage = document.getElementById('planningEmptyMessage');
+    const planningFieldsContainer = document.getElementById('planningFieldsContainer');
+    if (hasPlanningData) {
+        if (planningEmptyMessage) planningEmptyMessage.style.display = 'none';
+        if (planningFieldsContainer) planningFieldsContainer.style.display = 'block';
+        document.getElementById('planningWorkerLimit').value = wp.planningWorkerLimit || '';
+        document.getElementById('planningWorkerHours').value = wp.planningWorkerHours || '';
+        document.getElementById('planningProductionTime').value = wp.planningProductionTime || '';
+        document.getElementById('planningWeeklyScale').value = wp.planningWeeklyScale || '';
+        document.getElementById('planningNightShift').checked = wp.planningNightShift || false;
+    } else {
+        if (planningEmptyMessage) planningEmptyMessage.style.display = 'block';
+        if (planningFieldsContainer) planningFieldsContainer.style.display = 'none';
+    }
+
+    // Preencher campos da aba "Capacidade Produtiva Planificada" (somente leitura)
+    document.getElementById('planifiedWorkerLimit').value = wp.planifiedWorkerLimit || '';
+    document.getElementById('planifiedWorkerHours').value = wp.planifiedWorkerHours || '';
+    document.getElementById('planifiedProductionTime').value = wp.planifiedProductionTime || '';
+    document.getElementById('planifiedWeeklyScale').value = wp.planifiedWeeklyScale || '';
+    document.getElementById('planifiedNightShift').checked = wp.planifiedNightShift || false;
     
     // Configurar abas do modal e exibir a primeira aba por padrão
     setupPropostaModalTabs();
@@ -1554,14 +1603,25 @@ function setupPropostaModalTabs() {
     const tabsContainer = document.getElementById('propostaModalTabs');
     if (!tabsContainer) return;
 
+    // Atualizar textos das abas se necessário (garante atualização mesmo se HTML antigo estiver em cache)
+    const tabTextMap = {
+        'capacidade-produtiva-planificada': 'Capacidade Produtiva Planificada',
+        'capacidade-produtiva-planejamento': 'Capacidade Produtiva em Planejamento',
+        'proposta-capacidade-produtiva-declarada': 'Proposta de Capacidade Produtiva Declarada'
+    };
     const tabs = tabsContainer.querySelectorAll('.tab');
     tabs.forEach(tab => {
+        const dataTab = tab.getAttribute('data-tab');
+        if (tabTextMap[dataTab]) {
+            tab.textContent = tabTextMap[dataTab];
+        }
         const newTab = tab.cloneNode(true);
         tab.parentNode.replaceChild(newTab, tab);
 
         newTab.addEventListener('click', function() {
             tabsContainer.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             const modalBody = document.getElementById('propostaModal').querySelector('.modal-body');
+            // Atualizar seletor para os novos IDs
             modalBody.querySelectorAll(':scope > .tab-content').forEach(c => c.classList.remove('active'));
 
             newTab.classList.add('active');
@@ -1604,14 +1664,12 @@ function savePropostaInputs() {
         return;
     }
     
-    // Atualizar estado com os valores do formulário
-    pageState.workerProposal = {
-        workerLimit,
-        workerHours,
-        productionTime,
-        nightShift,
-        weeklyScale
-    };
+    // Atualizar estado com os valores do formulário, preservando campos de planejamento e planificado
+    pageState.workerProposal.workerLimit = workerLimit;
+    pageState.workerProposal.workerHours = workerHours;
+    pageState.workerProposal.productionTime = productionTime;
+    pageState.workerProposal.nightShift = nightShift;
+    pageState.workerProposal.weeklyScale = weeklyScale;
     
     pageState.isDirty = true;
     

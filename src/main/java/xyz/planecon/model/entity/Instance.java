@@ -129,6 +129,23 @@ public class Instance {
     
     @Column(name = "longitude", precision = 10, scale = 7)
     private BigDecimal longitude;
+
+    @Column(name = "last_estimates_saved_at")
+    private Long lastEstimatesSavedAt;
+
+    @Column(name = "last_council_estimates_synced_at")
+    private Long lastCouncilEstimatesSyncedAt;
+
+    @Column(name = "last_planner_estimates_synced_at")
+    private Long lastPlannerEstimatesSyncedAt;
+
+    // Campo de auditoria: indica se o usuário do Conselho Planificador alterou dados
+    // após clicar em "Planificar" e antes de clicar em "Salvar Alterações".
+    // FALSE = dados íntegros (não manipulados após planificação)
+    // TRUE  = dados alterados após planificação (possível distorção)
+    // Usado para auditoria posterior.
+    @Column(name = "planification_data_tampered")
+    private Boolean planificationDataTampered;
     
     // Relationships
     @JsonIgnoreProperties("instance")

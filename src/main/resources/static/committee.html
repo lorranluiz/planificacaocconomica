@@ -398,7 +398,7 @@
                                     <th id="productNameTechnologicalVector">---</th>
                                     <th>
                                         <div class="controls" id="committeeControls">
-                                            <button id="openPropostaBtn" class="btn">Produtividade</button>
+                                            <button id="openPropostaBtn" class="btn">Capacidade Produtiva</button>
                                         </div>
                                     </th>
                                 </tr>
@@ -605,11 +605,11 @@
         </div>
     </div>
     
-    <!-- Modal "Produtividade" -->
+    <!-- Modal "Capacidade Produtiva" -->
     <div id="propostaModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3>Produtividade</h3>
+                <h3>Capacidade Produtiva</h3>
                 <span class="close" onclick="closePropostaModal()">&times;</span>
             </div>
             <div class="modal-body">
@@ -618,23 +618,66 @@
 
                 <!-- Abas do modal -->
                 <div class="tabs" id="propostaModalTabs">
-                    <div class="tab active" data-tab="produtividade-planificada">Produtividade Planificada</div>
-                    <div class="tab" data-tab="produtividade-planejamento">Produtividade em Planejamento</div>
-                    <div class="tab" data-tab="proposta-produtividade">Proposta de Produtividade</div>
+                    <div class="tab active" data-tab="capacidade-produtiva-planificada">Capacidade Produtiva Planificada</div>
+                    <div class="tab" data-tab="capacidade-produtiva-planejamento">Capacidade Produtiva em Planejamento</div>
+                    <div class="tab" data-tab="proposta-capacidade-produtiva-declarada">Proposta de Capacidade Produtiva Declarada</div>
                 </div>
 
-                <!-- Conteúdo da aba "Produtividade Planificada" -->
-                <div id="produtividade-planificada-content" class="tab-content active">
-                    <!-- Conteúdo será adicionado futuramente -->
+                <!-- Conteúdo da aba "Capacidade Produtiva Planificada" -->
+                <div id="capacidade-produtiva-planificada-content" class="tab-content active">
+                    <div class="form-group">
+                        <label>Limite de Trabalhadores na Unidade de Produção:</label>
+                        <input type="number" id="planifiedWorkerLimit" class="form-control" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Carga Horária Diária (h):</label>
+                        <input type="number" id="planifiedWorkerHours" class="form-control" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Tempo para Produzir 1 Unidade (h):</label>
+                        <input type="number" id="planifiedProductionTime" class="form-control" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Escala semanal (dias):</label>
+                        <input type="number" id="planifiedWeeklyScale" class="form-control" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Turno Noturno:</label>
+                        <input type="checkbox" id="planifiedNightShift" disabled>
+                    </div>
+                    <p class="tab-info-text" style="color: var(--text-secondary, #666); font-style: italic; margin-top: 10px;">Estes dados são somente leitura.</p>
                 </div>
 
-                <!-- Conteúdo da aba "Produtividade em Planejamento" -->
-                <div id="produtividade-planejamento-content" class="tab-content">
-                    <!-- Conteúdo será adicionado futuramente -->
+                <!-- Conteúdo da aba "Capacidade Produtiva em Planejamento" -->
+                <div id="capacidade-produtiva-planejamento-content" class="tab-content">
+                    <p id="planningEmptyMessage" style="color: var(--text-secondary, #666); font-style: italic; margin-top: 10px; display: none;">Nenhuma nova planificação iniciada ainda pelo Conselho Popular superior a esse Comitê.</p>
+                    <div id="planningFieldsContainer">
+                        <div class="form-group">
+                            <label>Limite de Trabalhadores na Unidade de Produção:</label>
+                            <input type="number" id="planningWorkerLimit" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Carga Horária Diária (h):</label>
+                            <input type="number" id="planningWorkerHours" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Tempo para Produzir 1 Unidade (h):</label>
+                            <input type="number" id="planningProductionTime" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Escala semanal (dias):</label>
+                            <input type="number" id="planningWeeklyScale" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Turno Noturno:</label>
+                            <input type="checkbox" id="planningNightShift" disabled>
+                        </div>
+                        <p class="tab-info-text" style="color: var(--text-secondary, #666); font-style: italic; margin-top: 10px;">Estes dados são somente leitura. São atualizados quando o Conselho Popular calcula estimativas e salva alterações.</p>
+                    </div>
                 </div>
 
-                <!-- Conteúdo da aba "Proposta de Produtividade" -->
-                <div id="proposta-produtividade-content" class="tab-content">
+                <!-- Conteúdo da aba "Proposta de Capacidade Produtiva Declarada" -->
+                <div id="proposta-capacidade-produtiva-declarada-content" class="tab-content">
                     <div class="form-group">
                         <label for="workerLimitProposta">Limite de Trabalhadores na Unidade de Produção:</label>
                         <input type="number" id="workerLimitProposta" class="form-control" min="1" required>

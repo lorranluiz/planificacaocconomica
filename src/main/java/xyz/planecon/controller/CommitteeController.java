@@ -202,6 +202,20 @@ public class CommitteeController {
         proposal.setProductionTime(proposalDTO.getProductionTime());
         proposal.setNightShift(proposalDTO.getNightShift());
         proposal.setWeeklyScale(proposalDTO.getWeeklyScale());
+
+        // Atualizar campos de planejamento se fornecidos
+        if (proposalDTO.getPlanningWorkerLimit() != null) proposal.setPlanningWorkerLimit(proposalDTO.getPlanningWorkerLimit());
+        if (proposalDTO.getPlanningWorkerHours() != null) proposal.setPlanningWorkerHours(proposalDTO.getPlanningWorkerHours());
+        if (proposalDTO.getPlanningProductionTime() != null) proposal.setPlanningProductionTime(proposalDTO.getPlanningProductionTime());
+        if (proposalDTO.getPlanningNightShift() != null) proposal.setPlanningNightShift(proposalDTO.getPlanningNightShift());
+        if (proposalDTO.getPlanningWeeklyScale() != null) proposal.setPlanningWeeklyScale(proposalDTO.getPlanningWeeklyScale());
+
+        // Atualizar campos de planificado se fornecidos
+        if (proposalDTO.getPlanifiedWorkerLimit() != null) proposal.setPlanifiedWorkerLimit(proposalDTO.getPlanifiedWorkerLimit());
+        if (proposalDTO.getPlanifiedWorkerHours() != null) proposal.setPlanifiedWorkerHours(proposalDTO.getPlanifiedWorkerHours());
+        if (proposalDTO.getPlanifiedProductionTime() != null) proposal.setPlanifiedProductionTime(proposalDTO.getPlanifiedProductionTime());
+        if (proposalDTO.getPlanifiedNightShift() != null) proposal.setPlanifiedNightShift(proposalDTO.getPlanifiedNightShift());
+        if (proposalDTO.getPlanifiedWeeklyScale() != null) proposal.setPlanifiedWeeklyScale(proposalDTO.getPlanifiedWeeklyScale());
         
         // Salvar a proposta
         workersProposalRepository.save(proposal);
@@ -745,6 +759,20 @@ public class CommitteeController {
                 proposalDTO.setProductionTime(proposal.getProductionTime());
                 proposalDTO.setNightShift(proposal.getNightShift());
                 proposalDTO.setWeeklyScale(proposal.getWeeklyScale());
+
+                // Campos de "Capacidade Produtiva em Planejamento"
+                proposalDTO.setPlanningWorkerLimit(proposal.getPlanningWorkerLimit());
+                proposalDTO.setPlanningWorkerHours(proposal.getPlanningWorkerHours());
+                proposalDTO.setPlanningProductionTime(proposal.getPlanningProductionTime());
+                proposalDTO.setPlanningNightShift(proposal.getPlanningNightShift());
+                proposalDTO.setPlanningWeeklyScale(proposal.getPlanningWeeklyScale());
+
+                // Campos de "Capacidade Produtiva Planificada"
+                proposalDTO.setPlanifiedWorkerLimit(proposal.getPlanifiedWorkerLimit());
+                proposalDTO.setPlanifiedWorkerHours(proposal.getPlanifiedWorkerHours());
+                proposalDTO.setPlanifiedProductionTime(proposal.getPlanifiedProductionTime());
+                proposalDTO.setPlanifiedNightShift(proposal.getPlanifiedNightShift());
+                proposalDTO.setPlanifiedWeeklyScale(proposal.getPlanifiedWeeklyScale());
                 
                 committeeStateDTO.setWorkerProposal(proposalDTO);
             }
@@ -771,6 +799,117 @@ public class CommitteeController {
             // 7. Buscar e preencher materializações associadas
             List<CommitteeStateDTO.MaterializationStateDTO> materializationDTOs = getMaterializationsForCommittee(committee);
             committeeStateDTO.setMaterializations(materializationDTOs);
+
+            // 8. Verificar sincronização com Conselho Popular pai
+            //    Se o conselho pai executou "Calcular Estimativas" + "Salvar Alterações" desde a última sincronização,
+            //    copiar dados da aba "Proposta de Capacidade Produtiva Declarada" para "Capacidade Produtiva em Planejamento"
+            Instance council = committee.getPopularCouncilAssociatedWithCommitteeOrWorker();
+            if (council != null && council.getLastEstimatesSavedAt() != null) {
+                Long councilTimestamp = council.getLastEstimatesSavedAt();
+                Long committeeTimestamp = committee.getLastCouncilEstimatesSyncedAt();
+
+                if (committeeTimestamp == null || !committeeTimestamp.equals(councilTimestamp)) {
+                    logger.info("Sincronizando dados do conselho {} para comitê {}: council_ts={}, committee_ts={}",
+                        council.getId(), committee.getId(), councilTimestamp, committeeTimestamp);
+
+                    // Copiar dados da proposta (aba "Proposta de Capacidade Produtiva Declarada")
+                    // para os campos de planejamento (aba "Capacidade Produtiva em Planejamento")
+                    Optional<WorkersProposal> proposalForSync = workersProposalRepository.findById(proposalId);
+                    if (proposalForSync.isPresent()) {
+                        WorkersProposal wp = proposalForSync.get();
+                        wp.setPlanningWorkerLimit(wp.getWorkerLimit());
+                        wp.setPlanningWorkerHours(wp.getWorkerHours());
+                        wp.setPlanningProductionTime(wp.getProductionTime());
+                        wp.setPlanningNightShift(wp.getNightShift());
+                        wp.setPlanningWeeklyScale(wp.getWeeklyScale());
+                        workersProposalRepository.save(wp);
+
+                        // Atualizar o DTO que será retornado
+                        if (committeeStateDTO.getWorkerProposal() != null) {
+                            CommitteeStateDTO.WorkerProposalDTO wpDTO = committeeStateDTO.getWorkerProposal();
+                            wpDTO.setPlanningWorkerLimit(wp.getWorkerLimit());
+                            wpDTO.setPlanningWorkerHours(wp.getWorkerHours());
+                            wpDTO.setPlanningProductionTime(wp.getProductionTime());
+                            wpDTO.setPlanningNightShift(wp.getNightShift());
+                            wpDTO.setPlanningWeeklyScale(wp.getWeeklyScale());
+                        }
+
+                        logger.info("Dados da proposta copiados para aba de planejamento do comitê {}", committee.getId());
+                    }
+
+                    // Atualizar o timestamp de sincronização do comitê
+                    committee.setLastCouncilEstimatesSyncedAt(councilTimestamp);
+                    instanceRepository.save(committee);
+                    logger.info("Timestamp de sincronização atualizado para comitê {}: {}", committee.getId(), councilTimestamp);
+                }
+            }
+            committeeStateDTO.setLastCouncilEstimatesSyncedAt(committee.getLastCouncilEstimatesSyncedAt());
+
+            // 9. Verificar sincronização com Conselho Planificador
+            //    Se o Conselho Planificador executou "Calcular Estimativas" + "Planificar" + "Salvar Alterações"
+            //    desde a última sincronização, mover dados de "Capacidade Produtiva em Planejamento"
+            //    para "Capacidade Produtiva Planificada" e limpar os campos de planejamento.
+            List<Instance> plannerCouncils = instanceRepository.findByType(InstanceType.PLANNERCOUNCIL);
+            if (!plannerCouncils.isEmpty()) {
+                Instance plannerCouncil = plannerCouncils.get(0); // Só existe um Conselho Planificador
+                if (plannerCouncil.getLastEstimatesSavedAt() != null) {
+                    Long plannerTimestamp = plannerCouncil.getLastEstimatesSavedAt();
+                    Long committeePlannerTimestamp = committee.getLastPlannerEstimatesSyncedAt();
+
+                    if (committeePlannerTimestamp == null || !committeePlannerTimestamp.equals(plannerTimestamp)) {
+                        logger.info("Sincronizando dados do Conselho Planificador {} para comitê {}: planner_ts={}, committee_planner_ts={}",
+                            plannerCouncil.getId(), committee.getId(), plannerTimestamp, committeePlannerTimestamp);
+
+                        // Mover dados de planejamento (planning_*) para planificado (planified_*)
+                        // e limpar os campos de planejamento
+                        Optional<WorkersProposal> proposalForPlannerSync = workersProposalRepository.findById(proposalId);
+                        if (proposalForPlannerSync.isPresent()) {
+                            WorkersProposal wp = proposalForPlannerSync.get();
+
+                            // Copiar planning -> planified
+                            wp.setPlanifiedWorkerLimit(wp.getPlanningWorkerLimit());
+                            wp.setPlanifiedWorkerHours(wp.getPlanningWorkerHours());
+                            wp.setPlanifiedProductionTime(wp.getPlanningProductionTime());
+                            wp.setPlanifiedNightShift(wp.getPlanningNightShift());
+                            wp.setPlanifiedWeeklyScale(wp.getPlanningWeeklyScale());
+
+                            // Limpar campos de planejamento
+                            wp.setPlanningWorkerLimit(null);
+                            wp.setPlanningWorkerHours(null);
+                            wp.setPlanningProductionTime(null);
+                            wp.setPlanningNightShift(null);
+                            wp.setPlanningWeeklyScale(null);
+
+                            workersProposalRepository.save(wp);
+
+                            // Atualizar o DTO que será retornado
+                            if (committeeStateDTO.getWorkerProposal() != null) {
+                                CommitteeStateDTO.WorkerProposalDTO wpDTO = committeeStateDTO.getWorkerProposal();
+                                // Planificado recebe os valores que estavam em planejamento
+                                wpDTO.setPlanifiedWorkerLimit(wp.getPlanifiedWorkerLimit());
+                                wpDTO.setPlanifiedWorkerHours(wp.getPlanifiedWorkerHours());
+                                wpDTO.setPlanifiedProductionTime(wp.getPlanifiedProductionTime());
+                                wpDTO.setPlanifiedNightShift(wp.getPlanifiedNightShift());
+                                wpDTO.setPlanifiedWeeklyScale(wp.getPlanifiedWeeklyScale());
+                                // Planejamento fica vazio
+                                wpDTO.setPlanningWorkerLimit(null);
+                                wpDTO.setPlanningWorkerHours(null);
+                                wpDTO.setPlanningProductionTime(null);
+                                wpDTO.setPlanningNightShift(null);
+                                wpDTO.setPlanningWeeklyScale(null);
+                            }
+
+                            logger.info("Dados de planejamento movidos para planificado no comitê {}", committee.getId());
+                        }
+
+                        // Atualizar o timestamp de sincronização do comitê com o Conselho Planificador
+                        committee.setLastPlannerEstimatesSyncedAt(plannerTimestamp);
+                        instanceRepository.save(committee);
+                        logger.info("Timestamp de sincronização com Conselho Planificador atualizado para comitê {}: {}", committee.getId(), plannerTimestamp);
+                    }
+                }
+            }
+            committeeStateDTO.setLastPlannerEstimatesSyncedAt(committee.getLastPlannerEstimatesSyncedAt());
             
             // Adicionar dados de otimização para o produto principal, se existir
             if (committee.getSocialMaterialization() != null) {

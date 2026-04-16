@@ -39,6 +39,38 @@ public class WorkersProposal {
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    // Campos da aba "Capacidade Produtiva em Planejamento"
+    @Column(name = "planning_worker_limit")
+    private Integer planningWorkerLimit;
+
+    @Column(name = "planning_worker_hours")
+    private BigDecimal planningWorkerHours;
+
+    @Column(name = "planning_production_time")
+    private BigDecimal planningProductionTime;
+
+    @Column(name = "planning_night_shift")
+    private Boolean planningNightShift;
+
+    @Column(name = "planning_weekly_scale")
+    private Integer planningWeeklyScale;
+
+    // Campos da aba "Capacidade Produtiva Planificada"
+    @Column(name = "planified_worker_limit")
+    private Integer planifiedWorkerLimit;
+
+    @Column(name = "planified_worker_hours")
+    private BigDecimal planifiedWorkerHours;
+
+    @Column(name = "planified_production_time")
+    private BigDecimal planifiedProductionTime;
+
+    @Column(name = "planified_night_shift")
+    private Boolean planifiedNightShift;
+
+    @Column(name = "planified_weekly_scale")
+    private Integer planifiedWeeklyScale;
     
     @Data
     @Embeddable

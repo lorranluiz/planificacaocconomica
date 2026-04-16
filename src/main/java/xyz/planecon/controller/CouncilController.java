@@ -203,4 +203,93 @@ public class CouncilController {
             );
         }
     }
+
+    /**
+     * Atualiza o timestamp de última execução de "Calcular Estimativas" + "Salvar Alterações"
+     * no Conselho Popular. Esse timestamp será usado pelos comitês filhos para saber quando
+     * precisam sincronizar os dados da aba "Capacidade Produtiva em Planejamento".
+     * 
+     * @param instanceId ID da instância do conselho popular
+     * @return ResponseEntity com resultado da operação
+     */
+    @PostMapping("/{instanceId}/mark-estimates-saved")
+    public ResponseEntity<?> markEstimatesSaved(@PathVariable Integer instanceId) {
+        logger.info("Marcando estimativas salvas para conselho ID: {}", instanceId);
+        
+        try {
+            Instance council = instanceRepository.findById(instanceId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conselho não encontrado: " + instanceId));
+            
+            long unixTimestamp = System.currentTimeMillis() / 1000L;
+            council.setLastEstimatesSavedAt(unixTimestamp);
+            instanceRepository.save(council);
+            
+            logger.info("Timestamp de estimativas salvas atualizado para conselho {}: {}", instanceId, unixTimestamp);
+            
+            return ResponseEntity.ok(java.util.Map.of(
+                "success", true,
+                "lastEstimatesSavedAt", unixTimestamp
+            ));
+        } catch (Exception e) {
+            logger.error("Erro ao marcar estimativas salvas para conselho {}: {}", instanceId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                java.util.Map.of(
+                    "success", false,
+                    "message", "Erro: " + e.getMessage()
+                )
+            );
+        }
+    }
+
+    /**
+     * Atualiza o timestamp de última execução de "Calcular Estimativas" + "Planificar" + "Salvar Alterações"
+     * no Conselho Planificador. Esse timestamp será usado pelos comitês para saber quando
+     * precisam mover os dados de "Capacidade Produtiva em Planejamento" para "Capacidade Produtiva Planificada".
+     * 
+     * Também registra o campo de auditoria planification_data_tampered, que indica se o usuário
+     * alterou dados após clicar em "Planificar" e antes de "Salvar Alterações".
+     * FALSE = dados íntegros (não manipulados após planificação)
+     * TRUE  = dados alterados após planificação (possível distorção, para auditoria posterior)
+     * 
+     * @param instanceId ID da instância do Conselho Planificador
+     * @param tampered se true, indica que dados foram alterados após "Planificar"
+     * @return ResponseEntity com resultado da operação
+     */
+    @PostMapping("/{instanceId}/mark-planner-estimates-saved")
+    public ResponseEntity<?> markPlannerEstimatesSaved(
+            @PathVariable Integer instanceId,
+            @org.springframework.web.bind.annotation.RequestParam(name = "tampered", defaultValue = "false") boolean tampered) {
+        logger.info("Marcando estimativas planificadas salvas para Conselho Planificador ID: {}, tampered: {}", instanceId, tampered);
+        
+        try {
+            Instance plannerCouncil = instanceRepository.findById(instanceId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conselho Planificador não encontrado: " + instanceId));
+            
+            long unixTimestamp = System.currentTimeMillis() / 1000L;
+            plannerCouncil.setLastEstimatesSavedAt(unixTimestamp);
+
+            // Campo de auditoria: registra se o usuário alterou dados após clicar em "Planificar"
+            // antes de clicar em "Salvar Alterações". Usado para auditoria posterior.
+            plannerCouncil.setPlanificationDataTampered(tampered);
+            
+            instanceRepository.save(plannerCouncil);
+            
+            logger.info("Timestamp de estimativas planificadas atualizado para Conselho Planificador {}: {}, tampered: {}",
+                instanceId, unixTimestamp, tampered);
+            
+            return ResponseEntity.ok(java.util.Map.of(
+                "success", true,
+                "lastEstimatesSavedAt", unixTimestamp,
+                "planificationDataTampered", tampered
+            ));
+        } catch (Exception e) {
+            logger.error("Erro ao marcar estimativas planificadas salvas para Conselho Planificador {}: {}", instanceId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                java.util.Map.of(
+                    "success", false,
+                    "message", "Erro: " + e.getMessage()
+                )
+            );
+        }
+    }
 }

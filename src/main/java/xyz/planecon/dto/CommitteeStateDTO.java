@@ -30,6 +30,10 @@ public class CommitteeStateDTO {
     
     private Map<String, Object> optimizationData;
 
+    private Long lastCouncilEstimatesSyncedAt;
+
+    private Long lastPlannerEstimatesSyncedAt;
+
     // Getters e Setters
     
     public Integer getId() {
@@ -128,6 +132,22 @@ public class CommitteeStateDTO {
         this.optimizationData = optimizationData;
     }
 
+    public Long getLastCouncilEstimatesSyncedAt() {
+        return lastCouncilEstimatesSyncedAt;
+    }
+
+    public void setLastCouncilEstimatesSyncedAt(Long lastCouncilEstimatesSyncedAt) {
+        this.lastCouncilEstimatesSyncedAt = lastCouncilEstimatesSyncedAt;
+    }
+
+    public Long getLastPlannerEstimatesSyncedAt() {
+        return lastPlannerEstimatesSyncedAt;
+    }
+
+    public void setLastPlannerEstimatesSyncedAt(Long lastPlannerEstimatesSyncedAt) {
+        this.lastPlannerEstimatesSyncedAt = lastPlannerEstimatesSyncedAt;
+    }
+
     /**
      * DTO para a proposta de trabalhadores.
      */
@@ -137,6 +157,20 @@ public class CommitteeStateDTO {
         private BigDecimal productionTime;
         private Boolean nightShift;
         private Integer weeklyScale;
+
+        // Campos de "Capacidade Produtiva em Planejamento"
+        private Integer planningWorkerLimit;
+        private BigDecimal planningWorkerHours;
+        private BigDecimal planningProductionTime;
+        private Boolean planningNightShift;
+        private Integer planningWeeklyScale;
+
+        // Campos de "Capacidade Produtiva Planificada"
+        private Integer planifiedWorkerLimit;
+        private BigDecimal planifiedWorkerHours;
+        private BigDecimal planifiedProductionTime;
+        private Boolean planifiedNightShift;
+        private Integer planifiedWeeklyScale;
 
         // Getters e Setters
         public Integer getWorkerLimit() {
@@ -178,6 +212,30 @@ public class CommitteeStateDTO {
         public void setWeeklyScale(Integer weeklyScale) {
             this.weeklyScale = weeklyScale;
         }
+
+        // Getters/Setters - Planning
+        public Integer getPlanningWorkerLimit() { return planningWorkerLimit; }
+        public void setPlanningWorkerLimit(Integer planningWorkerLimit) { this.planningWorkerLimit = planningWorkerLimit; }
+        public BigDecimal getPlanningWorkerHours() { return planningWorkerHours; }
+        public void setPlanningWorkerHours(BigDecimal planningWorkerHours) { this.planningWorkerHours = planningWorkerHours; }
+        public BigDecimal getPlanningProductionTime() { return planningProductionTime; }
+        public void setPlanningProductionTime(BigDecimal planningProductionTime) { this.planningProductionTime = planningProductionTime; }
+        public Boolean getPlanningNightShift() { return planningNightShift; }
+        public void setPlanningNightShift(Boolean planningNightShift) { this.planningNightShift = planningNightShift; }
+        public Integer getPlanningWeeklyScale() { return planningWeeklyScale; }
+        public void setPlanningWeeklyScale(Integer planningWeeklyScale) { this.planningWeeklyScale = planningWeeklyScale; }
+
+        // Getters/Setters - Planified
+        public Integer getPlanifiedWorkerLimit() { return planifiedWorkerLimit; }
+        public void setPlanifiedWorkerLimit(Integer planifiedWorkerLimit) { this.planifiedWorkerLimit = planifiedWorkerLimit; }
+        public BigDecimal getPlanifiedWorkerHours() { return planifiedWorkerHours; }
+        public void setPlanifiedWorkerHours(BigDecimal planifiedWorkerHours) { this.planifiedWorkerHours = planifiedWorkerHours; }
+        public BigDecimal getPlanifiedProductionTime() { return planifiedProductionTime; }
+        public void setPlanifiedProductionTime(BigDecimal planifiedProductionTime) { this.planifiedProductionTime = planifiedProductionTime; }
+        public Boolean getPlanifiedNightShift() { return planifiedNightShift; }
+        public void setPlanifiedNightShift(Boolean planifiedNightShift) { this.planifiedNightShift = planifiedNightShift; }
+        public Integer getPlanifiedWeeklyScale() { return planifiedWeeklyScale; }
+        public void setPlanifiedWeeklyScale(Integer planifiedWeeklyScale) { this.planifiedWeeklyScale = planifiedWeeklyScale; }
     }
 
     /**

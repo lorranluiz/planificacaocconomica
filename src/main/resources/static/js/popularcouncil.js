@@ -11,6 +11,7 @@ const optimizationConfigs = {};
 let optimizationResults = [];
 let originalMaterializationIds = []; // Track IDs that were loaded from the server
 let newlyAddedMaterializationIds = []; // Track IDs that were added but not yet saved
+let estimatesCalculatedSinceLastSave = false; // Flag para rastrear se "Calcular Estimativas" foi executado
 
 // Adicione esta função após a declaração de variáveis no início do arquivo
 function loadPreviousResults(instanceId) {
@@ -1465,6 +1466,25 @@ function saveChanges() {
                 
                 showSuccess("Dados salvos com sucesso!");
                 
+                // Se "Calcular Estimativas" foi executado antes deste save,
+                // marcar o timestamp no servidor para que os comitês filhos possam sincronizar
+                if (estimatesCalculatedSinceLastSave && currentInstanceId) {
+                    fetch(`/api/council/${currentInstanceId}/mark-estimates-saved`, {
+                        method: 'POST'
+                    })
+                    .then(res => {
+                        if (res.ok) {
+                            console.log("Timestamp de estimativas salvas atualizado no conselho");
+                        } else {
+                            console.warn("Falha ao atualizar timestamp de estimativas no conselho");
+                        }
+                    })
+                    .catch(err => console.error("Erro ao marcar estimativas salvas:", err))
+                    .finally(() => {
+                        estimatesCalculatedSinceLastSave = false;
+                    });
+                }
+                
                 // Verificar o estado após salvar
                 setTimeout(logDemandVectorStatus, 500);
             })
@@ -1862,6 +1882,9 @@ function calculateEstimates() {
         showNotification('Selecione uma instância primeiro!', 'error');
         return;
     }
+    
+    // Marcar que estimativas foram calculadas (será usado ao salvar)
+    estimatesCalculatedSinceLastSave = true;
     
     // Primeiro mostrar as instâncias filhas e só depois prosseguir com o cálculo
     loadAndShowChildInstances(instanceId)
