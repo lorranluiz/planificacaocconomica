@@ -133,7 +133,8 @@ public class OptimizationService {
             // CÁLCULOS DE OTIMIZAÇÃO (mesmo algoritmo do JavaScript)
             
             // Cálculo total de horas necessárias para produzir a quantidade desejada
-            double totalHours = productionTime * productionNeeded;
+            // Usa workerHours (Horas de Trabalho por Dia) da configuração de otimização
+            double totalHours = workerHours * productionNeeded;
             
             // Capacidade semanal por trabalhador (em horas)
             double weeklyWorkHoursPerWorker = weeklyScale * workerHours;
@@ -238,7 +239,8 @@ public class OptimizationService {
             boolean nightShift = existingConfig.getNightShift();
             
             // 1. Tempo total de horas necessárias para produzir toda a quantidade
-            double totalHours = productionNeeded * productionTime.doubleValue();
+            // Usa workerHours (Horas de Trabalho por Dia) da configuração de otimização
+            double totalHours = productionNeeded * workerHours.doubleValue();
             
             // 2. Horas de operação diária de uma fábrica (limitada pelas restrições físicas)
             double factoryOperationHours = nightShift ? 24.0 : 8.0;

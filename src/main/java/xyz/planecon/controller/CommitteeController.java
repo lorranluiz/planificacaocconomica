@@ -1355,8 +1355,9 @@ public class CommitteeController {
                 defaultConfig.put("productionNeeded", productionNeeded);
                 
                 // Calcular outros valores necessários
+                // Usa workerHours (Horas de Trabalho por Dia) da configuração de otimização
                 BigDecimal totalHours = productionNeeded.multiply(BigDecimal.valueOf(
-                    (Double) defaultConfig.get("productionTime")));
+                    (Double) defaultConfig.get("workerHours")));
                 defaultConfig.put("totalHours", totalHours);
                 
                 int committeeCount = (int) instanceRepository.countByTypeAndSocialMaterializationId(
@@ -1382,19 +1383,14 @@ public class CommitteeController {
             // MODIFICADO: Garantir que os dados de produção usem valores diretos do banco
             optimizationData.put("productionNeeded", optimizationConfig.getProductionGoal());
             
-            // CORRIGIDO: Garantir que totalHours seja calculado corretamente quando não estiver presente
-            BigDecimal totalHours = optimizationConfig.getTotalHours();
-            if (totalHours == null || totalHours.compareTo(BigDecimal.ZERO) == 0) {
-                // Se não tiver um valor de totalHours armazenado, calcular com base na fórmula:
-                // totalHours = productionNeeded * productionTime
-                BigDecimal productionNeeded = optimizationConfig.getProductionGoal();
-                BigDecimal productionTime = optimizationConfig.getProductionTime();
-                
-                if (productionNeeded != null && productionTime != null) {
-                    totalHours = productionNeeded.multiply(productionTime);
-                } else {
-                    totalHours = BigDecimal.ZERO;
-                }
+            // Calcular totalHours = productionNeeded * workerHours (Horas de Trabalho por Dia)
+            BigDecimal productionNeeded = optimizationConfig.getProductionGoal();
+            BigDecimal workerHoursValue = optimizationConfig.getWorkerHours();
+            BigDecimal totalHours;
+            if (productionNeeded != null && workerHoursValue != null) {
+                totalHours = productionNeeded.multiply(workerHoursValue);
+            } else {
+                totalHours = BigDecimal.ZERO;
             }
             optimizationData.put("totalHours", totalHours);
             

@@ -1705,6 +1705,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         instanceId: currentInstanceId,
                         materializationId: result.materializationId,
                         productionGoal: result.productionNeeded || productionValue || 0,
+                        totalHours: result.totalHours || 0,
                         workersNeeded: requiredWorkers,
                         factoriesNeeded: requiredFactories,
                         minimumProductionTime: result.minimumProductionTimeInDays || 0,
@@ -2849,8 +2850,8 @@ function calculateOptimizationResults(productIndex) {
     result.weeklyScale = config.weeklyScale || 5;
     result.nightShift = config.nightShift || false;
     
-    // Calcular horas totais necessárias
-    const totalHours = productionNeeded * config.productionTime;
+    // Calcular horas totais necessárias (usando Horas de Trabalho por Dia)
+    const totalHours = productionNeeded * config.workerHours;
     result.totalHours = totalHours;
     
     // Calcular horas disponíveis por trabalhador por dia
