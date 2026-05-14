@@ -1484,10 +1484,7 @@ function updateTechnologicalMatrixTable() {
         
         if (isMainProduct) {
             tr.innerHTML = `
-                <td><strong>${mat.name || `Produto #${mat.id}`}</strong> 
-                <span class="badge main-product-badge" title="Materialização social da unidade produtiva gerida por esse comitê">
-                  <i class="fas fa-industry"></i>
-                </span></td>
+                <td><div class="mat-name-inline"><strong>${mat.name || `Produto #${mat.id}`}</strong><span class="badge main-product-badge" title="Materialização social da unidade produtiva gerida por esse comitê"><i class="fas fa-industry"></i></span></div></td>
                 <td class="technological-quantity-cell">
                     <div class="technological-proportion-line">
                         <input type="number" class="form-control technological-quantity-input" 
@@ -1501,6 +1498,16 @@ function updateTechnologicalMatrixTable() {
                 </td>
                 <td class="technological-proportion-cell">
                     <div class="technological-proportion-line">
+                        <input type="text" class="form-control technological-coefficient-display" 
+                               value=""
+                               readonly
+                               tabindex="-1"
+                               aria-readonly="true">
+                        ${standardQuantityHtml}
+                    </div>
+                </td>
+                <td class="technological-product-proportion-cell">
+                    <div class="technological-proportion-line">
                         <input type="text" class="form-control coefficient-input technological-coefficient-display" 
                                value="${formatNumberForDisplay(coeff)}" 
                                data-input-id="${mat.id}" 
@@ -1509,17 +1516,7 @@ function updateTechnologicalMatrixTable() {
                                tabindex="-1"
                                aria-readonly="true"
                                onchange="updateTensorCoefficient(${mat.id}, ${outputMaterializationId}, this)">
-                        ${standardQuantityHtml}
                     </div>
-                </td>
-                <td class="technological-product-proportion-cell">
-                    <input type="number" class="form-control technological-product-proportion-input" 
-                           value="${productUnitProportionDisplay}"
-                           step="any"
-                           inputmode="decimal"
-                           readonly
-                           tabindex="-1"
-                           aria-readonly="true">
                 </td>
                 <td><!-- Espaço para ações (vazio para o produto principal) --></td>
             `;
@@ -1539,6 +1536,16 @@ function updateTechnologicalMatrixTable() {
                 </td>
                 <td class="technological-proportion-cell">
                     <div class="technological-proportion-line">
+                        <input type="text" class="form-control technological-coefficient-display" 
+                               value=""
+                               readonly
+                               tabindex="-1"
+                               aria-readonly="true">
+                        ${standardQuantityHtml}
+                    </div>
+                </td>
+                <td class="technological-product-proportion-cell">
+                    <div class="technological-proportion-line">
                         <input type="text" class="form-control coefficient-input technological-coefficient-display" 
                                value="${formatNumberForDisplay(coeff)}" 
                                data-input-id="${mat.id}" 
@@ -1547,17 +1554,7 @@ function updateTechnologicalMatrixTable() {
                                tabindex="-1"
                                aria-readonly="true"
                                onchange="updateTensorCoefficient(${mat.id}, ${outputMaterializationId}, this)">
-                        ${standardQuantityHtml}
                     </div>
-                </td>
-                <td class="technological-product-proportion-cell">
-                    <input type="number" class="form-control technological-product-proportion-input" 
-                           value="${productUnitProportionDisplay}"
-                           step="any"
-                           inputmode="decimal"
-                           readonly
-                           tabindex="-1"
-                           aria-readonly="true">
                 </td>
                 <td><!-- Aqui poderia ter uma lixeira usando mat.id, mas foi removida para ficar mais clean --></td>
             `;

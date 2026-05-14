@@ -5403,3 +5403,1073 @@ Hibernate:
     0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
     3464 nanoseconds spent executing 1 partial-flushes (flushing a total of 0 entities and 0 collections)
 }
+2026-05-14T01:52:10.613-03:00  INFO 1105667 --- [nio-8080-exec-4] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:52:10.671-03:00  INFO 1105667 --- [nio-8080-exec-7] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:52:10.673-03:00  INFO 1105667 --- [io-8080-exec-10] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:52:10.678-03:00  INFO 1105667 --- [nio-8080-exec-6] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:52:10.678-03:00  INFO 1105667 --- [nio-8080-exec-1] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:52:10.678-03:00  INFO 1105667 --- [nio-8080-exec-8] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:52:10.679-03:00  INFO 1105667 --- [nio-8080-exec-3] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:52:10.680-03:00  INFO 1105667 --- [nio-8080-exec-9] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:52:10.682-03:00  INFO 1105667 --- [nio-8080-exec-2] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:52:10.685-03:00  INFO 1105667 --- [nio-8080-exec-4] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:52:10.684-03:00  INFO 1105667 --- [nio-8080-exec-5] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.last_council_estimates_synced_at,
+        i1_0.last_estimates_saved_at,
+        i1_0.last_planner_estimates_synced_at,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.planification_data_tampered,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_production_capacity,
+        i1_0.total_social_work,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit 
+    from
+        instance i1_0 
+    where
+        i1_0.type=?
+2026-05-14T01:52:10.813-03:00  INFO 1105667 --- [nio-8080-exec-7] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    902887 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    950702 nanoseconds spent preparing 1 JDBC statements;
+    1070913 nanoseconds spent executing 1 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    3897283 nanoseconds spent performing 53 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:52:16.825-03:00  INFO 1105667 --- [io-8080-exec-10] x.p.controller.CommitteeController       : Buscando estado completo para comitê ID: 6111
+2026-05-14T01:52:16.827-03:00  INFO 1105667 --- [io-8080-exec-10] x.p.controller.CommitteeController       : Buscando Conselho Popular para cidade: PETROPOLIS (5877)
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.last_council_estimates_synced_at,
+        i1_0.last_estimates_saved_at,
+        i1_0.last_planner_estimates_synced_at,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.planification_data_tampered,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_production_capacity,
+        i1_0.total_social_work,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit 
+    from
+        instance i1_0 
+    where
+        i1_0.city_code=? 
+        and i1_0.type=?
+2026-05-14T01:52:16.831-03:00  INFO 1105667 --- [io-8080-exec-10] x.p.controller.CommitteeController       : Conselho Popular encontrado: Conselho Popular de PETROPOLIS (ID: 6053)
+Hibernate: 
+    select
+        wp1_0.id_instance,
+        wp1_0.created_at,
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.last_council_estimates_synced_at,
+        i1_0.last_estimates_saved_at,
+        i1_0.last_planner_estimates_synced_at,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.planification_data_tampered,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_production_capacity,
+        i1_0.total_social_work,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit,
+        wp1_0.night_shift,
+        wp1_0.planified_night_shift,
+        wp1_0.planified_production_time,
+        wp1_0.planified_weekly_scale,
+        wp1_0.planified_worker_hours,
+        wp1_0.planified_worker_limit,
+        wp1_0.planning_night_shift,
+        wp1_0.planning_production_time,
+        wp1_0.planning_weekly_scale,
+        wp1_0.planning_worker_hours,
+        wp1_0.planning_worker_limit,
+        wp1_0.production_time,
+        wp1_0.weekly_scale,
+        wp1_0.worker_hours,
+        wp1_0.worker_limit 
+    from
+        workers_proposal wp1_0 
+    join
+        instance i1_0 
+            on i1_0.id=wp1_0.id_instance 
+    where
+        wp1_0.id_instance=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.id_instance,
+        u1_0.name,
+        u1_0.password,
+        u1_0.pronoun,
+        u1_0.type,
+        u1_0.username 
+    from
+        "user" u1_0 
+    where
+        u1_0.id_instance=?
+Hibernate: 
+    select
+        tt1_0.id_production_input,
+        tt1_0.id_instance,
+        tt1_0.id_social_materialization,
+        tt1_0.created_at,
+        tt1_0.technical_coefficient_element_value 
+    from
+        technological_tensor tt1_0 
+    where
+        tt1_0.id_instance=?
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.last_council_estimates_synced_at,
+        i1_0.last_estimates_saved_at,
+        i1_0.last_planner_estimates_synced_at,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.planification_data_tampered,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_production_capacity,
+        i1_0.total_social_work,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit 
+    from
+        instance i1_0 
+    where
+        i1_0.type=?
+Hibernate: 
+    select
+        dv1_0.id_instance,
+        dv1_0.id_social_materialization,
+        dv1_0.created_at,
+        dv1_0.demand 
+    from
+        demand_vector dv1_0 
+    where
+        dv1_0.id_instance=? 
+        and dv1_0.id_social_materialization=?
+Hibernate: 
+    select
+        count(i1_0.id) 
+    from
+        instance i1_0 
+    where
+        i1_0.type=? 
+        and i1_0.id_social_materialization=?
+2026-05-14T01:52:16.848-03:00  INFO 1105667 --- [io-8080-exec-10] x.p.controller.CommitteeController       : Estado completo do comitê 6111 obtido com sucesso
+2026-05-14T01:52:16.850-03:00  INFO 1105667 --- [io-8080-exec-10] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    430973 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    338079 nanoseconds spent preparing 7 JDBC statements;
+    4501490 nanoseconds spent executing 7 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    542528 nanoseconds spent performing 2 L2C puts;
+    261218 nanoseconds spent performing 1 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    234919 nanoseconds spent executing 1 flushes (flushing a total of 8 entities and 15 collections);
+    1340120 nanoseconds spent executing 6 partial-flushes (flushing a total of 28 entities and 28 collections)
+}
+2026-05-14T01:52:16.865-03:00  INFO 1105667 --- [nio-8080-exec-6] x.p.c.SocialMaterializationController    : Obtendo lista estendida de materializações sociais
+Hibernate: 
+    select
+        sm1_0.id,
+        sm1_0.created_at,
+        sm1_0.id_measurement_unit,
+        sm1_0.name,
+        sm1_0.id_sector,
+        sm1_0.standard_quantity_per_unit,
+        sm1_0.type 
+    from
+        social_materialization sm1_0
+Hibernate: 
+    select
+        mu1_0.id,
+        mu1_0.created_at,
+        mu1_0.name 
+    from
+        measurement_unit mu1_0 
+    where
+        mu1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+2026-05-14T01:52:16.884-03:00  INFO 1105667 --- [nio-8080-exec-6] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    29085 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    569194 nanoseconds spent preparing 15 JDBC statements;
+    5412491 nanoseconds spent executing 15 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    1933105 nanoseconds spent performing 14 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    3679 nanoseconds spent executing 1 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:54:24.660-03:00  INFO 1105667 --- [nio-8080-exec-5] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:54:24.710-03:00  INFO 1105667 --- [nio-8080-exec-7] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:54:24.712-03:00  INFO 1105667 --- [io-8080-exec-10] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:54:24.715-03:00  INFO 1105667 --- [nio-8080-exec-6] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:54:24.716-03:00  INFO 1105667 --- [nio-8080-exec-1] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:54:24.716-03:00  INFO 1105667 --- [nio-8080-exec-8] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:54:24.717-03:00  INFO 1105667 --- [nio-8080-exec-3] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:54:24.726-03:00  INFO 1105667 --- [nio-8080-exec-9] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:54:24.726-03:00  INFO 1105667 --- [nio-8080-exec-4] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:54:24.726-03:00  INFO 1105667 --- [nio-8080-exec-2] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:54:24.730-03:00  INFO 1105667 --- [nio-8080-exec-5] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    0 nanoseconds spent acquiring 0 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    0 nanoseconds spent preparing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    0 nanoseconds spent performing 0 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.last_council_estimates_synced_at,
+        i1_0.last_estimates_saved_at,
+        i1_0.last_planner_estimates_synced_at,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.planification_data_tampered,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_production_capacity,
+        i1_0.total_social_work,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit 
+    from
+        instance i1_0 
+    where
+        i1_0.type=?
+2026-05-14T01:54:24.801-03:00  INFO 1105667 --- [nio-8080-exec-7] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    666853 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    744883 nanoseconds spent preparing 1 JDBC statements;
+    1326528 nanoseconds spent executing 1 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    3661462 nanoseconds spent performing 53 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    0 nanoseconds spent executing 0 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
+2026-05-14T01:54:28.215-03:00  INFO 1105667 --- [io-8080-exec-10] x.p.controller.CommitteeController       : Buscando estado completo para comitê ID: 6111
+2026-05-14T01:54:28.216-03:00  INFO 1105667 --- [io-8080-exec-10] x.p.controller.CommitteeController       : Buscando Conselho Popular para cidade: PETROPOLIS (5877)
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.last_council_estimates_synced_at,
+        i1_0.last_estimates_saved_at,
+        i1_0.last_planner_estimates_synced_at,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.planification_data_tampered,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_production_capacity,
+        i1_0.total_social_work,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit 
+    from
+        instance i1_0 
+    where
+        i1_0.city_code=? 
+        and i1_0.type=?
+2026-05-14T01:54:28.219-03:00  INFO 1105667 --- [io-8080-exec-10] x.p.controller.CommitteeController       : Conselho Popular encontrado: Conselho Popular de PETROPOLIS (ID: 6053)
+Hibernate: 
+    select
+        wp1_0.id_instance,
+        wp1_0.created_at,
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.last_council_estimates_synced_at,
+        i1_0.last_estimates_saved_at,
+        i1_0.last_planner_estimates_synced_at,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.planification_data_tampered,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_production_capacity,
+        i1_0.total_social_work,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit,
+        wp1_0.night_shift,
+        wp1_0.planified_night_shift,
+        wp1_0.planified_production_time,
+        wp1_0.planified_weekly_scale,
+        wp1_0.planified_worker_hours,
+        wp1_0.planified_worker_limit,
+        wp1_0.planning_night_shift,
+        wp1_0.planning_production_time,
+        wp1_0.planning_weekly_scale,
+        wp1_0.planning_worker_hours,
+        wp1_0.planning_worker_limit,
+        wp1_0.production_time,
+        wp1_0.weekly_scale,
+        wp1_0.worker_hours,
+        wp1_0.worker_limit 
+    from
+        workers_proposal wp1_0 
+    join
+        instance i1_0 
+            on i1_0.id=wp1_0.id_instance 
+    where
+        wp1_0.id_instance=?
+Hibernate: 
+    select
+        u1_0.id,
+        u1_0.created_at,
+        u1_0.id_instance,
+        u1_0.name,
+        u1_0.password,
+        u1_0.pronoun,
+        u1_0.type,
+        u1_0.username 
+    from
+        "user" u1_0 
+    where
+        u1_0.id_instance=?
+Hibernate: 
+    select
+        tt1_0.id_production_input,
+        tt1_0.id_instance,
+        tt1_0.id_social_materialization,
+        tt1_0.created_at,
+        tt1_0.technical_coefficient_element_value 
+    from
+        technological_tensor tt1_0 
+    where
+        tt1_0.id_instance=?
+Hibernate: 
+    select
+        i1_0.id,
+        i1_0.address_complement,
+        i1_0.id_associated_worker_committee,
+        i1_0.city,
+        i1_0.city_code,
+        i1_0.cnpj,
+        i1_0.committee_name,
+        i1_0.continent,
+        i1_0.country,
+        i1_0.created_at,
+        i1_0.estimated_individual_participation_in_social_work,
+        i1_0.hours_at_electronic_point,
+        i1_0.id_associated_worker_residents_association,
+        i1_0.last_council_estimates_synced_at,
+        i1_0.last_estimates_saved_at,
+        i1_0.last_planner_estimates_synced_at,
+        i1_0.latitude,
+        i1_0.longitude,
+        i1_0.planification_data_tampered,
+        i1_0.popular_council_associated_with_committee_or_worker,
+        i1_0.popular_council_associated_with_popular_council,
+        i1_0.postal_code,
+        i1_0.produced_quantity,
+        i1_0.id_social_materialization,
+        i1_0.state,
+        i1_0.street,
+        i1_0.street_number,
+        i1_0.suburb,
+        i1_0.target_quantity,
+        i1_0.total_social_production_capacity,
+        i1_0.total_social_work,
+        i1_0.total_social_work_of_this_jurisdiction,
+        i1_0.type,
+        i1_0.worker_effective_limit 
+    from
+        instance i1_0 
+    where
+        i1_0.type=?
+Hibernate: 
+    select
+        dv1_0.id_instance,
+        dv1_0.id_social_materialization,
+        dv1_0.created_at,
+        dv1_0.demand 
+    from
+        demand_vector dv1_0 
+    where
+        dv1_0.id_instance=? 
+        and dv1_0.id_social_materialization=?
+Hibernate: 
+    select
+        count(i1_0.id) 
+    from
+        instance i1_0 
+    where
+        i1_0.type=? 
+        and i1_0.id_social_materialization=?
+2026-05-14T01:54:28.235-03:00  INFO 1105667 --- [io-8080-exec-10] x.p.controller.CommitteeController       : Estado completo do comitê 6111 obtido com sucesso
+2026-05-14T01:54:28.238-03:00  INFO 1105667 --- [io-8080-exec-10] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    408243 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    442025 nanoseconds spent preparing 7 JDBC statements;
+    4761173 nanoseconds spent executing 7 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    320510 nanoseconds spent performing 2 L2C puts;
+    174396 nanoseconds spent performing 1 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    364217 nanoseconds spent executing 1 flushes (flushing a total of 8 entities and 15 collections);
+    1803854 nanoseconds spent executing 6 partial-flushes (flushing a total of 28 entities and 28 collections)
+}
+2026-05-14T01:54:28.252-03:00  INFO 1105667 --- [nio-8080-exec-6] x.p.c.SocialMaterializationController    : Obtendo lista estendida de materializações sociais
+Hibernate: 
+    select
+        sm1_0.id,
+        sm1_0.created_at,
+        sm1_0.id_measurement_unit,
+        sm1_0.name,
+        sm1_0.id_sector,
+        sm1_0.standard_quantity_per_unit,
+        sm1_0.type 
+    from
+        social_materialization sm1_0
+Hibernate: 
+    select
+        mu1_0.id,
+        mu1_0.created_at,
+        mu1_0.name 
+    from
+        measurement_unit mu1_0 
+    where
+        mu1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+Hibernate: 
+    select
+        s1_0.id,
+        s1_0.created_at,
+        s1_0.name 
+    from
+        sector s1_0 
+    where
+        s1_0.id=?
+2026-05-14T01:54:28.272-03:00  INFO 1105667 --- [nio-8080-exec-6] i.StatisticalLoggingSessionEventListener : Session Metrics {
+    24209 nanoseconds spent acquiring 1 JDBC connections;
+    0 nanoseconds spent releasing 0 JDBC connections;
+    600021 nanoseconds spent preparing 15 JDBC statements;
+    6486936 nanoseconds spent executing 15 JDBC statements;
+    0 nanoseconds spent executing 0 JDBC batches;
+    1777417 nanoseconds spent performing 14 L2C puts;
+    0 nanoseconds spent performing 0 L2C hits;
+    0 nanoseconds spent performing 0 L2C misses;
+    0 nanoseconds spent executing 0 flushes (flushing a total of 0 entities and 0 collections);
+    3693 nanoseconds spent executing 1 partial-flushes (flushing a total of 0 entities and 0 collections)
+}
