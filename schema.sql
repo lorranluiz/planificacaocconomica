@@ -2,7 +2,7 @@
 -- PostgreSQL database dump
 --
 
-\restrict erv5MJTDIb9gge5VDXYUDOx77p5DQq12TlGYbruKql1mMvlTuz5tfBTmCiFRgaM
+\restrict r2HnwptJxamREFlMfyNuqEb2Q0iub1g9v9wf0UWt6ifcQ0dTjAAmNNwkKB00lDd
 
 -- Dumped from database version 18.3 (Ubuntu 18.3-1)
 -- Dumped by pg_dump version 18.3 (Ubuntu 18.3-1)
@@ -400,10 +400,10 @@ CREATE TABLE public.instance (
     last_estimates_saved_at bigint,
     last_council_estimates_synced_at bigint,
     last_planner_estimates_synced_at bigint,
-    technological_quantities_by_materialization jsonb,
     planification_data_tampered boolean,
     total_social_production_capacity numeric(38,10),
     total_social_work numeric(38,10) DEFAULT 0,
+    technological_quantities_by_materialization jsonb,
     CONSTRAINT chk_committee_columns CHECK ((((type)::text <> 'COMMITTEE'::text) OR ((committee_name IS NOT NULL) AND (popular_council_associated_with_committee_or_worker IS NOT NULL) AND (total_social_work_of_this_jurisdiction IS NOT NULL) AND (id_social_materialization IS NOT NULL) AND (produced_quantity IS NOT NULL) AND (target_quantity IS NOT NULL) AND (produced_quantity < target_quantity)))),
     CONSTRAINT chk_council_columns CHECK ((((type)::text <> 'COUNCIL'::text) OR ((total_social_work_of_this_jurisdiction IS NOT NULL) AND (popular_council_associated_with_popular_council IS NOT NULL)))),
     CONSTRAINT chk_worker_columns CHECK ((((type)::text <> 'WORKER'::text) OR ((popular_council_associated_with_committee_or_worker IS NOT NULL) AND (id_associated_worker_committee IS NOT NULL) AND (id_associated_worker_residents_association = 0) AND (estimated_individual_participation_in_social_work IS NOT NULL) AND (hours_at_electronic_point IS NOT NULL)))),
@@ -1417,5 +1417,5 @@ ALTER TABLE ONLY public.instance
 -- PostgreSQL database dump complete
 --
 
-\unrestrict erv5MJTDIb9gge5VDXYUDOx77p5DQq12TlGYbruKql1mMvlTuz5tfBTmCiFRgaM
+\unrestrict r2HnwptJxamREFlMfyNuqEb2Q0iub1g9v9wf0UWt6ifcQ0dTjAAmNNwkKB00lDd
 
