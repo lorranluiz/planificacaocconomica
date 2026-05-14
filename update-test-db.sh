@@ -5,6 +5,8 @@
 # Uso: ./update-test-db.sh
 # Gera um novo dump comprimido a partir do estado atual do banco,
 # sobrescrevendo o arquivo anterior.
+# Depois de mudanças estruturais no banco, também regenere schema.sql
+# e qualquer snapshot auxiliar de schema antes de publicar a atualização.
 # =============================================================
 
 set -e

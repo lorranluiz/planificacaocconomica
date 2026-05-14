@@ -77,6 +77,8 @@
                             <th>ID</th>
                             <th>Nome</th>
                             <th>Tipo</th>
+                            <th>Qtd. Padrão</th>
+                            <th>Unidade</th>
                             <th>Setor</th>
                             <th>Criado em</th>
                         </tr>
@@ -118,6 +120,35 @@
                         <button type="button" class="secondary" style="min-width: 80px" onclick="window.location.href = '/sectors.html?_t=' + Date.now() + '#create'">Novo</button>
                     </div>
                 </div>
+
+                <div class="form-group">
+                    <label>Grandeza Padrão<span class="required">*</span></label>
+                    <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 220px;">
+                            <label for="standardQuantityPerUnit" style="font-size: 0.9rem; margin-bottom: 6px; display: block;">Quantidade Padrão de 1 unidade</label>
+                            <input type="number" id="standardQuantityPerUnit" name="standardQuantityPerUnit" step="any" min="0" placeholder="Ex.: 1, 0.5, 2.75" required>
+                        </div>
+                        <div style="flex: 1; min-width: 220px;">
+                            <label for="measurementUnit" style="font-size: 0.9rem; margin-bottom: 6px; display: block;">Unidade de Medida</label>
+                            <select id="measurementUnit" name="measurementUnit" required>
+                                <option value="">Carregando unidades...</option>
+                            </select>
+                        </div>
+                        <div id="unitButtonsNormal" style="display: flex; gap: 8px; align-items: flex-end;">
+                            <button type="button" id="newUnitButton" class="secondary">Nova Unidade</button>
+                            <button type="button" id="prepareDeleteUnitButton" class="danger">Excluir uma Unidade</button>
+                        </div>
+                        <div id="unitButtonsDeleteMode" style="display: none; align-items: flex-end;">
+                            <button type="button" id="confirmDeleteUnitButton" class="danger">Excluir</button>
+                        </div>
+                    </div>
+                    <div id="newUnitInputContainer" style="display: none; margin-top: 10px;">
+                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                            <input type="text" id="newUnitInput" placeholder="Digite a nova unidade" maxlength="30" style="max-width: 280px;">
+                            <button type="button" id="saveNewUnitButton" class="secondary">Salvar Unidade</button>
+                        </div>
+                    </div>
+                </div>
                 
                 <div class="form-buttons">
                     <button type="button" id="cancelButton" class="danger">Cancelar</button>
@@ -148,10 +179,23 @@
             const formErrorMessage = document.getElementById('formErrorMessage');
             const formSuccessMessage = document.getElementById('formSuccessMessage');
             const sectorSelect = document.getElementById('sector');
+            const measurementUnitSelect = document.getElementById('measurementUnit');
+            const standardQuantityPerUnitInput = document.getElementById('standardQuantityPerUnit');
             const submitButton = document.getElementById('submitButton');
             const cancelButton = document.getElementById('cancelButton');
+            const newUnitButton = document.getElementById('newUnitButton');
+            const prepareDeleteUnitButton = document.getElementById('prepareDeleteUnitButton');
+            const confirmDeleteUnitButton = document.getElementById('confirmDeleteUnitButton');
+            const saveNewUnitButton = document.getElementById('saveNewUnitButton');
+            const unitButtonsNormal = document.getElementById('unitButtonsNormal');
+            const unitButtonsDeleteMode = document.getElementById('unitButtonsDeleteMode');
+            const newUnitInputContainer = document.getElementById('newUnitInputContainer');
+            const newUnitInput = document.getElementById('newUnitInput');
             const tabs = document.querySelectorAll('.tab');
             const tabContents = document.querySelectorAll('.tab-content');
+
+            let isDeleteUnitMode = false;
+            let cachedUnits = [];
             
             console.log('[INIT] Número de abas encontradas:', tabs.length);
             console.log('[INIT] Número de tab-contents encontrados:', tabContents.length);
@@ -190,6 +234,7 @@
                     
                     // Carregar setores para o formulário de cadastro
                     loadSectors();
+                    loadMeasurementUnits();
                 } else {
                     console.error('[TAB] ❌ Erro: elementos da aba não encontrados!');
                 }
@@ -223,10 +268,94 @@
                     // Se a aba for de cadastro, carregar setores
                     if (tabId === 'create') {
                         loadSectors();
+                        loadMeasurementUnits();
                     } else if (tabId === 'list') {
                         loadMaterializations();
                     }
                 });
+            });
+
+            newUnitButton.addEventListener('click', () => {
+                newUnitInputContainer.style.display = 'block';
+                newUnitInput.focus();
+            });
+
+            saveNewUnitButton.addEventListener('click', async () => {
+                const name = newUnitInput.value.trim();
+                if (!name) {
+                    formErrorMessage.textContent = 'Digite o nome da nova unidade.';
+                    formErrorMessage.style.display = 'block';
+                    return;
+                }
+
+                formErrorMessage.style.display = 'none';
+                try {
+                    const response = await fetch('/api/measurement-units', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name })
+                    });
+
+                    const payload = await response.json();
+                    if (!response.ok) {
+                        throw new Error(payload.message || 'Erro ao cadastrar unidade');
+                    }
+
+                    await loadMeasurementUnits(payload.id);
+                    newUnitInput.value = '';
+                    newUnitInputContainer.style.display = 'none';
+                } catch (err) {
+                    formErrorMessage.textContent = 'Erro ao cadastrar unidade: ' + err.message;
+                    formErrorMessage.style.display = 'block';
+                }
+            });
+
+            prepareDeleteUnitButton.addEventListener('click', () => {
+                if (!cachedUnits.length) {
+                    formErrorMessage.textContent = 'Não há unidades para excluir.';
+                    formErrorMessage.style.display = 'block';
+                    return;
+                }
+                isDeleteUnitMode = true;
+                formErrorMessage.style.display = 'none';
+                newUnitInputContainer.style.display = 'none';
+                unitButtonsNormal.style.display = 'none';
+                unitButtonsDeleteMode.style.display = 'flex';
+                measurementUnitSelect.innerHTML = '<option value="">Escolha uma unidade para excluir</option>';
+                cachedUnits.forEach(unit => {
+                    const option = document.createElement('option');
+                    option.value = unit.id;
+                    option.textContent = unit.name;
+                    measurementUnitSelect.appendChild(option);
+                });
+            });
+
+            confirmDeleteUnitButton.addEventListener('click', async () => {
+                const selectedId = parseInt(measurementUnitSelect.value, 10);
+                if (!selectedId) {
+                    formErrorMessage.textContent = 'Escolha uma unidade para excluir.';
+                    formErrorMessage.style.display = 'block';
+                    return;
+                }
+
+                formErrorMessage.style.display = 'none';
+                try {
+                    const response = await fetch(`/api/measurement-units/${selectedId}`, {
+                        method: 'DELETE'
+                    });
+                    const payload = await response.json();
+                    if (!response.ok) {
+                        throw new Error(payload.message || 'Erro ao excluir unidade');
+                    }
+
+                    isDeleteUnitMode = false;
+                    unitButtonsDeleteMode.style.display = 'none';
+                    unitButtonsNormal.style.display = 'flex';
+                    await loadMeasurementUnits();
+                } catch (err) {
+                    formErrorMessage.textContent = 'Erro ao excluir unidade: ' + err.message;
+                    formErrorMessage.style.display = 'block';
+                }
             });
             
             // Verificar se deve abrir a aba de cadastro (via hash #create)
@@ -234,6 +363,8 @@
             console.log('[HASH] URL completa:', window.location.href);
             console.log('[HASH] Hash da URL:', currentHash);
             console.log('[HASH] Deve abrir aba de cadastro?', currentHash === '#create');
+
+            loadMeasurementUnits();
             
             if (currentHash === '#create') {
                 // Usar setTimeout para garantir que o CSS esteja aplicado
@@ -261,7 +392,7 @@
                 error.style.display = 'none';
                 
                 // Fazer requisição ao endpoint
-                fetch('/api/social-materializations')
+                fetch('/api/social-materializations/full')
                     .then(response => {
                         if (!response.ok) {
                             // Tentar extrair mensagem de erro se disponível
@@ -314,7 +445,9 @@
                                 <td>${item.id || ''}</td>
                                 <td>${item.name || ''}</td>
                                 <td>${formatType(item.type) || ''}</td>
-                                <td>${item.sector ? item.sector.name : '-'}</td>
+                                <td>${formatNumber(item.standardQuantityPerUnit) || '-'}</td>
+                                <td>${item.measurementUnitName || '-'}</td>
+                                <td>${item.sector ? item.sector.name : (item.sectorName || '-')}</td>
                                 <td>${createdAt || '-'}</td>
                             `;
                             
@@ -331,6 +464,42 @@
                         error.style.display = 'block';
                     });
             }
+
+                async function loadMeasurementUnits(preferredUnitId = null) {
+                    measurementUnitSelect.innerHTML = '<option value="">Carregando unidades...</option>';
+                    measurementUnitSelect.disabled = true;
+                    try {
+                        const response = await fetch('/api/measurement-units');
+                        if (!response.ok) {
+                            throw new Error(`Falha ao carregar unidades: ${response.status}`);
+                        }
+
+                        const units = await response.json();
+                        cachedUnits = Array.isArray(units) ? units : [];
+
+                        measurementUnitSelect.innerHTML = isDeleteUnitMode
+                            ? '<option value="">Escolha uma unidade para excluir</option>'
+                            : '<option value="">Selecione uma unidade...</option>';
+
+                        cachedUnits.forEach(unit => {
+                            const option = document.createElement('option');
+                            option.value = unit.id;
+                            option.textContent = unit.name;
+                            measurementUnitSelect.appendChild(option);
+                        });
+
+                        if (preferredUnitId) {
+                            measurementUnitSelect.value = String(preferredUnitId);
+                        }
+
+                        measurementUnitSelect.disabled = false;
+                    } catch (err) {
+                        console.error('Erro ao carregar unidades:', err);
+                        formErrorMessage.textContent = 'Erro ao carregar unidades: ' + err.message;
+                        formErrorMessage.style.display = 'block';
+                        measurementUnitSelect.innerHTML = '<option value="">Erro ao carregar unidades</option>';
+                    }
+                }
             
             // ----------------- CARREGAR SETORES -----------------
             async function loadSectors() {
@@ -400,11 +569,13 @@
                 const formData = {
                     name: document.getElementById('name').value,
                     type: document.getElementById('type').value,
-                    sectorId: parseInt(document.getElementById('sector').value)
+                    sectorId: parseInt(document.getElementById('sector').value),
+                    standardQuantityPerUnit: standardQuantityPerUnitInput.value,
+                    measurementUnitId: parseInt(measurementUnitSelect.value)
                 };
                 
                 // Validação básica
-                if (!formData.name || !formData.type || !formData.sectorId) {
+                if (!formData.name || !formData.type || !formData.sectorId || !formData.standardQuantityPerUnit || !formData.measurementUnitId) {
                     formErrorMessage.textContent = 'Por favor, preencha todos os campos obrigatórios.';
                     formErrorMessage.style.display = 'block';
                     return;
@@ -443,6 +614,11 @@
                     
                     // Limpar o formulário
                     createForm.reset();
+                    await loadMeasurementUnits();
+                    newUnitInputContainer.style.display = 'none';
+                    isDeleteUnitMode = false;
+                    unitButtonsDeleteMode.style.display = 'none';
+                    unitButtonsNormal.style.display = 'flex';
                     
                     // Após 3 segundos, redirecionar para a aba de listagem
                     setTimeout(() => {
@@ -465,6 +641,10 @@
                 createForm.reset();
                 formErrorMessage.style.display = 'none';
                 formSuccessMessage.style.display = 'none';
+                newUnitInputContainer.style.display = 'none';
+                isDeleteUnitMode = false;
+                unitButtonsDeleteMode.style.display = 'none';
+                unitButtonsNormal.style.display = 'flex';
                 document.querySelector('.tab[data-tab="list"]').click();
             });
             
@@ -473,6 +653,20 @@
                 if (type === 'SERVICE') return 'SERVIÇO';
                 if (type === 'PRODUCT') return 'PRODUTO';
                 return type;
+            }
+
+            function formatNumber(value) {
+                if (value === undefined || value === null || value === '') {
+                    return '';
+                }
+                const number = Number(value);
+                if (Number.isNaN(number)) {
+                    return String(value);
+                }
+                return number.toLocaleString('pt-BR', {
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 6
+                });
             }
         }
         

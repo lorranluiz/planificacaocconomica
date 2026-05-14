@@ -49,12 +49,18 @@ const pageState = {
 const globalState = {
     // Lista completa de todas as materializações disponíveis
     allMaterializations: [],
+    // Metadados completos das materializações, usados para exibição da matriz tecnológica
+    materializationMetadataById: {},
+    materializationMetadataLoaded: false,
+    materializationMetadataPromise: null,
     // Flag para controlar se já carregamos todas as materializações do servidor
     materializationsLoaded: false,
     // Flag para controlar se o dropdown está visível
     dropdownVisible: false,
     // Flag para controlar se estamos carregando dados
-    loadingMaterializations: false
+    loadingMaterializations: false,
+    // Valores locais da coluna Quantidade no vetor tecnológico
+    technologicalQuantities: {}
 };
 
 // Cache de dados em memória para reduzir chamadas ao servidor
@@ -133,6 +139,143 @@ function parseDecimalInput(value) {
     }
     
     return parsed;
+}
+
+function formatNumberForInput(value) {
+    if (value === null || value === undefined || value === '') return '';
+
+    const normalizedValue = value.toString().replace(',', '.');
+    const parsed = parseFloat(normalizedValue);
+
+    if (isNaN(parsed)) return '';
+
+    return parsed.toString();
+}
+
+function formatOptionalNumberForDisplay(value) {
+    if (value === null || value === undefined || value === '') return '';
+    return formatNumberForDisplay(value);
+}
+
+function escapeHtml(value) {
+    return String(value ?? '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function getMaterializationMeasurementUnitLabel(materialization) {
+    if (!materialization) return '';
+
+    const measurementUnit = materialization.measurementUnit || {};
+    return materialization.measurementUnitName
+        || measurementUnit.name
+        || measurementUnit.symbol
+        || measurementUnit.abbreviation
+        || '';
+}
+
+function getMaterializationStandardQuantityLabel(materialization) {
+    if (!materialization) return '';
+
+    const standardQuantity = materialization.standardQuantityPerUnit;
+    if (standardQuantity === null || standardQuantity === undefined || standardQuantity === '') {
+        return '';
+    }
+
+    const quantityText = formatNumberForDisplay(standardQuantity);
+    const unitLabel = getMaterializationMeasurementUnitLabel(materialization);
+
+    return unitLabel ? `${quantityText} ${unitLabel}` : quantityText;
+}
+
+function getTechnologicalQuantityValue(materialization) {
+    if (!materialization) return '';
+
+    const localValue = globalState.technologicalQuantities[materialization.id];
+    if (localValue !== undefined && localValue !== null && localValue !== '') {
+        return localValue;
+    }
+
+    if (materialization.quantity !== undefined && materialization.quantity !== null && materialization.quantity !== '') {
+        return materialization.quantity;
+    }
+
+    return '';
+}
+
+function updateTechnologicalQuantity(materializationId, input) {
+    if (!input) return;
+
+    globalState.technologicalQuantities[materializationId] = input.value;
+}
+
+function loadMaterializationMetadata() {
+    if (globalState.materializationMetadataLoaded) {
+        return Promise.resolve(globalState.materializationMetadataById);
+    }
+
+    if (globalState.materializationMetadataPromise) {
+        return globalState.materializationMetadataPromise;
+    }
+
+    globalState.materializationMetadataPromise = fetch('/api/social-materializations/full', {
+        headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro ao carregar metadados das materializações');
+        }
+        return response.json();
+    })
+    .then(materializations => {
+        const metadataById = {};
+
+        (materializations || []).forEach(materialization => {
+            metadataById[materialization.id] = materialization;
+        });
+
+        globalState.materializationMetadataById = metadataById;
+        globalState.materializationMetadataLoaded = true;
+
+        return metadataById;
+    })
+    .catch(error => {
+        console.error('Erro ao carregar metadados das materializações:', error);
+        return globalState.materializationMetadataById;
+    })
+    .finally(() => {
+        globalState.materializationMetadataPromise = null;
+    });
+
+    return globalState.materializationMetadataPromise;
+}
+
+function enrichMaterializationsWithMetadata(materializations) {
+    if (!Array.isArray(materializations) || materializations.length === 0) {
+        return materializations || [];
+    }
+
+    return materializations.map(materialization => {
+        const metadata = globalState.materializationMetadataById[materialization.id];
+        if (!metadata) {
+            return materialization;
+        }
+
+        return {
+            ...materialization,
+            measurementUnit: materialization.measurementUnit || metadata.measurementUnit || null,
+            measurementUnitId: materialization.measurementUnitId ?? metadata.measurementUnitId,
+            measurementUnitName: materialization.measurementUnitName || metadata.measurementUnitName || '',
+            standardQuantityPerUnit: materialization.standardQuantityPerUnit ?? metadata.standardQuantityPerUnit
+        };
+    });
 }
 
 // LOG DE INICIALIZAÇÃO
@@ -605,6 +748,13 @@ function loadAllMaterializations() {
     });
 }
 
+function refreshTechnologicalMatrixMetadata() {
+    return loadMaterializationMetadata().then(() => {
+        pageState.materializations = enrichMaterializationsWithMetadata(pageState.materializations);
+        updateAllUI();
+    });
+}
+
 /**
  * Abre o modal de seleção de materialização para adicionar
  * à matriz tecnológica ou tabela de estoque/demanda
@@ -796,6 +946,7 @@ function initializePageState(committeeId) {
         
         // Atualizar a interface com os dados carregados
         updateAllUI();
+        refreshTechnologicalMatrixMetadata();
         
         // Ocultar indicador de carregamento
         if (loadingSpinner) loadingSpinner.style.display = 'none';
@@ -834,6 +985,7 @@ function initializePageState(committeeId) {
             };
             pageState.members = data.members || [];
             pageState.materializations = data.materializations || [];
+            pageState.materializations = enrichMaterializationsWithMetadata(pageState.materializations);
             
             // Armazenar em cache local
             localCache.set(cacheKey, {
@@ -852,6 +1004,7 @@ function initializePageState(committeeId) {
             
             // Atualizar a interface com os dados carregados
             updateAllUI();
+            refreshTechnologicalMatrixMetadata();
             
             // Ocultar indicador de carregamento
             if (loadingSpinner) loadingSpinner.style.display = 'none';
@@ -1026,7 +1179,7 @@ function updateBasicDataUI() {
             }
             
             if (productNameTechnologicalVector) {
-                productNameTechnologicalVector.textContent = name;
+                productNameTechnologicalVector.textContent = 'Quantidade';
             }
             
             // NOVO: Atualizar também todos os spans com a classe optimization-product-name
@@ -1272,7 +1425,7 @@ function updateTechnologicalMatrixTable() {
     // Se não há produtos ou materializações, mostrar mensagem
     if (!pageState.materializations || pageState.materializations.length === 0) {
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="3" class="text-center">Não há dados de coeficientes disponíveis</td>';
+        tr.innerHTML = '<td colspan="5" class="text-center">Não há dados de coeficientes disponíveis</td>';
         tbody.appendChild(tr);
         return;
     }
@@ -1283,7 +1436,7 @@ function updateTechnologicalMatrixTable() {
     // Se não temos um produto definido, mostrar mensagem
     if (!outputMaterializationId) {
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="3" class="text-center">Produto do comitê não definido</td>';
+        tr.innerHTML = '<td colspan="5" class="text-center">Produto do comitê não definido</td>';
         tbody.appendChild(tr);
         return;
     }
@@ -1299,7 +1452,7 @@ function updateTechnologicalMatrixTable() {
     // Se não há insumos, mostrar mensagem
     if (inputMaterializations.length === 0) {
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="3" class="text-center">Não há insumos definidos para este produto</td>';
+        tr.innerHTML = '<td colspan="5" class="text-center">Não há insumos definidos para este produto</td>';
         tbody.appendChild(tr);
         return;
     }
@@ -1320,33 +1473,83 @@ function updateTechnologicalMatrixTable() {
         // Obter coeficiente deste insumo para o produto do comitê
         const tensors = mat.technologicalTensors || {};
         const coeff = tensors[outputMaterializationId] || 0;
+        const productUnitProportion = mat.productUnitProportion;
+        const quantityValue = getTechnologicalQuantityValue(mat);
+        const standardQuantityLabel = getMaterializationStandardQuantityLabel(mat);
+        const quantityDisplay = formatNumberForInput(quantityValue);
+        const productUnitProportionDisplay = formatNumberForInput(productUnitProportion);
+        const standardQuantityHtml = standardQuantityLabel ? `<span class="technological-standard-quantity">x ${escapeHtml(standardQuantityLabel)}</span>` : '<span class="technological-standard-quantity">x</span>';
         
-        // Modificado: tornar o coeficiente editável mesmo para o produto principal
-        // e usar o valor padrão de 0 em vez de fixar em 1,0
         if (isMainProduct) {
             tr.innerHTML = `
                 <td><strong>${mat.name || `Produto #${mat.id}`}</strong> 
                 <span class="badge main-product-badge" title="Materialização social da unidade produtiva gerida por esse comitê">
                   <i class="fas fa-industry"></i>
                 </span></td>
-                <td>
-                    <input type="text" class="form-control coefficient-input" 
-                           value="${formatNumberForDisplay(coeff)}" 
-                           data-input-id="${mat.id}" 
-                           data-output-id="${outputMaterializationId}" 
-                           onchange="updateTensorCoefficient(${mat.id}, ${outputMaterializationId}, this)">
+                <td class="technological-quantity-cell">
+                    <input type="number" class="form-control technological-quantity-input" 
+                           value="${quantityDisplay}" 
+                           step="any"
+                           inputmode="decimal"
+                           data-materialization-id="${mat.id}"
+                           onchange="updateTechnologicalQuantity(${mat.id}, this)">
+                </td>
+                <td class="technological-proportion-cell">
+                    <div class="technological-proportion-line">
+                        <input type="text" class="form-control coefficient-input technological-coefficient-display" 
+                               value="${formatNumberForDisplay(coeff)}" 
+                               data-input-id="${mat.id}" 
+                               data-output-id="${outputMaterializationId}" 
+                               readonly
+                               tabindex="-1"
+                               aria-readonly="true"
+                               onchange="updateTensorCoefficient(${mat.id}, ${outputMaterializationId}, this)">
+                        ${standardQuantityHtml}
+                    </div>
+                </td>
+                <td class="technological-product-proportion-cell">
+                    <input type="number" class="form-control technological-product-proportion-input" 
+                           value="${productUnitProportionDisplay}"
+                           step="any"
+                           inputmode="decimal"
+                           readonly
+                           tabindex="-1"
+                           aria-readonly="true">
                 </td>
                 <td><!-- Espaço para ações (vazio para o produto principal) --></td>
             `;
         } else {
             tr.innerHTML = `
                 <td>${mat.name || `Insumo #${mat.id}`}</td>
-                <td>
-                    <input type="text" class="form-control coefficient-input" 
-                           value="${formatNumberForDisplay(coeff)}" 
-                           data-input-id="${mat.id}" 
-                           data-output-id="${outputMaterializationId}" 
-                           onchange="updateTensorCoefficient(${mat.id}, ${outputMaterializationId}, this)">
+                <td class="technological-quantity-cell">
+                    <input type="number" class="form-control technological-quantity-input" 
+                           value="${quantityDisplay}" 
+                           step="any"
+                           inputmode="decimal"
+                           data-materialization-id="${mat.id}"
+                           onchange="updateTechnologicalQuantity(${mat.id}, this)">
+                </td>
+                <td class="technological-proportion-cell">
+                    <div class="technological-proportion-line">
+                        <input type="text" class="form-control coefficient-input technological-coefficient-display" 
+                               value="${formatNumberForDisplay(coeff)}" 
+                               data-input-id="${mat.id}" 
+                               data-output-id="${outputMaterializationId}" 
+                               readonly
+                               tabindex="-1"
+                               aria-readonly="true"
+                               onchange="updateTensorCoefficient(${mat.id}, ${outputMaterializationId}, this)">
+                        ${standardQuantityHtml}
+                    </div>
+                </td>
+                <td class="technological-product-proportion-cell">
+                    <input type="number" class="form-control technological-product-proportion-input" 
+                           value="${productUnitProportionDisplay}"
+                           step="any"
+                           inputmode="decimal"
+                           readonly
+                           tabindex="-1"
+                           aria-readonly="true">
                 </td>
                 <td><!-- Aqui poderia ter uma lixeira usando mat.id, mas foi removida para ficar mais clean --></td>
             `;

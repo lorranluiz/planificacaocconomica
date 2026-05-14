@@ -23,4 +23,6 @@ public interface SocialMaterializationRepository extends JpaRepository<SocialMat
            "JOIN TechnologicalTensor tt ON tt.inputSocialMaterialization.id = sm.id OR tt.outputSocialMaterialization.id = sm.id " +
            "WHERE tt.instance.id = :instanceId")
     List<SocialMaterialization> findByInstanceId(@Param("instanceId") Integer instanceId);
+
+    boolean existsByMeasurementUnit_Id(Integer measurementUnitId);
 }

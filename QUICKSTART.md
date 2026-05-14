@@ -119,6 +119,16 @@ sudo -u postgres createdb planecon
 | `restore-test-db.sh` | Script para restaurar o dump no PostgreSQL |
 | `update-test-db.sh` | Script para gerar um novo dump a partir do banco atual |
 
+### Procedimento ao alterar o banco
+
+Sempre que houver mudança de schema, constraints, seeds ou dados de teste:
+
+1. Atualize a migration correspondente em `src/main/resources/db/migration/`.
+2. Regenere `schema.sql` e, se existir um snapshot auxiliar, também o arquivo de schema correspondente.
+3. Atualize o banco local com a migration aplicada e confirme os dados novos.
+4. Regere `planecon_test_db.dump` com `./update-test-db.sh`.
+5. Se a alteração impactar a restauração, atualize este guia e os scripts de restore/backup.
+
 ---
 
-**Última atualização**: Abril 2026
+**Última atualização**: Maio 2026

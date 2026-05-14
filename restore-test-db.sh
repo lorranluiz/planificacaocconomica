@@ -5,6 +5,8 @@
 # Uso: ./restore-test-db.sh
 # Restaura estrutura + dados de teste a partir do dump incluso.
 # Apaga tabelas existentes antes de recriar (seguro para reset).
+# Se o schema mudar, regenere também schema.sql e planecon_test_db.dump
+# antes de distribuir a nova versão do banco.
 # =============================================================
 
 set -e

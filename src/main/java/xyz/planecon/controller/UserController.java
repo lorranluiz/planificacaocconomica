@@ -31,6 +31,7 @@ import xyz.planecon.repository.InstanceRepository;
 import xyz.planecon.model.entity.Sector;
 import xyz.planecon.model.entity.SocialMaterialization;
 import xyz.planecon.model.enums.SocialMaterializationType;
+import xyz.planecon.repository.MeasurementUnitRepository;
 import xyz.planecon.repository.SectorRepository;
 import xyz.planecon.repository.SocialMaterializationRepository;
 
@@ -60,6 +61,9 @@ public class UserController {
     
     @Autowired
     private SectorRepository sectorRepository;
+
+    @Autowired
+    private MeasurementUnitRepository measurementUnitRepository;
     
     @PersistenceContext
     private EntityManager entityManager;
@@ -330,6 +334,9 @@ public class UserController {
             defaultMaterialization.setName("Produto Padrão");
             defaultMaterialization.setType(SocialMaterializationType.PRODUCT);
             defaultMaterialization.setSector(sector);
+            defaultMaterialization.setStandardQuantityPerUnit(BigDecimal.ONE);
+            measurementUnitRepository.findByNameIgnoreCase("unidade")
+                    .ifPresent(defaultMaterialization::setMeasurementUnit);
             defaultMaterialization = socialMaterializationRepository.save(defaultMaterialization);
         } else {
             defaultMaterialization = materializations.get(0);

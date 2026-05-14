@@ -7,5 +7,7 @@
 		"${workspaceFolder}/factorsMap"
 	],
 	"git.ignoreSubmodules": true,
-	"scm.repositories.visible": 1
+	"scm.repositories.visible": 1,
+	"java.compile.nullAnalysis.mode": "automatic",
+	"java.configuration.updateBuildConfiguration": "interactive"
 }

@@ -2,14 +2,15 @@
 -- PostgreSQL database dump
 --
 
-\restrict JYINCu4tMzTn2j0Qik2n7hhFW9zH4BPBW13A5PG57Phdn8FemlswCeYc2Thpqb6
+\restrict erv5MJTDIb9gge5VDXYUDOx77p5DQq12TlGYbruKql1mMvlTuz5tfBTmCiFRgaM
 
--- Dumped from database version 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1)
--- Dumped by pg_dump version 16.13 (Ubuntu 16.13-0ubuntu0.24.04.1)
+-- Dumped from database version 18.3 (Ubuntu 18.3-1)
+-- Dumped by pg_dump version 18.3 (Ubuntu 18.3-1)
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -568,6 +569,41 @@ ALTER SEQUENCE public.instance_id_seq OWNED BY public.instance.id;
 
 
 --
+-- Name: measurement_unit; Type: TABLE; Schema: public; Owner: postgres
+--
+
+CREATE TABLE public.measurement_unit (
+    id integer NOT NULL,
+    name character varying(30) NOT NULL,
+    created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL
+);
+
+
+ALTER TABLE public.measurement_unit OWNER TO postgres;
+
+--
+-- Name: measurement_unit_id_seq; Type: SEQUENCE; Schema: public; Owner: postgres
+--
+
+CREATE SEQUENCE public.measurement_unit_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER SEQUENCE public.measurement_unit_id_seq OWNER TO postgres;
+
+--
+-- Name: measurement_unit_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: postgres
+--
+
+ALTER SEQUENCE public.measurement_unit_id_seq OWNED BY public.measurement_unit.id;
+
+
+--
 -- Name: optimization_inputs_results; Type: TABLE; Schema: public; Owner: postgres
 --
 
@@ -694,7 +730,9 @@ CREATE TABLE public.social_materialization (
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP NOT NULL,
     type character varying(50) NOT NULL,
     id_sector integer NOT NULL,
-    CONSTRAINT social_materialization_type_check CHECK (((type)::text = ANY ((ARRAY['PRODUCT'::character varying, 'SERVICE'::character varying])::text[])))
+    id_measurement_unit integer NOT NULL,
+    standard_quantity_per_unit numeric(16,6) NOT NULL,
+    CONSTRAINT social_materialization_type_check CHECK (((type)::text = ANY (ARRAY[('PRODUCT'::character varying)::text, ('SERVICE'::character varying)::text])))
 );
 
 
@@ -712,6 +750,20 @@ COMMENT ON COLUMN public.social_materialization.type IS 'Produto ou Serviço';
 --
 
 COMMENT ON COLUMN public.social_materialization.id_sector IS 'Categoria analítica. Setor.';
+
+
+--
+-- Name: COLUMN social_materialization.id_measurement_unit; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.social_materialization.id_measurement_unit IS 'Unidade de medida padrao da materializacao (fk para measurement_unit)';
+
+
+--
+-- Name: COLUMN social_materialization.standard_quantity_per_unit; Type: COMMENT; Schema: public; Owner: postgres
+--
+
+COMMENT ON COLUMN public.social_materialization.standard_quantity_per_unit IS 'Quantidade padrao correspondente a 1 unidade de medida da materializacao';
 
 
 --
@@ -771,8 +823,8 @@ CREATE TABLE public."user" (
     type character varying(50) NOT NULL,
     pronoun character varying(255) NOT NULL,
     name character varying(255) NOT NULL,
-    CONSTRAINT user_pronoun_check CHECK (((pronoun)::text = ANY ((ARRAY['HE_HIM'::character varying, 'SHE_HER'::character varying, 'THEY_THEM'::character varying])::text[]))),
-    CONSTRAINT user_type_check CHECK (((type)::text = ANY ((ARRAY['COUNCILLOR'::character varying, 'NON_COUNCILLOR'::character varying, 'WORKER'::character varying])::text[])))
+    CONSTRAINT user_pronoun_check CHECK (((pronoun)::text = ANY (ARRAY[('HE_HIM'::character varying)::text, ('SHE_HER'::character varying)::text, ('THEY_THEM'::character varying)::text]))),
+    CONSTRAINT user_type_check CHECK (((type)::text = ANY (ARRAY[('COUNCILLOR'::character varying)::text, ('NON_COUNCILLOR'::character varying)::text, ('WORKER'::character varying)::text])))
 );
 
 
@@ -846,7 +898,7 @@ CREATE VIEW public.v_user_instance_compatibility AS
     i.committee_name,
     i.type AS instance_type,
         CASE
-            WHEN (((u.type)::text = 'COUNCILLOR'::text) AND ((i.type)::text = ANY ((ARRAY['COUNCIL'::character varying, 'COMMITTEE'::character varying])::text[]))) THEN true
+            WHEN (((u.type)::text = 'COUNCILLOR'::text) AND ((i.type)::text = ANY (ARRAY[('COUNCIL'::character varying)::text, ('COMMITTEE'::character varying)::text]))) THEN true
             WHEN (((u.type)::text = 'NON_COUNCILLOR'::text) AND ((i.type)::text = 'WORKER'::text)) THEN true
             ELSE false
         END AS is_compatible
@@ -982,6 +1034,13 @@ ALTER TABLE ONLY public.instance ALTER COLUMN id SET DEFAULT nextval('public.ins
 
 
 --
+-- Name: measurement_unit id; Type: DEFAULT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.measurement_unit ALTER COLUMN id SET DEFAULT nextval('public.measurement_unit_id_seq'::regclass);
+
+
+--
 -- Name: sector id; Type: DEFAULT; Schema: public; Owner: postgres
 --
 
@@ -1024,6 +1083,22 @@ ALTER TABLE ONLY public.city
 
 ALTER TABLE ONLY public.instance
     ADD CONSTRAINT instance_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: measurement_unit measurement_unit_name_key; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.measurement_unit
+    ADD CONSTRAINT measurement_unit_name_key UNIQUE (name);
+
+
+--
+-- Name: measurement_unit measurement_unit_pkey; Type: CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.measurement_unit
+    ADD CONSTRAINT measurement_unit_pkey PRIMARY KEY (id);
 
 
 --
@@ -1282,6 +1357,14 @@ ALTER TABLE ONLY public.instance
 
 
 --
+-- Name: social_materialization fk_social_materialization_measurement_unit; Type: FK CONSTRAINT; Schema: public; Owner: postgres
+--
+
+ALTER TABLE ONLY public.social_materialization
+    ADD CONSTRAINT fk_social_materialization_measurement_unit FOREIGN KEY (id_measurement_unit) REFERENCES public.measurement_unit(id) ON DELETE RESTRICT;
+
+
+--
 -- Name: social_materialization fk_social_materialization_sector; Type: FK CONSTRAINT; Schema: public; Owner: postgres
 --
 
@@ -1333,5 +1416,5 @@ ALTER TABLE ONLY public.instance
 -- PostgreSQL database dump complete
 --
 
-\unrestrict JYINCu4tMzTn2j0Qik2n7hhFW9zH4BPBW13A5PG57Phdn8FemlswCeYc2Thpqb6
+\unrestrict erv5MJTDIb9gge5VDXYUDOx77p5DQq12TlGYbruKql1mMvlTuz5tfBTmCiFRgaM
 

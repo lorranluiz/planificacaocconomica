@@ -38,6 +38,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     private final DemandVectorRepository demandVectorRepository;
     private final OptimizationInputsResultsRepository optimizationInputsResultsRepository;
     private final TechnologicalTensorRepository technologicalTensorRepository;
+    private final MeasurementUnitRepository measurementUnitRepository;
     
     private final Random random = new Random();
 
@@ -50,7 +51,8 @@ public class DatabaseSeeder implements CommandLineRunner {
             DemandStockRepository demandStockRepository,
             DemandVectorRepository demandVectorRepository,
             OptimizationInputsResultsRepository optimizationInputsResultsRepository,
-            TechnologicalTensorRepository technologicalTensorRepository
+                TechnologicalTensorRepository technologicalTensorRepository,
+                MeasurementUnitRepository measurementUnitRepository
     ) {
         this.instanceRepository = instanceRepository;
         this.socialMaterializationRepository = socialMaterializationRepository;
@@ -61,6 +63,7 @@ public class DatabaseSeeder implements CommandLineRunner {
         this.demandVectorRepository = demandVectorRepository;
         this.optimizationInputsResultsRepository = optimizationInputsResultsRepository;
         this.technologicalTensorRepository = technologicalTensorRepository;
+        this.measurementUnitRepository = measurementUnitRepository;
     }
 
     @Override
@@ -406,6 +409,9 @@ public class DatabaseSeeder implements CommandLineRunner {
         sm.setName(name);
         sm.setType(type);
         sm.setSector(sector);
+        sm.setStandardQuantityPerUnit(BigDecimal.ONE);
+        measurementUnitRepository.findByNameIgnoreCase("unidade")
+                .ifPresent(sm::setMeasurementUnit);
         sm.setCreatedAt(LocalDateTime.now());  // Define o timestamp atual
         socialMaterializationRepository.save(sm);
         return sm;

@@ -5,12 +5,17 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import xyz.planecon.dto.SocialMaterializationDto;
+import xyz.planecon.model.entity.MeasurementUnit;
 import xyz.planecon.model.entity.SocialMaterialization;
 import xyz.planecon.model.entity.Sector;
+import xyz.planecon.repository.MeasurementUnitRepository;
+import xyz.planecon.repository.SectorRepository;
 import xyz.planecon.service.SocialMaterializationService;
 import xyz.planecon.model.enums.SocialMaterializationType;
 import xyz.planecon.repository.SocialMaterializationRepository;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,13 +29,22 @@ public class SocialMaterializationController {
     private static final Logger logger = LoggerFactory.getLogger(SocialMaterializationController.class);
 
     private final SocialMaterializationService materializationService;
+
+    private final SectorRepository sectorRepository;
+
+    private final MeasurementUnitRepository measurementUnitRepository;
     
     @Autowired
     private SocialMaterializationRepository socialMaterializationRepository;
 
     @Autowired
-    public SocialMaterializationController(SocialMaterializationService materializationService) {
+    public SocialMaterializationController(
+            SocialMaterializationService materializationService,
+            SectorRepository sectorRepository,
+            MeasurementUnitRepository measurementUnitRepository) {
         this.materializationService = materializationService;
+        this.sectorRepository = sectorRepository;
+        this.measurementUnitRepository = measurementUnitRepository;
     }
 
     /**
@@ -50,6 +64,21 @@ public class SocialMaterializationController {
     }
 
     /**
+     * Endpoint estendido com campos de grandeza padrão/unidade para a tela de
+     * gestão de materializações, sem alterar o contrato legado das demais telas.
+     */
+    @GetMapping("/social-materializations/full")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<SocialMaterializationDto> getAllSocialMaterializationsFull() {
+        logger.info("Obtendo lista estendida de materializações sociais");
+        List<SocialMaterialization> materializations = socialMaterializationRepository.findAll();
+        return materializations.stream()
+                .map(this::convertToDtoWithExtendedFields)
+                .collect(Collectors.toList());
+    }
+
+    /**
      * Endpoint alias para compatibilidade (deprecated)
      */
     @GetMapping("/planification/available-materializations")
@@ -64,13 +93,13 @@ public class SocialMaterializationController {
     /**
      * Endpoint para criar uma nova materialização social
      */
-    @PostMapping("/planification/social-materializations")
+    @PostMapping({"/social-materializations", "/planification/social-materializations"})
     public ResponseEntity<?> createMaterialization(@RequestBody Map<String, Object> payload) {
         try {
             // Extrair dados da requisição
-            String name = (String) payload.get("name");
-            String typeStr = (String) payload.get("type");
-            String description = (String) payload.get("description");
+            String name = toStringValue(payload.get("name"));
+            String typeStr = toStringValue(payload.get("type"));
+            String description = toStringValue(payload.get("description"));
             
             if (name == null || typeStr == null) {
                 return ResponseEntity.badRequest()
@@ -90,11 +119,47 @@ public class SocialMaterializationController {
             SocialMaterialization newMaterialization = new SocialMaterialization();
             newMaterialization.setName(name);
             newMaterialization.setType(type);
+            newMaterialization.setCreatedAt(LocalDateTime.now());
             
-            // Setor padrão, se necessário - ajuste conforme sua lógica de negócios
-            Sector defaultSector = new Sector();
-            defaultSector.setId(1); // ID do setor padrão, ajuste conforme necessário
-            newMaterialization.setSector(defaultSector);
+            Integer sectorId = toInteger(payload.get("sectorId"));
+            if (sectorId == null) {
+                sectorId = 1;
+            }
+
+            Sector sector = sectorRepository.findById(sectorId).orElse(null);
+            if (sector == null) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Setor não encontrado: " + sectorId));
+            }
+            newMaterialization.setSector(sector);
+
+            Integer measurementUnitId = toInteger(payload.get("measurementUnitId"));
+            BigDecimal standardQuantityPerUnit = parseDecimal(payload.get("standardQuantityPerUnit"));
+
+            // Compatibilidade com fluxos antigos: se não vier unidade/quantidade,
+            // assume "unidade" e 1 para não quebrar telas legadas.
+            if (measurementUnitId == null) {
+                measurementUnitId = measurementUnitRepository.findByNameIgnoreCase("unidade")
+                        .map(MeasurementUnit::getId)
+                        .orElse(null);
+            }
+            if (standardQuantityPerUnit == null) {
+                standardQuantityPerUnit = BigDecimal.ONE;
+            }
+
+            if (measurementUnitId == null) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Unidade de medida é obrigatória"));
+            }
+
+            MeasurementUnit measurementUnit = measurementUnitRepository.findById(measurementUnitId).orElse(null);
+            if (measurementUnit == null) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Unidade de medida não encontrada: " + measurementUnitId));
+            }
+
+            newMaterialization.setMeasurementUnit(measurementUnit);
+            newMaterialization.setStandardQuantityPerUnit(standardQuantityPerUnit);
             
             // Salvar a materialização
             SocialMaterialization saved = materializationService.save(newMaterialization);
@@ -120,6 +185,8 @@ public class SocialMaterializationController {
         map.put("id", materialization.getId());
         map.put("name", materialization.getName());
         map.put("type", materialization.getType().toString());
+        map.put("createdAt", materialization.getCreatedAt());
+        map.put("standardQuantityPerUnit", materialization.getStandardQuantityPerUnit());
         
         if (materialization.getSector() != null) {
             Map<String, Object> sector = new HashMap<>();
@@ -127,15 +194,71 @@ public class SocialMaterializationController {
             sector.put("name", materialization.getSector().getName());
             map.put("sector", sector);
         }
+
+        if (materialization.getMeasurementUnit() != null) {
+            Map<String, Object> unit = new HashMap<>();
+            unit.put("id", materialization.getMeasurementUnit().getId());
+            unit.put("name", materialization.getMeasurementUnit().getName());
+            map.put("measurementUnit", unit);
+            map.put("measurementUnitId", materialization.getMeasurementUnit().getId());
+            map.put("measurementUnitName", materialization.getMeasurementUnit().getName());
+        }
         
         return map;
+    }
+
+    private String toStringValue(Object value) {
+        if (value == null) {
+            return null;
+        }
+        String text = String.valueOf(value).trim();
+        return text.isEmpty() ? null : text;
+    }
+
+    private Integer toInteger(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Number number) {
+            return number.intValue();
+        }
+        String text = String.valueOf(value).trim();
+        if (text.isEmpty()) {
+            return null;
+        }
+        try {
+            return Integer.valueOf(text);
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    private BigDecimal parseDecimal(Object value) {
+        if (value == null) {
+            return null;
+        }
+        if (value instanceof Number number) {
+            return BigDecimal.valueOf(number.doubleValue());
+        }
+        String text = String.valueOf(value).trim();
+        if (text.isEmpty()) {
+            return null;
+        }
+        try {
+            return new BigDecimal(text.replace(',', '.'));
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
     
     /**
      * Converte uma entidade SocialMaterialization para DTO
      */
     private SocialMaterializationDto convertToDto(SocialMaterialization materialization) {
-        // Usar o construtor que aceita uma SocialMaterialization
         return new SocialMaterializationDto(materialization);
+    }
+
+    private SocialMaterializationDto convertToDtoWithExtendedFields(SocialMaterialization materialization) {
+        return new SocialMaterializationDto(materialization, true);
     }
 }

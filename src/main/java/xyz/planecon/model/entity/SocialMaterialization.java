@@ -10,6 +10,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
@@ -40,6 +41,15 @@ public class SocialMaterialization {
     @EqualsAndHashCode.Exclude
     @ToString.Exclude
     private Sector sector;
+
+    @Column(name = "standard_quantity_per_unit", precision = 16, scale = 6)
+    private BigDecimal standardQuantityPerUnit;
+
+    @ManyToOne
+    @JoinColumn(name = "id_measurement_unit")
+    @EqualsAndHashCode.Exclude
+    @ToString.Exclude
+    private MeasurementUnit measurementUnit;
     
     @OneToMany(mappedBy = "socialMaterialization")
     @EqualsAndHashCode.Exclude

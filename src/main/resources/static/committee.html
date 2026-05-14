@@ -74,6 +74,100 @@
             padding: 5px;
             border-radius: 4px;
         }
+
+        .editable-table .technological-quantity-cell {
+            min-width: 140px;
+        }
+
+        .editable-table .technological-proportion-cell {
+            min-width: 320px;
+        }
+
+        .editable-table .technological-product-proportion-cell {
+            min-width: 180px;
+        }
+
+        .editable-table .technological-proportion-line {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .editable-table .technological-quantity-input,
+        .editable-table .technological-coefficient-display {
+            width: 110px;
+            text-align: right;
+        }
+
+        .editable-table .technological-coefficient-display[readonly] {
+            opacity: 0.92;
+        }
+
+        .editable-table .technological-standard-quantity {
+            white-space: nowrap;
+        }
+
+        .editable-table .technological-standard-quantity {
+            color: var(--text-muted, rgba(255, 255, 255, 0.78));
+            font-size: 0.92em;
+        }
+
+        .th-with-hint {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .column-hint-btn {
+            background: transparent;
+            border: 0;
+            color: inherit;
+            cursor: pointer;
+            padding: 0;
+            line-height: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0.85;
+        }
+
+        .column-hint-btn:hover,
+        .column-hint-btn:focus {
+            opacity: 1;
+            outline: none;
+        }
+
+        .column-hint-tooltip {
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            z-index: 20;
+            min-width: 260px;
+            max-width: 320px;
+            background: rgba(20, 20, 20, 0.96);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 0.85rem;
+            font-weight: normal;
+            white-space: normal;
+            text-align: left;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-4px);
+            transition: opacity 0.15s ease, transform 0.15s ease, visibility 0.15s ease;
+            pointer-events: none;
+        }
+
+        .th-with-hint:hover .column-hint-tooltip,
+        .th-with-hint:focus-within .column-hint-tooltip {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+        }
         
         .results-container {
             margin-top: 30px;
@@ -395,7 +489,17 @@
                             <thead>
                                 <tr>
                                     <th>Insumo/Materialização</th>
-                                    <th id="productNameTechnologicalVector">---</th>
+                                    <th id="productNameTechnologicalVector">Quantidade</th>
+                                    <th>Proporção da Unidade de Insumo</th>
+                                    <th>
+                                        <div class="th-with-hint">
+                                            <span>Proporção da Unidade desse Produto</span>
+                                            <button type="button" class="column-hint-btn" aria-label="Dica sobre proporção da unidade desse produto">
+                                                <i class="fas fa-info-circle" aria-hidden="true"></i>
+                                            </button>
+                                            <span class="column-hint-tooltip" role="tooltip">Elemento Tecnológico, forma o elemento da Matriz Tecnológica</span>
+                                        </div>
+                                    </th>
                                     <th>
                                         <div class="controls" id="committeeControls">
                                             <button id="openPropostaBtn" class="btn">Capacidade Produtiva</button>
