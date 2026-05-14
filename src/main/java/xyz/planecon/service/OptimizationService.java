@@ -70,6 +70,7 @@ public class OptimizationService {
             Integer instanceId,
             Integer committeeCount) {
         
+        OptimizationInputsResults optimizationData = null;
         try {
             logger.info("Iniciando otimização para materialização {} com produção necessária {}", 
                         materializationId, productionNeeded);
@@ -99,7 +100,6 @@ public class OptimizationService {
             OptimizationInputsResultsId resultId = 
                 new OptimizationInputsResultsId(instanceId, materializationId);
             
-            OptimizationInputsResults optimizationData;
             Optional<OptimizationInputsResults> existingData = optimizationRepository.findById(resultId);
             
             if (existingData.isPresent()) {
@@ -129,6 +129,12 @@ public class OptimizationService {
             // Converter BigDecimal para double para cálculos
             double workerHours = workerHoursValue.doubleValue();
             double productionTime = productionTimeValue.doubleValue();
+
+            if (workerLimit <= 0 || workerHours <= 0.0 || weeklyScale <= 0 || !isFiniteNonNegative(productionNeeded)) {
+                logger.warn("Configuração inválida para otimização da materialização {}: workerLimit={}, workerHours={}, weeklyScale={}, productionNeeded={}",
+                        materializationId, workerLimit, workerHours, weeklyScale, productionNeeded);
+                return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+            }
             
             // CÁLCULOS DE OTIMIZAÇÃO (mesmo algoritmo do JavaScript)
             
@@ -138,12 +144,20 @@ public class OptimizationService {
             
             // Capacidade semanal por trabalhador (em horas)
             double weeklyWorkHoursPerWorker = weeklyScale * workerHours;
+            if (weeklyWorkHoursPerWorker <= 0.0 || !Double.isFinite(weeklyWorkHoursPerWorker)) {
+                logger.warn("Capacidade semanal inválida para materialização {}", materializationId);
+                return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+            }
             
             // Cálculo do número de trabalhadores necessários
             double workersNeeded = Math.ceil(totalHours / weeklyWorkHoursPerWorker);
             
             // Capacidade total de trabalho por turno
             double shiftWorkHours = workerLimit * workerHours;
+            if (shiftWorkHours <= 0.0 || !Double.isFinite(shiftWorkHours)) {
+                logger.warn("Capacidade por turno inválida para materialização {}", materializationId);
+                return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+            }
             
             // Total de turnos necessários
             int totalShifts = (int)Math.ceil(totalHours / shiftWorkHours);
@@ -151,32 +165,46 @@ public class OptimizationService {
             // Capacidade diária considerando escala semanal e turno noturno
             double dailyWorkHours = nightShift ? shiftWorkHours * 2 : shiftWorkHours;
             double totalDailyWorkHours = dailyWorkHours * weeklyScale / 7;
+            if (totalDailyWorkHours <= 0.0 || !Double.isFinite(totalDailyWorkHours) || dailyWorkHours <= 0.0 || !Double.isFinite(dailyWorkHours)) {
+                logger.warn("Capacidade diária inválida para materialização {}", materializationId);
+                return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+            }
             
             // Prazo mínimo de produção em dias
             double minimumProductionTime = Math.ceil(totalHours / totalDailyWorkHours);
             
             // Período total de trabalho (em dias)
-            int totalWorkDays = (int)Math.ceil(totalHours / dailyWorkHours);
+            long totalWorkDays = Math.max(0L, (long)Math.ceil(totalHours / dailyWorkHours));
             
             // Cálculo das horas de operação por dia
             double factoryOperationHours = nightShift ? 24 : 12;
             
             // Conversão do prazo mínimo de produção para dias
             double minimumProductionTimeInDays = minimumProductionTime / 24; // Considera 1 dia = 24 horas
+            if (minimumProductionTimeInDays <= 0.0 || !Double.isFinite(minimumProductionTimeInDays)) {
+                logger.warn("Tempo mínimo de produção inválido para materialização {}", materializationId);
+                return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+            }
             
             // Cálculo do número de fábricas necessárias
             double factoriesNeeded = Math.ceil(totalHours / (factoryOperationHours * workerLimit * minimumProductionTimeInDays));
             
             // Período total de emprego em segundos
-            long totalEmploymentPeriodSeconds = (long)(totalWorkDays * 24 * 60 * 60);
+            long totalEmploymentPeriodSeconds = safeSecondsFromDays(totalWorkDays);
+
+            if (!isFiniteNonNegative(totalHours) || !isFiniteNonNegative(workersNeeded) || !isFiniteNonNegative(factoriesNeeded)
+                    || !isFiniteNonNegative(minimumProductionTime) || totalEmploymentPeriodSeconds < 0) {
+                logger.warn("Resultado de otimização inválido para materialização {}", materializationId);
+                return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+            }
             
             // Atualizar o objeto com os resultados calculados
             optimizationData.setProductionGoal(new BigDecimal(productionNeeded));
             optimizationData.setPlannedFinalDemand(new BigDecimal(productionNeeded));
             optimizationData.setTotalHours(new BigDecimal(totalHours).setScale(2, RoundingMode.HALF_UP));
-            optimizationData.setWorkersNeeded((int)Math.ceil(workersNeeded));
-            optimizationData.setFactoriesNeeded((int)Math.ceil(factoriesNeeded));
-            optimizationData.setTotalShifts(totalShifts);
+            optimizationData.setWorkersNeeded(toBoundedInt(workersNeeded));
+            optimizationData.setFactoriesNeeded(toBoundedInt(factoriesNeeded));
+            optimizationData.setTotalShifts(Math.max(0, totalShifts));
             optimizationData.setMinimumProductionTime(new BigDecimal(minimumProductionTime).setScale(2, RoundingMode.HALF_UP));
             optimizationData.setTotalEmploymentPeriodSeconds(totalEmploymentPeriodSeconds);
             
@@ -210,6 +238,9 @@ public class OptimizationService {
         } catch (Exception e) {
             logger.error("Erro detalhado ao realizar otimização para {}: {}", 
                         materializationId, e.getMessage(), e);
+            if (optimizationData != null && entityManager.contains(optimizationData)) {
+                entityManager.detach(optimizationData);
+            }
             return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
         }
     }
@@ -227,16 +258,28 @@ public class OptimizationService {
             Integer committeeCount) {
         
         try {
-            // Configuração e valores existentes
-            existingConfig.setProductionGoal(new BigDecimal(productionNeeded));
-            existingConfig.setPlannedFinalDemand(new BigDecimal(productionNeeded));
-            
             // Recuperar valores da configuração existente
-            int workerLimit = existingConfig.getWorkerLimit();
+            Integer workerLimitObj = existingConfig.getWorkerLimit();
             BigDecimal workerHours = existingConfig.getWorkerHours();
             BigDecimal productionTime = existingConfig.getProductionTime();
-            int weeklyScale = existingConfig.getWeeklyScale();
-            boolean nightShift = existingConfig.getNightShift();
+            Integer weeklyScaleObj = existingConfig.getWeeklyScale();
+            Boolean nightShiftObj = existingConfig.getNightShift();
+
+            if (workerLimitObj == null || weeklyScaleObj == null || nightShiftObj == null
+                    || workerHours == null || productionTime == null) {
+                logger.warn("Configuração existente incompleta para materialização {}", materializationId);
+                return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+            }
+
+            int workerLimit = workerLimitObj;
+            int weeklyScale = weeklyScaleObj;
+            boolean nightShift = nightShiftObj;
+
+            if (workerLimit <= 0 || weeklyScale <= 0 || workerHours.doubleValue() <= 0.0 || !isFiniteNonNegative(productionNeeded)) {
+                logger.warn("Configuração existente inválida para materialização {}: workerLimit={}, weeklyScale={}, workerHours={}, productionNeeded={}",
+                        materializationId, workerLimit, weeklyScale, workerHours, productionNeeded);
+                return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+            }
             
             // 1. Tempo total de horas necessárias para produzir toda a quantidade
             // Usa workerHours (Horas de Trabalho por Dia) da configuração de otimização
@@ -250,10 +293,18 @@ public class OptimizationService {
             
             // 4. Verificar quantos turnos cabem em um dia
             double shiftsPerDay = factoryOperationHours / workerHoursPerDay;
+            if (!Double.isFinite(shiftsPerDay) || shiftsPerDay <= 0.0) {
+                logger.warn("Turnos por dia inválidos para materialização {}", materializationId);
+                return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+            }
             
             // 5. Calcular trabalho total possível por dia por fábrica
             // (considerando os turnos e limite de trabalhadores)
             double effectiveWorkerLimit = workerLimit * shiftsPerDay;
+            if (!Double.isFinite(effectiveWorkerLimit) || effectiveWorkerLimit <= 0.0) {
+                logger.warn("Limite efetivo de trabalhadores inválido para materialização {}", materializationId);
+                return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+            }
             
             // 6. Calcular horas de trabalho totais por dia por fábrica
             double totalHoursPerDayPerFactory = effectiveWorkerLimit * workerHoursPerDay;
@@ -262,9 +313,17 @@ public class OptimizationService {
             // NOVA LÓGICA: dividir o total de horas pelo máximo que pode ser feito por dia por fábrica 
             // e pela duração desejada (ajustada para escala semanal)
             double avgDailyWorkHours = (workerHoursPerDay * weeklyScale) / 7.0; // média diária considerando escala semanal
+            if (!Double.isFinite(avgDailyWorkHours) || avgDailyWorkHours <= 0.0) {
+                logger.warn("Carga diária média inválida para materialização {}", materializationId);
+                return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+            }
             
             // Tempo total de dias com uma única fábrica operando
             double daysWithOneFactory = totalHours / (effectiveWorkerLimit * avgDailyWorkHours);
+            if (!Double.isFinite(daysWithOneFactory) || daysWithOneFactory <= 0.0) {
+                logger.warn("Dias com uma fábrica inválido para materialização {}", materializationId);
+                return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+            }
             
             // 8. Usar um número razoável de fábricas para balancear custo e tempo
             // Aqui não usamos um valor fixo de 30 dias, mas um cálculo flexível
@@ -285,21 +344,39 @@ public class OptimizationService {
             // 10. Calcular o tempo mínimo real com base nos trabalhadores e fábricas disponíveis
             // IMPORTANTE: Essa é a lógica central da sua proposta
             double totalDailyCapacity = factoriesNeeded * effectiveWorkerLimit * avgDailyWorkHours;
+            if (!Double.isFinite(totalDailyCapacity) || totalDailyCapacity <= 0.0) {
+                logger.warn("Capacidade diária total inválida para materialização {}", materializationId);
+                return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+            }
             double minimumProductionTimeInDays = totalHours / totalDailyCapacity;
             
             // 11. Garantir que o tempo não seja menor que o fisicamente possível
             double physicalMinimumTimeInDays = productionTime.doubleValue() / factoryOperationHours;
             minimumProductionTimeInDays = Math.max(minimumProductionTimeInDays, physicalMinimumTimeInDays);
+
+            if (!isFiniteNonNegative(totalHours) || !isFiniteNonNegative(workersNeeded) || !isFiniteNonNegative(factoriesNeeded)
+                    || !isFiniteNonNegative(minimumProductionTimeInDays)) {
+                logger.warn("Resultado de otimização inválido para materialização {}", materializationId);
+                return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+            }
+
+            long employmentTimeSeconds = safeHoursToSeconds(totalHours);
+            if (employmentTimeSeconds < 0) {
+                logger.warn("Período total de emprego inválido para materialização {}", materializationId);
+                return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
+            }
+
+            // Atualizar apenas após validar todas as contas para evitar flush de estado parcial inválido
+            existingConfig.setProductionGoal(new BigDecimal(productionNeeded));
+            existingConfig.setPlannedFinalDemand(new BigDecimal(productionNeeded));
             
             // Salvar resultados calculados na configuração de otimização
             existingConfig.setTotalHours(new BigDecimal(totalHours).setScale(2, RoundingMode.HALF_UP));
-            existingConfig.setWorkersNeeded((int) Math.ceil(workersNeeded));
-            existingConfig.setFactoriesNeeded((int) Math.ceil(factoriesNeeded));
+            existingConfig.setWorkersNeeded(toBoundedInt(workersNeeded));
+            existingConfig.setFactoriesNeeded(toBoundedInt(factoriesNeeded));
             existingConfig.setMinimumProductionTime(new BigDecimal(minimumProductionTimeInDays).setScale(2, RoundingMode.HALF_UP));
             existingConfig.setTotalShifts(nightShift ? 3 : 1);
             
-            // Tempo total de emprego (em segundos)
-            long employmentTimeSeconds = Math.round(totalHours * 3600); // horas para segundos
             existingConfig.setTotalEmploymentPeriodSeconds(employmentTimeSeconds);
             
             // Salvar a configuração atualizada
@@ -327,6 +404,9 @@ public class OptimizationService {
         } catch (Exception e) {
             logger.error("Erro ao realizar otimização para {} com config existente: {}", 
                         productName, e.getMessage(), e);
+            if (entityManager.contains(existingConfig)) {
+                entityManager.detach(existingConfig);
+            }
             
             return createDefaultOptimizationResult(materializationId, productName, productionNeeded);
         }
@@ -404,5 +484,44 @@ public class OptimizationService {
             0,    // committeeCount
             null  // totalMaterializationCapacity
         );
+    }
+
+    private boolean isFiniteNonNegative(double value) {
+        return Double.isFinite(value) && value >= 0.0;
+    }
+
+    private int toBoundedInt(double value) {
+        if (!Double.isFinite(value) || value <= 0.0) {
+            return 0;
+        }
+        if (value >= Integer.MAX_VALUE) {
+            return Integer.MAX_VALUE;
+        }
+        return (int) Math.ceil(value);
+    }
+
+    private long safeHoursToSeconds(double hours) {
+        if (!Double.isFinite(hours) || hours < 0.0) {
+            return -1L;
+        }
+        double seconds = hours * 3600.0;
+        if (!Double.isFinite(seconds)) {
+            return -1L;
+        }
+        if (seconds >= Long.MAX_VALUE) {
+            return Long.MAX_VALUE;
+        }
+        return Math.round(seconds);
+    }
+
+    private long safeSecondsFromDays(long days) {
+        if (days < 0L) {
+            return -1L;
+        }
+        long secondsPerDay = 24L * 60L * 60L;
+        if (days > Long.MAX_VALUE / secondsPerDay) {
+            return Long.MAX_VALUE;
+        }
+        return days * secondsPerDay;
     }
 }

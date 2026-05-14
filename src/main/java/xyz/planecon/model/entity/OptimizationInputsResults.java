@@ -57,13 +57,13 @@ public class OptimizationInputsResults {
     @Column(name = "total_employment_period", nullable = false)
     private Long totalEmploymentPeriodSeconds; // Armazenado em segundos
     
-    @Column(name = "planned_final_demand", precision = 16, scale = 6, nullable = false)
+    @Column(name = "planned_final_demand", precision = 38, scale = 6, nullable = false)
     private BigDecimal plannedFinalDemand;
     
     @Column(name = "created_at")
     private LocalDateTime createdAt;
     
-    @Column(name = "production_goal", precision = 16, scale = 6, nullable = false)
+    @Column(name = "production_goal", precision = 38, scale = 6, nullable = false)
     private BigDecimal productionGoal;
     
     @Transient

@@ -507,11 +507,20 @@
                                     <th>Proporção Temporal da Unidade de Insumo</th>
                                     <th>
                                         <div class="th-with-hint">
-                                            <span>Proporção da Unidade desse Produto</span>
-                                            <button type="button" class="column-hint-btn" aria-label="Dica sobre proporção da unidade desse produto">
+                                            <span>Proporção Temporal do Insumo no custo total de Insumos</span>
+                                            <button type="button" class="column-hint-btn" aria-label="Dica sobre proporção temporal do insumo no custo total de insumos">
                                                 <i class="fas fa-info-circle" aria-hidden="true"></i>
                                             </button>
-                                            <span class="column-hint-tooltip" role="tooltip">Elemento Tecnológico, forma o elemento da Matriz Tecnológica</span>
+                                            <span class="column-hint-tooltip" role="tooltip">Valor da proporção temporal da unidade de insumo dividido pela soma das proporções temporais de todos os insumos.</span>
+                                        </div>
+                                    </th>
+                                    <th>
+                                        <div class="th-with-hint">
+                                            <span>Proporção Temporal do Insumo na Unidade desse Produto</span>
+                                            <button type="button" class="column-hint-btn" aria-label="Dica sobre proporção temporal do insumo na unidade desse produto">
+                                                <i class="fas fa-info-circle" aria-hidden="true"></i>
+                                            </button>
+                                            <span class="column-hint-tooltip" role="tooltip">Valor da proporção temporal da unidade de insumo dividido pela soma entre o total da coluna de proporção temporal da unidade de insumo e o tempo para produzir uma unidade da materialização social exibido na modal de resultados da otimização. Esse é o Elemento Tecnológico, usado para formar a Matriz Tecnológica.</span>
                                         </div>
                                     </th>
                                     <th>
@@ -806,6 +815,11 @@
 
                 <!-- Conteúdo da aba "Proposta de Capacidade Produtiva Declarada" -->
                 <div id="proposta-capacidade-produtiva-declarada-content" class="tab-content">
+                    <div id="propostaZeroWarning" class="info-message warning-message" style="display: none; margin-top: 10px;">
+                        <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
+                        <p>Dados zerados nessa aba podem resultar em Participação Estimada (mensal) zerada também após o cálculo da planificação.</p>
+                    </div>
+
                     <div class="form-group">
                         <label for="workerLimitProposta">Limite de Trabalhadores na Unidade de Produção:</label>
                         <input type="number" id="workerLimitProposta" class="form-control" min="1" required>

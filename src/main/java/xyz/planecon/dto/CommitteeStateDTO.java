@@ -315,6 +315,7 @@ public class CommitteeStateDTO {
         private Integer id;
         private String name;
         private String type;
+        private BigDecimal quantity;
         private BigDecimal demand;
         private BigDecimal stock;
         private Boolean isNew;
@@ -344,6 +345,14 @@ public class CommitteeStateDTO {
 
         public void setType(String type) {
             this.type = type;
+        }
+
+        public BigDecimal getQuantity() {
+            return quantity;
+        }
+
+        public void setQuantity(BigDecimal quantity) {
+            this.quantity = quantity;
         }
 
         public BigDecimal getDemand() {

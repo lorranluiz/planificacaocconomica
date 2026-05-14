@@ -103,6 +103,9 @@ public class CommitteeController {
             
             // 2. Atualizar dados básicos do comitê
             updateCommitteeBasicData(committee, committeeStateDTO);
+
+            // 2.1. Persistir as quantidades do vetor tecnológico na própria instância do comitê
+            saveTechnologicalQuantities(committee, committeeStateDTO.getMaterializations());
             
             // 3. Salvar o comitê para obter o ID se for novo
             committee = instanceRepository.save(committee);
@@ -220,6 +223,31 @@ public class CommitteeController {
         // Salvar a proposta
         workersProposalRepository.save(proposal);
         logger.info("Proposta de trabalhadores salva para comitê ID: {}", committee.getId());
+    }
+
+    /**
+     * Persiste as quantidades do vetor tecnológico em um único campo JSONB da instância.
+     */
+    private void saveTechnologicalQuantities(Instance committee, List<CommitteeStateDTO.MaterializationStateDTO> materializations) {
+        if (committee == null || materializations == null) {
+            return;
+        }
+
+        Map<String, BigDecimal> quantitiesByMaterialization = new LinkedHashMap<>();
+        for (CommitteeStateDTO.MaterializationStateDTO materialization : materializations) {
+            if (materialization == null || materialization.getId() == null) {
+                continue;
+            }
+
+            BigDecimal quantity = materialization.getQuantity();
+            if (quantity != null) {
+                quantitiesByMaterialization.put(String.valueOf(materialization.getId()), quantity);
+            }
+        }
+
+        committee.setTechnologicalQuantitiesByMaterialization(
+            quantitiesByMaterialization.isEmpty() ? null : quantitiesByMaterialization
+        );
     }
     
     /**
@@ -1069,6 +1097,7 @@ public class CommitteeController {
     private List<CommitteeStateDTO.MaterializationStateDTO> getMaterializationsForCommittee(Instance committee) {
         // Mapa para deduplição
         Map<Integer, CommitteeStateDTO.MaterializationStateDTO> matMap = new HashMap<>();
+        Map<String, BigDecimal> quantitiesByMaterialization = committee.getTechnologicalQuantitiesByMaterialization();
         
         // 1. Primeiro, buscar os estoques e demandas para garantir que toda materialização tenha valores
         List<DemandStock> stocks = demandStockRepository.findByInstance(committee);
@@ -1083,6 +1112,9 @@ public class CommitteeController {
                 dto.setName(mat.getName());
                 dto.setType(mat.getType().name());
                 dto.setTechnologicalTensors(new HashMap<>());
+                if (quantitiesByMaterialization != null && quantitiesByMaterialization.get(String.valueOf(id)) != null) {
+                    dto.setQuantity(quantitiesByMaterialization.get(String.valueOf(id)));
+                }
                 return dto;
             });
             
@@ -1112,6 +1144,9 @@ public class CommitteeController {
                 dto.setTechnologicalTensors(new HashMap<>());
                 dto.setStock(BigDecimal.ZERO);  // Valores default para garantir não-nulos
                 dto.setDemand(BigDecimal.ZERO);
+                if (quantitiesByMaterialization != null && quantitiesByMaterialization.get(String.valueOf(id)) != null) {
+                    dto.setQuantity(quantitiesByMaterialization.get(String.valueOf(id)));
+                }
                 return dto;
             });
             
@@ -1130,6 +1165,9 @@ public class CommitteeController {
                 dto.setTechnologicalTensors(new HashMap<>());
                 dto.setStock(BigDecimal.ZERO);  // Valores default para garantir não-nulos
                 dto.setDemand(BigDecimal.ZERO);
+                if (quantitiesByMaterialization != null && quantitiesByMaterialization.get(String.valueOf(id)) != null) {
+                    dto.setQuantity(quantitiesByMaterialization.get(String.valueOf(id)));
+                }
                 return dto;
             });
         }
@@ -1150,6 +1188,10 @@ public class CommitteeController {
                 dto.setStock(BigDecimal.ZERO);  // Valor padrão para garantir não-nulos
                 return dto;
             });
+
+            if (quantitiesByMaterialization != null && quantitiesByMaterialization.get(String.valueOf(mat.getId())) != null) {
+                matDTO.setQuantity(quantitiesByMaterialization.get(String.valueOf(mat.getId())));
+            }
             
             // Definir demanda apenas se ainda não foi definida pelo DemandStock
             if (matDTO.getDemand() == null || matDTO.getDemand().compareTo(BigDecimal.ZERO) == 0) {

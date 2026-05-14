@@ -8,6 +8,8 @@ import lombok.ToString;
 import xyz.planecon.model.enums.InstanceType;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
@@ -17,6 +19,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -138,6 +141,10 @@ public class Instance {
 
     @Column(name = "last_planner_estimates_synced_at")
     private Long lastPlannerEstimatesSyncedAt;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "technological_quantities_by_materialization", columnDefinition = "jsonb")
+    private Map<String, BigDecimal> technologicalQuantitiesByMaterialization;
 
     // Campo de auditoria: indica se o usuário do Conselho Planificador alterou dados
     // após clicar em "Planificar" e antes de clicar em "Salvar Alterações".

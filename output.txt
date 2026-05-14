@@ -1,0 +1,1 @@
+ql -h localhost -U postgres -d planecon -P pager\=off -c SELECT\ id\,\ committee_name\,\ type\,\ id_social_materialization\,\ produced_quantity\,\ target_quantity\ FROM\ instance\ WHERE\ type\=\'COMMITTEE\'\ AND\ committee_name\ ILIKE\ \'@/\\less/\\help/\\file/\\@CERVEJARIA@/\\less/\\help/\\file/\\@PETRÓPOLIS@/\\less/\\help/\\file/\\@\'\;

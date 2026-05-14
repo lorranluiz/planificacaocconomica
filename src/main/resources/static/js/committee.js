@@ -58,6 +58,8 @@ const globalState = {
     materializationProductionTimeLoaded: false,
     materializationProductionTimePromise: null,
     plannerCouncilId: null,
+    committeeOptimizationDataPromise: null,
+    technologicalQuantitiesHydratedFromTensor: false,
     // Flag para controlar se já carregamos todas as materializações do servidor
     materializationsLoaded: false,
     // Flag para controlar se o dropdown está visível
@@ -231,22 +233,211 @@ function getMaterializationProductionTimeValue(materialization) {
     return null;
 }
 
+function getMaterializationInputUnitProportionValue(materialization, quantityOverride = undefined) {
+    if (!materialization) return null;
+
+    const quantitySource = quantityOverride !== undefined
+        ? quantityOverride
+        : getTechnologicalQuantityValue(materialization);
+
+    const stdQty = parseDecimalInput(materialization.standardQuantityPerUnit);
+    const qty = parseDecimalInput(quantitySource);
+
+    if (stdQty === 0 || isNaN(stdQty) || isNaN(qty)) {
+        return null;
+    }
+
+    return qty / stdQty;
+}
+
+function getMaterializationTemporalInputUnitProportionValue(materialization, inputUnitProportionOverride = undefined) {
+    if (!materialization) return null;
+
+    const inputUnitProportion = inputUnitProportionOverride !== undefined
+        ? inputUnitProportionOverride
+        : getMaterializationInputUnitProportionValue(materialization);
+
+    const productionTime = parseDecimalInput(getMaterializationProductionTimeValue(materialization));
+
+    if (inputUnitProportion === null || inputUnitProportion === undefined || isNaN(inputUnitProportion) || isNaN(productionTime)) {
+        return null;
+    }
+
+    return inputUnitProportion * productionTime;
+}
+
+function getCommitteeOptimizationProductionTimeValue() {
+    const optimizationProductionTime = pageState.optimizationData && pageState.optimizationData.productionTime;
+    if (optimizationProductionTime !== undefined && optimizationProductionTime !== null && optimizationProductionTime !== '') {
+        return parseDecimalInput(optimizationProductionTime);
+    }
+
+    return null;
+}
+
+function getStoredTechnologicalTensorValue(materialization, outputMaterializationId) {
+    if (!materialization || !outputMaterializationId) return null;
+
+    const tensors = materialization.technologicalTensors || {};
+    const storedValue = tensors[outputMaterializationId];
+
+    if (storedValue === undefined || storedValue === null || storedValue === '') {
+        return null;
+    }
+
+    return parseDecimalInput(storedValue);
+}
+
+function hydrateTechnologicalQuantitiesFromStoredTensor() {
+    if (globalState.technologicalQuantitiesHydratedFromTensor) {
+        return;
+    }
+
+    const outputMaterializationId = pageState.socialMaterializationId;
+    const productProductionTime = getCommitteeOptimizationProductionTimeValue();
+    const activeMaterializations = (pageState.materializations || []).filter(mat => mat && mat.isDeleted !== true);
+
+    if (!outputMaterializationId || !productProductionTime || productProductionTime <= 0 || activeMaterializations.length === 0) {
+        return;
+    }
+
+    const storedCoefficients = activeMaterializations.map(materialization => {
+        const tensors = materialization.technologicalTensors || {};
+        return parseDecimalInput(tensors[outputMaterializationId]);
+    });
+
+    const coefficientSum = storedCoefficients.reduce((sum, value) => sum + (value || 0), 0);
+
+    if (coefficientSum < 0 || coefficientSum >= 1) {
+        console.warn('Nao foi possivel hidratar Quantidade a partir do vetor tecnologico: soma invalida dos coeficientes.', coefficientSum);
+        globalState.technologicalQuantitiesHydratedFromTensor = true;
+        return;
+    }
+
+    const temporalDenominator = productProductionTime / (1 - coefficientSum);
+
+    activeMaterializations.forEach((materialization, index) => {
+        if (globalState.technologicalQuantities[materialization.id] !== undefined && globalState.technologicalQuantities[materialization.id] !== null && globalState.technologicalQuantities[materialization.id] !== '') {
+            return;
+        }
+
+        const storedCoefficient = storedCoefficients[index] || 0;
+        const materializationProductionTime = parseDecimalInput(getMaterializationProductionTimeValue(materialization));
+        const standardQuantity = parseDecimalInput(materialization.standardQuantityPerUnit);
+
+        if (materializationProductionTime <= 0 || standardQuantity <= 0) {
+            globalState.technologicalQuantities[materialization.id] = 0;
+            return;
+        }
+
+        const temporalProportion = storedCoefficient * temporalDenominator;
+        const inputUnitProportion = temporalProportion / materializationProductionTime;
+        const quantity = inputUnitProportion * standardQuantity;
+
+        globalState.technologicalQuantities[materialization.id] = quantity;
+    });
+
+    globalState.technologicalQuantitiesHydratedFromTensor = true;
+}
+
+function loadCommitteeOptimizationData() {
+    if (pageState.optimizationData) {
+        return Promise.resolve(pageState.optimizationData);
+    }
+
+    if (!pageState.id || !pageState.socialMaterializationId) {
+        return Promise.resolve(null);
+    }
+
+    if (globalState.committeeOptimizationDataPromise) {
+        return globalState.committeeOptimizationDataPromise;
+    }
+
+    globalState.committeeOptimizationDataPromise = fetch(`/api/committees/${pageState.id}/central-optimization/${pageState.socialMaterializationId}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Erro ao buscar dados de otimização: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(result => {
+            pageState.optimizationData = result;
+            return result;
+        })
+        .catch(error => {
+            console.error('Erro ao carregar dados de otimização do comitê:', error);
+            return null;
+        })
+        .finally(() => {
+            globalState.committeeOptimizationDataPromise = null;
+        });
+
+    return globalState.committeeOptimizationDataPromise;
+}
+
 function updateTechnologicalQuantity(materializationId, input) {
     if (!input) return;
 
     globalState.technologicalQuantities[materializationId] = input.value;
 
+    const materialization = (pageState.materializations || []).find(mat => mat.id === materializationId);
+    if (materialization) {
+        materialization.quantity = parseDecimalInput(input.value);
+    }
+
     // Atualizar o campo de proporção da unidade de insumo
     const proportionInput = document.querySelector(`[data-proportion-for="${materializationId}"]`);
+    const temporalProportionInput = document.querySelector(`[data-temporal-proportion-for="${materializationId}"]`);
+    const materializationForCalc = materialization || { id: materializationId };
+    let inputProportionValue = null;
+
     if (proportionInput) {
         const stdQty = parseFloat(proportionInput.dataset.stdQty);
         const qty = parseFloat(input.value);
         if (!isNaN(qty) && stdQty && stdQty !== 0) {
-            proportionInput.value = formatNumberForInput(qty / stdQty);
+            inputProportionValue = qty / stdQty;
+            proportionInput.value = formatNumberForInput(inputProportionValue);
         } else {
             proportionInput.value = '';
         }
     }
+
+    if (temporalProportionInput) {
+        const temporalValue = getMaterializationTemporalInputUnitProportionValue(materializationForCalc, inputProportionValue);
+        temporalProportionInput.value = (temporalValue !== null && temporalValue !== undefined)
+            ? formatNumberForInput(temporalValue)
+            : '';
+    }
+
+    // Atualizar todas as colunas derivadas de proporção temporal
+    const allRows = (pageState.materializations || []).filter(mat => !mat.isDeleted);
+    const temporalProportionValues = allRows.map(mat => getMaterializationTemporalInputUnitProportionValue(mat, getMaterializationInputUnitProportionValue(mat)));
+    const totalTemporalProportion = temporalProportionValues.reduce((acc, val) => acc + (parseFloat(val) || 0), 0);
+    const productProductionTime = getCommitteeOptimizationProductionTimeValue();
+    const temporalUnitProductDenominator = totalTemporalProportion + (productProductionTime || 0);
+
+    allRows.forEach((mat, idx) => {
+        const totalCostInputEl = document.querySelector(`input[data-temporal-proportion-insumo-for="${mat.id}"]`);
+        const unitProductInputEl = document.querySelector(`input[data-temporal-proportion-unit-product-for="${mat.id}"]`);
+        const value = parseFloat(temporalProportionValues[idx]) || 0;
+        let temporalCostShare = '0';
+        if (totalTemporalProportion > 0) {
+            temporalCostShare = formatNumberForInput(value / totalTemporalProportion);
+        }
+
+        let unitProductShare = '';
+        if (temporalUnitProductDenominator > 0) {
+            unitProductShare = formatNumberForInput(value / temporalUnitProductDenominator);
+        }
+
+        if (totalCostInputEl) {
+            totalCostInputEl.value = temporalCostShare;
+        }
+
+        if (unitProductInputEl) {
+            unitProductInputEl.value = unitProductShare;
+        }
+    });
 }
 
 function loadMaterializationMetadata() {
@@ -864,7 +1055,8 @@ function loadAllMaterializations() {
 function refreshTechnologicalMatrixMetadata() {
     return Promise.all([
         loadMaterializationMetadata(),
-        loadMaterializationProductionTimes()
+        loadMaterializationProductionTimes(),
+        loadCommitteeOptimizationData()
     ]).then(() => {
         pageState.materializations = enrichMaterializationsWithMetadata(pageState.materializations);
         updateAllUI();
@@ -981,48 +1173,7 @@ function showMaterializationDropdown(materializations) {
         emptyMessage.className = 'empty-message';
         emptyMessage.textContent = 'Nenhuma materialização disponível';
         dropdown.appendChild(emptyMessage);
-    } else {
-        materializations.forEach(mat => {
-            const item = document.createElement('div');
-            item.className = 'dropdown-item';
-            item.textContent = mat.name || `Materialização #${mat.id}`;
-            item.addEventListener('click', (e) => {
-                e.stopPropagation();
-                addMaterialization(mat);
-                closeDropdown(dropdown);
-            });
-            dropdown.appendChild(item);
-        });
     }
-    
-    // Adicionar opção para criar nova materialização
-    const newItem = document.createElement('div');
-    newItem.className = 'dropdown-item add-new-item';
-    newItem.textContent = '+ Nova Materialização Social';
-    newItem.addEventListener('click', (e) => {
-        e.stopPropagation();
-        openNewMaterializationModal();
-        closeDropdown(dropdown);
-    });
-    dropdown.appendChild(newItem);
-    
-    // Adicionar ao documento
-    document.body.appendChild(dropdown);
-    
-    console.log("Dropdown criado e adicionado ao DOM");
-    
-    // Fechar dropdown quando clicar fora dele
-    function handleDocumentClick(e) {
-        if (!dropdown.contains(e.target) && e.target !== button) {
-            closeDropdown(dropdown);
-        }
-    }
-    
-    // Adicionar evento de clique ao documento após um pequeno delay
-    // para evitar que o dropdown seja fechado imediatamente
-    setTimeout(() => {
-        document.addEventListener('click', handleDocumentClick);
-    }, 100);
     
     // Função para fechar o dropdown e limpar eventos
     function closeDropdown(dropdownElement) {
@@ -1059,6 +1210,12 @@ function initializePageState(committeeId) {
         
         // Atualizar o estado com dados do cache
         Object.assign(pageState, cachedState);
+        globalState.technologicalQuantities = {};
+        (pageState.materializations || []).forEach(materialization => {
+            if (materialization.quantity !== undefined && materialization.quantity !== null && materialization.quantity !== '') {
+                globalState.technologicalQuantities[materialization.id] = materialization.quantity;
+            }
+        });
         
         // Atualizar a interface com os dados carregados
         updateAllUI();
@@ -1101,6 +1258,12 @@ function initializePageState(committeeId) {
             };
             pageState.members = data.members || [];
             pageState.materializations = data.materializations || [];
+            globalState.technologicalQuantities = {};
+            pageState.materializations.forEach(materialization => {
+                if (materialization.quantity !== undefined && materialization.quantity !== null && materialization.quantity !== '') {
+                    globalState.technologicalQuantities[materialization.id] = materialization.quantity;
+                }
+            });
             pageState.materializations = enrichMaterializationsWithMetadata(pageState.materializations);
             
             // Armazenar em cache local
@@ -1118,6 +1281,9 @@ function initializePageState(committeeId) {
                 materializations: pageState.materializations
             }, 300000); // 5 minutos de cache
             
+            // Armazenar dados de otimização se estiverem presentes antes do primeiro render
+            pageState.optimizationData = data.optimizationData || null;
+
             // Atualizar a interface com os dados carregados
             updateAllUI();
             refreshTechnologicalMatrixMetadata();
@@ -1128,9 +1294,6 @@ function initializePageState(committeeId) {
             // Marcar como inicializado
             pageState.initialized = true;
             console.log("Dados carregados do servidor e armazenados em cache");
-
-            // Armazenar dados de otimização se estiverem presentes
-            pageState.optimizationData = data.optimizationData || null;
             
             // Log para debug se os dados de otimização foram carregados
             if (pageState.optimizationData) {
@@ -1180,9 +1343,13 @@ function resetPageState() {
     
     pageState.members = [];
     pageState.materializations = [];
+    pageState.optimizationData = null;
     
     pageState.initialized = false;
     pageState.isDirty = false;
+    globalState.committeeOptimizationDataPromise = null;
+    globalState.technologicalQuantities = {};
+    globalState.technologicalQuantitiesHydratedFromTensor = false;
 }
 
 /**
@@ -1541,7 +1708,7 @@ function updateTechnologicalMatrixTable() {
     // Se não há produtos ou materializações, mostrar mensagem
     if (!pageState.materializations || pageState.materializations.length === 0) {
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="7" class="text-center">Não há dados de coeficientes disponíveis</td>';
+        tr.innerHTML = '<td colspan="8" class="text-center">Não há dados de coeficientes disponíveis</td>';
         tbody.appendChild(tr);
         return;
     }
@@ -1552,7 +1719,7 @@ function updateTechnologicalMatrixTable() {
     // Se não temos um produto definido, mostrar mensagem
     if (!outputMaterializationId) {
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="7" class="text-center">Produto do comitê não definido</td>';
+        tr.innerHTML = '<td colspan="8" class="text-center">Produto do comitê não definido</td>';
         tbody.appendChild(tr);
         return;
     }
@@ -1568,25 +1735,29 @@ function updateTechnologicalMatrixTable() {
     // Se não há insumos, mostrar mensagem
     if (inputMaterializations.length === 0) {
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="7" class="text-center">Não há insumos definidos para este produto</td>';
+        tr.innerHTML = '<td colspan="8" class="text-center">Não há insumos definidos para este produto</td>';
         tbody.appendChild(tr);
         return;
     }
     
-    // Renderizar cada insumo
-    inputMaterializations.forEach(mat => {
+    // Calcular todos os valores de proporção temporal e a soma total
+    const temporalProportionValues = inputMaterializations.map(mat => getMaterializationTemporalInputUnitProportionValue(mat, getMaterializationInputUnitProportionValue(mat, getTechnologicalQuantityValue(mat))));
+    const totalTemporalProportion = temporalProportionValues.reduce((acc, val) => acc + (parseFloat(val) || 0), 0);
+    const productProductionTime = getCommitteeOptimizationProductionTimeValue();
+    const temporalUnitProductDenominator = totalTemporalProportion + (productProductionTime || 0);
+
+    inputMaterializations.forEach((mat, idx) => {
         const tr = document.createElement('tr');
         tr.dataset.materializationId = mat.id;
 
-        // Verificar se é o produto próprio do comitê
         const isMainProduct = (mat.id === outputMaterializationId);
         if (isMainProduct) {
             tr.classList.add('main-product-row');
         }
 
-        // Obter coeficiente deste insumo para o produto do comitê
         const tensors = mat.technologicalTensors || {};
         const coeff = tensors[outputMaterializationId] || 0;
+        const storedTensorValue = getStoredTechnologicalTensorValue(mat, outputMaterializationId);
         const productUnitProportion = mat.productUnitProportion;
         const quantityValue = getTechnologicalQuantityValue(mat);
         const standardQuantityLabel = getMaterializationStandardQuantityLabel(mat);
@@ -1594,133 +1765,92 @@ function updateTechnologicalMatrixTable() {
         const quantityDisplay = formatNumberForInput(quantityValue);
         const productUnitProportionDisplay = formatNumberForInput(productUnitProportion);
         const stdQty = parseFloat(mat.standardQuantityPerUnit);
-        const inputProportionValue = (quantityValue !== null && quantityValue !== undefined && stdQty && stdQty !== 0)
-            ? parseFloat(quantityValue) / stdQty
-            : null;
+        const inputProportionValue = getMaterializationInputUnitProportionValue(mat, quantityValue);
         const inputProportionDisplay = formatNumberForInput(inputProportionValue);
+        const temporalProportionValue = parseFloat(temporalProportionValues[idx]) || 0;
+        const temporalProportionDisplay = formatNumberForInput(temporalProportionValue);
+        let temporalCostShare = '';
+        if (totalTemporalProportion > 0 && temporalProportionValue !== null && temporalProportionValue !== undefined && !isNaN(temporalProportionValue)) {
+            temporalCostShare = formatNumberForInput(temporalProportionValue / totalTemporalProportion);
+        }
+        let temporalUnitProductShare = '';
+        if (temporalUnitProductDenominator > 0) {
+            temporalUnitProductShare = formatNumberForInput(temporalProportionValue / temporalUnitProductDenominator);
+        } else if (storedTensorValue !== null) {
+            temporalUnitProductShare = formatNumberForInput(storedTensorValue);
+        }
         const quantityUnitHtml = unitLabel ? `<span class="technological-unit-label">${escapeHtml(unitLabel)}</span>` : '';
         const standardQuantityHtml = standardQuantityLabel ? `<span class="technological-standard-quantity">x ${escapeHtml(standardQuantityLabel)}</span>` : '<span class="technological-standard-quantity">x</span>';
-
-        // Novo: obter o tempo para produzir 1 unidade do insumo
         const productionTimeValue = getMaterializationProductionTimeValue(mat);
         const productionTime = (productionTimeValue !== null && productionTimeValue !== undefined && productionTimeValue !== '')
             ? formatNumberForDisplay(productionTimeValue)
             : '';
 
-        if (isMainProduct) {
-            tr.innerHTML = `
-                <td><div class="mat-name-inline"><strong>${mat.name || `Produto #${mat.id}`}</strong><span class="badge main-product-badge" title="Materialização social da unidade produtiva gerida por esse comitê"><i class="fas fa-industry"></i></span></div></td>
-                <td class="technological-quantity-cell">
-                    <div class="technological-proportion-line">
-                        <input type="number" class="form-control technological-quantity-input" 
-                               value="${quantityDisplay}" 
-                               step="any"
-                               inputmode="decimal"
-                               data-materialization-id="${mat.id}"
-                               onchange="updateTechnologicalQuantity(${mat.id}, this)">
-                        ${quantityUnitHtml}
-                    </div>
-                </td>
-                <td class="technological-proportion-cell">
-                    <div class="technological-proportion-line">
-                        <input type="text" class="form-control technological-coefficient-display technological-input-proportion" 
-                               value="${inputProportionDisplay}"
-                               data-proportion-for="${mat.id}"
-                               data-std-qty="${stdQty || ''}"
-                               readonly
-                               tabindex="-1"
-                               aria-readonly="true">
-                        ${standardQuantityHtml}
-                    </div>
-                </td>
-                <td class="technological-production-time-cell">
-                    <input type="text" class="form-control technological-production-time-input"
-                           value="${productionTime}"
-                           readonly
-                           tabindex="-1"
-                           aria-readonly="true"
-                           title="Tempo para Produzir 1 Unidade do Insumo (em horas)">
-                </td>
-                <td class="technological-temporal-proportion-cell">
-                    <input type="text" class="form-control technological-temporal-proportion-input"
-                           data-temporal-proportion-for="${mat.id}"
-                           value=""
+        tr.innerHTML = `
+            <td>${isMainProduct ? `<div class="mat-name-inline"><strong>${mat.name || `Produto #${mat.id}`}</strong><span class="badge main-product-badge" title="Materialização social da unidade produtiva gerida por esse comitê"><i class="fas fa-industry"></i></span></div>` : (mat.name || `Insumo #${mat.id}`)}</td>
+            <td class="technological-quantity-cell">
+                <div class="technological-proportion-line">
+                    <input type="number" class="form-control technological-quantity-input" 
+                           value="${quantityDisplay}" 
+                           step="any"
+                           inputmode="decimal"
+                           data-materialization-id="${mat.id}"
+                           onchange="updateTechnologicalQuantity(${mat.id}, this)">
+                    ${quantityUnitHtml}
+                </div>
+            </td>
+            <td class="technological-proportion-cell">
+                <div class="technological-proportion-line">
+                    <input type="text" class="form-control technological-coefficient-display technological-input-proportion" 
+                           value="${inputProportionDisplay}"
+                           data-proportion-for="${mat.id}"
+                           data-std-qty="${stdQty || ''}"
                            readonly
                            tabindex="-1"
                            aria-readonly="true">
-                </td>
-                <td class="technological-product-proportion-cell">
-                    <div class="technological-proportion-line">
-                        <input type="text" class="form-control coefficient-input technological-coefficient-display" 
-                               value="${formatNumberForDisplay(coeff)}" 
-                               data-input-id="${mat.id}" 
-                               data-output-id="${outputMaterializationId}" 
-                               readonly
-                               tabindex="-1"
-                               aria-readonly="true"
-                               onchange="updateTensorCoefficient(${mat.id}, ${outputMaterializationId}, this)">
-                    </div>
-                </td>
-                <td><!-- Espaço para ações (vazio para o produto principal) --></td>
-            `;
-        } else {
-            tr.innerHTML = `
-                <td>${mat.name || `Insumo #${mat.id}`}</td>
-                <td class="technological-quantity-cell">
-                    <div class="technological-proportion-line">
-                        <input type="number" class="form-control technological-quantity-input" 
-                               value="${quantityDisplay}" 
-                               step="any"
-                               inputmode="decimal"
-                               data-materialization-id="${mat.id}"
-                               onchange="updateTechnologicalQuantity(${mat.id}, this)">
-                        ${quantityUnitHtml}
-                    </div>
-                </td>
-                <td class="technological-proportion-cell">
-                    <div class="technological-proportion-line">
-                        <input type="text" class="form-control technological-coefficient-display technological-input-proportion" 
-                               value="${inputProportionDisplay}"
-                               data-proportion-for="${mat.id}"
-                               data-std-qty="${stdQty || ''}"
-                               readonly
-                               tabindex="-1"
-                               aria-readonly="true">
-                        ${standardQuantityHtml}
-                    </div>
-                </td>
-                <td class="technological-production-time-cell">
-                    <input type="text" class="form-control technological-production-time-input"
-                           value="${productionTime}"
-                           readonly
-                           tabindex="-1"
-                           aria-readonly="true"
-                           title="Tempo para Produzir 1 Unidade do Insumo (em horas)">
-                </td>
-                <td class="technological-temporal-proportion-cell">
-                    <input type="text" class="form-control technological-temporal-proportion-input"
-                           data-temporal-proportion-for="${mat.id}"
-                           value=""
+                    ${standardQuantityHtml}
+                </div>
+            </td>
+            <td class="technological-production-time-cell">
+                <input type="text" class="form-control technological-production-time-input"
+                       value="${productionTime}"
+                       readonly
+                       tabindex="-1"
+                       aria-readonly="true"
+                       title="Tempo para Produzir 1 Unidade do Insumo (em horas)">
+            </td>
+            <td class="technological-temporal-proportion-cell">
+                <input type="text" class="form-control technological-temporal-proportion-input"
+                       data-temporal-proportion-for="${mat.id}"
+                       value="${temporalProportionDisplay}"
+                       readonly
+                       tabindex="-1"
+                       aria-readonly="true">
+            </td>
+            <td class="technological-product-proportion-cell">
+                <div class="technological-proportion-line">
+                    <input type="text" class="form-control technological-coefficient-display technological-temporal-proportion-insumo-input" 
+                           data-temporal-proportion-insumo-for="${mat.id}"
+                           value="${temporalCostShare}"
                            readonly
                            tabindex="-1"
                            aria-readonly="true">
-                </td>
-                <td class="technological-product-proportion-cell">
-                    <div class="technological-proportion-line">
-                        <input type="text" class="form-control coefficient-input technological-coefficient-display" 
-                               value="${formatNumberForDisplay(coeff)}" 
-                               data-input-id="${mat.id}" 
-                               data-output-id="${outputMaterializationId}" 
-                               readonly
-                               tabindex="-1"
-                               aria-readonly="true"
-                               onchange="updateTensorCoefficient(${mat.id}, ${outputMaterializationId}, this)">
-                    </div>
-                </td>
-                <td><!-- Aqui poderia ter uma lixeira usando mat.id, mas foi removida para ficar mais clean --></td>
-            `;
-        }
-
+                </div>
+            </td>
+            <td class="technological-product-proportion-cell">
+                <div class="technological-proportion-line">
+                    <input type="text" class="form-control coefficient-input technological-coefficient-display technological-temporal-proportion-unit-product-input" 
+                           data-input-id="${mat.id}"
+                           data-output-id="${outputMaterializationId}"
+                           data-temporal-proportion-unit-product-for="${mat.id}"
+                           value="${temporalUnitProductShare}"
+                           readonly
+                           tabindex="-1"
+                           aria-readonly="true">
+                </div>
+            </td>
+            <td><!-- Espaço para ações (vazio para o produto principal) --></td>
+        `;
         tbody.appendChild(tr);
     });
 }
@@ -1882,6 +2012,17 @@ function updateStateFromUI() {
             }
         }
     });
+
+    const quantityInputs = document.querySelectorAll('.technological-quantity-input');
+    quantityInputs.forEach(input => {
+        const materializationId = parseInt(input.dataset.materializationId);
+        if (materializationId) {
+            const materialization = pageState.materializations.find(m => m.id === materializationId);
+            if (materialization) {
+                materialization.quantity = parseDecimalInput(input.value);
+            }
+        }
+    });
     
     // Verificar se há entradas com coeficientes que precisam ser atualizadas
     const coefficientInputs = document.querySelectorAll('.coefficient-input');
@@ -1914,6 +2055,74 @@ function showErrorMessage(message) {
     showNotification(message, 'error');
 }
 
+function getPropostaZeroFields() {
+    const fields = [
+        { id: 'workerLimitProposta', label: 'Limite de Trabalhadores na Unidade de Produção' },
+        { id: 'workerHoursProposta', label: 'Carga Horária Diária (h)' },
+        { id: 'productionTimeProposta', label: 'Tempo para Produzir 1 Unidade (h)' },
+        { id: 'weeklyScaleProposta', label: 'Escala semanal (dias)' }
+    ];
+
+    return fields.filter(field => {
+        const input = document.getElementById(field.id);
+        if (!input) return false;
+
+        const parsedValue = parseFloat(input.value);
+        return Number.isFinite(parsedValue) && parsedValue === 0;
+    });
+}
+
+function updatePropostaZeroWarning(showToast = false) {
+    const warningEl = document.getElementById('propostaZeroWarning');
+    const zeroFields = getPropostaZeroFields();
+    const hasZero = zeroFields.length > 0;
+
+    if (warningEl) {
+        warningEl.style.display = hasZero ? 'flex' : 'none';
+    }
+
+    if (showToast && hasZero && !globalState.propostaZeroWarningNotified) {
+        showNotification(
+            'Dados zerados nessa aba podem resultar em Participação Estimada (mensal) zerada também após o cálculo da planificação.',
+            'warning'
+        );
+        globalState.propostaZeroWarningNotified = true;
+    }
+
+    if (!hasZero) {
+        globalState.propostaZeroWarningNotified = false;
+    }
+
+    return hasZero;
+}
+
+function setupPropostaZeroWarningHandlers() {
+    const propostaInputs = [
+        'workerLimitProposta',
+        'workerHoursProposta',
+        'productionTimeProposta',
+        'weeklyScaleProposta'
+    ];
+
+    propostaInputs.forEach(inputId => {
+        const input = document.getElementById(inputId);
+        if (!input) return;
+
+        if (input.dataset.zeroWarningBound === '1') {
+            return;
+        }
+
+        const handleWarningUpdate = () => updatePropostaZeroWarning(false);
+        const handleWarningUpdateWithToast = () => updatePropostaZeroWarning(true);
+
+        input.addEventListener('input', handleWarningUpdate);
+        input.addEventListener('change', handleWarningUpdateWithToast);
+        input.addEventListener('blur', handleWarningUpdateWithToast);
+
+        input.dataset.zeroWarningBound = '1';
+    });
+}
+
 // Funções para abrir modais
 
 function openPropostaModal() {
@@ -1928,6 +2137,16 @@ function openPropostaModal() {
     document.getElementById('productionTimeProposta').value = pageState.workerProposal.productionTime || 0;
     document.getElementById('weeklyScaleProposta').value = pageState.workerProposal.weeklyScale || 5;
     document.getElementById('nightShiftProposta').checked = pageState.workerProposal.nightShift || false;
+
+    const propostaError = document.getElementById('propostaError');
+    if (propostaError) {
+        propostaError.style.display = 'none';
+        propostaError.textContent = '';
+    }
+
+    globalState.propostaZeroWarningNotified = false;
+    setupPropostaZeroWarningHandlers();
+    updatePropostaZeroWarning(false);
 
     // Preencher campos da aba "Capacidade Produtiva em Planejamento" (somente leitura)
     const wp = pageState.workerProposal;
@@ -2032,6 +2251,7 @@ function savePropostaInputs() {
     const productionTime = parseFloat(document.getElementById('productionTimeProposta').value);
     const weeklyScale = parseInt(document.getElementById('weeklyScaleProposta').value);
     const nightShift = document.getElementById('nightShiftProposta').checked;
+    const hasZeroValues = updatePropostaZeroWarning(true);
     
     // Validações básicas
     if (isNaN(workerLimit) || workerLimit <= 0 ||
@@ -2039,7 +2259,9 @@ function savePropostaInputs() {
         isNaN(productionTime) || productionTime <= 0 ||
         isNaN(weeklyScale) || weeklyScale < 1 || weeklyScale > 7) {
         
-        document.getElementById('propostaError').textContent = 'Todos os campos são obrigatórios e devem conter valores válidos.';
+        document.getElementById('propostaError').textContent = hasZeroValues
+            ? 'Valores zerados não são permitidos. Dados zerados nessa aba podem resultar em Participação Estimada (mensal) zerada também após o cálculo da planificação.'
+            : 'Todos os campos são obrigatórios e devem conter valores válidos.';
         document.getElementById('propostaError').style.display = 'block';
         return;
     }
