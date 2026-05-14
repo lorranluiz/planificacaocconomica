@@ -1476,8 +1476,10 @@ function updateTechnologicalMatrixTable() {
         const productUnitProportion = mat.productUnitProportion;
         const quantityValue = getTechnologicalQuantityValue(mat);
         const standardQuantityLabel = getMaterializationStandardQuantityLabel(mat);
+        const unitLabel = getMaterializationMeasurementUnitLabel(mat);
         const quantityDisplay = formatNumberForInput(quantityValue);
         const productUnitProportionDisplay = formatNumberForInput(productUnitProportion);
+        const quantityUnitHtml = unitLabel ? `<span class="technological-unit-label">${escapeHtml(unitLabel)}</span>` : '';
         const standardQuantityHtml = standardQuantityLabel ? `<span class="technological-standard-quantity">x ${escapeHtml(standardQuantityLabel)}</span>` : '<span class="technological-standard-quantity">x</span>';
         
         if (isMainProduct) {
@@ -1487,12 +1489,15 @@ function updateTechnologicalMatrixTable() {
                   <i class="fas fa-industry"></i>
                 </span></td>
                 <td class="technological-quantity-cell">
-                    <input type="number" class="form-control technological-quantity-input" 
-                           value="${quantityDisplay}" 
-                           step="any"
-                           inputmode="decimal"
-                           data-materialization-id="${mat.id}"
-                           onchange="updateTechnologicalQuantity(${mat.id}, this)">
+                    <div class="technological-proportion-line">
+                        <input type="number" class="form-control technological-quantity-input" 
+                               value="${quantityDisplay}" 
+                               step="any"
+                               inputmode="decimal"
+                               data-materialization-id="${mat.id}"
+                               onchange="updateTechnologicalQuantity(${mat.id}, this)">
+                        ${quantityUnitHtml}
+                    </div>
                 </td>
                 <td class="technological-proportion-cell">
                     <div class="technological-proportion-line">
@@ -1522,12 +1527,15 @@ function updateTechnologicalMatrixTable() {
             tr.innerHTML = `
                 <td>${mat.name || `Insumo #${mat.id}`}</td>
                 <td class="technological-quantity-cell">
-                    <input type="number" class="form-control technological-quantity-input" 
-                           value="${quantityDisplay}" 
-                           step="any"
-                           inputmode="decimal"
-                           data-materialization-id="${mat.id}"
-                           onchange="updateTechnologicalQuantity(${mat.id}, this)">
+                    <div class="technological-proportion-line">
+                        <input type="number" class="form-control technological-quantity-input" 
+                               value="${quantityDisplay}" 
+                               step="any"
+                               inputmode="decimal"
+                               data-materialization-id="${mat.id}"
+                               onchange="updateTechnologicalQuantity(${mat.id}, this)">
+                        ${quantityUnitHtml}
+                    </div>
                 </td>
                 <td class="technological-proportion-cell">
                     <div class="technological-proportion-line">
