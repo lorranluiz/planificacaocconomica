@@ -53,6 +53,11 @@ const globalState = {
     materializationMetadataById: {},
     materializationMetadataLoaded: false,
     materializationMetadataPromise: null,
+    // Tempo para produzir 1 unidade por materialização, calculado no Planner
+    materializationProductionTimeById: {},
+    materializationProductionTimeLoaded: false,
+    materializationProductionTimePromise: null,
+    plannerCouncilId: null,
     // Flag para controlar se já carregamos todas as materializações do servidor
     materializationsLoaded: false,
     // Flag para controlar se o dropdown está visível
@@ -206,10 +211,42 @@ function getTechnologicalQuantityValue(materialization) {
     return '';
 }
 
+function getMaterializationProductionTimeValue(materialization) {
+    if (!materialization) return null;
+
+    if (materialization.productionTime !== undefined && materialization.productionTime !== null && materialization.productionTime !== '') {
+        return materialization.productionTime;
+    }
+
+    const globalProductionTime = globalState.materializationProductionTimeById[materialization.id];
+    if (globalProductionTime !== undefined && globalProductionTime !== null && globalProductionTime !== '') {
+        return globalProductionTime;
+    }
+
+    const metadata = globalState.materializationMetadataById[materialization.id];
+    if (metadata && metadata.productionTime !== undefined && metadata.productionTime !== null && metadata.productionTime !== '') {
+        return metadata.productionTime;
+    }
+
+    return null;
+}
+
 function updateTechnologicalQuantity(materializationId, input) {
     if (!input) return;
 
     globalState.technologicalQuantities[materializationId] = input.value;
+
+    // Atualizar o campo de proporção da unidade de insumo
+    const proportionInput = document.querySelector(`[data-proportion-for="${materializationId}"]`);
+    if (proportionInput) {
+        const stdQty = parseFloat(proportionInput.dataset.stdQty);
+        const qty = parseFloat(input.value);
+        if (!isNaN(qty) && stdQty && stdQty !== 0) {
+            proportionInput.value = formatNumberForInput(qty / stdQty);
+        } else {
+            proportionInput.value = '';
+        }
+    }
 }
 
 function loadMaterializationMetadata() {
@@ -257,6 +294,81 @@ function loadMaterializationMetadata() {
     return globalState.materializationMetadataPromise;
 }
 
+function loadMaterializationProductionTimes() {
+    if (globalState.materializationProductionTimeLoaded) {
+        return Promise.resolve(globalState.materializationProductionTimeById);
+    }
+
+    if (globalState.materializationProductionTimePromise) {
+        return globalState.materializationProductionTimePromise;
+    }
+
+    globalState.materializationProductionTimePromise = fetch('/api/instances?type=PLANNERCOUNCIL', {
+        headers: {
+            'Cache-Control': 'no-cache, no-store, must-revalidate',
+            'Pragma': 'no-cache',
+            'Expires': '0'
+        }
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Erro ao carregar Conselho Planificador');
+        }
+        return response.json();
+    })
+    .then(plannerCouncils => {
+        const firstPlanner = Array.isArray(plannerCouncils) && plannerCouncils.length > 0
+            ? plannerCouncils[0]
+            : null;
+
+        if (!firstPlanner || !firstPlanner.id) {
+            return [];
+        }
+
+        globalState.plannerCouncilId = firstPlanner.id;
+
+        return fetch(`/api/planification/optimization-config/results/by-instance/${firstPlanner.id}`, {
+            headers: {
+                'Cache-Control': 'no-cache, no-store, must-revalidate',
+                'Pragma': 'no-cache',
+                'Expires': '0'
+            }
+        }).then(response => {
+            if (!response.ok) {
+                return [];
+            }
+            return response.json();
+        });
+    })
+    .then(results => {
+        const productionTimeById = {};
+
+        (results || []).forEach(result => {
+            if (!result || result.materializationId === undefined || result.materializationId === null) {
+                return;
+            }
+            if (result.productionTime === undefined || result.productionTime === null || result.productionTime === '') {
+                return;
+            }
+            productionTimeById[result.materializationId] = result.productionTime;
+        });
+
+        globalState.materializationProductionTimeById = productionTimeById;
+        globalState.materializationProductionTimeLoaded = true;
+
+        return productionTimeById;
+    })
+    .catch(error => {
+        console.error('Erro ao carregar tempos de produção por materialização:', error);
+        return globalState.materializationProductionTimeById;
+    })
+    .finally(() => {
+        globalState.materializationProductionTimePromise = null;
+    });
+
+    return globalState.materializationProductionTimePromise;
+}
+
 function enrichMaterializationsWithMetadata(materializations) {
     if (!Array.isArray(materializations) || materializations.length === 0) {
         return materializations || [];
@@ -273,7 +385,8 @@ function enrichMaterializationsWithMetadata(materializations) {
             measurementUnit: materialization.measurementUnit || metadata.measurementUnit || null,
             measurementUnitId: materialization.measurementUnitId ?? metadata.measurementUnitId,
             measurementUnitName: materialization.measurementUnitName || metadata.measurementUnitName || '',
-            standardQuantityPerUnit: materialization.standardQuantityPerUnit ?? metadata.standardQuantityPerUnit
+            standardQuantityPerUnit: materialization.standardQuantityPerUnit ?? metadata.standardQuantityPerUnit,
+            productionTime: materialization.productionTime ?? globalState.materializationProductionTimeById[materialization.id] ?? metadata.productionTime
         };
     });
 }
@@ -749,7 +862,10 @@ function loadAllMaterializations() {
 }
 
 function refreshTechnologicalMatrixMetadata() {
-    return loadMaterializationMetadata().then(() => {
+    return Promise.all([
+        loadMaterializationMetadata(),
+        loadMaterializationProductionTimes()
+    ]).then(() => {
         pageState.materializations = enrichMaterializationsWithMetadata(pageState.materializations);
         updateAllUI();
     });
@@ -1425,7 +1541,7 @@ function updateTechnologicalMatrixTable() {
     // Se não há produtos ou materializações, mostrar mensagem
     if (!pageState.materializations || pageState.materializations.length === 0) {
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="5" class="text-center">Não há dados de coeficientes disponíveis</td>';
+        tr.innerHTML = '<td colspan="7" class="text-center">Não há dados de coeficientes disponíveis</td>';
         tbody.appendChild(tr);
         return;
     }
@@ -1436,7 +1552,7 @@ function updateTechnologicalMatrixTable() {
     // Se não temos um produto definido, mostrar mensagem
     if (!outputMaterializationId) {
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="5" class="text-center">Produto do comitê não definido</td>';
+        tr.innerHTML = '<td colspan="7" class="text-center">Produto do comitê não definido</td>';
         tbody.appendChild(tr);
         return;
     }
@@ -1452,7 +1568,7 @@ function updateTechnologicalMatrixTable() {
     // Se não há insumos, mostrar mensagem
     if (inputMaterializations.length === 0) {
         const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="5" class="text-center">Não há insumos definidos para este produto</td>';
+        tr.innerHTML = '<td colspan="7" class="text-center">Não há insumos definidos para este produto</td>';
         tbody.appendChild(tr);
         return;
     }
@@ -1461,15 +1577,13 @@ function updateTechnologicalMatrixTable() {
     inputMaterializations.forEach(mat => {
         const tr = document.createElement('tr');
         tr.dataset.materializationId = mat.id;
-        
+
         // Verificar se é o produto próprio do comitê
         const isMainProduct = (mat.id === outputMaterializationId);
-        
-        // Adicionar classe especial se for o produto principal
         if (isMainProduct) {
             tr.classList.add('main-product-row');
         }
-        
+
         // Obter coeficiente deste insumo para o produto do comitê
         const tensors = mat.technologicalTensors || {};
         const coeff = tensors[outputMaterializationId] || 0;
@@ -1479,9 +1593,20 @@ function updateTechnologicalMatrixTable() {
         const unitLabel = getMaterializationMeasurementUnitLabel(mat);
         const quantityDisplay = formatNumberForInput(quantityValue);
         const productUnitProportionDisplay = formatNumberForInput(productUnitProportion);
+        const stdQty = parseFloat(mat.standardQuantityPerUnit);
+        const inputProportionValue = (quantityValue !== null && quantityValue !== undefined && stdQty && stdQty !== 0)
+            ? parseFloat(quantityValue) / stdQty
+            : null;
+        const inputProportionDisplay = formatNumberForInput(inputProportionValue);
         const quantityUnitHtml = unitLabel ? `<span class="technological-unit-label">${escapeHtml(unitLabel)}</span>` : '';
         const standardQuantityHtml = standardQuantityLabel ? `<span class="technological-standard-quantity">x ${escapeHtml(standardQuantityLabel)}</span>` : '<span class="technological-standard-quantity">x</span>';
-        
+
+        // Novo: obter o tempo para produzir 1 unidade do insumo
+        const productionTimeValue = getMaterializationProductionTimeValue(mat);
+        const productionTime = (productionTimeValue !== null && productionTimeValue !== undefined && productionTimeValue !== '')
+            ? formatNumberForDisplay(productionTimeValue)
+            : '';
+
         if (isMainProduct) {
             tr.innerHTML = `
                 <td><div class="mat-name-inline"><strong>${mat.name || `Produto #${mat.id}`}</strong><span class="badge main-product-badge" title="Materialização social da unidade produtiva gerida por esse comitê"><i class="fas fa-industry"></i></span></div></td>
@@ -1498,13 +1623,31 @@ function updateTechnologicalMatrixTable() {
                 </td>
                 <td class="technological-proportion-cell">
                     <div class="technological-proportion-line">
-                        <input type="text" class="form-control technological-coefficient-display" 
-                               value=""
+                        <input type="text" class="form-control technological-coefficient-display technological-input-proportion" 
+                               value="${inputProportionDisplay}"
+                               data-proportion-for="${mat.id}"
+                               data-std-qty="${stdQty || ''}"
                                readonly
                                tabindex="-1"
                                aria-readonly="true">
                         ${standardQuantityHtml}
                     </div>
+                </td>
+                <td class="technological-production-time-cell">
+                    <input type="text" class="form-control technological-production-time-input"
+                           value="${productionTime}"
+                           readonly
+                           tabindex="-1"
+                           aria-readonly="true"
+                           title="Tempo para Produzir 1 Unidade do Insumo (em horas)">
+                </td>
+                <td class="technological-temporal-proportion-cell">
+                    <input type="text" class="form-control technological-temporal-proportion-input"
+                           data-temporal-proportion-for="${mat.id}"
+                           value=""
+                           readonly
+                           tabindex="-1"
+                           aria-readonly="true">
                 </td>
                 <td class="technological-product-proportion-cell">
                     <div class="technological-proportion-line">
@@ -1536,13 +1679,31 @@ function updateTechnologicalMatrixTable() {
                 </td>
                 <td class="technological-proportion-cell">
                     <div class="technological-proportion-line">
-                        <input type="text" class="form-control technological-coefficient-display" 
-                               value=""
+                        <input type="text" class="form-control technological-coefficient-display technological-input-proportion" 
+                               value="${inputProportionDisplay}"
+                               data-proportion-for="${mat.id}"
+                               data-std-qty="${stdQty || ''}"
                                readonly
                                tabindex="-1"
                                aria-readonly="true">
                         ${standardQuantityHtml}
                     </div>
+                </td>
+                <td class="technological-production-time-cell">
+                    <input type="text" class="form-control technological-production-time-input"
+                           value="${productionTime}"
+                           readonly
+                           tabindex="-1"
+                           aria-readonly="true"
+                           title="Tempo para Produzir 1 Unidade do Insumo (em horas)">
+                </td>
+                <td class="technological-temporal-proportion-cell">
+                    <input type="text" class="form-control technological-temporal-proportion-input"
+                           data-temporal-proportion-for="${mat.id}"
+                           value=""
+                           readonly
+                           tabindex="-1"
+                           aria-readonly="true">
                 </td>
                 <td class="technological-product-proportion-cell">
                     <div class="technological-proportion-line">
@@ -1559,7 +1720,7 @@ function updateTechnologicalMatrixTable() {
                 <td><!-- Aqui poderia ter uma lixeira usando mat.id, mas foi removida para ficar mais clean --></td>
             `;
         }
-        
+
         tbody.appendChild(tr);
     });
 }

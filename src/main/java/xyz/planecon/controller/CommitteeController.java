@@ -905,31 +905,47 @@ public class CommitteeController {
                         // Atualizar o timestamp de sincronização do comitê com o Conselho Planificador
                         committee.setLastPlannerEstimatesSyncedAt(plannerTimestamp);
 
-                        // Novo ciclo de planificação: zerar quantidade produzida e atualizar meta
-                        committee.setProducedQuantity(BigDecimal.ZERO);
-
-                        // Obter a nova meta de produção do vetor de demanda
+                        // Novo ciclo de planificação: só resetar produção quando houver meta positiva válida.
+                        BigDecimal newTargetQuantity = null;
                         if (committee.getSocialMaterialization() != null) {
                             Integer matId = committee.getSocialMaterialization().getId();
                             Optional<DemandVector> dvOpt = demandVectorRepository.findByInstanceIdAndSocialMaterializationId(
                                     committee.getId(), matId);
-                            if (dvOpt.isPresent()) {
-                                committee.setTargetQuantity(dvOpt.get().getDemand());
+
+                            if (dvOpt.isPresent() && dvOpt.get().getDemand() != null
+                                    && dvOpt.get().getDemand().compareTo(BigDecimal.ZERO) > 0) {
+                                newTargetQuantity = dvOpt.get().getDemand();
                             } else {
                                 Optional<DemandStock> dsOpt = demandStockRepository.findByInstanceIdAndSocialMaterializationId(
                                         committee.getId(), matId);
-                                if (dsOpt.isPresent()) {
-                                    committee.setTargetQuantity(dsOpt.get().getDemand());
+                                if (dsOpt.isPresent() && dsOpt.get().getDemand() != null
+                                        && dsOpt.get().getDemand().compareTo(BigDecimal.ZERO) > 0) {
+                                    newTargetQuantity = dsOpt.get().getDemand();
                                 }
                             }
                         }
 
-                        instanceRepository.save(committee);
-                        logger.info("Timestamp de sincronização com Conselho Planificador atualizado para comitê {}: {}. ProducedQuantity zerada.", committee.getId(), plannerTimestamp);
+                        if (newTargetQuantity != null && newTargetQuantity.compareTo(BigDecimal.ZERO) > 0) {
+                            committee.setProducedQuantity(BigDecimal.ZERO);
+                            committee.setTargetQuantity(newTargetQuantity);
+                            committeeStateDTO.setProducedQuantity(BigDecimal.ZERO);
+                            committeeStateDTO.setTargetQuantity(newTargetQuantity);
+                            logger.info(
+                                "Sincronização do Planner aplicada ao comitê {}: targetQuantity={}, producedQuantity zerada.",
+                                committee.getId(), newTargetQuantity
+                            );
+                        } else {
+                            logger.warn(
+                                "Sincronização do Planner no comitê {} sem meta positiva disponível (DemandVector/DemandStock). " +
+                                "Mantendo producedQuantity={} e targetQuantity={} para evitar violação de constraint.",
+                                committee.getId(), committee.getProducedQuantity(), committee.getTargetQuantity()
+                            );
+                            committeeStateDTO.setProducedQuantity(committee.getProducedQuantity());
+                            committeeStateDTO.setTargetQuantity(committee.getTargetQuantity());
+                        }
 
-                        // Atualizar DTO com os novos valores zerados
-                        committeeStateDTO.setProducedQuantity(BigDecimal.ZERO);
-                        committeeStateDTO.setTargetQuantity(committee.getTargetQuantity());
+                        instanceRepository.save(committee);
+                        logger.info("Timestamp de sincronização com Conselho Planificador atualizado para comitê {}: {}.", committee.getId(), plannerTimestamp);
                     }
                 }
             }
