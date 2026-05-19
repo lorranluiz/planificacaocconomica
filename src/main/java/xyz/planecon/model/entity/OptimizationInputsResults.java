@@ -33,8 +33,19 @@ public class OptimizationInputsResults {
     @Column(name = "worker_hours", precision = 10, scale = 2, nullable = false)
     private BigDecimal workerHours;
     
+    /**
+     * Tempo Localmente Necessário para Produzir 1 Unidade (anteriormente chamado de "Tempo para Produzir Uma Unidade").
+     * Representa o tempo local de produção de uma unidade da materialização social.
+     */
     @Column(name = "production_time", precision = 10, scale = 2, nullable = false)
     private BigDecimal productionTime;
+
+    /**
+     * Tempo Socialmente Necessário para Produzir 1 Unidade.
+     * Calculado como a soma das proporções temporais dos insumos mais o tempo local de produção de uma unidade.
+     */
+    @Column(name = "socially_necessary_time_per_unit", precision = 10, scale = 2)
+    private BigDecimal sociallyNecessaryTimePerUnit;
     
     @Column(name = "night_shift", nullable = false)
     private Boolean nightShift;

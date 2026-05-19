@@ -37,4 +37,8 @@ public interface OptimizationInputsResultsRepository extends JpaRepository<Optim
     Optional<OptimizationInputsResults> findByInstanceIdAndMaterializationId(
             @Param("instanceId") Integer instanceId, 
             @Param("materializationId") Integer materializationId);
+
+    // Retorna todos os pares (materializationId, sociallyNecessaryTimePerUnit) onde o valor não é nulo
+    @Query("SELECT o.id.socialMaterializationId, o.sociallyNecessaryTimePerUnit FROM OptimizationInputsResults o WHERE o.sociallyNecessaryTimePerUnit IS NOT NULL")
+    List<Object[]> findAllSociallyNecessaryTimes();
 }

@@ -24,11 +24,13 @@ const pageState = {
         planningProductionTime: null,
         planningNightShift: null,
         planningWeeklyScale: null,
+        planningSociallyNecessaryTimePerUnit: null,
         planifiedWorkerLimit: null,
         planifiedWorkerHours: null,
         planifiedProductionTime: null,
         planifiedNightShift: null,
-        planifiedWeeklyScale: null
+        planifiedWeeklyScale: null,
+        planifiedSociallyNecessaryTimePerUnit: null
     },
 
     // Membros do comitê 
@@ -57,6 +59,14 @@ const globalState = {
     materializationProductionTimeById: {},
     materializationProductionTimeLoaded: false,
     materializationProductionTimePromise: null,
+    // Tempo Socialmente Necessário para Produzir 1 Unidade por materialização (de linhas de comitês)
+    materializationSociallyNecessaryTimeById: {},
+    materializationSociallyNecessaryTimeLoaded: false,
+    materializationSociallyNecessaryTimePromise: null,
+    // Tempo Socialmente Necessário para Produzir 1 Unidade por materialização (de linhas de comitês)
+    materializationSociallyNecessaryTimeById: {},
+    materializationSociallyNecessaryTimeLoaded: false,
+    materializationSociallyNecessaryTimePromise: null,
     plannerCouncilId: null,
     committeeOptimizationDataPromise: null,
     technologicalQuantitiesHydratedFromTensor: false,
@@ -216,6 +226,13 @@ function getTechnologicalQuantityValue(materialization) {
 function getMaterializationProductionTimeValue(materialization) {
     if (!materialization) return null;
 
+    // Prioridade 1: Tempo Socialmente Necessário para Produzir 1 Unidade (de linhas de comitês no banco)
+    const sociallyNecessaryTime = globalState.materializationSociallyNecessaryTimeById[materialization.id];
+    if (sociallyNecessaryTime !== undefined && sociallyNecessaryTime !== null && sociallyNecessaryTime !== '') {
+        return sociallyNecessaryTime;
+    }
+
+    // Prioridade 2: valor salvo diretamente na materialização (pode vir do banco via estado)
     if (materialization.productionTime !== undefined && materialization.productionTime !== null && materialization.productionTime !== '') {
         return materialization.productionTime;
     }
@@ -416,6 +433,9 @@ function updateTechnologicalQuantity(materializationId, input) {
     const productProductionTime = getCommitteeOptimizationProductionTimeValue();
     const temporalUnitProductDenominator = totalTemporalProportion + (productProductionTime || 0);
 
+    // Armazenar Tempo Socialmente Necessário para Produzir Uma Unidade
+    pageState.sociallyNecessaryTimePerUnit = temporalUnitProductDenominator;
+
     allRows.forEach((mat, idx) => {
         const totalCostInputEl = document.querySelector(`input[data-temporal-proportion-insumo-for="${mat.id}"]`);
         const unitProductInputEl = document.querySelector(`input[data-temporal-proportion-unit-product-for="${mat.id}"]`);
@@ -558,6 +578,35 @@ function loadMaterializationProductionTimes() {
     });
 
     return globalState.materializationProductionTimePromise;
+}
+
+function loadMaterializationSociallyNecessaryTimes() {
+    if (globalState.materializationSociallyNecessaryTimeLoaded) {
+        return Promise.resolve(globalState.materializationSociallyNecessaryTimeById);
+    }
+    if (globalState.materializationSociallyNecessaryTimePromise) {
+        return globalState.materializationSociallyNecessaryTimePromise;
+    }
+    globalState.materializationSociallyNecessaryTimePromise = fetch('/api/planification/optimization-config/results/socially-necessary-times', {
+        headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache', 'Expires': '0' }
+    })
+    .then(response => {
+        if (!response.ok) return {};
+        return response.json();
+    })
+    .then(timesByMaterializationId => {
+        globalState.materializationSociallyNecessaryTimeById = timesByMaterializationId || {};
+        globalState.materializationSociallyNecessaryTimeLoaded = true;
+        return globalState.materializationSociallyNecessaryTimeById;
+    })
+    .catch(error => {
+        console.error('Erro ao carregar Tempo Socialmente Necessário por materialização:', error);
+        return globalState.materializationSociallyNecessaryTimeById;
+    })
+    .finally(() => {
+        globalState.materializationSociallyNecessaryTimePromise = null;
+    });
+    return globalState.materializationSociallyNecessaryTimePromise;
 }
 
 function enrichMaterializationsWithMetadata(materializations) {
@@ -1056,6 +1105,7 @@ function refreshTechnologicalMatrixMetadata() {
     return Promise.all([
         loadMaterializationMetadata(),
         loadMaterializationProductionTimes(),
+        loadMaterializationSociallyNecessaryTimes(),
         loadCommitteeOptimizationData()
     ]).then(() => {
         pageState.materializations = enrichMaterializationsWithMetadata(pageState.materializations);
@@ -1334,11 +1384,13 @@ function resetPageState() {
         planningProductionTime: null,
         planningNightShift: null,
         planningWeeklyScale: null,
+        planningSociallyNecessaryTimePerUnit: null,
         planifiedWorkerLimit: null,
         planifiedWorkerHours: null,
         planifiedProductionTime: null,
         planifiedNightShift: null,
-        planifiedWeeklyScale: null
+        planifiedWeeklyScale: null,
+        planifiedSociallyNecessaryTimePerUnit: null
     };
     
     pageState.members = [];
@@ -1746,6 +1798,9 @@ function updateTechnologicalMatrixTable() {
     const productProductionTime = getCommitteeOptimizationProductionTimeValue();
     const temporalUnitProductDenominator = totalTemporalProportion + (productProductionTime || 0);
 
+    // Armazenar Tempo Socialmente Necessário para Produzir Uma Unidade
+    pageState.sociallyNecessaryTimePerUnit = temporalUnitProductDenominator;
+
     inputMaterializations.forEach((mat, idx) => {
         const tr = document.createElement('tr');
         tr.dataset.materializationId = mat.id;
@@ -1817,7 +1872,7 @@ function updateTechnologicalMatrixTable() {
                        readonly
                        tabindex="-1"
                        aria-readonly="true"
-                       title="Tempo para Produzir 1 Unidade do Insumo (em horas)">
+                       title="Tempo Socialmente Necessário para Produzir 1 Unidade (em horas)">
             </td>
             <td class="technological-temporal-proportion-cell">
                 <input type="text" class="form-control technological-temporal-proportion-input"
@@ -1888,7 +1943,11 @@ function saveCommitteeState() {
         workerProposal: pageState.workerProposal,
         members: pageState.members,
         // Certifique-se de que TODAS as materializações são enviadas, incluindo as com isDeleted: true
-        materializations: pageState.materializations
+        materializations: pageState.materializations,
+        // Tempo Socialmente Necessário para Produzir Uma Unidade
+        sociallyNecessaryTimePerUnit: (pageState.sociallyNecessaryTimePerUnit !== undefined && pageState.sociallyNecessaryTimePerUnit !== null)
+            ? pageState.sociallyNecessaryTimePerUnit
+            : null
     };
     
     // Salvar IDs de materializações que serão excluídas para atualizarmos a UI depois
@@ -2138,6 +2197,12 @@ function openPropostaModal() {
     document.getElementById('weeklyScaleProposta').value = pageState.workerProposal.weeklyScale || 5;
     document.getElementById('nightShiftProposta').checked = pageState.workerProposal.nightShift || false;
 
+    // Tempo Socialmente Necessário (calculado na página, somente leitura)
+    const sntField = document.getElementById('sociallyNecessaryTimeProposta');
+    if (sntField) {
+        sntField.value = pageState.sociallyNecessaryTimePerUnit != null ? pageState.sociallyNecessaryTimePerUnit : '';
+    }
+
     const propostaError = document.getElementById('propostaError');
     if (propostaError) {
         propostaError.style.display = 'none';
@@ -2165,6 +2230,8 @@ function openPropostaModal() {
         document.getElementById('planningProductionTime').value = wp.planningProductionTime || '';
         document.getElementById('planningWeeklyScale').value = wp.planningWeeklyScale || '';
         document.getElementById('planningNightShift').checked = wp.planningNightShift || false;
+        const planningSNT = document.getElementById('planningSociallyNecessaryTime');
+        if (planningSNT) planningSNT.value = wp.planningSociallyNecessaryTimePerUnit != null ? wp.planningSociallyNecessaryTimePerUnit : '';
     } else {
         if (planningEmptyMessage) planningEmptyMessage.style.display = 'block';
         if (planningFieldsContainer) planningFieldsContainer.style.display = 'none';
@@ -2183,6 +2250,8 @@ function openPropostaModal() {
         document.getElementById('planifiedProductionTime').value = wp.planifiedProductionTime || '';
         document.getElementById('planifiedWeeklyScale').value = wp.planifiedWeeklyScale || '';
         document.getElementById('planifiedNightShift').checked = wp.planifiedNightShift || false;
+        const planifiedSNT = document.getElementById('planifiedSociallyNecessaryTime');
+        if (planifiedSNT) planifiedSNT.value = wp.planifiedSociallyNecessaryTimePerUnit != null ? wp.planifiedSociallyNecessaryTimePerUnit : '';
     } else {
         if (planifiedEmptyMessage) planifiedEmptyMessage.style.display = 'block';
         if (planifiedFieldsContainer) planifiedFieldsContainer.style.display = 'none';
@@ -2928,6 +2997,15 @@ function displayOptimizationResults(result) {
         workerDifferenceValue = Math.abs(workerDifference);
     }
     
+    // Para a aba "Da Materialização Social", o valor calculado na página tem prioridade
+    // sobre o valor do banco (especialmente na primeira vez, antes do primeiro salvamento)
+    const sociallyNecessaryTimeValue = (pageState.sociallyNecessaryTimePerUnit !== undefined &&
+        pageState.sociallyNecessaryTimePerUnit !== null &&
+        !isNaN(pageState.sociallyNecessaryTimePerUnit) &&
+        pageState.sociallyNecessaryTimePerUnit > 0)
+        ? pageState.sociallyNecessaryTimePerUnit
+        : result.sociallyNecessaryTimePerUnit;
+
     // Criar o conteúdo HTML estruturado em seções com formatação melhorada
     let contentHTML = `
         <div class="optimization-section">
@@ -2940,7 +3018,8 @@ function displayOptimizationResults(result) {
             <h4>Parâmetros Configurados</h4>
             <p><strong>Limite de Trabalhadores por Fábrica:</strong> ${result.workerLimit || '0'}</p>
             <p><strong>Horas de Trabalho por Dia:</strong> ${formatNumber(result.workerHours, 2)} horas</p>
-            <p><strong>Tempo para Produzir Uma Unidade:</strong> ${formatNumber(result.productionTime, 4, true)} horas</p>
+            <p><strong>Tempo Localmente Necessário para Produzir 1 Unidade:</strong> ${formatNumber(result.productionTime, 4, true)} horas</p>
+            <p><strong>Tempo Socialmente Necessário para Produzir 1 Unidade:</strong> ${sociallyNecessaryTimeValue !== undefined && sociallyNecessaryTimeValue !== null ? formatNumber(sociallyNecessaryTimeValue, 4, true) + ' horas' : 'N/A'}</p>
             <p><strong>Escala Semanal:</strong> ${formatNumber(result.weeklyScale, 0)} dias por semana</p>
             <p><strong>Turno Noturno:</strong> ${result.nightShift ? 'Sim' : 'Não'}</p>
         </div>

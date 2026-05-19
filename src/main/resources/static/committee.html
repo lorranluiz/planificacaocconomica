@@ -503,7 +503,7 @@
                                     <th>Insumo/Materialização</th>
                                     <th id="productNameTechnologicalVector">Quantidade</th>
                                     <th>Proporção da Unidade de Insumo</th>
-                                    <th>Tempo para Produzir 1 Unidade do Insumo</th>
+                                    <th>Tempo Socialmente Necessário para Produzir 1 Unidade</th>
                                     <th>Proporção Temporal da Unidade de Insumo</th>
                                     <th>
                                         <div class="th-with-hint">
@@ -520,7 +520,7 @@
                                             <button type="button" class="column-hint-btn" aria-label="Dica sobre proporção temporal do insumo na unidade desse produto">
                                                 <i class="fas fa-info-circle" aria-hidden="true"></i>
                                             </button>
-                                            <span class="column-hint-tooltip" role="tooltip">Valor da proporção temporal da unidade de insumo dividido pela soma entre o total da coluna de proporção temporal da unidade de insumo e o tempo para produzir uma unidade da materialização social exibido na modal de resultados da otimização. Esse é o Elemento Tecnológico, usado para formar a Matriz Tecnológica.</span>
+                                            <span class="column-hint-tooltip" role="tooltip">Valor da proporção temporal da unidade de insumo dividido pela soma entre o total da coluna de proporção temporal da unidade de insumo e o tempo localmente necessário para produzir 1 unidade da materialização social exibido na modal de resultados da otimização. Essa soma é o Tempo Socialmente Necessário para Produzir 1 Unidade. Esse é o Elemento Tecnológico, usado para formar a Matriz Tecnológica.</span>
                                         </div>
                                     </th>
                                     <th>
@@ -623,7 +623,7 @@
             </div>
             
             <div class="form-group">
-                <label for="productionTime">Tempo para Produzir Uma Unidade (em horas):</label>
+                <label for="productionTime">Tempo Localmente Necessário para Produzir 1 Unidade (em horas):</label>
                 <input type="number" id="productionTime" class="form-control" min="0.0001" step="0.01">
             </div>
             
@@ -770,8 +770,12 @@
                         <input type="number" id="planifiedWorkerHours" class="form-control" disabled>
                     </div>
                     <div class="form-group">
-                        <label>Tempo para Produzir 1 Unidade (h):</label>
+                        <label>Tempo Localmente Necessário para Produzir 1 Unidade (h):</label>
                         <input type="number" id="planifiedProductionTime" class="form-control" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label>Tempo Socialmente Necessário para Produzir 1 Unidade:</label>
+                        <input type="number" id="planifiedSociallyNecessaryTime" class="form-control" disabled>
                     </div>
                     <div class="form-group">
                         <label>Escala semanal (dias):</label>
@@ -798,8 +802,12 @@
                             <input type="number" id="planningWorkerHours" class="form-control" disabled>
                         </div>
                         <div class="form-group">
-                            <label>Tempo para Produzir 1 Unidade (h):</label>
+                            <label>Tempo Localmente Necessário para Produzir 1 Unidade (h):</label>
                             <input type="number" id="planningProductionTime" class="form-control" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label>Tempo Socialmente Necessário para Produzir 1 Unidade:</label>
+                            <input type="number" id="planningSociallyNecessaryTime" class="form-control" disabled>
                         </div>
                         <div class="form-group">
                             <label>Escala semanal (dias):</label>
@@ -831,8 +839,13 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="productionTimeProposta">Tempo para Produzir 1 Unidade (h):</label>
+                        <label for="productionTimeProposta">Tempo Localmente Necessário para Produzir 1 Unidade (h):</label>
                         <input type="number" id="productionTimeProposta" class="form-control" step="0.01" min="0.01" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sociallyNecessaryTimeProposta">Tempo Socialmente Necessário para Produzir 1 Unidade:</label>
+                        <input type="number" id="sociallyNecessaryTimeProposta" class="form-control" readonly tabindex="-1">
                     </div>
                     
                     <div class="form-group">

@@ -125,8 +125,36 @@ public class CommitteeController {
             if (committeeStateDTO.getMaterializations() != null) {
                 processMaterializations(committee, committeeStateDTO.getMaterializations());
             }
-            
-            // 7. Retornar resposta de sucesso com o ID do comitê
+
+            // 7. Persistir Tempo Socialmente Necessário para Produzir Uma Unidade
+            if (committeeStateDTO.getSociallyNecessaryTimePerUnit() != null) {
+                // Sempre persistir na workers_proposal como fonte confiável
+                WorkersProposal.WorkersProposalId proposalId = new WorkersProposal.WorkersProposalId();
+                proposalId.setInstanceId(committee.getId());
+                Optional<WorkersProposal> proposalForSnt = workersProposalRepository.findById(proposalId);
+                if (proposalForSnt.isPresent()) {
+                    WorkersProposal wpSnt = proposalForSnt.get();
+                    wpSnt.setProposalSociallyNecessaryTimePerUnit(committeeStateDTO.getSociallyNecessaryTimePerUnit());
+                    workersProposalRepository.save(wpSnt);
+                    logger.info("Tempo Socialmente Necessário (proposta) salvo em workers_proposal para comitê {}", committee.getId());
+                }
+                // Também atualizar optimization_inputs_results se o registro já existir
+                if (committee.getSocialMaterialization() != null) {
+                    OptimizationInputsResults.OptimizationInputsResultsId optId =
+                            new OptimizationInputsResults.OptimizationInputsResultsId(
+                                    committee.getId(), committee.getSocialMaterialization().getId());
+                    Optional<OptimizationInputsResults> existingOpt = optimizationInputsResultsRepository.findById(optId);
+                    if (existingOpt.isPresent()) {
+                        OptimizationInputsResults opt = existingOpt.get();
+                        opt.setSociallyNecessaryTimePerUnit(committeeStateDTO.getSociallyNecessaryTimePerUnit());
+                        optimizationInputsResultsRepository.save(opt);
+                        logger.info("Tempo Socialmente Necessário atualizado para comitê {} materialização {}",
+                                committee.getId(), committee.getSocialMaterialization().getId());
+                    }
+                }
+            }
+
+            // 8. Retornar resposta de sucesso com o ID do comitê
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
             response.put("committeeId", committee.getId());
@@ -801,6 +829,10 @@ public class CommitteeController {
                 proposalDTO.setPlanifiedProductionTime(proposal.getPlanifiedProductionTime());
                 proposalDTO.setPlanifiedNightShift(proposal.getPlanifiedNightShift());
                 proposalDTO.setPlanifiedWeeklyScale(proposal.getPlanifiedWeeklyScale());
+
+                // Campos de Tempo Socialmente Necessário para Produzir 1 Unidade
+                proposalDTO.setPlanningSociallyNecessaryTimePerUnit(proposal.getPlanningSociallyNecessaryTimePerUnit());
+                proposalDTO.setPlanifiedSociallyNecessaryTimePerUnit(proposal.getPlanifiedSociallyNecessaryTimePerUnit());
                 
                 committeeStateDTO.setWorkerProposal(proposalDTO);
             }
@@ -850,6 +882,20 @@ public class CommitteeController {
                         wp.setPlanningProductionTime(wp.getProductionTime());
                         wp.setPlanningNightShift(wp.getNightShift());
                         wp.setPlanningWeeklyScale(wp.getWeeklyScale());
+
+                        // Copiar Tempo Socialmente Necessário para Produzir 1 Unidade para planejamento
+                        // Primeiro tenta a fonte confiável (workers_proposal.proposal_snt), depois fallback em optimization_inputs_results
+                        if (wp.getProposalSociallyNecessaryTimePerUnit() != null) {
+                            wp.setPlanningSociallyNecessaryTimePerUnit(wp.getProposalSociallyNecessaryTimePerUnit());
+                        } else if (committee.getSocialMaterialization() != null) {
+                            OptimizationInputsResults.OptimizationInputsResultsId optId =
+                                new OptimizationInputsResults.OptimizationInputsResultsId(
+                                    committee.getId(), committee.getSocialMaterialization().getId());
+                            Optional<OptimizationInputsResults> optResultsOpt = optimizationInputsResultsRepository.findById(optId);
+                            if (optResultsOpt.isPresent() && optResultsOpt.get().getSociallyNecessaryTimePerUnit() != null) {
+                                wp.setPlanningSociallyNecessaryTimePerUnit(optResultsOpt.get().getSociallyNecessaryTimePerUnit());
+                            }
+                        }
                         workersProposalRepository.save(wp);
 
                         // Atualizar o DTO que será retornado
@@ -860,6 +906,7 @@ public class CommitteeController {
                             wpDTO.setPlanningProductionTime(wp.getProductionTime());
                             wpDTO.setPlanningNightShift(wp.getNightShift());
                             wpDTO.setPlanningWeeklyScale(wp.getWeeklyScale());
+                            wpDTO.setPlanningSociallyNecessaryTimePerUnit(wp.getPlanningSociallyNecessaryTimePerUnit());
                         }
 
                         logger.info("Dados da proposta copiados para aba de planejamento do comitê {}", committee.getId());
@@ -900,6 +947,7 @@ public class CommitteeController {
                             wp.setPlanifiedProductionTime(wp.getPlanningProductionTime());
                             wp.setPlanifiedNightShift(wp.getPlanningNightShift());
                             wp.setPlanifiedWeeklyScale(wp.getPlanningWeeklyScale());
+                            wp.setPlanifiedSociallyNecessaryTimePerUnit(wp.getPlanningSociallyNecessaryTimePerUnit());
 
                             // Limpar campos de planejamento
                             wp.setPlanningWorkerLimit(null);
@@ -907,6 +955,7 @@ public class CommitteeController {
                             wp.setPlanningProductionTime(null);
                             wp.setPlanningNightShift(null);
                             wp.setPlanningWeeklyScale(null);
+                            wp.setPlanningSociallyNecessaryTimePerUnit(null);
 
                             workersProposalRepository.save(wp);
 
@@ -919,12 +968,14 @@ public class CommitteeController {
                                 wpDTO.setPlanifiedProductionTime(wp.getPlanifiedProductionTime());
                                 wpDTO.setPlanifiedNightShift(wp.getPlanifiedNightShift());
                                 wpDTO.setPlanifiedWeeklyScale(wp.getPlanifiedWeeklyScale());
+                                wpDTO.setPlanifiedSociallyNecessaryTimePerUnit(wp.getPlanifiedSociallyNecessaryTimePerUnit());
                                 // Planejamento fica vazio
                                 wpDTO.setPlanningWorkerLimit(null);
                                 wpDTO.setPlanningWorkerHours(null);
                                 wpDTO.setPlanningProductionTime(null);
                                 wpDTO.setPlanningNightShift(null);
                                 wpDTO.setPlanningWeeklyScale(null);
+                                wpDTO.setPlanningSociallyNecessaryTimePerUnit(null);
                             }
 
                             logger.info("Dados de planejamento movidos para planificado no comitê {}", committee.getId());
@@ -1536,7 +1587,15 @@ public class CommitteeController {
             
             optimizationData.put("requiredProductionForCommittee", requiredProductionForCommittee);
             optimizationData.put("estimatedParticipation", estimatedParticipation);
-            
+
+            // Buscar Tempo Socialmente Necessário para Produzir Uma Unidade da linha do comitê
+            OptimizationInputsResults committeeOptConfig = optimizationInputsResultsRepository
+                    .findById_InstanceIdAndId_SocialMaterializationId(committeeId, materializationId)
+                    .orElse(null);
+            if (committeeOptConfig != null && committeeOptConfig.getSociallyNecessaryTimePerUnit() != null) {
+                optimizationData.put("sociallyNecessaryTimePerUnit", committeeOptConfig.getSociallyNecessaryTimePerUnit());
+            }
+
             logger.info("Dados de otimização central obtidos com sucesso para comitê {} e materialização {}", committeeId, materializationId);
             
             return ResponseEntity.ok(optimizationData);

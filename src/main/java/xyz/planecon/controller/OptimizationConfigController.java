@@ -415,6 +415,35 @@ public class OptimizationConfigController {
     }
 
     /**
+     * Endpoint para obter o Tempo Socialmente Necessário para Produzir 1 Unidade
+     * de todas as materializações (a partir das linhas de comitês).
+     * Retorna um mapa {materializationId: sociallyNecessaryTimePerUnit}.
+     */
+    @GetMapping("/results/socially-necessary-times")
+    public ResponseEntity<?> getSociallyNecessaryTimes() {
+        try {
+            List<Object[]> rows = optimizationRepository.findAllSociallyNecessaryTimes();
+            Map<Integer, Object> result = new HashMap<>();
+            for (Object[] row : rows) {
+                Integer matId = (Integer) row[0];
+                Object time = row[1];
+                if (matId != null && time != null) {
+                    result.put(matId, time);
+                }
+            }
+            return ResponseEntity.ok()
+                .cacheControl(CacheControl.noCache())
+                .body(result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", "Erro ao buscar tempos socialmente necessários: " + e.getMessage()
+            ));
+        }
+    }
+
+    /**
      * Endpoint para obter resultado de otimização específico
      */
     @GetMapping("/results/{instanceId}/{materializationId}")

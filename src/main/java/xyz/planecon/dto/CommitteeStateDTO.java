@@ -30,6 +30,9 @@ public class CommitteeStateDTO {
     
     private Map<String, Object> optimizationData;
 
+    /** Tempo Socialmente Necessário para Produzir 1 Unidade, calculado pelo comitê. */
+    private BigDecimal sociallyNecessaryTimePerUnit;
+
     private Long lastCouncilEstimatesSyncedAt;
 
     private Long lastPlannerEstimatesSyncedAt;
@@ -130,6 +133,14 @@ public class CommitteeStateDTO {
     
     public void setOptimizationData(Map<String, Object> optimizationData) {
         this.optimizationData = optimizationData;
+    }
+
+    public BigDecimal getSociallyNecessaryTimePerUnit() {
+        return sociallyNecessaryTimePerUnit;
+    }
+
+    public void setSociallyNecessaryTimePerUnit(BigDecimal sociallyNecessaryTimePerUnit) {
+        this.sociallyNecessaryTimePerUnit = sociallyNecessaryTimePerUnit;
     }
 
     public Long getLastCouncilEstimatesSyncedAt() {
@@ -236,6 +247,15 @@ public class CommitteeStateDTO {
         public void setPlanifiedNightShift(Boolean planifiedNightShift) { this.planifiedNightShift = planifiedNightShift; }
         public Integer getPlanifiedWeeklyScale() { return planifiedWeeklyScale; }
         public void setPlanifiedWeeklyScale(Integer planifiedWeeklyScale) { this.planifiedWeeklyScale = planifiedWeeklyScale; }
+
+        // Campos de Tempo Socialmente Necessário para Produzir 1 Unidade
+        private BigDecimal planningSociallyNecessaryTimePerUnit;
+        private BigDecimal planifiedSociallyNecessaryTimePerUnit;
+
+        public BigDecimal getPlanningSociallyNecessaryTimePerUnit() { return planningSociallyNecessaryTimePerUnit; }
+        public void setPlanningSociallyNecessaryTimePerUnit(BigDecimal v) { this.planningSociallyNecessaryTimePerUnit = v; }
+        public BigDecimal getPlanifiedSociallyNecessaryTimePerUnit() { return planifiedSociallyNecessaryTimePerUnit; }
+        public void setPlanifiedSociallyNecessaryTimePerUnit(BigDecimal v) { this.planifiedSociallyNecessaryTimePerUnit = v; }
     }
 
     /**

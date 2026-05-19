@@ -71,7 +71,17 @@ public class WorkersProposal {
 
     @Column(name = "planified_weekly_scale")
     private Integer planifiedWeeklyScale;
-    
+
+    // Campos de Tempo Socialmente Necessário para Produzir 1 Unidade
+    @Column(name = "proposal_socially_necessary_time_per_unit")
+    private BigDecimal proposalSociallyNecessaryTimePerUnit;
+
+    @Column(name = "planning_socially_necessary_time_per_unit")
+    private BigDecimal planningSociallyNecessaryTimePerUnit;
+
+    @Column(name = "planified_socially_necessary_time_per_unit")
+    private BigDecimal planifiedSociallyNecessaryTimePerUnit;
+
     @Data
     @Embeddable
     @EqualsAndHashCode
