@@ -178,6 +178,99 @@ public class SocialMaterializationController {
                 .body("Erro ao criar materialização social: " + e.getMessage());
         }
     }
+
+    /**
+     * Endpoint para editar uma materialização social existente
+     */
+    @PutMapping("/social-materializations/{id}")
+    public ResponseEntity<?> updateMaterialization(
+            @PathVariable Integer id,
+            @RequestBody Map<String, Object> payload) {
+        try {
+            if (id == null) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("message", "ID da materialização é obrigatório"));
+            }
+
+            if (!socialMaterializationRepository.existsById(id)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "Materialização social não encontrada: " + id));
+            }
+
+            String name = toStringValue(payload.get("name"));
+            String typeStr = toStringValue(payload.get("type"));
+            Integer sectorId = toInteger(payload.get("sectorId"));
+            Integer measurementUnitId = toInteger(payload.get("measurementUnitId"));
+            BigDecimal standardQuantityPerUnit = parseDecimal(payload.get("standardQuantityPerUnit"));
+
+            if (name == null || typeStr == null || sectorId == null || measurementUnitId == null || standardQuantityPerUnit == null) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Nome, tipo, setor, unidade de medida e quantidade padrão são obrigatórios"));
+            }
+
+            if (standardQuantityPerUnit.compareTo(BigDecimal.ZERO) < 0) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Quantidade padrão não pode ser negativa"));
+            }
+
+            SocialMaterializationType type;
+            try {
+                type = SocialMaterializationType.valueOf(typeStr.toUpperCase());
+            } catch (IllegalArgumentException e) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Tipo de materialização inválido: " + typeStr));
+            }
+
+            Sector sector = sectorRepository.findById(sectorId).orElse(null);
+            if (sector == null) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Setor não encontrado: " + sectorId));
+            }
+
+            MeasurementUnit measurementUnit = measurementUnitRepository.findById(measurementUnitId).orElse(null);
+            if (measurementUnit == null) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("message", "Unidade de medida não encontrada: " + measurementUnitId));
+            }
+
+            int updatedRows = socialMaterializationRepository.updateFieldsById(
+                    id,
+                    name,
+                    type,
+                    sector,
+                    measurementUnit,
+                    standardQuantityPerUnit);
+
+            if (updatedRows == 0) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "Materialização social não encontrada: " + id));
+            }
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("id", id);
+            result.put("name", name);
+            result.put("type", type.toString());
+            result.put("standardQuantityPerUnit", standardQuantityPerUnit);
+
+            Map<String, Object> sectorMap = new HashMap<>();
+            sectorMap.put("id", sector.getId());
+            sectorMap.put("name", sector.getName());
+            result.put("sector", sectorMap);
+
+            Map<String, Object> unitMap = new HashMap<>();
+            unitMap.put("id", measurementUnit.getId());
+            unitMap.put("name", measurementUnit.getName());
+            result.put("measurementUnit", unitMap);
+            result.put("measurementUnitId", measurementUnit.getId());
+            result.put("measurementUnitName", measurementUnit.getName());
+
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            logger.error("Erro ao atualizar materialização social", e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("message", "Erro ao atualizar materialização social: " + e.getMessage()));
+        }
+    }
     
     // Método auxiliar para converter a entidade para um mapa simples
     private Map<String, Object> convertToSimpleMap(SocialMaterialization materialization) {

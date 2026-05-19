@@ -60,6 +60,7 @@
         <div class="tabs">
             <div class="tab active" data-tab="list">Listar</div>
             <div class="tab" data-tab="create">Cadastrar</div>
+            <div class="tab" data-tab="edit">Editar</div>
         </div>
         
         <!-- Conteúdo da aba de listagem -->
@@ -81,6 +82,7 @@
                             <th>Unidade</th>
                             <th>Setor</th>
                             <th>Criado em</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody></tbody>
@@ -156,6 +158,80 @@
                 </div>
             </form>
         </div>
+
+        <!-- Conteúdo da aba de edição -->
+        <div id="edit-tab" class="tab-content">
+            <div id="editFormLoadingMessage" class="loading">Carregando dados para edição...</div>
+            <div id="editFormErrorMessage" class="message error"></div>
+            <div id="editFormSuccessMessage" class="message success"></div>
+
+            <form id="editForm" class="form-container">
+                <h2>Editar Materialização Social</h2>
+
+                <div class="form-group">
+                    <label for="editMaterializationId">ID</label>
+                    <input type="text" id="editMaterializationId" name="editMaterializationId" readonly>
+                </div>
+
+                <div class="form-group">
+                    <label for="editName">Nome<span class="required">*</span></label>
+                    <input type="text" id="editName" name="name" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="editType">Tipo<span class="required">*</span></label>
+                    <select id="editType" name="type" required>
+                        <option value="">Selecione...</option>
+                        <option value="SERVICE">SERVIÇO</option>
+                        <option value="PRODUCT">PRODUTO</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="editSector">Setor<span class="required">*</span></label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <select id="editSector" name="sector" required style="flex: 1">
+                            <option value="">Carregando setores...</option>
+                        </select>
+                        <button type="button" class="secondary" style="min-width: 80px" onclick="window.location.href = '/sectors.html?_t=' + Date.now() + '#create'">Novo</button>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Grandeza Padrão<span class="required">*</span></label>
+                    <div style="display: flex; gap: 10px; align-items: flex-end; flex-wrap: wrap;">
+                        <div style="flex: 1; min-width: 220px;">
+                            <label for="editStandardQuantityPerUnit" style="font-size: 0.9rem; margin-bottom: 6px; display: block;">Quantidade Padrão de 1 unidade</label>
+                            <input type="number" id="editStandardQuantityPerUnit" name="standardQuantityPerUnit" step="any" min="0" placeholder="Ex.: 1, 0.5, 2.75" required>
+                        </div>
+                        <div style="flex: 1; min-width: 220px;">
+                            <label for="editMeasurementUnit" style="font-size: 0.9rem; margin-bottom: 6px; display: block;">Unidade de Medida</label>
+                            <select id="editMeasurementUnit" name="measurementUnit" required>
+                                <option value="">Carregando unidades...</option>
+                            </select>
+                        </div>
+                        <div id="editUnitButtonsNormal" style="display: flex; gap: 8px; align-items: flex-end;">
+                            <button type="button" id="editNewUnitButton" class="secondary">Nova Unidade</button>
+                            <button type="button" id="editPrepareDeleteUnitButton" class="danger">Excluir uma Unidade</button>
+                        </div>
+                        <div id="editUnitButtonsDeleteMode" style="display: none; align-items: flex-end;">
+                            <button type="button" id="editConfirmDeleteUnitButton" class="danger">Excluir</button>
+                        </div>
+                    </div>
+                    <div id="editNewUnitInputContainer" style="display: none; margin-top: 10px;">
+                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                            <input type="text" id="editNewUnitInput" placeholder="Digite a nova unidade" maxlength="30" style="max-width: 280px;">
+                            <button type="button" id="editSaveNewUnitButton" class="secondary">Salvar Unidade</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-buttons">
+                    <button type="button" id="editCancelButton" class="danger">Cancelar</button>
+                    <button type="submit" id="editSubmitButton">Salvar Alterações</button>
+                </div>
+            </form>
+        </div>
     </div> <!-- Fechamento do container -->
     <script src="/common-header.js"></script>
     <script>
@@ -178,11 +254,20 @@
             const formLoadingMessage = document.getElementById('formLoadingMessage');
             const formErrorMessage = document.getElementById('formErrorMessage');
             const formSuccessMessage = document.getElementById('formSuccessMessage');
+            const editForm = document.getElementById('editForm');
+            const editFormLoadingMessage = document.getElementById('editFormLoadingMessage');
+            const editFormErrorMessage = document.getElementById('editFormErrorMessage');
+            const editFormSuccessMessage = document.getElementById('editFormSuccessMessage');
             const sectorSelect = document.getElementById('sector');
+            const editSectorSelect = document.getElementById('editSector');
             const measurementUnitSelect = document.getElementById('measurementUnit');
+            const editMeasurementUnitSelect = document.getElementById('editMeasurementUnit');
             const standardQuantityPerUnitInput = document.getElementById('standardQuantityPerUnit');
+            const editStandardQuantityPerUnitInput = document.getElementById('editStandardQuantityPerUnit');
             const submitButton = document.getElementById('submitButton');
+            const editSubmitButton = document.getElementById('editSubmitButton');
             const cancelButton = document.getElementById('cancelButton');
+            const editCancelButton = document.getElementById('editCancelButton');
             const newUnitButton = document.getElementById('newUnitButton');
             const prepareDeleteUnitButton = document.getElementById('prepareDeleteUnitButton');
             const confirmDeleteUnitButton = document.getElementById('confirmDeleteUnitButton');
@@ -191,11 +276,23 @@
             const unitButtonsDeleteMode = document.getElementById('unitButtonsDeleteMode');
             const newUnitInputContainer = document.getElementById('newUnitInputContainer');
             const newUnitInput = document.getElementById('newUnitInput');
+            const editNewUnitButton = document.getElementById('editNewUnitButton');
+            const editPrepareDeleteUnitButton = document.getElementById('editPrepareDeleteUnitButton');
+            const editConfirmDeleteUnitButton = document.getElementById('editConfirmDeleteUnitButton');
+            const editSaveNewUnitButton = document.getElementById('editSaveNewUnitButton');
+            const editUnitButtonsNormal = document.getElementById('editUnitButtonsNormal');
+            const editUnitButtonsDeleteMode = document.getElementById('editUnitButtonsDeleteMode');
+            const editNewUnitInputContainer = document.getElementById('editNewUnitInputContainer');
+            const editNewUnitInput = document.getElementById('editNewUnitInput');
             const tabs = document.querySelectorAll('.tab');
             const tabContents = document.querySelectorAll('.tab-content');
 
             let isDeleteUnitMode = false;
             let cachedUnits = [];
+            let isDeleteUnitModeEdit = false;
+            let cachedUnitsEdit = [];
+            let materializationsCache = [];
+            let currentEditId = null;
             
             console.log('[INIT] Número de abas encontradas:', tabs.length);
             console.log('[INIT] Número de tab-contents encontrados:', tabContents.length);
@@ -239,6 +336,54 @@
                     console.error('[TAB] ❌ Erro: elementos da aba não encontrados!');
                 }
             }
+
+            function activateEditTab() {
+                tabs.forEach(t => t.classList.remove('active'));
+                tabContents.forEach(c => c.classList.remove('active'));
+
+                const editTab = document.querySelector('.tab[data-tab="edit"]');
+                const editTabContent = document.getElementById('edit-tab');
+                if (editTab && editTabContent) {
+                    editTab.classList.add('active');
+                    editTabContent.classList.add('active');
+                }
+            }
+
+            async function openEditForMaterialization(item) {
+                if (!item || !item.id) {
+                    return;
+                }
+
+                currentEditId = item.id;
+                editFormErrorMessage.style.display = 'none';
+                editFormSuccessMessage.style.display = 'none';
+                editFormLoadingMessage.textContent = 'Carregando dados para edição...';
+                editFormLoadingMessage.style.display = 'block';
+
+                try {
+                    await Promise.all([
+                        loadSectors(editSectorSelect, editFormLoadingMessage, editFormErrorMessage),
+                        loadMeasurementUnitsEdit(item.measurementUnitId)
+                    ]);
+
+                    document.getElementById('editMaterializationId').value = item.id || '';
+                    document.getElementById('editName').value = item.name || '';
+                    document.getElementById('editType').value = item.type || '';
+                    editStandardQuantityPerUnitInput.value = item.standardQuantityPerUnit ?? '';
+
+                    const sectorId = item.sector ? item.sector.id : item.sectorId;
+                    editSectorSelect.value = sectorId ? String(sectorId) : '';
+                    editMeasurementUnitSelect.value = item.measurementUnitId ? String(item.measurementUnitId) : '';
+
+                    activateEditTab();
+                } catch (err) {
+                    console.error('Erro ao preparar edição:', err);
+                    editFormErrorMessage.textContent = 'Erro ao preparar edição: ' + err.message;
+                    editFormErrorMessage.style.display = 'block';
+                } finally {
+                    editFormLoadingMessage.style.display = 'none';
+                }
+            }
             
             // ----------------- GERENCIAMENTO DE ABAS -----------------
             console.log('[TAB] Registrando event listeners das abas...');
@@ -269,6 +414,9 @@
                     if (tabId === 'create') {
                         loadSectors();
                         loadMeasurementUnits();
+                    } else if (tabId === 'edit') {
+                        loadSectors(editSectorSelect, editFormLoadingMessage, editFormErrorMessage);
+                        loadMeasurementUnitsEdit();
                     } else if (tabId === 'list') {
                         loadMaterializations();
                     }
@@ -428,6 +576,7 @@
                         
                         // Atualizar contador
                         counter.textContent = `Total: ${data.length} materializações encontradas`;
+                        materializationsCache = data;
                         
                         // Preencher a tabela com os dados
                         data.forEach(item => {
@@ -449,6 +598,11 @@
                                 <td>${item.measurementUnitName || '-'}</td>
                                 <td>${item.sector ? item.sector.name : (item.sectorName || '-')}</td>
                                 <td>${createdAt || '-'}</td>
+                                <td>
+                                    <button type="button" class="secondary edit-materialization-button" data-id="${item.id}" title="Editar materialização">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                </td>
                             `;
                             
                             tableBody.appendChild(row);
@@ -464,6 +618,27 @@
                         error.style.display = 'block';
                     });
             }
+
+            tableBody.addEventListener('click', function(event) {
+                const editButton = event.target.closest('.edit-materialization-button');
+                if (!editButton) {
+                    return;
+                }
+
+                const selectedId = parseInt(editButton.dataset.id, 10);
+                if (!selectedId) {
+                    return;
+                }
+
+                const item = materializationsCache.find(mat => mat.id === selectedId);
+                if (!item) {
+                    error.textContent = 'Materialização selecionada não foi encontrada na listagem atual.';
+                    error.style.display = 'block';
+                    return;
+                }
+
+                openEditForMaterialization(item);
+            });
 
                 async function loadMeasurementUnits(preferredUnitId = null) {
                     measurementUnitSelect.innerHTML = '<option value="">Carregando unidades...</option>';
@@ -500,13 +675,53 @@
                         measurementUnitSelect.innerHTML = '<option value="">Erro ao carregar unidades</option>';
                     }
                 }
+
+                async function loadMeasurementUnitsEdit(preferredUnitId = null) {
+                    editMeasurementUnitSelect.innerHTML = '<option value="">Carregando unidades...</option>';
+                    editMeasurementUnitSelect.disabled = true;
+                    try {
+                        const response = await fetch('/api/measurement-units');
+                        if (!response.ok) {
+                            throw new Error(`Falha ao carregar unidades: ${response.status}`);
+                        }
+
+                        const units = await response.json();
+                        cachedUnitsEdit = Array.isArray(units) ? units : [];
+
+                        editMeasurementUnitSelect.innerHTML = isDeleteUnitModeEdit
+                            ? '<option value="">Escolha uma unidade para excluir</option>'
+                            : '<option value="">Selecione uma unidade...</option>';
+
+                        cachedUnitsEdit.forEach(unit => {
+                            const option = document.createElement('option');
+                            option.value = unit.id;
+                            option.textContent = unit.name;
+                            editMeasurementUnitSelect.appendChild(option);
+                        });
+
+                        if (preferredUnitId) {
+                            editMeasurementUnitSelect.value = String(preferredUnitId);
+                        }
+
+                        editMeasurementUnitSelect.disabled = false;
+                    } catch (err) {
+                        console.error('Erro ao carregar unidades para edição:', err);
+                        editFormErrorMessage.textContent = 'Erro ao carregar unidades: ' + err.message;
+                        editFormErrorMessage.style.display = 'block';
+                        editMeasurementUnitSelect.innerHTML = '<option value="">Erro ao carregar unidades</option>';
+                    }
+                }
             
             // ----------------- CARREGAR SETORES -----------------
-            async function loadSectors() {
-                formLoadingMessage.style.display = 'block';
-                formErrorMessage.style.display = 'none';
-                sectorSelect.innerHTML = '<option value="">Carregando setores...</option>';
-                sectorSelect.disabled = true;
+            async function loadSectors(targetSelect = sectorSelect, targetLoading = formLoadingMessage, targetError = formErrorMessage) {
+                if (targetLoading) {
+                    targetLoading.style.display = 'block';
+                }
+                if (targetError) {
+                    targetError.style.display = 'none';
+                }
+                targetSelect.innerHTML = '<option value="">Carregando setores...</option>';
+                targetSelect.disabled = true;
                 
                 try {
                     const response = await fetch('/api/sectors');
@@ -534,30 +749,40 @@
                     
                     // Verificar se há setores
                     if (!sectors || sectors.length === 0) {
-                        formErrorMessage.textContent = 'Nenhum setor disponível para seleção.';
-                        formErrorMessage.style.display = 'block';
-                        sectorSelect.innerHTML = '<option value="">Nenhum setor disponível</option>';
-                        formLoadingMessage.style.display = 'none';
+                        if (targetError) {
+                            targetError.textContent = 'Nenhum setor disponível para seleção.';
+                            targetError.style.display = 'block';
+                        }
+                        targetSelect.innerHTML = '<option value="">Nenhum setor disponível</option>';
+                        if (targetLoading) {
+                            targetLoading.style.display = 'none';
+                        }
                         return;
                     }
                     
                     // Preencher o select de setores
-                    sectorSelect.innerHTML = '<option value="">Selecione um setor...</option>';
+                    targetSelect.innerHTML = '<option value="">Selecione um setor...</option>';
                     sectors.forEach(sector => {
                         const option = document.createElement('option');
                         option.value = sector.id;
                         option.textContent = sector.name;
-                        sectorSelect.appendChild(option);
+                        targetSelect.appendChild(option);
                     });
                     
-                    sectorSelect.disabled = false;
-                    formLoadingMessage.style.display = 'none';
+                    targetSelect.disabled = false;
+                    if (targetLoading) {
+                        targetLoading.style.display = 'none';
+                    }
                 } catch (err) {
                     console.error("Erro ao carregar setores:", err);
-                    formErrorMessage.textContent = 'Erro ao carregar setores: ' + err.message;
-                    formErrorMessage.style.display = 'block';
-                    formLoadingMessage.style.display = 'none';
-                    sectorSelect.innerHTML = '<option value="">Erro ao carregar</option>';
+                    if (targetError) {
+                        targetError.textContent = 'Erro ao carregar setores: ' + err.message;
+                        targetError.style.display = 'block';
+                    }
+                    if (targetLoading) {
+                        targetLoading.style.display = 'none';
+                    }
+                    targetSelect.innerHTML = '<option value="">Erro ao carregar</option>';
                 }
             }
             
@@ -635,6 +860,153 @@
                     formLoadingMessage.style.display = 'none';
                 }
             }
+
+            editNewUnitButton.addEventListener('click', () => {
+                editNewUnitInputContainer.style.display = 'block';
+                editNewUnitInput.focus();
+            });
+
+            editSaveNewUnitButton.addEventListener('click', async () => {
+                const name = editNewUnitInput.value.trim();
+                if (!name) {
+                    editFormErrorMessage.textContent = 'Digite o nome da nova unidade.';
+                    editFormErrorMessage.style.display = 'block';
+                    return;
+                }
+
+                editFormErrorMessage.style.display = 'none';
+                try {
+                    const response = await fetch('/api/measurement-units', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ name })
+                    });
+
+                    const payload = await response.json();
+                    if (!response.ok) {
+                        throw new Error(payload.message || 'Erro ao cadastrar unidade');
+                    }
+
+                    await loadMeasurementUnitsEdit(payload.id);
+                    editNewUnitInput.value = '';
+                    editNewUnitInputContainer.style.display = 'none';
+                } catch (err) {
+                    editFormErrorMessage.textContent = 'Erro ao cadastrar unidade: ' + err.message;
+                    editFormErrorMessage.style.display = 'block';
+                }
+            });
+
+            editPrepareDeleteUnitButton.addEventListener('click', () => {
+                if (!cachedUnitsEdit.length) {
+                    editFormErrorMessage.textContent = 'Não há unidades para excluir.';
+                    editFormErrorMessage.style.display = 'block';
+                    return;
+                }
+                isDeleteUnitModeEdit = true;
+                editFormErrorMessage.style.display = 'none';
+                editNewUnitInputContainer.style.display = 'none';
+                editUnitButtonsNormal.style.display = 'none';
+                editUnitButtonsDeleteMode.style.display = 'flex';
+                editMeasurementUnitSelect.innerHTML = '<option value="">Escolha uma unidade para excluir</option>';
+                cachedUnitsEdit.forEach(unit => {
+                    const option = document.createElement('option');
+                    option.value = unit.id;
+                    option.textContent = unit.name;
+                    editMeasurementUnitSelect.appendChild(option);
+                });
+            });
+
+            editConfirmDeleteUnitButton.addEventListener('click', async () => {
+                const selectedId = parseInt(editMeasurementUnitSelect.value, 10);
+                if (!selectedId) {
+                    editFormErrorMessage.textContent = 'Escolha uma unidade para excluir.';
+                    editFormErrorMessage.style.display = 'block';
+                    return;
+                }
+
+                editFormErrorMessage.style.display = 'none';
+                try {
+                    const response = await fetch(`/api/measurement-units/${selectedId}`, {
+                        method: 'DELETE'
+                    });
+                    const payload = await response.json();
+                    if (!response.ok) {
+                        throw new Error(payload.message || 'Erro ao excluir unidade');
+                    }
+
+                    isDeleteUnitModeEdit = false;
+                    editUnitButtonsDeleteMode.style.display = 'none';
+                    editUnitButtonsNormal.style.display = 'flex';
+                    await loadMeasurementUnitsEdit();
+                } catch (err) {
+                    editFormErrorMessage.textContent = 'Erro ao excluir unidade: ' + err.message;
+                    editFormErrorMessage.style.display = 'block';
+                }
+            });
+
+            editForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const formData = {
+                    name: document.getElementById('editName').value,
+                    type: document.getElementById('editType').value,
+                    sectorId: parseInt(document.getElementById('editSector').value),
+                    standardQuantityPerUnit: editStandardQuantityPerUnitInput.value,
+                    measurementUnitId: parseInt(editMeasurementUnitSelect.value)
+                };
+
+                if (!currentEditId) {
+                    editFormErrorMessage.textContent = 'Nenhuma materialização selecionada para edição.';
+                    editFormErrorMessage.style.display = 'block';
+                    return;
+                }
+
+                if (!formData.name || !formData.type || !formData.sectorId || !formData.standardQuantityPerUnit || !formData.measurementUnitId) {
+                    editFormErrorMessage.textContent = 'Por favor, preencha todos os campos obrigatórios.';
+                    editFormErrorMessage.style.display = 'block';
+                    return;
+                }
+
+                submitEditedMaterialization(currentEditId, formData);
+            });
+
+            async function submitEditedMaterialization(id, formData) {
+                editSubmitButton.disabled = true;
+                editFormLoadingMessage.textContent = 'Salvando alterações...';
+                editFormLoadingMessage.style.display = 'block';
+                editFormSuccessMessage.style.display = 'none';
+                editFormErrorMessage.style.display = 'none';
+
+                try {
+                    const response = await fetch(`/api/social-materializations/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(formData)
+                    });
+
+                    const responseData = await response.json();
+                    if (!response.ok) {
+                        throw new Error(responseData.message || 'Erro ao salvar alterações');
+                    }
+
+                    editFormSuccessMessage.textContent = 'Materialização social atualizada com sucesso!';
+                    editFormSuccessMessage.style.display = 'block';
+
+                    setTimeout(() => {
+                        document.querySelector('.tab[data-tab="list"]').click();
+                        loadMaterializations();
+                    }, 2000);
+                } catch (err) {
+                    editFormErrorMessage.textContent = 'Erro ao salvar: ' + err.message;
+                    editFormErrorMessage.style.display = 'block';
+                    console.error(err);
+                } finally {
+                    editSubmitButton.disabled = false;
+                    editFormLoadingMessage.style.display = 'none';
+                }
+            }
             
             // Botão cancelar limpa o formulário
             cancelButton.addEventListener('click', function() {
@@ -645,6 +1017,17 @@
                 isDeleteUnitMode = false;
                 unitButtonsDeleteMode.style.display = 'none';
                 unitButtonsNormal.style.display = 'flex';
+                document.querySelector('.tab[data-tab="list"]').click();
+            });
+
+            editCancelButton.addEventListener('click', function() {
+                editForm.reset();
+                editFormErrorMessage.style.display = 'none';
+                editFormSuccessMessage.style.display = 'none';
+                editNewUnitInputContainer.style.display = 'none';
+                isDeleteUnitModeEdit = false;
+                editUnitButtonsDeleteMode.style.display = 'none';
+                editUnitButtonsNormal.style.display = 'flex';
                 document.querySelector('.tab[data-tab="list"]').click();
             });
             
