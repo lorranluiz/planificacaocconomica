@@ -600,6 +600,20 @@ public class InstanceController {
     }
 
     /**
+     * Retorna a soma total de horas trabalhadas de todos os trabalhadores.
+     */
+    @GetMapping("/total-worker-hours")
+    public ResponseEntity<?> getTotalWorkerHours() {
+        try {
+            java.math.BigDecimal total = instanceRepository.sumWorkerHours();
+            return ResponseEntity.ok(Map.of("totalWorkerHours", total != null ? total : BigDecimal.ZERO));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Erro ao calcular total de horas: " + e.getMessage()));
+        }
+    }
+
+    /**
      * Endpoint para a loja do trabalhador: retorna materializações com custos sociais calculados.
      * Custo social = (productionTime / totalSocialWork) * socialWorkAndCostScale
      */
@@ -631,11 +645,10 @@ public class InstanceController {
             }
 
             // Parâmetros da escala: (numeroAproximadoDeTrabalhadores / 4) * 10^4
-            // Mesma fórmula usada em distribution.js
+            // Escala: 1600000 / 4 = 400000 (%4e5)
             long numeroAproximadoDeTrabalhadores = 1600000L;
             BigDecimal socialWorkAndCostScale = BigDecimal.valueOf(numeroAproximadoDeTrabalhadores)
-                .divide(BigDecimal.valueOf(4))
-                .multiply(BigDecimal.valueOf(10000));
+                .divide(BigDecimal.valueOf(4));
 
             // Buscar todas as materializações
             List<SocialMaterialization> materializations = socialMaterializationRepository.findAll();
@@ -654,9 +667,9 @@ public class InstanceController {
                     List<WorkersProposal> proposals = workersProposalRepository.findByInstanceId(committee.getId());
                     if (!proposals.isEmpty()) {
                         WorkersProposal wp = proposals.get(0);
-                        BigDecimal pt = wp.getPlanifiedProductionTime();
+                        BigDecimal pt = wp.getPlanifiedSociallyNecessaryTimePerUnit();
                         if (pt == null || pt.compareTo(BigDecimal.ZERO) == 0) {
-                            pt = wp.getProductionTime();
+                            pt = wp.getProposalSociallyNecessaryTimePerUnit();
                         }
                         if (pt != null && pt.compareTo(BigDecimal.ZERO) > 0) {
                             avgProductionTime = avgProductionTime.add(pt);
@@ -690,6 +703,12 @@ public class InstanceController {
             result.put("products", products);
             result.put("totalSocialWork", totalSocialWork);
             result.put("socialWorkAndCostScale", socialWorkAndCostScale);
+            // totalWorkerHours: usar o valor salvo no PlannerCouncil; se ainda nulo, calcular diretamente
+            BigDecimal totalWorkerHours = (plannerCouncil != null && plannerCouncil.getTotalWorkerHours() != null)
+                ? plannerCouncil.getTotalWorkerHours()
+                : instanceRepository.sumWorkerHours();
+            result.put("totalWorkerHours", totalWorkerHours);
+            result.put("workerHours", worker.getHoursAtElectronicPoint());
 
             return ResponseEntity.ok(result);
         } catch (Exception e) {
@@ -758,11 +777,10 @@ public class InstanceController {
                     .body(Map.of("error", "Trabalhador não encontrado com ID: " + workerId));
             }
 
-            // Parâmetros da escala
+            // Escala: 1600000 / 4 = 400000 (%4e5)
             long numeroAproximadoDeTrabalhadores = 1600000L;
             BigDecimal socialWorkAndCostScale = BigDecimal.valueOf(numeroAproximadoDeTrabalhadores)
-                .divide(BigDecimal.valueOf(4))
-                .multiply(BigDecimal.valueOf(10000));
+                .divide(BigDecimal.valueOf(4));
 
             // Verificar saldo
             BigDecimal currentParticipation = worker.getEstimatedIndividualParticipationInSocialWork();
@@ -839,6 +857,89 @@ public class InstanceController {
     }
 
     /**
+     * Resgata as horas do ponto eletrônico como participação social.
+     * Incrementa estimatedIndividualParticipationInSocialWork com (workerHours / totalWorkerHours) × totalSocialWork
+     * e zera hoursAtElectronicPoint.
+     */
+    @PostMapping("/{workerId}/redeem-participation")
+    @Transactional
+    public ResponseEntity<?> redeemParticipation(@PathVariable Integer workerId) {
+        try {
+            Instance worker = instanceRepository.findById(workerId).orElse(null);
+            if (worker == null || worker.getType() != InstanceType.WORKER) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Trabalhador não encontrado com ID: " + workerId));
+            }
+
+            BigDecimal workerHours = worker.getHoursAtElectronicPoint();
+            if (workerHours == null || workerHours.compareTo(BigDecimal.ZERO) <= 0) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Não há horas no ponto eletrônico para resgatar"));
+            }
+
+            // Mesma lógica do shop endpoint para totalSocialWork e totalWorkerHours
+            Instance plannerCouncil = instanceRepository.findById(1).orElse(null);
+
+            BigDecimal totalSocialWork = BigDecimal.ZERO;
+            if (plannerCouncil != null) {
+                if (plannerCouncil.getTotalSocialWork() != null
+                        && plannerCouncil.getTotalSocialWork().compareTo(BigDecimal.ZERO) > 0) {
+                    totalSocialWork = plannerCouncil.getTotalSocialWork();
+                } else if (plannerCouncil.getTotalSocialWorkOfThisJurisdiction() != null
+                        && plannerCouncil.getTotalSocialWorkOfThisJurisdiction() > 0) {
+                    totalSocialWork = BigDecimal.valueOf(plannerCouncil.getTotalSocialWorkOfThisJurisdiction());
+                }
+            }
+            if (totalSocialWork.compareTo(BigDecimal.ZERO) <= 0) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Trabalho social total não disponível para calcular participação"));
+            }
+
+            BigDecimal totalWorkerHours = (plannerCouncil != null && plannerCouncil.getTotalWorkerHours() != null)
+                ? plannerCouncil.getTotalWorkerHours()
+                : instanceRepository.sumWorkerHours();
+            if (totalWorkerHours == null || totalWorkerHours.compareTo(BigDecimal.ZERO) <= 0) {
+                return ResponseEntity.badRequest()
+                    .body(Map.of("error", "Total de horas dos trabalhadores não disponível"));
+            }
+
+            // increment = workerHours / totalWorkerHours × totalSocialWork  (sem o fator escala)
+            BigDecimal increment = workerHours
+                .divide(totalWorkerHours, 15, RoundingMode.HALF_UP)
+                .multiply(totalSocialWork);
+
+            BigDecimal currentParticipation = worker.getEstimatedIndividualParticipationInSocialWork();
+            if (currentParticipation == null) {
+                currentParticipation = BigDecimal.ZERO;
+            }
+            BigDecimal newParticipation = currentParticipation.add(increment);
+
+            worker.setEstimatedIndividualParticipationInSocialWork(newParticipation);
+            worker.setHoursAtElectronicPoint(BigDecimal.ZERO);
+            instanceRepository.save(worker);
+
+            // Escala: 1600000 / 4 = 400000 (%4e5)
+            long numeroAproximadoDeTrabalhadores = 1600000L;
+            BigDecimal socialWorkAndCostScale = BigDecimal.valueOf(numeroAproximadoDeTrabalhadores)
+                .divide(BigDecimal.valueOf(4));
+
+            BigDecimal newBalance = newParticipation.multiply(socialWorkAndCostScale)
+                .setScale(2, RoundingMode.HALF_UP);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("newParticipation", newParticipation);
+            response.put("newBalance", newBalance);
+            response.put("newHours", BigDecimal.ZERO);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Erro ao resgatar participação: " + e.getMessage()));
+        }
+    }
+
+    /**
      * Cancela e exclui um pedido pendente, ressarcindo o valor ao trabalhador.
      */
     @DeleteMapping("/{workerId}/orders/{orderId}")
@@ -862,11 +963,10 @@ public class InstanceController {
                     .body(Map.of("error", "Apenas pedidos com status pendente podem ser cancelados"));
             }
 
-            // Parâmetros da escala (mesma fórmula do POST)
+            // Escala: 1600000 / 4 = 400000 (%4e5)
             long numeroAproximadoDeTrabalhadores = 1600000L;
             BigDecimal socialWorkAndCostScale = BigDecimal.valueOf(numeroAproximadoDeTrabalhadores)
-                .divide(BigDecimal.valueOf(4))
-                .multiply(BigDecimal.valueOf(10000));
+                .divide(BigDecimal.valueOf(4));
 
             // Ressarcir o valor: newParticipation = current + (orderTotal / scale)
             BigDecimal currentParticipation = worker.getEstimatedIndividualParticipationInSocialWork();

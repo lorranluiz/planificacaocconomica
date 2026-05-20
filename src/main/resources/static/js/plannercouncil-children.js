@@ -294,6 +294,32 @@ function proceedCalculation() {
         
         // Mostrar mensagem de sucesso
         showNotification('Estimativas calculadas com sucesso!', 'success');
+
+        // Buscar e exibir total de horas trabalhadas registradas em ponto
+        fetch('/api/instances/total-worker-hours')
+            .then(r => r.json())
+            .then(hoursData => {
+                if (typeof totalWorkerHours !== 'undefined') {
+                    totalWorkerHours = hoursData.totalWorkerHours;
+                }
+                let twh = document.getElementById('totalWorkerHoursInfo');
+                if (!twh) {
+                    twh = document.createElement('div');
+                    twh.id = 'totalWorkerHoursInfo';
+                    twh.style.cssText = 'margin: 8px 0; font-size: 0.95em; color: #444;';
+                    const planifyButton = document.getElementById('planifyButton');
+                    if (planifyButton && planifyButton.parentNode) {
+                        const controlsDiv = planifyButton.parentNode;
+                        controlsDiv.parentNode.insertBefore(twh, controlsDiv);
+                    }
+                }
+                const val = hoursData.totalWorkerHours;
+                const formatted = val != null
+                    ? parseFloat(val).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+                    : '—';
+                twh.innerHTML = `Total de Horas Trabalhadas Registradas em Ponto (h): ${formatted}<br>`;
+            })
+            .catch(err => console.error('Erro ao buscar total de horas trabalhadas:', err));
         
         // Marcar que há alterações pendentes para salvar
         if (typeof pageState !== 'undefined') {

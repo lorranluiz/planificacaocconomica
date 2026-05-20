@@ -243,7 +243,7 @@ public class CouncilController {
                     // Obter planifiedProductionTime do WorkersProposal do comitê
                     List<WorkersProposal> proposals = workersProposalRepository.findByInstanceId(child.getId());
                     if (!proposals.isEmpty()) {
-                        BigDecimal planifiedProdTime = proposals.get(0).getPlanifiedProductionTime();
+                        BigDecimal planifiedProdTime = proposals.get(0).getPlanifiedSociallyNecessaryTimePerUnit();
                         if (planifiedProdTime != null) {
                             totalSocialWork = totalSocialWork.add(planifiedProdTime.multiply(producedQty));
                         }
@@ -299,7 +299,8 @@ public class CouncilController {
     public ResponseEntity<?> markPlannerEstimatesSaved(
             @PathVariable Integer instanceId,
             @org.springframework.web.bind.annotation.RequestParam(name = "tampered", defaultValue = "false") boolean tampered,
-            @org.springframework.web.bind.annotation.RequestParam(name = "totalSocialProductionCapacity", required = false) java.math.BigDecimal totalSocialProductionCapacity) {
+            @org.springframework.web.bind.annotation.RequestParam(name = "totalSocialProductionCapacity", required = false) java.math.BigDecimal totalSocialProductionCapacity,
+            @org.springframework.web.bind.annotation.RequestParam(name = "totalWorkerHours", required = false) java.math.BigDecimal totalWorkerHoursParam) {
         logger.info("Marcando estimativas planificadas salvas para Conselho Planificador ID: {}, tampered: {}", instanceId, tampered);
         
         try {
@@ -318,6 +319,11 @@ public class CouncilController {
                 plannerCouncil.setTotalSocialProductionCapacity(totalSocialProductionCapacity);
             }
 
+            // Salvar totalWorkerHours (denominador para participação social dos trabalhadores)
+            if (totalWorkerHoursParam != null) {
+                plannerCouncil.setTotalWorkerHours(totalWorkerHoursParam);
+            }
+
             // Calcular totalSocialWork: somar totalSocialWork de cada conselho popular filho
             BigDecimal totalSocialWork = BigDecimal.ZERO;
             List<Instance> childCouncils = instanceRepository.findByPopularCouncilAssociatedWithPopularCouncil(plannerCouncil);
@@ -333,7 +339,7 @@ public class CouncilController {
                     BigDecimal producedQty = child.getProducedQuantity() != null ? child.getProducedQuantity() : BigDecimal.ZERO;
                     List<WorkersProposal> proposals = workersProposalRepository.findByInstanceId(child.getId());
                     if (!proposals.isEmpty()) {
-                        BigDecimal planifiedProdTime = proposals.get(0).getPlanifiedProductionTime();
+                        BigDecimal planifiedProdTime = proposals.get(0).getPlanifiedSociallyNecessaryTimePerUnit();
                         if (planifiedProdTime != null) {
                             totalSocialWork = totalSocialWork.add(planifiedProdTime.multiply(producedQty));
                         }

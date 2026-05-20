@@ -23,6 +23,9 @@ let dataModifiedAfterPlanification = false;
 // Capacidade produtiva mensal total (c_total), calculada durante a planificação
 let totalSocialProductionCapacity = null;
 
+// Total de horas trabalhadas de todos os trabalhadores (denominador para participação social)
+let totalWorkerHours = null;
+
 // Adicione esta função após a declaração de variáveis no início do arquivo
 function loadPreviousResults(instanceId) {
     console.log(`Carregando resultados anteriores da instância ${instanceId}...`);
@@ -1778,7 +1781,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         // antes de "Salvar Alterações" — campo de auditoria (planification_data_tampered)
                         const tampered = dataModifiedAfterPlanification;
                         const cTotalParam = totalSocialProductionCapacity != null ? `&totalSocialProductionCapacity=${totalSocialProductionCapacity}` : '';
-                        fetch(`/api/council/${currentInstanceId}/mark-planner-estimates-saved?tampered=${tampered}${cTotalParam}`, {
+                        const workerHoursParam = totalWorkerHours != null ? `&totalWorkerHours=${totalWorkerHours}` : '';
+                        fetch(`/api/council/${currentInstanceId}/mark-planner-estimates-saved?tampered=${tampered}${cTotalParam}${workerHoursParam}`, {
                             method: 'POST'
                         })
                         .then(res => {

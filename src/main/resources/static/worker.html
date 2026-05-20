@@ -1094,14 +1094,19 @@
                             <span id="residentsAssociation" class="info-value">Carregando...</span>
                         </div>
                         
-                        <div class="info-row">
+                        <div class="info-row" style="align-items:center; flex-wrap:wrap; gap:8px;">
                             <span class="info-label">Horas no Ponto Eletrônico (h trabalhadas):</span>
+                            <div style="font-size:0.78em; color:#888; margin-top:-6px; margin-bottom:4px; padding-left:4px;" title="Horas no Ponto Eletrônico (h trabalhadas) só aumenta novamente na medida em que você trabalhar. Se estiver zerado é porque foi totalmente resgatado como participação.">
+                            ℹ️ Horas só aumentam conforme você trabalha. Se está zerado é porque foram totalmente resgatadas como participação.
+                            </div>
                             <span id="workedHours" class="info-value">Carregando...</span>
+                            <button id="redeemParticipationBtn" onclick="redeemParticipation()" style="display:none; margin-left:10px; padding:4px 12px; font-size:0.85em; cursor:pointer; background:#4a7c59; color:#fff; border:none; border-radius:4px;">Resgatar essa Participação</button>
                         </div>
                         
                         <div class="info-row">
-                            <span class="info-label">Participação Individual no Trabalho Social (<span class="info-label-scale">ℳ = %4e9</span>):</span>
+                            <span class="info-label">Participação Individual no Trabalho Social (<span class="info-label-scale">ℳ = %4e4</span>):</span>
                             <span id="socialParticipation" class="info-value">Carregando...</span>
+                            <span id="socialParticipationFormula" style="margin-left:12px; font-size:0.85em; color:#666;"></span>
                         </div>
                     </div>
                 </div>

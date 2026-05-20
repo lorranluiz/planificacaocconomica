@@ -8,7 +8,7 @@ let currentPage = 1;
 let productsPerPage = 20; // Exibir 20 itens por página
 let cartItems = []; // Itens no carrinho
 let availableSocialParticipation = 0;
-let socialWorkAndCostScale = (1600000/4)*Math.pow(10,4); // Mesma fórmula de distribution.js
+let socialWorkAndCostScale = 1600000/4; // %4e5 = 400000; backend confirma via /shop (data.socialWorkAndCostScale)
 
 // Adicionar variáveis globais para armazenar os pedidos
 let orderHistory = [];
@@ -547,6 +547,13 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 workedHours.textContent = '0.00 horas';
             }
+
+            // Mostrar/ocultar botão de resgate conforme horas disponíveis
+            const redeemBtn = document.getElementById('redeemParticipationBtn');
+            if (redeemBtn) {
+                const hrs = data.hoursAtElectronicPoint != null ? parseFloat(data.hoursAtElectronicPoint) : 0;
+                redeemBtn.style.display = hrs > 0 ? 'inline-block' : 'none';
+            }
             
             // Participação social - Multiplicar pela escala socialWorkAndCostScale
             if (data.estimatedIndividualParticipationInSocialWork !== undefined && 
@@ -802,7 +809,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (data.socialWorkAndCostScale) {
                     socialWorkAndCostScale = parseFloat(data.socialWorkAndCostScale);
                 }
-                
+
                 // Mapear os dados da API para o formato esperado pela interface
                 allProducts = (data.products || []).map(p => ({
                     id: p.id,
@@ -1237,6 +1244,70 @@ function viewOrderDetails(orderId) {
     
     // Exibir o modal
     document.getElementById('orderDetailsModal').style.display = 'block';
+}
+
+/**
+ * Resgata as horas do ponto eletrônico como participação social.
+ * Chama POST /api/instances/{workerId}/redeem-participation no backend,
+ * que calcula (workerHours / totalWorkerHours) × totalSocialWork e soma ao saldo atual.
+ */
+function redeemParticipation() {
+    if (!currentInstanceId) {
+        showError('Usuário não identificado');
+        return;
+    }
+
+    const btn = document.getElementById('redeemParticipationBtn');
+    if (btn) {
+        btn.disabled = true;
+        btn.textContent = 'Resgatando...';
+    }
+
+    fetch(`/api/instances/${currentInstanceId}/redeem-participation`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
+    .then(response => {
+        if (!response.ok) {
+            return response.json().then(err => { throw new Error(err.error || 'Erro ao resgatar participação'); });
+        }
+        return response.json();
+    })
+    .then(data => {
+        // Atualizar variável global de saldo
+        if (data.newParticipation !== undefined) {
+            availableSocialParticipation = parseFloat(data.newParticipation);
+        }
+
+        // Atualizar display de participação social somando ao valor anterior
+        if (data.newBalance !== undefined) {
+            const socialParticipationEl = document.getElementById('socialParticipation');
+            if (socialParticipationEl) {
+                socialParticipationEl.textContent = `ℳ ${parseFloat(data.newBalance).toFixed(2)}`;
+            }
+        }
+
+        // Zerar horas no ponto eletrônico e ocultar botão
+        const workedHoursEl = document.getElementById('workedHours');
+        if (workedHoursEl) {
+            workedHoursEl.textContent = '0.00 horas';
+        }
+        if (btn) {
+            btn.style.display = 'none';
+            btn.disabled = false;
+            btn.textContent = 'Resgatar essa Participação';
+        }
+
+        showSuccess('Participação resgatada com sucesso! Horas zeradas.');
+    })
+    .catch(error => {
+        console.error('Erro ao resgatar participação:', error);
+        showError(error.message);
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = 'Resgatar essa Participação';
+        }
+    });
 }
 
 /**

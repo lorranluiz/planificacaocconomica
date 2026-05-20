@@ -118,4 +118,10 @@ public interface InstanceRepository extends JpaRepository<Instance, Integer> {
      */
     @Query("SELECT i FROM Instance i WHERE i.type = :type AND i.state = :state AND (i.cityCode IS NULL OR i.cityCode = '')")
     List<Instance> findStateCouncilByStateAndType(@Param("state") String state, @Param("type") InstanceType type);
+
+    /**
+     * Retorna a soma total de horas trabalhadas de todos os trabalhadores.
+     */
+    @Query("SELECT SUM(i.hoursAtElectronicPoint) FROM Instance i WHERE i.type = xyz.planecon.model.enums.InstanceType.WORKER")
+    java.math.BigDecimal sumWorkerHours();
 }

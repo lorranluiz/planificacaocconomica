@@ -1,6 +1,6 @@
 let addedProducts = new Set();
 let numeroAproximadoDeTrabalhadores = 1600000; //Ordem de trabalhadores, de teste
-//let numeroAproximadoDeTrabalhadores = 4000000000; //Para quando forem 4 bilhões de trabalhadores
+//let numeroAproximadoDeTrabalhadores = 4000000000*100000; //Para quando forem 4 bilhões de trabalhadores, 100000 é só uma escala para não ficarem números muito altos visualmente.
 //Quando tiver cerca de 4 bilhões (4*10^9) de trabalhadores "1e13", ou seja,
 // (nº trabalhadores /4)*10^4 = 1e13 (aproximadamente, quando 4 bilhões de trabalhadores)
 let socialWorkAndCostScale = (numeroAproximadoDeTrabalhadores/4)*Math.pow(10,4);
