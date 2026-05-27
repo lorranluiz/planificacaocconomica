@@ -1100,7 +1100,9 @@
                             ℹ️ Horas só aumentam conforme você trabalha. Se está zerado é porque foram totalmente resgatadas como participação.
                             </div>
                             <span id="workedHours" class="info-value">Carregando...</span>
-                            <button id="redeemParticipationBtn" onclick="redeemParticipation()" style="display:none; margin-left:10px; padding:4px 12px; font-size:0.85em; cursor:pointer; background:#4a7c59; color:#fff; border:none; border-radius:4px;">Resgatar essa Participação</button>
+                            <button id="timeClockButton" title="Bater Ponto" style="display:inline-flex; align-items:center; justify-content:center; min-width:40px; height:36px; border:none; border-radius:6px; background:#f0f0f0; color:#333; cursor:pointer; margin-left:10px;">
+                                <i class="fas fa-stopwatch" style="font-size:1rem;"></i>
+                            </button>
                         </div>
                         
                         <div class="info-row">
@@ -1169,6 +1171,23 @@
                     <span id="cartTotal">ℳ 0,00</span>
                 </div>
                 <button class="checkout-btn" id="checkoutButton">Finalizar Pedido</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Bater Ponto -->
+    <div id="timeClockModal" class="modal" style="display:none; align-items:center; justify-content:center;">
+        <div class="modal-content" style="max-width:400px;">
+            <span class="close" id="timeClockClose">&times;</span>
+            <h2>Bater Ponto</h2>
+            <p>Adicione horas ao Ponto Eletrônico. O valor será somado ao total registrado.</p>
+            <div class="form-group" style="margin-top:16px;">
+                <label for="timeClockInput">Horas trabalhadas a adicionar</label>
+                <input id="timeClockInput" type="number" min="0.01" step="0.01" placeholder="0,00" style="width:100%; padding:10px; border:1px solid var(--border-color); border-radius:6px; background:var(--input-bg); color:var(--text-color);" />
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" id="timeClockCancel">Cancelar</button>
+                <button type="button" class="btn" id="timeClockConfirm">Adicionar Horas</button>
             </div>
         </div>
     </div>

@@ -89,6 +89,14 @@ document.addEventListener('DOMContentLoaded', function() {
     const historyTable = document.getElementById('historyTable');
     const historyTableBody = document.getElementById('historyTableBody');
     const emptyHistory = document.getElementById('emptyHistory');
+
+    // Elementos do modal de ponto eletrônico
+    const timeClockButton = document.getElementById('timeClockButton');
+    const timeClockModal = document.getElementById('timeClockModal');
+    const timeClockClose = document.getElementById('timeClockClose');
+    const timeClockCancel = document.getElementById('timeClockCancel');
+    const timeClockConfirm = document.getElementById('timeClockConfirm');
+    const timeClockInput = document.getElementById('timeClockInput');
     
     // Carregar lista de instâncias
     loadInstances();
@@ -135,6 +143,16 @@ document.addEventListener('DOMContentLoaded', function() {
     
     checkoutButton.addEventListener('click', finalizePurchase);
     
+    if (timeClockButton) {
+        timeClockButton.addEventListener('click', () => {
+            openTimeClockModal();
+        });
+    }
+    
+    timeClockClose.addEventListener('click', closeTimeClockModal);
+    timeClockCancel.addEventListener('click', closeTimeClockModal);
+    timeClockConfirm.addEventListener('click', submitTimeClockHours);
+    
     // Fechar modais ao clicar fora
     window.addEventListener('click', (e) => {
         if (e.target === cartModal) {
@@ -142,6 +160,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         if (e.target === historyModal) {
             historyModal.style.display = 'none';
+        }
+        if (e.target === timeClockModal) {
+            timeClockModal.style.display = 'none';
         }
     });
     
@@ -179,6 +200,67 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     function closeHistoryModal() {
         historyModal.style.display = 'none';
+    }
+
+    /**
+     * Abre a modal de bater ponto
+     */
+    function openTimeClockModal() {
+        if (!timeClockModal) {
+            return;
+        }
+        timeClockInput.value = '';
+        timeClockModal.style.display = 'flex';
+        timeClockInput.focus();
+    }
+
+    /**
+     * Fecha a modal de bater ponto
+     */
+    function closeTimeClockModal() {
+        if (!timeClockModal) {
+            return;
+        }
+        timeClockModal.style.display = 'none';
+    }
+
+    /**
+     * Submete o valor de horas trabalhadas para somar ao Ponto Eletrônico
+     */
+    function submitTimeClockHours() {
+        const hoursValue = parseFloat(timeClockInput.value.replace(',', '.'));
+        if (!currentInstanceId) {
+            showError('Não foi possível identificar o trabalhador atual.');
+            return;
+        }
+        if (isNaN(hoursValue) || hoursValue <= 0) {
+            showError('Digite um valor de horas válido maior que zero.');
+            return;
+        }
+
+        timeClockConfirm.disabled = true;
+        fetch(`/api/instances/${currentInstanceId}/add-hours`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ hoursToAdd: hoursValue })
+        })
+        .then(response => {
+            timeClockConfirm.disabled = false;
+            if (!response.ok) {
+                return response.text().then(text => { throw new Error(text || 'Erro ao registrar horas'); });
+            }
+            return response.json();
+        })
+        .then(() => {
+            closeTimeClockModal();
+            showSuccess('Horas adicionadas com sucesso.');
+            loadWorkerData(currentInstanceId);
+        })
+        .catch(error => {
+            showError(error.message || 'Erro ao registrar horas');
+        });
     }
     
     /**

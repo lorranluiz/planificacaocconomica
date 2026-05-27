@@ -22,7 +22,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
+import java.util.Map;
+import java.util.ArrayList;
+import org.springframework.transaction.annotation.Transactional;
 
 @RestController
 @RequestMapping("/api/council")
@@ -366,6 +370,68 @@ public class CouncilController {
                     "message", "Erro: " + e.getMessage()
                 )
             );
+        }
+    }
+
+    /**
+     * Realiza o resgate automático da participação social de todos os trabalhadores.
+     * Uso: chamado pelo Conselho Planificador após "Salvar Alterações".
+     * Regra: increment = workerHours / totalWorkerHours
+     * Não multiplica por totalSocialWork; zera as horas após processar.
+     */
+    @PostMapping("/{instanceId}/redeem-all-workers")
+    @Transactional
+    public ResponseEntity<?> redeemAllWorkers(@PathVariable Integer instanceId) {
+        try {
+            Instance plannerCouncil = instanceRepository.findById(instanceId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Conselho Planificador não encontrado: " + instanceId));
+
+            // Determinar totalWorkerHours: usar o valor salvo no planner, se disponível
+            BigDecimal totalWorkerHours = (plannerCouncil.getTotalWorkerHours() != null)
+                ? plannerCouncil.getTotalWorkerHours()
+                : instanceRepository.sumWorkerHours();
+
+            if (totalWorkerHours == null || totalWorkerHours.compareTo(BigDecimal.ZERO) <= 0) {
+                return ResponseEntity.badRequest().body(Map.of("error", "totalWorkerHours inválido ou zero"));
+            }
+
+            List<Instance> workers = instanceRepository.findByType(InstanceType.WORKER);
+            List<Map<String, Object>> updates = new ArrayList<>();
+
+            for (Instance worker : workers) {
+                BigDecimal workerHours = worker.getHoursAtElectronicPoint() != null ? worker.getHoursAtElectronicPoint() : BigDecimal.ZERO;
+
+                if (workerHours.compareTo(BigDecimal.ZERO) <= 0) {
+                    continue;
+                }
+
+                BigDecimal increment = workerHours.divide(totalWorkerHours, 15, RoundingMode.HALF_UP);
+
+                BigDecimal current = worker.getEstimatedIndividualParticipationInSocialWork() != null
+                    ? worker.getEstimatedIndividualParticipationInSocialWork()
+                    : BigDecimal.ZERO;
+
+                BigDecimal updated = current.add(increment);
+                worker.setEstimatedIndividualParticipationInSocialWork(updated);
+
+                // Zerar horas no ponto eletrônico após resgate (opção do usuário)
+                worker.setHoursAtElectronicPoint(BigDecimal.ZERO);
+
+                updates.add(Map.of(
+                    "workerId", worker.getId(),
+                    "added", increment,
+                    "previousParticipation", current,
+                    "newParticipation", updated
+                ));
+            }
+
+            // Persistir todas as alterações em lote
+            instanceRepository.saveAll(workers);
+
+            return ResponseEntity.ok(Map.of("updated", updates.size(), "details", updates));
+        } catch (Exception e) {
+            logger.error("Erro ao processar redeem-all-workers: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }
     }
 }

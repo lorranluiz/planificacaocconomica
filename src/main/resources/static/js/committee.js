@@ -226,13 +226,7 @@ function getTechnologicalQuantityValue(materialization) {
 function getMaterializationProductionTimeValue(materialization) {
     if (!materialization) return null;
 
-    // Prioridade 1: Tempo Socialmente Necessário para Produzir 1 Unidade (de linhas de comitês no banco)
-    const sociallyNecessaryTime = globalState.materializationSociallyNecessaryTimeById[materialization.id];
-    if (sociallyNecessaryTime !== undefined && sociallyNecessaryTime !== null && sociallyNecessaryTime !== '') {
-        return sociallyNecessaryTime;
-    }
-
-    // Prioridade 2: valor salvo diretamente na materialização (pode vir do banco via estado)
+    // Prioridade 1: Tempo Localmente Necessário para Produzir 1 Unidade
     if (materialization.productionTime !== undefined && materialization.productionTime !== null && materialization.productionTime !== '') {
         return materialization.productionTime;
     }
@@ -245,6 +239,12 @@ function getMaterializationProductionTimeValue(materialization) {
     const metadata = globalState.materializationMetadataById[materialization.id];
     if (metadata && metadata.productionTime !== undefined && metadata.productionTime !== null && metadata.productionTime !== '') {
         return metadata.productionTime;
+    }
+
+    // Fallback antigo: quando não houver valor local, usar o Tempo Socialmente Necessário registrado
+    const sociallyNecessaryTime = globalState.materializationSociallyNecessaryTimeById[materialization.id];
+    if (sociallyNecessaryTime !== undefined && sociallyNecessaryTime !== null && sociallyNecessaryTime !== '') {
+        return sociallyNecessaryTime;
     }
 
     return null;
@@ -1872,7 +1872,7 @@ function updateTechnologicalMatrixTable() {
                        readonly
                        tabindex="-1"
                        aria-readonly="true"
-                       title="Tempo Socialmente Necessário para Produzir 1 Unidade (em horas)">
+                       title="Tempo Localmente Necessário para Produzir 1 Unidade (h)">
             </td>
             <td class="technological-temporal-proportion-cell">
                 <input type="text" class="form-control technological-temporal-proportion-input"

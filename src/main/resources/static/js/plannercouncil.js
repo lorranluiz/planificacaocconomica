@@ -1788,6 +1788,25 @@ document.addEventListener('DOMContentLoaded', function() {
                         .then(res => {
                             if (res.ok) {
                                 console.log("Timestamp de estimativas planificadas atualizado no Conselho Planificador, tampered:", tampered);
+                                // Após salvar as estimativas, acionar o resgate automático para todos os trabalhadores
+                                return fetch(`/api/council/${currentInstanceId}/redeem-all-workers`, { method: 'POST' })
+                                    .then(rr => {
+                                        if (rr.ok) {
+                                            rr.json().then(summary => {
+                                                console.log('Redeem-all-workers concluído:', summary);
+                                                showNotification('Resgate automático para todos os trabalhadores concluído.', 'success');
+                                            }).catch(() => {
+                                                showNotification('Resgate automático concluído.', 'success');
+                                            });
+                                        } else {
+                                            console.warn('Falha no resgate automático de trabalhadores');
+                                            showNotification('Falha no resgate automático de trabalhadores.', 'warning');
+                                        }
+                                    })
+                                    .catch(err => {
+                                        console.error('Erro ao chamar redeem-all-workers:', err);
+                                        showNotification('Erro ao executar resgate automático.', 'error');
+                                    });
                             } else {
                                 console.warn("Falha ao atualizar timestamp de estimativas planificadas no Conselho Planificador");
                             }

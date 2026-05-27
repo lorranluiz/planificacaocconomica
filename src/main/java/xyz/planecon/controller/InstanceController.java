@@ -903,10 +903,11 @@ public class InstanceController {
                     .body(Map.of("error", "Total de horas dos trabalhadores não disponível"));
             }
 
-            // increment = workerHours / totalWorkerHours × totalSocialWork  (sem o fator escala)
+            // increment = workerHours / totalWorkerHours × totalSocialWork  (anterior)
+            // Agora: increment = workerHours / totalWorkerHours
+            // Mantido como comentário acima a fórmula antiga para registro.
             BigDecimal increment = workerHours
-                .divide(totalWorkerHours, 15, RoundingMode.HALF_UP)
-                .multiply(totalSocialWork);
+                .divide(totalWorkerHours, 15, RoundingMode.HALF_UP);
 
             BigDecimal currentParticipation = worker.getEstimatedIndividualParticipationInSocialWork();
             if (currentParticipation == null) {
@@ -936,6 +937,47 @@ public class InstanceController {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("error", "Erro ao resgatar participação: " + e.getMessage()));
+        }
+    }
+
+    /**
+     * Bate ponto somando horas ao ponto eletrônico do trabalhador.
+     */
+    @PostMapping("/{workerId}/add-hours")
+    @Transactional
+    public ResponseEntity<?> addWorkerHours(@PathVariable Integer workerId, @RequestBody Map<String, Object> payload) {
+        try {
+            if (!payload.containsKey("hoursToAdd")) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Campo hoursToAdd é obrigatório"));
+            }
+
+            BigDecimal hoursToAdd = new BigDecimal(payload.get("hoursToAdd").toString());
+            if (hoursToAdd.compareTo(BigDecimal.ZERO) <= 0) {
+                return ResponseEntity.badRequest().body(Map.of("error", "O valor de horas deve ser maior que zero"));
+            }
+
+            Instance worker = instanceRepository.findById(workerId).orElse(null);
+            if (worker == null || worker.getType() != InstanceType.WORKER) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "Trabalhador não encontrado com ID: " + workerId));
+            }
+
+            BigDecimal currentHours = worker.getHoursAtElectronicPoint();
+            if (currentHours == null) {
+                currentHours = BigDecimal.ZERO;
+            }
+
+            BigDecimal newHours = currentHours.add(hoursToAdd);
+            worker.setHoursAtElectronicPoint(newHours);
+            instanceRepository.save(worker);
+
+            return ResponseEntity.ok(Map.of("workerId", worker.getId(), "hoursAtElectronicPoint", newHours));
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Valor de horas inválido"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("error", "Erro ao somar horas: " + e.getMessage()));
         }
     }
 
