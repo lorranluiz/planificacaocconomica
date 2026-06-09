@@ -62,6 +62,8 @@ public interface TechnologicalTensorRepository extends JpaRepository<Technologic
     int deleteByInstanceIdAndMaterializationId(@Param("instanceId") Integer instanceId, 
                                               @Param("materializationId") Integer materializationId);
 
+    List<TechnologicalTensor> findBySupplierInstanceId(Integer supplierInstanceId);
+
     /**
      * Busca todos os tensores tecnológicos das instâncias filhas de um conselho
      * Inclui tanto comitês e trabalhadores quanto conselhos filhos

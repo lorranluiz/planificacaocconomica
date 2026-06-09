@@ -30,6 +30,12 @@ public class CommitteeStateDTO {
     
     private Map<String, Object> optimizationData;
 
+    /** Mapa de escolhas de fornecedor: inputMaterializationId -> supplierInstanceId */
+    private Map<Integer, Integer> supplierChoices;
+
+    /** Mapa auxiliar com nomes dos fornecedores: supplierInstanceId -> supplierName */
+    private Map<Integer, String> supplierNames;
+
     /** Tempo Socialmente Necessário para Produzir 1 Unidade, calculado pelo comitê. */
     private BigDecimal sociallyNecessaryTimePerUnit;
 
@@ -133,6 +139,22 @@ public class CommitteeStateDTO {
     
     public void setOptimizationData(Map<String, Object> optimizationData) {
         this.optimizationData = optimizationData;
+    }
+
+    public Map<Integer, Integer> getSupplierChoices() {
+        return supplierChoices;
+    }
+
+    public void setSupplierChoices(Map<Integer, Integer> supplierChoices) {
+        this.supplierChoices = supplierChoices;
+    }
+
+    public Map<Integer, String> getSupplierNames() {
+        return supplierNames;
+    }
+
+    public void setSupplierNames(Map<Integer, String> supplierNames) {
+        this.supplierNames = supplierNames;
     }
 
     public BigDecimal getSociallyNecessaryTimePerUnit() {

@@ -486,6 +486,9 @@
                             <button id="btnUpdateDemandsAndGoals" class="btn btn-primary">
                                 <i class="fas fa-bullseye mr-2"></i> Atualizar Demandas e Metas
                             </button>
+                            <button id="addStockDemandBtn" class="btn btn-secondary" title="Adicionar insumo ao Vetor Tecnológico">
+                                <i class="fas fa-plus"></i> Adicionar Insumo
+                            </button>
                             <span id="updateStatus" class="ml-2" style="display: none;">
                                 <i class="fas fa-spinner fa-spin"></i> Processando...
                             </span>
@@ -540,12 +543,6 @@
                 <div id="stockDemandSection">
                     <h2>Estoque e Demanda</h2>
                     <p>Informações sobre o estoque atual e a demanda para cada materialização social.</p>
-                    
-                    <div class="vector-actions">
-                        <button id="addStockDemandBtn" class="action-btn add-btn" title="Adicionar materialização social">
-                            <i class="fas fa-plus"></i>
-                        </button>
-                    </div>
                     
                     <div class="table-container">
                         <table id="demandStockTable" class="editable-table">
@@ -669,6 +666,14 @@
                             <p style="font-size: 0.8em; color: var(--text-secondary, #666); margin-top: 6px;">* Cota individual da Participação Social Estimada em 1 mês, estimativa do que um produtor receberá em 1 mês de trabalho nessa unidade produtiva.</p>
                         </div>
                     </div>
+
+                    <!-- Encomendas de Produção -->
+                    <div class="optimization-section" id="incomingOrdersSection" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color, #444);">
+                        <h4 style="margin-bottom: 10px;">Encomendas de Produção</h4>
+                        <div id="incomingOrdersList">
+                            <p style="color: var(--text-secondary, #666); font-style: italic;">Nenhuma encomenda recebida.</p>
+                        </div>
+                    </div>
             </div>
 
             <!-- Conteúdo da aba "Da Materialização Social" -->
@@ -698,6 +703,50 @@
         
         .product-info strong {
             color: var(--primary-color);
+        }
+
+        /* Estilos do ícone de fornecedor */
+        .supplier-icon {
+            color: var(--text-secondary, #888);
+            font-size: 0.85em;
+            transition: color 0.2s;
+        }
+        .supplier-icon.has-supplier {
+            color: var(--primary-color, #1976d2);
+        }
+        .supplier-icon:hover {
+            color: var(--primary-color, #1565c0);
+            transform: scale(1.15);
+        }
+
+        /* Estilos do modal de seleção de fornecedor */
+        #supplierSelectionModal .modal-content {
+            max-width: 500px;
+        }
+        .supplier-list-item {
+            background-color: var(--bg-light, #f5f5f5);
+            border: 1px solid var(--border-color, #ddd);
+        }
+        .supplier-list-item:hover {
+            background-color: var(--bg-hover, #e8e8e8);
+        }
+        .supplier-list-item.supplier-item-selected {
+            border-color: var(--primary-color, #1976d2);
+            background-color: var(--bg-primary-light, rgba(25, 118, 210, 0.08));
+        }
+
+        /* Estilos do modal de adicionar insumo */
+        #addInsumoModal .modal-content {
+            max-width: 500px;
+        }
+        .insumo-list-item {
+            background-color: var(--bg-light, #f5f5f5);
+            border: 1px solid var(--border-color, #ddd);
+            border-radius: 4px;
+        }
+        .insumo-list-item:hover {
+            background-color: var(--bg-hover, #e8e8e8);
+            border-color: var(--primary-color, #1976d2);
         }
     </style>
 
@@ -865,6 +914,39 @@
                 <button type="button" class="btn" onclick="savePropostaInputs()">Salvar</button>
                 <button type="button" class="btn btn-secondary" onclick="closePropostaModal()">Cancelar</button>
                 <div id="propostaSpinner" class="loading" style="display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Seleção de Fornecedor -->
+    <div id="supplierSelectionModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSupplierSelectionModal()">&times;</span>
+            <h3>Selecionar Fornecedor</h3>
+            <p>Insumo: <strong><span id="supplierModalInsumoName"></span></strong></p>
+            <p style="font-size: 0.85em; color: var(--text-secondary, #666); margin-bottom: 15px;">Selecione abaixo a unidade produtiva que irá fornecer este insumo.</p>
+            <div id="supplierListContainer">
+                <p style="color: var(--text-secondary, #666); font-style: italic;">Carregando...</p>
+            </div>
+            <div class="modal-footer" style="margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="clearCurrentSupplierSelection()">Limpar Seleção</button>
+                <button class="btn btn-secondary" onclick="closeSupplierSelectionModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Adicionar Insumo ao Vetor Tecnológico -->
+    <div id="addInsumoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAddInsumoModal()">&times;</span>
+            <h3>Adicionar Insumo</h3>
+            <p style="font-size: 0.9em; color: var(--text-secondary, #666); margin-bottom: 15px;">Selecione abaixo um insumo para incluir no Vetor Tecnológico. Apenas materializações que ainda não estão na tabela são exibidas.</p>
+            <div id="addInsumoListContainer">
+                <p style="color: var(--text-secondary, #666); font-style: italic;">Carregando...</p>
+            </div>
+            <div class="modal-footer" style="margin-top: 20px;">
+                <button class="btn btn-secondary" onclick="openNewMaterializationModal()">Criar Nova Materialização</button>
+                <button class="btn btn-secondary" onclick="closeAddInsumoModal()">Cancelar</button>
             </div>
         </div>
     </div>

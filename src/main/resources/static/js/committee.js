@@ -77,7 +77,16 @@ const globalState = {
     // Flag para controlar se estamos carregando dados
     loadingMaterializations: false,
     // Valores locais da coluna Quantidade no vetor tecnológico
-    technologicalQuantities: {}
+    technologicalQuantities: {},
+
+    // Escolhas de fornecedor: inputMaterializationId -> supplierInstanceId
+    supplierChoices: {},
+
+    // Nomes dos fornecedores: supplierInstanceId -> supplierName
+    supplierNames: {},
+
+    // ID do insumo cujo modal de seleção de fornecedor está aberto
+    currentSupplierInputId: null
 };
 
 // Cache de dados em memória para reduzir chamadas ao servidor
@@ -1118,122 +1127,123 @@ function refreshTechnologicalMatrixMetadata() {
  * à matriz tecnológica ou tabela de estoque/demanda
  */
 function openMaterializationSelect(event) {
-    // Evitar a propagação do evento para não fechar o dropdown imediatamente
+    // Evitar a propagação do evento para não fechar o modal imediatamente
     if (event) {
         event.preventDefault();
         event.stopPropagation();
-    }
-    
-    // Não abrir se já estiver aberto ou se estiver carregando
-    if (globalState.dropdownVisible || globalState.loadingMaterializations) {
-        console.log("Dropdown já está aberto ou carregando, ignorando clique");
-        return;
     }
 
     if (!pageState.id) {
         showErrorMessage("Selecione um comitê primeiro");
         return;
     }
-    
-    // Marcar como em processo de abertura
-    globalState.dropdownVisible = true;
-    
-    // Remover dropdown existente para garantir que não haja duplicatas
-    removeExistingDropdown();
-    
+
     // Forçar recarregamento da lista de materializações disponíveis
-    // para evitar problemas com materializações recentemente excluídas
     globalState.materializationsLoaded = false;
     globalState.allMaterializations = [];
-    
-    // Função para mostrar o dropdown com as materializações filtradas
-    const showDropdownWithMaterializations = (allMaterializations) => {
-        // Se não temos materializações ou o array está vazio, mostrar mensagem
-        if (!allMaterializations || allMaterializations.length === 0) {
-            // Criar dropdown com mensagem de "sem materializações"
-            showMaterializationDropdown([]);
-            return;
-        }
-        
-        // Obter IDs das materializações atuais (não deletadas)
-        const existingIds = pageState.materializations
-            .filter(m => !m.isDeleted) // Considerar apenas as não excluídas
-            .map(m => m.id);
-        
-        // Filtrar materializações que não estão na tabela ou que foram excluídas
-        const availableMaterializations = allMaterializations.filter(
-            m => !existingIds.includes(m.id) && m.id !== pageState.socialMaterializationId
-        );
-        
-        console.log(`Mostrando dropdown com ${availableMaterializations.length} materializações disponíveis`);
-        
-        // Criar dropdown para seleção
-        showMaterializationDropdown(availableMaterializations);
-    };
-    
-    // Sempre carregar uma nova lista fresca de materializações sociais
-    // Adicionando um timestamp para evitar cache
-    const timestamp = new Date().getTime();
+
+    // Abrir o modal com indicador de carregamento
+    openAddInsumoModal();
+
+    // Carregar materializações e preencher o modal
     loadAllMaterializations()
-        .then(materializations => {
-            showDropdownWithMaterializations(materializations);
+        .then(allMaterializations => {
+            if (!allMaterializations || allMaterializations.length === 0) {
+                renderAddInsumoModalList([]);
+                return;
+            }
+
+            // Obter IDs das materializações atuais (não deletadas)
+            const existingIds = pageState.materializations
+                .filter(m => !m.isDeleted)
+                .map(m => m.id);
+
+            // Filtrar materializações que não estão na tabela
+            const availableMaterializations = allMaterializations.filter(
+                m => !existingIds.includes(m.id) && m.id !== pageState.socialMaterializationId
+            );
+
+            console.log(`Exibindo ${availableMaterializations.length} materializações disponíveis para adicionar`);
+            renderAddInsumoModalList(availableMaterializations);
+        })
+        .catch(error => {
+            console.error('Erro ao carregar materializações:', error);
+            const container = document.getElementById('addInsumoListContainer');
+            if (container) {
+                container.innerHTML = '<p style="color: var(--error-color, #c62828);">Erro ao carregar materializações.</p>';
+            }
         });
 }
 
 /**
- * Remove qualquer dropdown existente para evitar duplicatas
+ * Abre o modal de adicionar insumo.
  */
+function openAddInsumoModal() {
+    const modal = document.getElementById('addInsumoModal');
+    const container = document.getElementById('addInsumoListContainer');
+    if (!modal || !container) return;
+    container.innerHTML = '<p style="color: var(--text-secondary, #666); font-style: italic;">Carregando...</p>';
+    modal.style.display = 'block';
+}
+
+/**
+ * Fecha o modal de adicionar insumo.
+ */
+function closeAddInsumoModal() {
+    const modal = document.getElementById('addInsumoModal');
+    if (modal) modal.style.display = 'none';
+}
+
+/**
+ * Renderiza a lista de materializações disponíveis no modal.
+ */
+function renderAddInsumoModalList(materializations) {
+    const container = document.getElementById('addInsumoListContainer');
+    if (!container) return;
+
+    // Armazenar materializações para lookup
+    window._addInsumoMaterializations = materializations;
+
+    if (!materializations || materializations.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary, #666); font-style: italic;">Nenhuma materialização disponível. Todas as materializações já estão na tabela.</p>';
+        return;
+    }
+
+    let html = '<div class="insumo-list">';
+    materializations.forEach(mat => {
+        const typeLabel = mat.type === 'SERVICE' ? 'Serviço' : 'Produto';
+        html += `<div class="insumo-list-item" onclick="addInsumoFromModalById(${mat.id})" style="cursor: pointer; padding: 10px; margin-bottom: 4px; border: 1px solid var(--border-color, #444); border-radius: 4px; transition: background-color 0.2s;">
+            <strong>${escapeHtml(mat.name || 'Materialização #' + mat.id)}</strong>
+            <span style="color: var(--text-secondary, #888); font-size: 0.8em; margin-left: 8px;">(${typeLabel})</span>
+        </div>`;
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+/**
+ * Adiciona um insumo a partir do modal, buscando pelo ID na lista carregada.
+ */
+function addInsumoFromModalById(matId) {
+    const materializations = window._addInsumoMaterializations || [];
+    const mat = materializations.find(m => m.id === matId);
+    if (mat) {
+        addMaterialization(mat);
+    }
+    closeAddInsumoModal();
+}
+
+// Manter compatibilidade com código existente - funções stub para o dropdown antigo
 function removeExistingDropdown() {
     const existingDropdown = document.querySelector('.materialization-dropdown');
     if (existingDropdown) {
         existingDropdown.remove();
-        console.log("Dropdown existente removido");
     }
 }
 
-/**
- * Exibe o dropdown de seleção de materializações
- */
 function showMaterializationDropdown(materializations) {
-    // Remover dropdown existente novamente para garantir
-    removeExistingDropdown();
-    
-    // Criar elemento de dropdown
-    const dropdown = document.createElement('div');
-    dropdown.className = 'materialization-dropdown';
-    
-    // Posicionar dropdown adequadamente baseado no botão clicado
-    const button = document.getElementById('addStockDemandBtn');
-    if (!button) {
-        console.error("Botão de adicionar não encontrado");
-        globalState.dropdownVisible = false;
-        return;
-    }
-
-    const buttonRect = button.getBoundingClientRect();
-    
-    // Garantir que estamos posicionando corretamente, usando valores absolutos
-    dropdown.style.top = `${buttonRect.bottom + window.scrollY}px`;
-    dropdown.style.left = `${buttonRect.left + window.scrollX}px`;
-    dropdown.style.minWidth = `${Math.max(buttonRect.width * 2, 200)}px`;
-    
-    // Adicionar itens ao dropdown
-    if (!materializations || materializations.length === 0) {
-        const emptyMessage = document.createElement('div');
-        emptyMessage.className = 'empty-message';
-        emptyMessage.textContent = 'Nenhuma materialização disponível';
-        dropdown.appendChild(emptyMessage);
-    }
-    
-    // Função para fechar o dropdown e limpar eventos
-    function closeDropdown(dropdownElement) {
-        document.removeEventListener('click', handleDocumentClick);
-        if (dropdownElement && dropdownElement.parentNode) {
-            dropdownElement.remove();
-        }
-        globalState.dropdownVisible = false;
-        console.log("Dropdown fechado");
-    }
+    // Função obsoleta - substituída por modal addInsumoModal.
+    // Mantida para compatibilidade.
 }
 
 /**
@@ -1266,6 +1276,8 @@ function initializePageState(committeeId) {
                 globalState.technologicalQuantities[materialization.id] = materialization.quantity;
             }
         });
+        globalState.supplierChoices = cachedState.supplierChoices || {};
+        globalState.supplierNames = cachedState.supplierNames || {};
         
         // Atualizar a interface com os dados carregados
         updateAllUI();
@@ -1314,8 +1326,10 @@ function initializePageState(committeeId) {
                     globalState.technologicalQuantities[materialization.id] = materialization.quantity;
                 }
             });
+            globalState.supplierChoices = data.supplierChoices || {};
+            globalState.supplierNames = data.supplierNames || {};
             pageState.materializations = enrichMaterializationsWithMetadata(pageState.materializations);
-            
+
             // Armazenar em cache local
             localCache.set(cacheKey, {
                 id: pageState.id,
@@ -1328,7 +1342,9 @@ function initializePageState(committeeId) {
                 councilName: pageState.councilName,
                 workerProposal: pageState.workerProposal,
                 members: pageState.members,
-                materializations: pageState.materializations
+                materializations: pageState.materializations,
+                supplierChoices: globalState.supplierChoices,
+                supplierNames: globalState.supplierNames
             }, 300000); // 5 minutos de cache
             
             // Armazenar dados de otimização se estiverem presentes antes do primeiro render
@@ -1401,6 +1417,9 @@ function resetPageState() {
     pageState.isDirty = false;
     globalState.committeeOptimizationDataPromise = null;
     globalState.technologicalQuantities = {};
+    globalState.supplierChoices = {};
+    globalState.supplierNames = {};
+    globalState.currentSupplierInputId = null;
     globalState.technologicalQuantitiesHydratedFromTensor = false;
 }
 
@@ -1841,8 +1860,19 @@ function updateTechnologicalMatrixTable() {
             ? formatNumberForDisplay(productionTimeValue)
             : '';
 
+        // Ícone de fornecedor
+        let supplierIconHtml = '';
+        if (!isMainProduct) {
+            const supplierId = globalState.supplierChoices[mat.id];
+            const hasSupplier = supplierId != null;
+            const supplierName = hasSupplier ? (globalState.supplierNames[supplierId] || `Fornecedor #${supplierId}`) : '';
+            const tooltip = hasSupplier ? `Fornecedor: ${supplierName}` : 'Clique para selecionar um fornecedor';
+            const iconClass = hasSupplier ? 'fas fa-truck supplier-icon has-supplier' : 'fas fa-truck supplier-icon';
+            supplierIconHtml = `<i class="${iconClass}" title="${escapeHtml(tooltip)}" onclick="event.stopPropagation(); openSupplierSelectionModal(${mat.id})" style="cursor: pointer; margin-left: 8px;"></i>`;
+        }
+
         tr.innerHTML = `
-            <td>${isMainProduct ? `<div class="mat-name-inline"><strong>${mat.name || `Produto #${mat.id}`}</strong><span class="badge main-product-badge" title="Materialização social da unidade produtiva gerida por esse comitê"><i class="fas fa-industry"></i></span></div>` : (mat.name || `Insumo #${mat.id}`)}</td>
+            <td>${isMainProduct ? `<div class="mat-name-inline"><strong>${mat.name || `Produto #${mat.id}`}</strong><span class="badge main-product-badge" title="Materialização social da unidade produtiva gerida por esse comitê"><i class="fas fa-industry"></i></span></div>` : (mat.name || `Insumo #${mat.id}`) + supplierIconHtml}</td>
             <td class="technological-quantity-cell">
                 <div class="technological-proportion-line">
                     <input type="number" class="form-control technological-quantity-input" 
@@ -1947,7 +1977,9 @@ function saveCommitteeState() {
         // Tempo Socialmente Necessário para Produzir Uma Unidade
         sociallyNecessaryTimePerUnit: (pageState.sociallyNecessaryTimePerUnit !== undefined && pageState.sociallyNecessaryTimePerUnit !== null)
             ? pageState.sociallyNecessaryTimePerUnit
-            : null
+            : null,
+        // Escolhas de fornecedor
+        supplierChoices: globalState.supplierChoices
     };
     
     // Salvar IDs de materializações que serão excluídas para atualizarmos a UI depois
@@ -2530,6 +2562,9 @@ function openOptimizationConfigModal(materializationId, materializationName) {
  * Abre o modal para criar nova materialização
  */
 function openNewMaterializationModal() {
+    // Fechar modal de adicionar insumo caso esteja aberto
+    closeAddInsumoModal();
+
     const modal = document.getElementById('newMaterializationModal');
     const form = document.getElementById('newMaterializationForm');
     const errorMessage = document.getElementById('newMaterializationFormError');
@@ -3129,4 +3164,151 @@ function displayUnitPlanData(result) {
         emptyMessage.style.display = 'block';
         fieldsContainer.style.display = 'none';
     }
+
+    // Buscar encomendas de produção
+    if (pageState.id) {
+        fetchIncomingOrders();
+    }
+}
+
+/**
+ * Busca e exibe as encomendas de produção recebidas por este comitê.
+ */
+function fetchIncomingOrders() {
+    const ordersList = document.getElementById('incomingOrdersList');
+    if (!ordersList) return;
+
+    fetch(`/api/committees/${pageState.id}/incoming-orders`)
+        .then(response => {
+            if (!response.ok) throw new Error('Erro ao buscar encomendas');
+            return response.json();
+        })
+        .then(orders => {
+            if (!orders || orders.length === 0) {
+                ordersList.innerHTML = '<p style="color: var(--text-secondary, #666); font-style: italic;">Nenhuma encomenda recebida.</p>';
+                return;
+            }
+
+            let html = '<table class="incoming-orders-table" style="width:100%; border-collapse: collapse;">';
+            html += '<thead><tr><th style="text-align:left; padding: 6px 8px; border-bottom: 1px solid var(--border-color, #444);">Comitê Demandante</th><th style="text-align:right; padding: 6px 8px; border-bottom: 1px solid var(--border-color, #444);">Quantidade Demandada</th></tr></thead>';
+            html += '<tbody>';
+            orders.forEach(order => {
+                const qty = parseFloat(order.demandedQuantity) || 0;
+                const qtyDisplay = (Math.abs(qty) < 0.01 && qty !== 0) ? qty.toExponential(4) : qty.toFixed(2);
+                const unitName = order.inputUnitName || '';
+                const unitHtml = unitName ? ` <span style="color: var(--text-secondary, #888); font-size: 0.85em;">${escapeHtml(unitName)}</span>` : '';
+                html += `<tr>
+                    <td style="padding: 6px 8px; border-bottom: 1px solid var(--border-color-light, #333);">${escapeHtml(order.orderingCommitteeName || 'Comitê #' + order.orderingCommitteeId)}</td>
+                    <td style="text-align:right; padding: 6px 8px; border-bottom: 1px solid var(--border-color-light, #333);">${qtyDisplay}${unitHtml}</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            ordersList.innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Erro ao buscar encomendas:', error);
+            if (ordersList) {
+                ordersList.innerHTML = '<p style="color: var(--text-secondary, #666); font-style: italic;">Erro ao carregar encomendas.</p>';
+            }
+        });
+}
+
+/**
+ * Abre o modal de seleção de fornecedor para um insumo específico.
+ */
+function openSupplierSelectionModal(matId) {
+    const modal = document.getElementById('supplierSelectionModal');
+    const insumoNameEl = document.getElementById('supplierModalInsumoName');
+    const listContainer = document.getElementById('supplierListContainer');
+    
+    if (!modal || !listContainer) return;
+
+    globalState.currentSupplierInputId = matId;
+
+    // Encontrar nome do insumo
+    const mat = pageState.materializations.find(m => m.id === matId);
+    if (insumoNameEl) {
+        insumoNameEl.textContent = mat ? mat.name : `Insumo #${matId}`;
+    }
+
+    // Mostrar loading
+    listContainer.innerHTML = '<p style="color: var(--text-secondary, #666); font-style: italic;">Carregando...</p>';
+    modal.style.display = 'block';
+
+    // Buscar comitês que produzem este insumo
+    fetch(`/api/committees/producers-of/${matId}`)
+        .then(response => {
+            if (!response.ok) throw new Error('Erro ao buscar produtores');
+            return response.json();
+        })
+        .then(producers => {
+            if (!producers || producers.length === 0) {
+                listContainer.innerHTML = '<p style="color: var(--text-secondary, #666); font-style: italic;">Nenhuma unidade produtiva encontrada para este insumo.</p>';
+                return;
+            }
+
+            const currentSupplierId = globalState.supplierChoices[matId];
+
+            let html = '<div class="supplier-list">';
+            producers.forEach(producer => {
+                const isSelected = currentSupplierId != null && currentSupplierId === producer.id;
+                const selectedClass = isSelected ? ' supplier-item-selected' : '';
+                html += `<div class="supplier-list-item${selectedClass}" onclick="selectSupplier(${matId}, ${producer.id})" style="cursor: pointer; padding: 10px; margin-bottom: 4px; border: 1px solid var(--border-color, #444); border-radius: 4px; transition: background-color 0.2s;">
+                    <strong>${escapeHtml(producer.committeeName || 'Comitê #' + producer.id)}</strong>
+                    ${isSelected ? ' <span style="color: var(--primary-color); font-size: 0.8em;">(selecionado)</span>' : ''}
+                </div>`;
+            });
+            html += '</div>';
+            listContainer.innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Erro ao buscar produtores:', error);
+            listContainer.innerHTML = '<p style="color: var(--error-color, #c62828);">Erro ao carregar lista de produtores.</p>';
+        });
+}
+
+/**
+ * Seleciona um fornecedor para o insumo atual.
+ */
+function selectSupplier(matId, supplierId) {
+    globalState.supplierChoices[matId] = supplierId;
+    globalState.supplierNames[supplierId] = globalState.supplierNames[supplierId] || ('Fornecedor #' + supplierId);
+
+    // Atualizar nome do fornecedor buscando do modal (já está no DOM)
+    const modalList = document.querySelector('#supplierListContainer .supplier-list');
+    if (modalList) {
+        const selectedItem = modalList.querySelector(`[onclick*="${supplierId}"]`);
+        if (selectedItem) {
+            const nameEl = selectedItem.querySelector('strong');
+            if (nameEl) {
+                globalState.supplierNames[supplierId] = nameEl.textContent;
+            }
+        }
+    }
+
+    pageState.isDirty = true;
+    closeSupplierSelectionModal();
+    updateTechnologicalMatrixTable();
+}
+
+/**
+ * Remove a seleção de fornecedor para o insumo atual.
+ */
+function clearCurrentSupplierSelection() {
+    const matId = globalState.currentSupplierInputId;
+    if (matId != null) {
+        delete globalState.supplierChoices[matId];
+        pageState.isDirty = true;
+        closeSupplierSelectionModal();
+        updateTechnologicalMatrixTable();
+    }
+}
+
+/**
+ * Fecha o modal de seleção de fornecedor.
+ */
+function closeSupplierSelectionModal() {
+    const modal = document.getElementById('supplierSelectionModal');
+    if (modal) modal.style.display = 'none';
+    globalState.currentSupplierInputId = null;
 }

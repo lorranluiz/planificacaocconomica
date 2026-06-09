@@ -39,6 +39,9 @@ public class TechnologicalTensor {
     @Column(name = "technical_coefficient_element_value", nullable = false)
     private BigDecimal technicalCoefficientElementValue;
 
+    @Column(name = "supplier_instance_id")
+    private Integer supplierInstanceId;
+
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
     

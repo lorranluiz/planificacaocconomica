@@ -123,7 +123,8 @@ public class CommitteeController {
             
             // 6. Processar materializações sociais e suas relações
             if (committeeStateDTO.getMaterializations() != null) {
-                processMaterializations(committee, committeeStateDTO.getMaterializations());
+                processMaterializations(committee, committeeStateDTO.getMaterializations(),
+                    committeeStateDTO.getSupplierChoices());
             }
 
             // 7. Persistir Tempo Socialmente Necessário para Produzir Uma Unidade
@@ -254,7 +255,7 @@ public class CommitteeController {
     }
 
     /**
-     * Persiste as quantidades do vetor tecnológico em um único campo JSONB da instância.
+     * Persiste as quantidades do vetor tecnológico no campo JSONB da instância.
      */
     private void saveTechnologicalQuantities(Instance committee, List<CommitteeStateDTO.MaterializationStateDTO> materializations) {
         if (committee == null || materializations == null) {
@@ -373,7 +374,8 @@ public class CommitteeController {
     /**
      * Processa as materializações sociais e suas relações.
      */
-    private void processMaterializations(Instance committee, List<CommitteeStateDTO.MaterializationStateDTO> materializations) {
+    private void processMaterializations(Instance committee, List<CommitteeStateDTO.MaterializationStateDTO> materializations,
+                                          Map<Integer, Integer> supplierChoices) {
         // Para cada materialização, processar demandas, estoques e tensores tecnológicos
         for (CommitteeStateDTO.MaterializationStateDTO matDTO : materializations) {
             // Pular materializações marcadas para exclusão
@@ -398,7 +400,8 @@ public class CommitteeController {
             
             // Processar tensores tecnológicos
             if (matDTO.getTechnologicalTensors() != null && !matDTO.getTechnologicalTensors().isEmpty()) {
-                processTechnologicalTensors(committee, matDTO.getId(), matDTO.getTechnologicalTensors());
+                processTechnologicalTensors(committee, matDTO.getId(), matDTO.getTechnologicalTensors(),
+                    supplierChoices);
             }
         }
     }
@@ -506,7 +509,8 @@ public class CommitteeController {
     private void processTechnologicalTensors(
             Instance committee, 
             Integer inputMaterializationId,
-            Map<String, BigDecimal> tensors) {
+            Map<String, BigDecimal> tensors,
+            Map<Integer, Integer> supplierChoices) {
         
         // Buscar materialização de entrada
         Optional<SocialMaterialization> inputMatOpt = socialMaterializationRepository.findById(inputMaterializationId);
@@ -516,6 +520,12 @@ public class CommitteeController {
         }
         
         SocialMaterialization inputMaterialization = inputMatOpt.get();
+        
+        // Obter fornecedor para este insumo (se houver)
+        Integer supplierId = null;
+        if (supplierChoices != null) {
+            supplierId = supplierChoices.get(inputMaterializationId);
+        }
         
         // Conjunto para rastrear tensores processados
         Set<Integer> processedOutputMatIds = new HashSet<>();
@@ -543,7 +553,7 @@ public class CommitteeController {
             SocialMaterialization outputMaterialization = outputMatOpt.get();
             
             // Criar ou atualizar tensor tecnológico
-            saveTechnologicalTensor(committee, inputMaterialization, outputMaterialization, coefficient);
+            saveTechnologicalTensor(committee, inputMaterialization, outputMaterialization, coefficient, supplierId);
             
             // Marcar como processado
             processedOutputMatIds.add(outputMatId);
@@ -557,7 +567,8 @@ public class CommitteeController {
             Instance committee,
             SocialMaterialization inputMaterialization,
             SocialMaterialization outputMaterialization,
-            BigDecimal coefficient) {
+            BigDecimal coefficient,
+            Integer supplierInstanceId) {
         
         // Criar ID composto
         TechnologicalTensorId id = new TechnologicalTensorId(
@@ -581,10 +592,13 @@ public class CommitteeController {
         // Atualizar coeficiente
         tensor.setTechnicalCoefficientElementValue(coefficient);
         
+        // Atualizar fornecedor (null remove o fornecedor)
+        tensor.setSupplierInstanceId(supplierInstanceId);
+        
         // Salvar
         technologicalTensorRepository.save(tensor);
-        logger.info("Tensor tecnológico salvo: input={}, output={}, coefficient={}", 
-            inputMaterialization.getId(), outputMaterialization.getId(), coefficient);
+        logger.info("Tensor tecnológico salvo: input={}, output={}, coefficient={}, supplier={}", 
+            inputMaterialization.getId(), outputMaterialization.getId(), coefficient, supplierInstanceId);
     }
     
     /**
@@ -859,6 +873,27 @@ public class CommitteeController {
             // 7. Buscar e preencher materializações associadas
             List<CommitteeStateDTO.MaterializationStateDTO> materializationDTOs = getMaterializationsForCommittee(committee);
             committeeStateDTO.setMaterializations(materializationDTOs);
+
+            // 7.1 Construir escolhas de fornecedor a partir dos tensores tecnológicos
+            Map<Integer, Integer> supplierChoices = new HashMap<>();
+            List<TechnologicalTensor> tensors = technologicalTensorRepository.findByInstanceId(committee.getId());
+            for (TechnologicalTensor tensor : tensors) {
+                if (tensor.getSupplierInstanceId() != null) {
+                    supplierChoices.put(tensor.getInputSocialMaterialization().getId(), tensor.getSupplierInstanceId());
+                }
+            }
+            committeeStateDTO.setSupplierChoices(supplierChoices);
+
+            // 7.2 Popular nomes dos fornecedores
+            if (supplierChoices != null && !supplierChoices.isEmpty()) {
+                Map<Integer, String> supplierNames = new HashMap<>();
+                for (Integer supplierId : new HashSet<>(supplierChoices.values())) {
+                    instanceRepository.findById(supplierId).ifPresent(inst ->
+                        supplierNames.put(supplierId, inst.getCommitteeName())
+                    );
+                }
+                committeeStateDTO.setSupplierNames(supplierNames);
+            }
 
             // 8. Verificar sincronização com Conselho Popular pai
             //    Se o conselho pai executou "Calcular Estimativas" + "Salvar Alterações" desde a última sincronização,
@@ -1605,6 +1640,98 @@ public class CommitteeController {
             return ResponseEntity.badRequest().body(Map.of(
                 "success", false,
                 "message", "Erro ao obter dados de otimização central: " + e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Endpoint para listar comitês que produzem uma dada materialização social.
+     * Usado no modal de seleção de fornecedor na tabela Vetor Tecnológico.
+     */
+    @GetMapping("/producers-of/{materializationId}")
+    public ResponseEntity<?> getProducersOfMaterialization(@PathVariable Integer materializationId) {
+        try {
+            List<Instance> producers = instanceRepository.findByTypeAndSocialMaterializationId(
+                    InstanceType.COMMITTEE, materializationId);
+
+            List<Map<String, Object>> result = new ArrayList<>();
+            for (Instance producer : producers) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("id", producer.getId());
+                item.put("committeeName", producer.getCommitteeName());
+                item.put("targetQuantity", producer.getTargetQuantity());
+                item.put("producedQuantity", producer.getProducedQuantity());
+                result.add(item);
+            }
+
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            logger.error("Erro ao buscar produtores da materialização {}", materializationId, e);
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Endpoint para listar encomendas de produção recebidas por este comitê.
+     * Retorna todos os comitês que selecionaram este como fornecedor para algum insumo,
+     * com a quantidade demandada calculada.
+     */
+    @GetMapping("/{id}/incoming-orders")
+    public ResponseEntity<?> getIncomingOrders(@PathVariable Integer id) {
+        try {
+            // Buscar esta instância para verificar existência
+            Optional<Instance> committeeOpt = instanceRepository.findById(id);
+            if (!committeeOpt.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            // Buscar todos os tensores onde este comitê é o fornecedor
+            List<TechnologicalTensor> supplierTensors = technologicalTensorRepository.findBySupplierInstanceId(id);
+
+            List<Map<String, Object>> orders = new ArrayList<>();
+
+            for (TechnologicalTensor tensor : supplierTensors) {
+                Instance orderingCommittee = tensor.getInstance();
+                if (orderingCommittee == null || orderingCommittee.getId().equals(id)) continue;
+
+                Integer inputMaterializationId = tensor.getInputSocialMaterialization().getId();
+
+                // Quantidade demandada = valor da coluna "Quantidade" do Vetor Tecnológico
+                // do comitê demandante (quantidade do insumo por unidade de output)
+                Map<String, BigDecimal> quantities = orderingCommittee.getTechnologicalQuantitiesByMaterialization();
+                BigDecimal inputQuantityPerUnit = BigDecimal.ZERO;
+                if (quantities != null) {
+                    BigDecimal q = quantities.get(String.valueOf(inputMaterializationId));
+                    if (q != null) inputQuantityPerUnit = q;
+                }
+
+                BigDecimal demandedQuantity = inputQuantityPerUnit;
+
+                // Buscar unidade de medida do insumo
+                String inputUnitName = "";
+                SocialMaterialization inputMat = tensor.getInputSocialMaterialization();
+                if (inputMat != null && inputMat.getMeasurementUnit() != null) {
+                    inputUnitName = inputMat.getMeasurementUnit().getName();
+                }
+
+                Map<String, Object> order = new HashMap<>();
+                order.put("orderingCommitteeId", orderingCommittee.getId());
+                order.put("orderingCommitteeName", orderingCommittee.getCommitteeName());
+                order.put("inputMaterializationId", inputMaterializationId);
+                order.put("demandedQuantity", demandedQuantity);
+                order.put("inputUnitName", inputUnitName);
+                orders.add(order);
+            }
+
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            logger.error("Erro ao buscar encomendas para comitê {}", id, e);
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false,
+                "message", e.getMessage()
             ));
         }
     }
