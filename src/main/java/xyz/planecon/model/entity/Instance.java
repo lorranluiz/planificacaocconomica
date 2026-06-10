@@ -166,6 +166,10 @@ public class Instance {
     // Soma total de horas trabalhadas de todos os trabalhadores (usado como denominador na participação social dos trabalhadores)
     @Column(name = "total_worker_hours", precision = 20, scale = 2)
     private BigDecimal totalWorkerHours;
+
+    // Tempo de trabalho socialmente confirmado (horas distribuídas pelo comitê após encomenda concluída)
+    @Column(name = "socially_confirmed_work_time", precision = 20, scale = 10)
+    private BigDecimal sociallyConfirmedWorkTime;
     
     // Relationships
     @JsonIgnoreProperties("instance")

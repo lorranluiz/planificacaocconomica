@@ -168,6 +168,16 @@ public class InstanceService {
                 // Log o erro mas não falhe na conversão
                 System.err.println("Erro ao converter hoursAtElectronicPoint: " + e.getMessage());
             }
+
+            // Conversão segura para sociallyConfirmedWorkTime
+            try {
+                if (instance.getSociallyConfirmedWorkTime() != null) {
+                    dto.setSociallyConfirmedWorkTime(
+                        instance.getSociallyConfirmedWorkTime().doubleValue());
+                }
+            } catch (Exception e) {
+                System.err.println("Erro ao converter sociallyConfirmedWorkTime: " + e.getMessage());
+            }
             
             // Conversão segura para popularCouncilAssociatedWithCommitteeOrWorker
             if (instance.getPopularCouncilAssociatedWithCommitteeOrWorker() != null) {
@@ -189,19 +199,25 @@ public class InstanceService {
                     Instance assocInstance = (Instance) instance.getIdAssociatedWorkerResidentsAssociation();
                     dto.setIdAssociatedWorkerResidentsAssociation(assocInstance.getId());
                 } else if (instance.getIdAssociatedWorkerResidentsAssociation() != null) {
-                    // Se não for Instance, mas for outro objeto, tentar converter para string e depois para Integer
                     try {
                         String stringValue = instance.getIdAssociatedWorkerResidentsAssociation().toString();
                         if (stringValue.matches("\\d+")) {
                             dto.setIdAssociatedWorkerResidentsAssociation(Integer.valueOf(stringValue));
                         }
-                    } catch (Exception ignored) {
-                        // Ignorar erros de conversão, deixando o campo como null
-                    }
+                    } catch (Exception ignored) { }
                 }
             } catch (Exception e) {
                 System.err.println("Erro ao processar idAssociatedWorkerResidentsAssociation: " + e.getMessage());
-                // Não propagar a exceção, apenas deixar o campo como null
+            }
+
+            // Mapear comitê associado ao trabalhador
+            try {
+                if (instance.getAssociatedWorkerCommittee() != null) {
+                    dto.setAssociatedWorkerCommitteeId(instance.getAssociatedWorkerCommittee().getId());
+                    dto.setAssociatedWorkerCommitteeName(instance.getAssociatedWorkerCommittee().getCommitteeName());
+                }
+            } catch (Exception e) {
+                System.err.println("Erro ao processar associatedWorkerCommittee: " + e.getMessage());
             }
             
             return dto;

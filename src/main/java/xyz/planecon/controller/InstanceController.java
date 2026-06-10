@@ -548,6 +548,29 @@ public class InstanceController {
     }
 
     /**
+     * Retorna os trabalhadores associados a um comitê.
+     */
+    @GetMapping("/{id}/workers")
+    public ResponseEntity<?> getCommitteeWorkers(@PathVariable Integer id) {
+        try {
+            List<Instance> workers = instanceRepository.findByAssociatedWorkerCommitteeId(id);
+            List<Map<String, Object>> result = new ArrayList<>();
+            for (Instance w : workers) {
+                Map<String, Object> map = new HashMap<>();
+                map.put("id", w.getId());
+                map.put("name", w.getCommitteeName() != null ? w.getCommitteeName() : ("Trabalhador #" + w.getId()));
+                map.put("hoursAtElectronicPoint", w.getHoursAtElectronicPoint());
+                map.put("sociallyConfirmedWorkTime", w.getSociallyConfirmedWorkTime());
+                result.add(map);
+            }
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse("Erro ao buscar trabalhadores", e.getMessage()));
+        }
+    }
+
+    /**
      * Exclui uma instância e todos os seus dados relacionados
      */
     @DeleteMapping("/{id}")
@@ -614,8 +637,8 @@ public class InstanceController {
     }
 
     /**
-     * Endpoint para a loja do trabalhador: retorna materializações com custos sociais calculados.
-     * Custo social = (productionTime / totalSocialWork) * socialWorkAndCostScale
+     * Endpoint para a loja do trabalhador: retorna materializações com preço = tempo de produção direto.
+     * Preço = productionTime (horas).
      */
     @GetMapping("/{workerId}/shop")
     @Transactional(readOnly = true)
@@ -629,31 +652,10 @@ public class InstanceController {
                     .body(Map.of("error", "Trabalhador não encontrado com ID: " + workerId));
             }
 
-            // Buscar o Conselho Planificador (ID 1 é o conselho mundial raiz)
-            Instance plannerCouncil = instanceRepository.findById(1).orElse(null);
-
-            // Obter totalSocialWork: tentar o campo novo, senão usar o legado
-            BigDecimal totalSocialWork = BigDecimal.ZERO;
-            if (plannerCouncil != null) {
-                if (plannerCouncil.getTotalSocialWork() != null 
-                    && plannerCouncil.getTotalSocialWork().compareTo(BigDecimal.ZERO) > 0) {
-                    totalSocialWork = plannerCouncil.getTotalSocialWork();
-                } else if (plannerCouncil.getTotalSocialWorkOfThisJurisdiction() != null 
-                    && plannerCouncil.getTotalSocialWorkOfThisJurisdiction() > 0) {
-                    totalSocialWork = BigDecimal.valueOf(plannerCouncil.getTotalSocialWorkOfThisJurisdiction());
-                }
-            }
-
-            // Parâmetros da escala: (numeroAproximadoDeTrabalhadores / 4) * 10^4
-            // Escala: 1600000 / 4 = 400000 (%4e5)
-            long numeroAproximadoDeTrabalhadores = 1600000L;
-            BigDecimal socialWorkAndCostScale = BigDecimal.valueOf(numeroAproximadoDeTrabalhadores)
-                .divide(BigDecimal.valueOf(4));
-
             // Buscar todas as materializações
             List<SocialMaterialization> materializations = socialMaterializationRepository.findAll();
 
-            // Para cada materialização, calcular o custo social médio
+            // Para cada materialização, calcular o tempo de produção médio
             List<Map<String, Object>> products = new ArrayList<>();
             for (SocialMaterialization mat : materializations) {
                 // Buscar comitês que produzem esta materialização
@@ -667,10 +669,7 @@ public class InstanceController {
                     List<WorkersProposal> proposals = workersProposalRepository.findByInstanceId(committee.getId());
                     if (!proposals.isEmpty()) {
                         WorkersProposal wp = proposals.get(0);
-                        BigDecimal pt = wp.getPlanifiedSociallyNecessaryTimePerUnit();
-                        if (pt == null || pt.compareTo(BigDecimal.ZERO) == 0) {
-                            pt = wp.getProposalSociallyNecessaryTimePerUnit();
-                        }
+                        BigDecimal pt = wp.getProductionTime();
                         if (pt != null && pt.compareTo(BigDecimal.ZERO) > 0) {
                             avgProductionTime = avgProductionTime.add(pt);
                             count++;
@@ -678,36 +677,23 @@ public class InstanceController {
                     }
                 }
                 if (count > 0) {
-                    avgProductionTime = avgProductionTime.divide(BigDecimal.valueOf(count), 10, RoundingMode.HALF_UP);
-                }
-
-                // Calcular custo social: (productionTime / totalSocialWork) * socialWorkAndCostScale
-                BigDecimal socialCost = BigDecimal.ZERO;
-                if (totalSocialWork.compareTo(BigDecimal.ZERO) > 0 && avgProductionTime.compareTo(BigDecimal.ZERO) > 0) {
-                    socialCost = avgProductionTime
-                        .divide(totalSocialWork, 10, RoundingMode.HALF_UP)
-                        .multiply(socialWorkAndCostScale)
-                        .setScale(2, RoundingMode.HALF_UP);
+                    avgProductionTime = avgProductionTime.divide(BigDecimal.valueOf(count), 4, RoundingMode.HALF_UP);
                 }
 
                 Map<String, Object> product = new HashMap<>();
                 product.put("id", mat.getId());
                 product.put("name", mat.getName());
                 product.put("type", mat.getType().toString());
-                product.put("price", socialCost);
+                product.put("price", avgProductionTime.setScale(4, RoundingMode.HALF_UP));
                 product.put("productionTime", avgProductionTime);
                 products.add(product);
             }
 
             Map<String, Object> result = new HashMap<>();
             result.put("products", products);
-            result.put("totalSocialWork", totalSocialWork);
-            result.put("socialWorkAndCostScale", socialWorkAndCostScale);
-            // totalWorkerHours: usar o valor salvo no PlannerCouncil; se ainda nulo, calcular diretamente
-            BigDecimal totalWorkerHours = (plannerCouncil != null && plannerCouncil.getTotalWorkerHours() != null)
-                ? plannerCouncil.getTotalWorkerHours()
-                : instanceRepository.sumWorkerHours();
-            result.put("totalWorkerHours", totalWorkerHours);
+            BigDecimal confirmedTime = worker.getSociallyConfirmedWorkTime() != null
+                ? worker.getSociallyConfirmedWorkTime() : BigDecimal.ZERO;
+            result.put("sociallyConfirmedWorkTime", confirmedTime);
             result.put("workerHours", worker.getHoursAtElectronicPoint());
 
             return ResponseEntity.ok(result);
@@ -765,7 +751,7 @@ public class InstanceController {
     }
 
     /**
-     * Cria um novo pedido para o trabalhador e deduz o saldo da participação social.
+     * Cria um novo pedido para o trabalhador, deduzindo do Tempo de Trabalho Socialmente Confirmado.
      */
     @PostMapping("/{workerId}/orders")
     @Transactional
@@ -777,17 +763,11 @@ public class InstanceController {
                     .body(Map.of("error", "Trabalhador não encontrado com ID: " + workerId));
             }
 
-            // Escala: 1600000 / 4 = 400000 (%4e5)
-            long numeroAproximadoDeTrabalhadores = 1600000L;
-            BigDecimal socialWorkAndCostScale = BigDecimal.valueOf(numeroAproximadoDeTrabalhadores)
-                .divide(BigDecimal.valueOf(4));
-
-            // Verificar saldo
-            BigDecimal currentParticipation = worker.getEstimatedIndividualParticipationInSocialWork();
-            if (currentParticipation == null) {
-                currentParticipation = BigDecimal.ZERO;
+            // Verificar saldo (Tempo de Trabalho Socialmente Confirmado)
+            BigDecimal currentConfirmedTime = worker.getSociallyConfirmedWorkTime();
+            if (currentConfirmedTime == null) {
+                currentConfirmedTime = BigDecimal.ZERO;
             }
-            BigDecimal availableBalance = currentParticipation.multiply(socialWorkAndCostScale);
 
             @SuppressWarnings("unchecked")
             List<Map<String, Object>> items = (List<Map<String, Object>>) body.get("items");
@@ -824,17 +804,16 @@ public class InstanceController {
             }
 
             // Verificar saldo suficiente
-            if (orderTotal.compareTo(availableBalance) > 0) {
+            if (orderTotal.compareTo(currentConfirmedTime) > 0) {
                 return ResponseEntity.badRequest()
                     .body(Map.of("error", "Saldo insuficiente"));
             }
 
             order.setTotal(orderTotal);
 
-            // Deduzir do saldo: newParticipation = current - (orderTotal / scale)
-            BigDecimal deduction = orderTotal.divide(socialWorkAndCostScale, 10, RoundingMode.HALF_UP);
-            BigDecimal newParticipation = currentParticipation.subtract(deduction);
-            worker.setEstimatedIndividualParticipationInSocialWork(newParticipation);
+            // Deduzir do Tempo de Trabalho Socialmente Confirmado
+            BigDecimal newConfirmedTime = currentConfirmedTime.subtract(orderTotal);
+            worker.setSociallyConfirmedWorkTime(newConfirmedTime);
 
             // Salvar pedido e atualizar trabalhador
             workerOrderRepository.save(order);
@@ -845,8 +824,7 @@ public class InstanceController {
             response.put("orderId", order.getId());
             response.put("total", order.getTotal());
             response.put("status", order.getStatus());
-            response.put("newParticipation", newParticipation);
-            response.put("newBalance", newParticipation.multiply(socialWorkAndCostScale).setScale(2, RoundingMode.HALF_UP));
+            response.put("newConfirmedTime", newConfirmedTime.setScale(2, RoundingMode.HALF_UP));
 
             return ResponseEntity.ok(response);
         } catch (Exception e) {

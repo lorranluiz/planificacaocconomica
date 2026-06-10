@@ -874,15 +874,19 @@ public class CommitteeController {
             List<CommitteeStateDTO.MaterializationStateDTO> materializationDTOs = getMaterializationsForCommittee(committee);
             committeeStateDTO.setMaterializations(materializationDTOs);
 
-            // 7.1 Construir escolhas de fornecedor a partir dos tensores tecnológicos
+            // 7.1 Construir escolhas de fornecedor e status a partir dos tensores tecnológicos
             Map<Integer, Integer> supplierChoices = new HashMap<>();
+            Map<Integer, String> orderStatuses = new HashMap<>();
             List<TechnologicalTensor> tensors = technologicalTensorRepository.findByInstanceId(committee.getId());
             for (TechnologicalTensor tensor : tensors) {
                 if (tensor.getSupplierInstanceId() != null) {
                     supplierChoices.put(tensor.getInputSocialMaterialization().getId(), tensor.getSupplierInstanceId());
+                    orderStatuses.put(tensor.getInputSocialMaterialization().getId(),
+                        tensor.getOrderStatus() != null ? tensor.getOrderStatus() : "solicitada");
                 }
             }
             committeeStateDTO.setSupplierChoices(supplierChoices);
+            committeeStateDTO.setOrderStatuses(orderStatuses);
 
             // 7.2 Popular nomes dos fornecedores
             if (supplierChoices != null && !supplierChoices.isEmpty()) {
@@ -1677,7 +1681,7 @@ public class CommitteeController {
     /**
      * Endpoint para listar encomendas de produção recebidas por este comitê.
      * Retorna todos os comitês que selecionaram este como fornecedor para algum insumo,
-     * com a quantidade demandada calculada.
+     * com a quantidade demandada, status e unidade de medida.
      */
     @GetMapping("/{id}/incoming-orders")
     public ResponseEntity<?> getIncomingOrders(@PathVariable Integer id) {
@@ -1698,9 +1702,9 @@ public class CommitteeController {
                 if (orderingCommittee == null || orderingCommittee.getId().equals(id)) continue;
 
                 Integer inputMaterializationId = tensor.getInputSocialMaterialization().getId();
+                Integer outputMaterializationId = tensor.getOutputSocialMaterialization().getId();
 
                 // Quantidade demandada = valor da coluna "Quantidade" do Vetor Tecnológico
-                // do comitê demandante (quantidade do insumo por unidade de output)
                 Map<String, BigDecimal> quantities = orderingCommittee.getTechnologicalQuantitiesByMaterialization();
                 BigDecimal inputQuantityPerUnit = BigDecimal.ZERO;
                 if (quantities != null) {
@@ -1710,7 +1714,6 @@ public class CommitteeController {
 
                 BigDecimal demandedQuantity = inputQuantityPerUnit;
 
-                // Buscar unidade de medida do insumo
                 String inputUnitName = "";
                 SocialMaterialization inputMat = tensor.getInputSocialMaterialization();
                 if (inputMat != null && inputMat.getMeasurementUnit() != null) {
@@ -1721,8 +1724,14 @@ public class CommitteeController {
                 order.put("orderingCommitteeId", orderingCommittee.getId());
                 order.put("orderingCommitteeName", orderingCommittee.getCommitteeName());
                 order.put("inputMaterializationId", inputMaterializationId);
+                order.put("outputMaterializationId", outputMaterializationId);
                 order.put("demandedQuantity", demandedQuantity);
                 order.put("inputUnitName", inputUnitName);
+                order.put("orderStatus", tensor.getOrderStatus() != null ? tensor.getOrderStatus() : "solicitada");
+                // Chave composta do tensor para identificação única
+                order.put("tensorInstanceId", tensor.getId().getInstanceId());
+                order.put("tensorInputId", tensor.getId().getInputSocialMaterializationId());
+                order.put("tensorOutputId", tensor.getId().getOutputSocialMaterializationId());
                 orders.add(order);
             }
 
@@ -1733,6 +1742,140 @@ public class CommitteeController {
                 "success", false,
                 "message", e.getMessage()
             ));
+        }
+    }
+
+    /**
+     * Atualiza o status de uma encomenda (tensor tecnológico).
+     */
+    @PutMapping("/{committeeId}/orders/status")
+    @Transactional
+    public ResponseEntity<?> updateOrderStatus(
+            @PathVariable Integer committeeId,
+            @RequestBody Map<String, Object> payload) {
+        try {
+            Integer instanceId = payload.get("tensorInstanceId") != null
+                ? Integer.valueOf(payload.get("tensorInstanceId").toString()) : null;
+            Integer inputId = payload.get("tensorInputId") != null
+                ? Integer.valueOf(payload.get("tensorInputId").toString()) : null;
+            Integer outputId = payload.get("tensorOutputId") != null
+                ? Integer.valueOf(payload.get("tensorOutputId").toString()) : null;
+            String newStatus = payload.get("orderStatus") != null
+                ? payload.get("orderStatus").toString() : null;
+
+            if (instanceId == null || inputId == null || outputId == null || newStatus == null) {
+                return ResponseEntity.badRequest().body(Map.of(
+                    "success", false,
+                    "message", "Dados insuficientes: tensorInstanceId, tensorInputId, tensorOutputId e orderStatus são obrigatórios"
+                ));
+            }
+
+            TechnologicalTensor.TechnologicalTensorId tensorId = new TechnologicalTensor.TechnologicalTensorId(
+                instanceId, inputId, outputId);
+
+            Optional<TechnologicalTensor> tensorOpt = technologicalTensorRepository.findById(tensorId);
+            if (!tensorOpt.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            TechnologicalTensor tensor = tensorOpt.get();
+            tensor.setOrderStatus(newStatus);
+            technologicalTensorRepository.save(tensor);
+
+            logger.info("Status da encomenda atualizado: committee={}, input={}, output={}, status={}",
+                instanceId, inputId, outputId, newStatus);
+
+            return ResponseEntity.ok(Map.of("success", true, "orderStatus", newStatus));
+        } catch (Exception e) {
+            logger.error("Erro ao atualizar status da encomenda", e);
+            return ResponseEntity.badRequest().body(Map.of(
+                "success", false, "message", e.getMessage()
+            ));
+        }
+    }
+
+    /**
+     * Distribui horas de trabalho para os trabalhadores associados a este comitê.
+     * Calcula: total_horas = demandedQuantity * productionTime
+     *         horas_por_trabalhador = total_horas / num_trabalhadores
+     */
+    @PostMapping("/{committeeId}/distribute-hours")
+    @Transactional
+    public ResponseEntity<?> distributeHours(
+            @PathVariable Integer committeeId,
+            @RequestBody Map<String, Object> payload) {
+        try {
+            Integer tensorInstanceId = payload.get("tensorInstanceId") != null
+                ? Integer.valueOf(payload.get("tensorInstanceId").toString()) : null;
+            Integer tensorInputId = payload.get("tensorInputId") != null
+                ? Integer.valueOf(payload.get("tensorInputId").toString()) : null;
+            Integer tensorOutputId = payload.get("tensorOutputId") != null
+                ? Integer.valueOf(payload.get("tensorOutputId").toString()) : null;
+
+            if (tensorInstanceId == null || tensorInputId == null || tensorOutputId == null) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Dados do tensor obrigatórios"));
+            }
+
+            // Verificar se o comitê existe
+            Optional<Instance> committeeOpt = instanceRepository.findById(committeeId);
+            if (!committeeOpt.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+            Instance committee = committeeOpt.get();
+
+            // Obter demandedQuantity do payload
+            BigDecimal demandedQuantity = payload.get("demandedQuantity") != null
+                ? new BigDecimal(payload.get("demandedQuantity").toString()) : BigDecimal.ZERO;
+
+            // Buscar productionTime do workers_proposal
+            WorkersProposal.WorkersProposalId wpId = new WorkersProposal.WorkersProposalId();
+            wpId.setInstanceId(committeeId);
+            Optional<WorkersProposal> wpOpt = workersProposalRepository.findById(wpId);
+            BigDecimal productionTime = BigDecimal.ONE; // fallback
+            if (wpOpt.isPresent() && wpOpt.get().getProductionTime() != null) {
+                productionTime = wpOpt.get().getProductionTime();
+            }
+
+            // total_horas = demandedQuantity * productionTime
+            BigDecimal totalHours = demandedQuantity.multiply(productionTime);
+
+            // Buscar trabalhadores associados a este comitê
+            List<Instance> workers = instanceRepository.findByAssociatedWorkerCommitteeId(committeeId);
+            if (workers.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Nenhum trabalhador associado a este comitê"));
+            }
+
+            // Distribuir horas igualmente com precisão suficiente
+            int workerCount = workers.size();
+            BigDecimal hoursPerWorker = totalHours.divide(BigDecimal.valueOf(workerCount), 10, RoundingMode.HALF_UP);
+
+            for (Instance worker : workers) {
+                BigDecimal current = worker.getSociallyConfirmedWorkTime() != null
+                    ? worker.getSociallyConfirmedWorkTime() : BigDecimal.ZERO;
+                worker.setSociallyConfirmedWorkTime(current.add(hoursPerWorker));
+                instanceRepository.save(worker);
+            }
+
+            logger.info("Horas distribuídas: comitê={}, total_horas={}, workers={}, horas_por_worker={}",
+                committeeId, totalHours, workerCount, hoursPerWorker);
+
+            // Atualizar status da encomenda para "horas liberadas"
+            TechnologicalTensor.TechnologicalTensorId tensorId = new TechnologicalTensor.TechnologicalTensorId(
+                tensorInstanceId, tensorInputId, tensorOutputId);
+            technologicalTensorRepository.findById(tensorId).ifPresent(tensor -> {
+                tensor.setOrderStatus("horas liberadas");
+                technologicalTensorRepository.save(tensor);
+            });
+
+            return ResponseEntity.ok(Map.of(
+                "success", true,
+                "totalHours", totalHours,
+                "workerCount", workerCount,
+                "hoursPerWorker", hoursPerWorker
+            ));
+        } catch (Exception e) {
+            logger.error("Erro ao distribuir horas para comitê {}", committeeId, e);
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
         }
     }
 }

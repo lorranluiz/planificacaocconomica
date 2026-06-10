@@ -85,6 +85,9 @@ const globalState = {
     // Nomes dos fornecedores: supplierInstanceId -> supplierName
     supplierNames: {},
 
+    // Status das encomendas: inputMaterializationId -> orderStatus
+    orderStatuses: {},
+
     // ID do insumo cujo modal de seleção de fornecedor está aberto
     currentSupplierInputId: null
 };
@@ -1278,6 +1281,7 @@ function initializePageState(committeeId) {
         });
         globalState.supplierChoices = cachedState.supplierChoices || {};
         globalState.supplierNames = cachedState.supplierNames || {};
+        globalState.orderStatuses = cachedState.orderStatuses || {};
         
         // Atualizar a interface com os dados carregados
         updateAllUI();
@@ -1328,6 +1332,7 @@ function initializePageState(committeeId) {
             });
             globalState.supplierChoices = data.supplierChoices || {};
             globalState.supplierNames = data.supplierNames || {};
+            globalState.orderStatuses = data.orderStatuses || {};
             pageState.materializations = enrichMaterializationsWithMetadata(pageState.materializations);
 
             // Armazenar em cache local
@@ -1344,7 +1349,8 @@ function initializePageState(committeeId) {
                 members: pageState.members,
                 materializations: pageState.materializations,
                 supplierChoices: globalState.supplierChoices,
-                supplierNames: globalState.supplierNames
+                supplierNames: globalState.supplierNames,
+                orderStatuses: globalState.orderStatuses
             }, 300000); // 5 minutos de cache
             
             // Armazenar dados de otimização se estiverem presentes antes do primeiro render
@@ -1419,6 +1425,7 @@ function resetPageState() {
     globalState.technologicalQuantities = {};
     globalState.supplierChoices = {};
     globalState.supplierNames = {};
+    globalState.orderStatuses = {};
     globalState.currentSupplierInputId = null;
     globalState.technologicalQuantitiesHydratedFromTensor = false;
 }
@@ -1860,7 +1867,7 @@ function updateTechnologicalMatrixTable() {
             ? formatNumberForDisplay(productionTimeValue)
             : '';
 
-        // Ícone de fornecedor
+        // Ícone de fornecedor e status da encomenda
         let supplierIconHtml = '';
         if (!isMainProduct) {
             const supplierId = globalState.supplierChoices[mat.id];
@@ -1868,7 +1875,17 @@ function updateTechnologicalMatrixTable() {
             const supplierName = hasSupplier ? (globalState.supplierNames[supplierId] || `Fornecedor #${supplierId}`) : '';
             const tooltip = hasSupplier ? `Fornecedor: ${supplierName}` : 'Clique para selecionar um fornecedor';
             const iconClass = hasSupplier ? 'fas fa-truck supplier-icon has-supplier' : 'fas fa-truck supplier-icon';
-            supplierIconHtml = `<i class="${iconClass}" title="${escapeHtml(tooltip)}" onclick="event.stopPropagation(); openSupplierSelectionModal(${mat.id})" style="cursor: pointer; margin-left: 8px;"></i>`;
+            supplierIconHtml = `<i class="${iconClass}" title="${escapeHtml(tooltip)}" onclick="event.stopPropagation(); openSupplierSelectionModal(${mat.id})" style="cursor: pointer; margin-left: 8px; margin-right: 4px;"></i>`;
+
+            // Status badge e botão de confirmação
+            if (hasSupplier) {
+                const status = globalState.orderStatuses[mat.id] || 'solicitada';
+                const statusBadge = getOrderStatusBadge(status);
+                supplierIconHtml += statusBadge;
+                if (status === 'produzida e enviada') {
+                    supplierIconHtml += ` <button class="btn btn-sm" style="padding:1px 6px; font-size:0.7em; margin-left:4px;" onclick="event.stopPropagation(); confirmReceipt(${pageState.id}, ${mat.id}, ${outputMaterializationId})">Confirmar Recebimento</button>`;
+                }
+            }
         }
 
         tr.innerHTML = `
@@ -3190,16 +3207,36 @@ function fetchIncomingOrders() {
             }
 
             let html = '<table class="incoming-orders-table" style="width:100%; border-collapse: collapse;">';
-            html += '<thead><tr><th style="text-align:left; padding: 6px 8px; border-bottom: 1px solid var(--border-color, #444);">Comitê Demandante</th><th style="text-align:right; padding: 6px 8px; border-bottom: 1px solid var(--border-color, #444);">Quantidade Demandada</th></tr></thead>';
+            html += '<thead><tr>' +
+                '<th style="text-align:left; padding: 6px 8px; border-bottom: 1px solid var(--border-color, #444);">Comitê Demandante</th>' +
+                '<th style="text-align:right; padding: 6px 8px; border-bottom: 1px solid var(--border-color, #444);">Quantidade Demandada</th>' +
+                '<th style="text-align:center; padding: 6px 8px; border-bottom: 1px solid var(--border-color, #444);">Status</th>' +
+                '<th style="text-align:center; padding: 6px 8px; border-bottom: 1px solid var(--border-color, #444);">Ações</th>' +
+                '</tr></thead>';
             html += '<tbody>';
             orders.forEach(order => {
                 const qty = parseFloat(order.demandedQuantity) || 0;
                 const qtyDisplay = (Math.abs(qty) < 0.01 && qty !== 0) ? qty.toExponential(4) : qty.toFixed(2);
                 const unitName = order.inputUnitName || '';
                 const unitHtml = unitName ? ` <span style="color: var(--text-secondary, #888); font-size: 0.85em;">${escapeHtml(unitName)}</span>` : '';
+                const status = order.orderStatus || 'solicitada';
+                const statusBadge = getOrderStatusBadge(status);
+
+                let actionsHtml = '';
+                if (status === 'solicitada') {
+                    actionsHtml = `<button class="btn btn-sm" style="padding:2px 8px; font-size:0.8em;" onclick="updateOrderStatus(${order.orderingCommitteeId}, ${order.tensorInstanceId}, ${order.tensorInputId}, ${order.tensorOutputId}, 'aceita em produção')">Aceitar</button>
+                        <button class="btn btn-sm btn-secondary" style="padding:2px 8px; font-size:0.8em;" onclick="updateOrderStatus(${order.orderingCommitteeId}, ${order.tensorInstanceId}, ${order.tensorInputId}, ${order.tensorOutputId}, 'recusada')">Recusar</button>`;
+                } else if (status === 'aceita em produção') {
+                    actionsHtml = `<button class="btn btn-sm" style="padding:2px 8px; font-size:0.8em;" onclick="updateOrderStatus(${order.orderingCommitteeId}, ${order.tensorInstanceId}, ${order.tensorInputId}, ${order.tensorOutputId}, 'produzida e enviada')">Enviar Produção</button>`;
+                } else if (status === 'recebida pelo demandante') {
+                    actionsHtml = `<button class="btn btn-sm" style="padding:2px 8px; font-size:0.8em;" onclick="distributeHours(${pageState.id}, ${order.tensorInstanceId}, ${order.tensorInputId}, ${order.tensorOutputId}, ${qty})">Liberar Horas</button>`;
+                }
+
                 html += `<tr>
                     <td style="padding: 6px 8px; border-bottom: 1px solid var(--border-color-light, #333);">${escapeHtml(order.orderingCommitteeName || 'Comitê #' + order.orderingCommitteeId)}</td>
                     <td style="text-align:right; padding: 6px 8px; border-bottom: 1px solid var(--border-color-light, #333);">${qtyDisplay}${unitHtml}</td>
+                    <td style="text-align:center; padding: 6px 8px; border-bottom: 1px solid var(--border-color-light, #333);">${statusBadge}</td>
+                    <td style="text-align:center; padding: 6px 8px; border-bottom: 1px solid var(--border-color-light, #333);">${actionsHtml}</td>
                 </tr>`;
             });
             html += '</tbody></table>';
@@ -3211,6 +3248,102 @@ function fetchIncomingOrders() {
                 ordersList.innerHTML = '<p style="color: var(--text-secondary, #666); font-style: italic;">Erro ao carregar encomendas.</p>';
             }
         });
+}
+
+function getOrderStatusBadge(status) {
+    const colors = {
+        'solicitada': '#1976d2',
+        'aceita em produção': '#f57c00',
+        'produzida e enviada': '#388e3c',
+        'recebida pelo demandante': '#7b8c8d',
+        'recusada': '#c62828',
+        'horas liberadas': '#6a1b9a'
+    };
+    const labels = {
+        'solicitada': 'Solicitada',
+        'aceita em produção': 'Em Produção',
+        'produzida e enviada': 'Enviada',
+        'recebida pelo demandante': 'Recebida',
+        'recusada': 'Recusada',
+        'horas liberadas': 'Horas Liberadas'
+    };
+    const color = colors[status] || '#888';
+    const label = labels[status] || status;
+    return `<span style="display:inline-block; padding:2px 6px; border-radius:3px; font-size:0.8em; font-weight:500; background:${color}22; color:${color}; border:1px solid ${color}44;">${label}</span>`;
+}
+
+function updateOrderStatus(orderingCommitteeId, tensorInstanceId, tensorInputId, tensorOutputId, newStatus) {
+    fetch(`/api/committees/${pageState.id}/orders/status`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            tensorInstanceId: tensorInstanceId,
+            tensorInputId: tensorInputId,
+            tensorOutputId: tensorOutputId,
+            orderStatus: newStatus
+        })
+    })
+    .then(r => r.json())
+    .then(result => {
+        if (result.success) {
+            showSuccessMessage('Status atualizado com sucesso');
+            // Recarregar lista de encomendas
+            fetchIncomingOrders();
+            // Também recarregar o estado para atualizar orderStatuses
+            if (pageState.id) {
+                fetch(`/api/committees/${pageState.id}/state`)
+                    .then(r => r.json())
+                    .then(data => {
+                        globalState.orderStatuses = data.orderStatuses || {};
+                        globalState.supplierChoices = data.supplierChoices || {};
+                        globalState.supplierNames = data.supplierNames || {};
+                        updateTechnologicalMatrixTable();
+                    });
+            }
+        } else {
+            showErrorMessage(result.message || 'Erro ao atualizar status');
+        }
+    })
+    .catch(err => {
+        console.error('Erro ao atualizar status:', err);
+        showErrorMessage('Erro ao atualizar status');
+    });
+}
+
+function distributeHours(committeeId, tensorInstanceId, tensorInputId, tensorOutputId, demandedQuantity) {
+    if (!confirm('Liberar horas para todos os trabalhadores associados a este comitê?')) return;
+
+    fetch(`/api/committees/${committeeId}/distribute-hours`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            tensorInstanceId: tensorInstanceId,
+            tensorInputId: tensorInputId,
+            tensorOutputId: tensorOutputId,
+            demandedQuantity: demandedQuantity
+        })
+    })
+    .then(r => r.json())
+    .then(result => {
+        if (result.success) {
+            const hPerWorker = parseFloat(result.hoursPerWorker) || 0;
+            const hTotal = parseFloat(result.totalHours) || 0;
+            const hPerWorkerDisplay = (Math.abs(hPerWorker) < 0.01 && hPerWorker !== 0)
+                ? hPerWorker.toExponential(4)
+                : hPerWorker.toFixed(6);
+            const hTotalDisplay = (Math.abs(hTotal) < 0.01 && hTotal !== 0)
+                ? hTotal.toExponential(4)
+                : hTotal.toFixed(6);
+            showSuccessMessage(`Horas distribuídas: ${hPerWorkerDisplay}h por trabalhador (${result.workerCount} trabalhadores, total ${hTotalDisplay}h)`);
+            fetchIncomingOrders();
+        } else {
+            showErrorMessage(result.message || 'Erro ao distribuir horas');
+        }
+    })
+    .catch(err => {
+        console.error('Erro ao distribuir horas:', err);
+        showErrorMessage('Erro ao distribuir horas');
+    });
 }
 
 /**
@@ -3305,10 +3438,91 @@ function clearCurrentSupplierSelection() {
 }
 
 /**
+ * Confirma o recebimento da encomenda (usado pelo comitê demandante).
+ */
+function confirmReceipt(committeeId, inputMatId, outputMatId) {
+    updateOrderStatus(committeeId, committeeId, inputMatId, outputMatId, 'recebida pelo demandante');
+}
+
+/**
  * Fecha o modal de seleção de fornecedor.
  */
 function closeSupplierSelectionModal() {
     const modal = document.getElementById('supplierSelectionModal');
     if (modal) modal.style.display = 'none';
     globalState.currentSupplierInputId = null;
+}
+
+// Dados dos trabalhadores para filtro
+let _allWorkers = [];
+
+function openWorkersModal() {
+    if (!pageState.id) {
+        showErrorMessage("Comitê não carregado.");
+        return;
+    }
+
+    const modal = document.getElementById('workersModal');
+    const container = document.getElementById('workersListContainer');
+    const searchInput = document.getElementById('workersSearchInput');
+    if (!modal || !container) return;
+
+    container.innerHTML = '<p style="color: var(--text-secondary, #666); font-style: italic;">Carregando...</p>';
+    if (searchInput) searchInput.value = '';
+    modal.style.display = 'block';
+
+    fetch(`/api/instances/${pageState.id}/workers`)
+        .then(r => {
+            if (!r.ok) throw new Error('Erro ao buscar trabalhadores');
+            return r.json();
+        })
+        .then(workers => {
+            _allWorkers = workers || [];
+            renderWorkersList(_allWorkers);
+        })
+        .catch(err => {
+            console.error('Erro ao carregar trabalhadores:', err);
+            container.innerHTML = '<p style="color: var(--error-color, #c62828);">Erro ao carregar trabalhadores.</p>';
+        });
+}
+
+function renderWorkersList(workers) {
+    const container = document.getElementById('workersListContainer');
+    if (!container) return;
+    if (!workers || workers.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary, #666); font-style: italic;">Nenhum trabalhador associado.</p>';
+        return;
+    }
+    let html = `<p style="margin-bottom:8px; color:var(--text-secondary,#888); font-size:0.85em;">${workers.length} trabalhador(es)</p>`;
+    html += '<table style="width:100%; border-collapse:collapse;">';
+    html += '<thead><tr><th style="text-align:left; padding:6px 8px; border-bottom:1px solid var(--border-color,#444);">ID</th><th style="text-align:left; padding:6px 8px; border-bottom:1px solid var(--border-color,#444);">Nome</th></tr></thead><tbody>';
+    workers.forEach(w => {
+        html += `<tr>
+            <td style="padding:5px 8px; border-bottom:1px solid var(--border-color-light,#333);">${w.id}</td>
+            <td style="padding:5px 8px; border-bottom:1px solid var(--border-color-light,#333);">${escapeHtml(w.name || 'Trabalhador #' + w.id)}</td>
+        </tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+function filterWorkersList() {
+    const input = document.getElementById('workersSearchInput');
+    if (!input) return;
+    const term = input.value.trim().toLowerCase();
+    if (!term) {
+        renderWorkersList(_allWorkers);
+        return;
+    }
+    const filtered = _allWorkers.filter(w => {
+        const name = (w.name || '').toLowerCase();
+        const id = String(w.id);
+        return name.includes(term) || id.includes(term);
+    });
+    renderWorkersList(filtered);
+}
+
+function closeWorkersModal() {
+    const modal = document.getElementById('workersModal');
+    if (modal) modal.style.display = 'none';
 }

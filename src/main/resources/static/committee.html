@@ -585,6 +585,9 @@
                                         <button id="btnShowPlan" class="btn btn-primary">
                                             <i class="fas fa-clipboard-list mr-2"></i> Plano e Produtividade Estimada
                                         </button>
+                                        <button id="btnShowWorkers" class="btn btn-secondary" title="Trabalhadores dessa Unidade Produtiva" onclick="openWorkersModal()">
+                                            <i class="fas fa-users"></i>
+                                        </button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -947,6 +950,23 @@
             <div class="modal-footer" style="margin-top: 20px;">
                 <button class="btn btn-secondary" onclick="openNewMaterializationModal()">Criar Nova Materialização</button>
                 <button class="btn btn-secondary" onclick="closeAddInsumoModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Trabalhadores da Unidade Produtiva -->
+    <div id="workersModal" class="modal">
+        <div class="modal-content" style="max-width: 600px;">
+            <span class="close" onclick="closeWorkersModal()">&times;</span>
+            <h3>Trabalhadores desta Unidade Produtiva</h3>
+            <div style="margin-bottom: 15px;">
+                <input type="text" id="workersSearchInput" class="form-control" placeholder="Buscar por nome ou ID..." oninput="filterWorkersList()" style="width: 100%; padding: 8px; border-radius: 4px;">
+            </div>
+            <div id="workersListContainer" style="max-height: 400px; overflow-y: auto;">
+                <p style="color: var(--text-secondary, #666); font-style: italic;">Carregando...</p>
+            </div>
+            <div class="modal-footer" style="margin-top: 15px;">
+                <button class="btn btn-secondary" onclick="closeWorkersModal()">Fechar</button>
             </div>
         </div>
     </div>

@@ -22,6 +22,9 @@ public class InstanceDto {
     private Integer workerEffectiveLimit;
     private Double estimatedIndividualParticipationInSocialWork;
     private Double hoursAtElectronicPoint;
+    private Double sociallyConfirmedWorkTime;
+    private Integer associatedWorkerCommitteeId;
+    private String associatedWorkerCommitteeName;
     private Integer popularCouncilAssociatedWithCommitteeOrWorker;
     private Integer idAssociatedWorkerResidentsAssociation;
     private String description;
@@ -51,6 +54,10 @@ public class InstanceDto {
         if (instance.getHoursAtElectronicPoint() != null) {
             this.hoursAtElectronicPoint = instance.getHoursAtElectronicPoint().doubleValue();
         }
+
+        if (instance.getSociallyConfirmedWorkTime() != null) {
+            this.sociallyConfirmedWorkTime = instance.getSociallyConfirmedWorkTime().doubleValue();
+        }
         
         // Removido acesso a método inexistente getDescription()
         // Podemos usar outro campo caso necessário, ou deixar como null
@@ -76,6 +83,11 @@ public class InstanceDto {
         // Corrigido: Extrair o ID da instância associada, assumindo que getIdAssociatedWorkerResidentsAssociation retorna uma instância
         if (instance.getIdAssociatedWorkerResidentsAssociation() != null) {
             this.idAssociatedWorkerResidentsAssociation = instance.getIdAssociatedWorkerResidentsAssociation().getId();
+        }
+
+        if (instance.getAssociatedWorkerCommittee() != null) {
+            this.associatedWorkerCommitteeId = instance.getAssociatedWorkerCommittee().getId();
+            this.associatedWorkerCommitteeName = instance.getAssociatedWorkerCommittee().getCommitteeName();
         }
     }
 }

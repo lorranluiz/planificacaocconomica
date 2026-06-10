@@ -36,6 +36,9 @@ public class CommitteeStateDTO {
     /** Mapa auxiliar com nomes dos fornecedores: supplierInstanceId -> supplierName */
     private Map<Integer, String> supplierNames;
 
+    /** Mapa com status das encomendas: inputMaterializationId -> orderStatus */
+    private Map<Integer, String> orderStatuses;
+
     /** Tempo Socialmente Necessário para Produzir 1 Unidade, calculado pelo comitê. */
     private BigDecimal sociallyNecessaryTimePerUnit;
 
@@ -155,6 +158,14 @@ public class CommitteeStateDTO {
 
     public void setSupplierNames(Map<Integer, String> supplierNames) {
         this.supplierNames = supplierNames;
+    }
+
+    public Map<Integer, String> getOrderStatuses() {
+        return orderStatuses;
+    }
+
+    public void setOrderStatuses(Map<Integer, String> orderStatuses) {
+        this.orderStatuses = orderStatuses;
     }
 
     public BigDecimal getSociallyNecessaryTimePerUnit() {

@@ -8,7 +8,13 @@ let currentPage = 1;
 let productsPerPage = 20; // Exibir 20 itens por página
 let cartItems = []; // Itens no carrinho
 let availableSocialParticipation = 0;
+let availableSociallyConfirmedTime = 0;
 let socialWorkAndCostScale = 1600000/4; // %4e5 = 400000; backend confirma via /shop (data.socialWorkAndCostScale)
+
+function formatSmallNumber(val) {
+    if (val === 0) return '0.00';
+    return (Math.abs(val) < 0.01) ? val.toExponential(4) : val.toFixed(4);
+}
 
 // Adicionar variáveis globais para armazenar os pedidos
 let orderHistory = [];
@@ -622,6 +628,16 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 residentsAssociation.textContent = 'Não associada';
             }
+
+            // Comitê de Unidade Produtiva Associado
+            const associatedCommittee = document.getElementById('associatedCommittee');
+            if (associatedCommittee) {
+                if (data.associatedWorkerCommitteeName) {
+                    associatedCommittee.textContent = data.associatedWorkerCommitteeName;
+                } else {
+                    associatedCommittee.textContent = 'Não associado';
+                }
+            }
             
             // Horas trabalhadas
             if (data.hoursAtElectronicPoint !== undefined && data.hoursAtElectronicPoint !== null) {
@@ -649,6 +665,19 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 socialParticipation.textContent = 'ℳ 0.00';
                 availableSocialParticipation = 0;
+            }
+
+            // Tempo de Trabalho Socialmente Confirmado
+            const sociallyConfirmedTime = document.getElementById('sociallyConfirmedTime');
+            if (sociallyConfirmedTime) {
+                if (data.sociallyConfirmedWorkTime !== undefined && data.sociallyConfirmedWorkTime !== null) {
+                    const val = parseFloat(data.sociallyConfirmedWorkTime);
+                    sociallyConfirmedTime.textContent = `${formatSmallNumber(val)} horas`;
+                    availableSociallyConfirmedTime = val;
+                } else {
+                    sociallyConfirmedTime.textContent = '0.00 horas';
+                    availableSociallyConfirmedTime = 0;
+                }
             }
             
         } catch (err) {
@@ -1027,7 +1056,7 @@ function renderProducts() {
             </div>
             <div class="product-info">
                 <div class="product-name">${product.name}</div>
-                <div class="product-price">ℳ ${product.price.toFixed(2)}</div>
+                <div class="product-price">${product.price.toFixed(2)} h</div>
                 <div class="product-action">
                     <button class="withdraw-btn" data-id="${product.id}">
                         Retirar
@@ -1255,7 +1284,7 @@ function updateWithdrawButtons() {
     });
     
     // Verificar se estamos estourando o saldo do trabalhador
-    const availableBalance = availableSocialParticipation * socialWorkAndCostScale;
+    const availableBalance = availableSociallyConfirmedTime;
     
     // Se o total no carrinho for maior que o saldo disponível, desabilitar todos os botões
     if (cartTotal > availableBalance) {
@@ -1317,7 +1346,7 @@ function viewOrderDetails(orderId) {
             <td>${item.name}</td>
             <td>${typeText}</td>
             <td>${item.quantity}</td>
-            <td>ℳ ${item.price.toFixed(2)}</td>
+            <td>${item.price.toFixed(2)} h</td>
             <td>ℳ ${item.subtotal.toFixed(2)}</td>
         `;
         
@@ -1517,11 +1546,11 @@ function finalizePurchase() {
         orderTotal += item.product.price * item.quantity;
     });
     
-    const availableBalance = availableSocialParticipation * socialWorkAndCostScale;
+    const availableBalance = availableSociallyConfirmedTime;
     
     // Se o total for maior que o saldo disponível, mostrar mensagem e não finalizar
     if (orderTotal > availableBalance) {
-        showError(`Saldo insuficiente. Total do pedido: ℳ ${orderTotal.toFixed(2)}, Saldo disponível: ℳ ${availableBalance.toFixed(2)}`);
+        showError(`Saldo insuficiente. Total do pedido: ${orderTotal.toFixed(2)} h, Saldo disponível: ${availableBalance.toFixed(2)} h`);
         return;
     }
     
@@ -1555,12 +1584,13 @@ function finalizePurchase() {
     })
     .then(data => {
         // Atualizar o saldo com o valor retornado pelo backend
-        if (data.newParticipation !== undefined) {
-            availableSocialParticipation = parseFloat(data.newParticipation);
+        if (data.newConfirmedTime !== undefined) {
+            availableSociallyConfirmedTime = parseFloat(data.newConfirmedTime);
         }
-        if (data.newBalance !== undefined) {
-            document.getElementById('socialParticipation').textContent = 
-                `ℳ ${parseFloat(data.newBalance).toFixed(2)}`;
+        if (data.newConfirmedTime !== undefined) {
+            const val = parseFloat(data.newConfirmedTime);
+            document.getElementById('sociallyConfirmedTime').textContent =
+                `${formatSmallNumber(val)} horas`;
         }
         
         // Adicionar pedido ao histórico local
@@ -1623,7 +1653,7 @@ function renderCartItems() {
     // Se o carrinho estiver vazio, mostrar mensagem
     if (cartItems.length === 0) {
         cartItemsElement.innerHTML = '<p class="empty-cart">Seu carrinho está vazio.</p>';
-        cartTotalElement.textContent = 'ℳ 0,00';
+        cartTotalElement.textContent = '0,00 h';
         return;
     }
     
@@ -1647,7 +1677,7 @@ function renderCartItems() {
             </div>
             <div class="cart-item-info">
                 <div class="cart-item-title">${item.product.name}</div>
-                <div class="cart-item-price">ℳ ${item.product.price.toFixed(2)} × ${item.quantity}</div>
+                <div class="cart-item-price">${item.product.price.toFixed(2)} h × ${item.quantity}</div>
             </div>
             <div class="cart-item-actions">
                 <div class="quantity-control">
@@ -1691,7 +1721,7 @@ function renderCartItems() {
     });
     
     // Atualizar o total
-    cartTotalElement.textContent = `ℳ ${totalValue.toFixed(2)}`;
+    cartTotalElement.textContent = `${totalValue.toFixed(2)} h`;
 }
 
 /**
