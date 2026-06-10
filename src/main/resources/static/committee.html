@@ -928,6 +928,9 @@
             <h3>Selecionar Fornecedor</h3>
             <p>Insumo: <strong><span id="supplierModalInsumoName"></span></strong></p>
             <p style="font-size: 0.85em; color: var(--text-secondary, #666); margin-bottom: 15px;">Selecione abaixo a unidade produtiva que irá fornecer este insumo.</p>
+            <div style="margin-bottom: 10px;">
+                <input type="text" id="supplierSearchInput" class="form-control" placeholder="Buscar por nome ou ID..." oninput="filterSupplierList()" onkeydown="supplierSearchKeydown(event)" style="width: 100%; padding: 8px; border-radius: 4px;">
+            </div>
             <div id="supplierListContainer">
                 <p style="color: var(--text-secondary, #666); font-style: italic;">Carregando...</p>
             </div>
@@ -971,8 +974,63 @@
         </div>
     </div>
 
+    <!-- Modal de Histórico de Pedidos -->
+    <div id="orderHistoryModal" class="modal">
+        <div class="modal-content" style="max-width: 650px;">
+            <span class="close" onclick="closeOrderHistoryModal()">&times;</span>
+            <h3>Histórico de Pedidos</h3>
+            <p>Insumo: <strong><span id="historyInsumoName"></span></strong></p>
+            <p style="font-size: 0.9em; color: var(--text-secondary, #666);">Fornecedor Padrão: <strong><span id="historyDefaultSupplier">-</span></strong></p>
+            <div style="margin-bottom: 10px; display: flex; gap: 8px; align-items: center;">
+                <input type="text" id="historySearchInput" class="form-control" placeholder="Buscar por nome do fornecedor ou ID do pedido..." oninput="filterOrderHistory()" style="flex: 1; padding: 8px; border-radius: 4px;">
+                <button class="btn btn-sm btn-secondary" onclick="toggleOrderHistorySort()" title="Inverter ordem" style="white-space: nowrap;">
+                    <i class="fas fa-sort-amount-down" id="historySortIcon"></i>
+                </button>
+                <button class="btn btn-sm btn-primary" onclick="openNewOrderModal()" title="Novo Pedido" style="white-space: nowrap;">
+                    <i class="fas fa-plus"></i> Novo Pedido
+                </button>
+                <button class="btn btn-sm btn-secondary" onclick="openSupplierSelectionFromHistory()" title="Selecionar Fornecedor Padrão" style="white-space: nowrap;">
+                    <i class="fas fa-truck"></i> Fornecedor Padrão
+                </button>
+            </div>
+            <div id="orderHistoryList" style="max-height: 400px; overflow-y: auto;">
+                <p style="color: var(--text-secondary, #666); font-style: italic;">Carregando...</p>
+            </div>
+            <div class="modal-footer" style="margin-top: 10px;">
+                <button class="btn btn-secondary" onclick="closeOrderHistoryModal()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Novo Pedido -->
+    <div id="newOrderModal" class="modal">
+        <div class="modal-content" style="max-width: 450px;">
+            <span class="close" onclick="closeNewOrderModal()">&times;</span>
+            <h3>Novo Pedido</h3>
+            <p>Insumo: <strong><span id="newOrderInsumoName"></span></strong></p>
+            <div class="form-group">
+                <label>Fornecedor:</label>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span id="newOrderSupplierName" style="font-weight: 500;">Não selecionado</span>
+                    <button class="btn btn-sm btn-secondary" onclick="openSupplierSelectionForNewOrder()">Alterar</button>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="newOrderQuantity">Quantidade:</label>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <input type="number" id="newOrderQuantity" class="form-control" step="any" inputmode="decimal">
+                    <span id="newOrderUnitLabel" style="color: var(--text-secondary, #888); font-size: 0.9em;"></span>
+                </div>
+            </div>
+            <div class="modal-footer" style="margin-top: 15px;">
+                <button class="btn btn-primary" onclick="confirmNewOrder()">Confirmar Pedido</button>
+                <button class="btn btn-secondary" onclick="closeNewOrderModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/notifications.js"></script>
-    <script src="js/committee.js"></script>
+    <script src="js/committee.js?v=20260610e"></script>
 
     <!-- Listener para navegação de volta quando dentro de modal -->
     <script>

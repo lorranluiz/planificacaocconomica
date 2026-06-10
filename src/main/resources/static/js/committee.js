@@ -1867,21 +1867,18 @@ function updateTechnologicalMatrixTable() {
             ? formatNumberForDisplay(productionTimeValue)
             : '';
 
-        // Ícone de fornecedor e status da encomenda
+        // Ícone de histórico
         let supplierIconHtml = '';
         if (!isMainProduct) {
             const supplierId = globalState.supplierChoices[mat.id];
             const hasSupplier = supplierId != null;
             const supplierName = hasSupplier ? (globalState.supplierNames[supplierId] || `Fornecedor #${supplierId}`) : '';
-            const tooltip = hasSupplier ? `Fornecedor: ${supplierName}` : 'Clique para selecionar um fornecedor';
-            const iconClass = hasSupplier ? 'fas fa-truck supplier-icon has-supplier' : 'fas fa-truck supplier-icon';
-            supplierIconHtml = `<i class="${iconClass}" title="${escapeHtml(tooltip)}" onclick="event.stopPropagation(); openSupplierSelectionModal(${mat.id})" style="cursor: pointer; margin-left: 8px; margin-right: 4px;"></i>`;
+            const tooltip = 'Histórico de pedidos' + (hasSupplier ? ` (fornecedor padrão: ${supplierName})` : '');
+            supplierIconHtml = `<i class="fas fa-history supplier-icon" title="${escapeHtml(tooltip)}" onclick="event.stopPropagation(); openOrderHistoryModal(${mat.id})" style="cursor: pointer; margin-left: 8px; margin-right: 4px;"></i>`;
 
-            // Status badge e botão de confirmação
+            // Botão de confirmação de recebimento
             if (hasSupplier) {
                 const status = globalState.orderStatuses[mat.id] || 'solicitada';
-                const statusBadge = getOrderStatusBadge(status);
-                supplierIconHtml += statusBadge;
                 if (status === 'produzida e enviada') {
                     supplierIconHtml += ` <button class="btn btn-sm" style="padding:1px 6px; font-size:0.7em; margin-left:4px;" onclick="event.stopPropagation(); confirmReceipt(${pageState.id}, ${mat.id}, ${outputMaterializationId})">Confirmar Recebimento</button>`;
                 }
@@ -3224,12 +3221,12 @@ function fetchIncomingOrders() {
 
                 let actionsHtml = '';
                 if (status === 'solicitada') {
-                    actionsHtml = `<button class="btn btn-sm" style="padding:2px 8px; font-size:0.8em;" onclick="updateOrderStatus(${order.orderingCommitteeId}, ${order.tensorInstanceId}, ${order.tensorInputId}, ${order.tensorOutputId}, 'aceita em produção')">Aceitar</button>
-                        <button class="btn btn-sm btn-secondary" style="padding:2px 8px; font-size:0.8em;" onclick="updateOrderStatus(${order.orderingCommitteeId}, ${order.tensorInstanceId}, ${order.tensorInputId}, ${order.tensorOutputId}, 'recusada')">Recusar</button>`;
+                    actionsHtml = `<button class="btn btn-sm" style="padding:2px 8px; font-size:0.8em;" onclick="updateOrderStatus(${order.orderId}, 'aceita em produção')">Aceitar</button>
+                        <button class="btn btn-sm btn-secondary" style="padding:2px 8px; font-size:0.8em;" onclick="updateOrderStatus(${order.orderId}, 'recusada')">Recusar</button>`;
                 } else if (status === 'aceita em produção') {
-                    actionsHtml = `<button class="btn btn-sm" style="padding:2px 8px; font-size:0.8em;" onclick="updateOrderStatus(${order.orderingCommitteeId}, ${order.tensorInstanceId}, ${order.tensorInputId}, ${order.tensorOutputId}, 'produzida e enviada')">Enviar Produção</button>`;
+                    actionsHtml = `<button class="btn btn-sm" style="padding:2px 8px; font-size:0.8em;" onclick="updateOrderStatus(${order.orderId}, 'produzida e enviada')">Enviar Produção</button>`;
                 } else if (status === 'recebida pelo demandante') {
-                    actionsHtml = `<button class="btn btn-sm" style="padding:2px 8px; font-size:0.8em;" onclick="distributeHours(${pageState.id}, ${order.tensorInstanceId}, ${order.tensorInputId}, ${order.tensorOutputId}, ${qty})">Liberar Horas</button>`;
+                    actionsHtml = `<button class="btn btn-sm" style="padding:2px 8px; font-size:0.8em;" onclick="distributeHours(${pageState.id}, ${order.orderId}, ${qty})">Liberar Horas</button>`;
                 }
 
                 html += `<tr>
@@ -3272,14 +3269,12 @@ function getOrderStatusBadge(status) {
     return `<span style="display:inline-block; padding:2px 6px; border-radius:3px; font-size:0.8em; font-weight:500; background:${color}22; color:${color}; border:1px solid ${color}44;">${label}</span>`;
 }
 
-function updateOrderStatus(orderingCommitteeId, tensorInstanceId, tensorInputId, tensorOutputId, newStatus) {
+function updateOrderStatus(orderId, newStatus) {
     fetch(`/api/committees/${pageState.id}/orders/status`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            tensorInstanceId: tensorInstanceId,
-            tensorInputId: tensorInputId,
-            tensorOutputId: tensorOutputId,
+            orderId: orderId,
             orderStatus: newStatus
         })
     })
@@ -3287,9 +3282,7 @@ function updateOrderStatus(orderingCommitteeId, tensorInstanceId, tensorInputId,
     .then(result => {
         if (result.success) {
             showSuccessMessage('Status atualizado com sucesso');
-            // Recarregar lista de encomendas
             fetchIncomingOrders();
-            // Também recarregar o estado para atualizar orderStatuses
             if (pageState.id) {
                 fetch(`/api/committees/${pageState.id}/state`)
                     .then(r => r.json())
@@ -3310,16 +3303,14 @@ function updateOrderStatus(orderingCommitteeId, tensorInstanceId, tensorInputId,
     });
 }
 
-function distributeHours(committeeId, tensorInstanceId, tensorInputId, tensorOutputId, demandedQuantity) {
+function distributeHours(committeeId, orderId, demandedQuantity) {
     if (!confirm('Liberar horas para todos os trabalhadores associados a este comitê?')) return;
 
     fetch(`/api/committees/${committeeId}/distribute-hours`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-            tensorInstanceId: tensorInstanceId,
-            tensorInputId: tensorInputId,
-            tensorOutputId: tensorOutputId,
+            orderId: orderId,
             demandedQuantity: demandedQuantity
         })
     })
@@ -3353,46 +3344,36 @@ function openSupplierSelectionModal(matId) {
     const modal = document.getElementById('supplierSelectionModal');
     const insumoNameEl = document.getElementById('supplierModalInsumoName');
     const listContainer = document.getElementById('supplierListContainer');
+    const searchInput = document.getElementById('supplierSearchInput');
     
     if (!modal || !listContainer) return;
 
+    // Mover para o final do body e garantir z-index máximo
+    document.body.appendChild(modal);
+    modal.style.zIndex = '9999';
+    modal.style.display = 'block';
+
     globalState.currentSupplierInputId = matId;
 
-    // Encontrar nome do insumo
     const mat = pageState.materializations.find(m => m.id === matId);
     if (insumoNameEl) {
         insumoNameEl.textContent = mat ? mat.name : `Insumo #${matId}`;
     }
 
-    // Mostrar loading
+    // Limpar busca
+    if (searchInput) searchInput.value = '';
+
     listContainer.innerHTML = '<p style="color: var(--text-secondary, #666); font-style: italic;">Carregando...</p>';
     modal.style.display = 'block';
 
-    // Buscar comitês que produzem este insumo
     fetch(`/api/committees/producers-of/${matId}`)
         .then(response => {
             if (!response.ok) throw new Error('Erro ao buscar produtores');
             return response.json();
         })
         .then(producers => {
-            if (!producers || producers.length === 0) {
-                listContainer.innerHTML = '<p style="color: var(--text-secondary, #666); font-style: italic;">Nenhuma unidade produtiva encontrada para este insumo.</p>';
-                return;
-            }
-
-            const currentSupplierId = globalState.supplierChoices[matId];
-
-            let html = '<div class="supplier-list">';
-            producers.forEach(producer => {
-                const isSelected = currentSupplierId != null && currentSupplierId === producer.id;
-                const selectedClass = isSelected ? ' supplier-item-selected' : '';
-                html += `<div class="supplier-list-item${selectedClass}" onclick="selectSupplier(${matId}, ${producer.id})" style="cursor: pointer; padding: 10px; margin-bottom: 4px; border: 1px solid var(--border-color, #444); border-radius: 4px; transition: background-color 0.2s;">
-                    <strong>${escapeHtml(producer.committeeName || 'Comitê #' + producer.id)}</strong>
-                    ${isSelected ? ' <span style="color: var(--primary-color); font-size: 0.8em;">(selecionado)</span>' : ''}
-                </div>`;
-            });
-            html += '</div>';
-            listContainer.innerHTML = html;
+            _allProducers = producers || [];
+            renderSupplierList(_allProducers);
         })
         .catch(error => {
             console.error('Erro ao buscar produtores:', error);
@@ -3400,28 +3381,170 @@ function openSupplierSelectionModal(matId) {
         });
 }
 
+let _allProducers = [];
+
+function renderSupplierList(producers) {
+    const listContainer = document.getElementById('supplierListContainer');
+    if (!listContainer) return;
+
+    if (!producers || producers.length === 0) {
+        listContainer.innerHTML = '<p style="color: var(--text-secondary, #666); font-style: italic;">Nenhuma unidade produtiva encontrada para este insumo.</p>';
+        return;
+    }
+
+    const matId = globalState.currentSupplierInputId;
+    const currentSupplierId = matId != null ? globalState.supplierChoices[matId] : null;
+
+    let html = '<div class="supplier-list">';
+    producers.forEach(producer => {
+        const isSelected = currentSupplierId != null && currentSupplierId === producer.id;
+        const selectedClass = isSelected ? ' supplier-item-selected' : '';
+        html += `<div class="supplier-list-item${selectedClass}" onclick="selectSupplier(${matId}, ${producer.id})" style="cursor: pointer; padding: 10px; margin-bottom: 4px; border: 1px solid var(--border-color, #444); border-radius: 4px; transition: background-color 0.2s;">
+            <strong>${escapeHtml(producer.committeeName || 'Comitê #' + producer.id)}</strong>
+            ${isSelected ? ' <span style="color: var(--primary-color); font-size: 0.8em;">(selecionado)</span>' : ''}
+        </div>`;
+    });
+    html += '</div>';
+    listContainer.innerHTML = html;
+}
+
+function filterSupplierList() {
+    const term = (document.getElementById('supplierSearchInput')?.value || '').trim().toLowerCase();
+    if (!term) {
+        renderSupplierList(_allProducers);
+        _supplierHighlightIndex = -1;
+        return;
+    }
+    const filtered = _allProducers.filter(p => {
+        const name = (p.committeeName || '').toLowerCase();
+        const id = String(p.id);
+        return name.includes(term) || id.includes(term);
+    });
+    renderSupplierList(filtered);
+    _supplierHighlightIndex = -1;
+}
+
+let _supplierHighlightIndex = -1;
+
+function supplierSearchKeydown(event) {
+    const items = document.querySelectorAll('#supplierListContainer .supplier-list-item');
+    if (items.length === 0) return;
+
+    if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        _supplierHighlightIndex = Math.min(_supplierHighlightIndex + 1, items.length - 1);
+        updateSupplierHighlight(items);
+    } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        _supplierHighlightIndex = Math.max(_supplierHighlightIndex - 1, 0);
+        updateSupplierHighlight(items);
+    } else if (event.key === 'Enter') {
+        event.preventDefault();
+        if (_supplierHighlightIndex >= 0 && _supplierHighlightIndex < items.length) {
+            items[_supplierHighlightIndex].click();
+        }
+    } else if (event.key === 'Escape') {
+        closeSupplierSelectionModal();
+    }
+}
+
+function updateSupplierHighlight(items) {
+    items.forEach((item, i) => {
+        if (i === _supplierHighlightIndex) {
+            item.style.backgroundColor = 'var(--primary-color, #1976d2)';
+            item.style.color = '#fff';
+            item.querySelector('strong').style.color = '#fff';
+        } else {
+            item.style.backgroundColor = '';
+            item.style.color = '';
+            if (item.querySelector('strong')) item.querySelector('strong').style.color = '';
+        }
+    });
+}
+
 /**
  * Seleciona um fornecedor para o insumo atual.
  */
 function selectSupplier(matId, supplierId) {
-    globalState.supplierChoices[matId] = supplierId;
-    globalState.supplierNames[supplierId] = globalState.supplierNames[supplierId] || ('Fornecedor #' + supplierId);
-
-    // Atualizar nome do fornecedor buscando do modal (já está no DOM)
+    // Extrair nome do fornecedor do DOM do modal
+    let supplierName = null;
     const modalList = document.querySelector('#supplierListContainer .supplier-list');
     if (modalList) {
         const selectedItem = modalList.querySelector(`[onclick*="${supplierId}"]`);
         if (selectedItem) {
             const nameEl = selectedItem.querySelector('strong');
-            if (nameEl) {
-                globalState.supplierNames[supplierId] = nameEl.textContent;
-            }
+            if (nameEl) supplierName = nameEl.textContent;
         }
     }
 
+    // Se há callback do modal de novo pedido, apenas notificar, sem alterar o fornecedor padrão
+    if (typeof globalState._newOrderCallback === 'function') {
+        globalState.supplierNames[supplierId] = supplierName || ('Fornecedor #' + supplierId);
+        globalState._newOrderCallback(supplierId, supplierName);
+        globalState._newOrderCallback = null;
+        closeSupplierSelectionModal();
+        return;
+    }
+
+    // Alterar fornecedor padrão
+    globalState.supplierChoices[matId] = supplierId;
+    globalState.supplierNames[supplierId] = supplierName || ('Fornecedor #' + supplierId);
+
     pageState.isDirty = true;
     closeSupplierSelectionModal();
+
+    // Atualizar exibição do fornecedor padrão no modal de histórico, se aberto
+    const defSupplierEl = document.getElementById('historyDefaultSupplier');
+    if (defSupplierEl && globalState.supplierNames[supplierId]) {
+        defSupplierEl.textContent = globalState.supplierNames[supplierId];
+    }
+
     updateTechnologicalMatrixTable();
+
+    // Salvar automaticamente a alteração do fornecedor padrão
+    saveCommitteeStateSilent();
+}
+
+/**
+ * Salva o estado sem mostrar spinner/desabilitar botões (usado para auto-save do fornecedor padrão).
+ */
+function saveCommitteeStateSilent() {
+    if (!pageState.id) return;
+    updateStateFromUI();
+
+    const committeeData = {
+        id: pageState.id,
+        committeeName: pageState.committeeName,
+        producedQuantity: pageState.producedQuantity,
+        targetQuantity: pageState.targetQuantity,
+        workerEffectiveLimit: pageState.workerEffectiveLimit,
+        socialMaterializationId: pageState.socialMaterializationId,
+        councilId: pageState.councilId,
+        workerProposal: pageState.workerProposal,
+        members: pageState.members,
+        materializations: pageState.materializations,
+        supplierChoices: globalState.supplierChoices
+    };
+
+    fetch('/api/committees/save-state', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(committeeData)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            pageState.isDirty = false;
+            if (data.committeeId && !pageState.id) {
+                pageState.id = data.committeeId;
+            }
+            if (pageState.id) {
+                localCache.remove(`committee_state_${pageState.id}`);
+            }
+            console.log('Fornecedor padrão salvo automaticamente');
+        }
+    })
+    .catch(err => console.error('Erro ao salvar fornecedor padrão:', err));
 }
 
 /**
@@ -3439,9 +3562,23 @@ function clearCurrentSupplierSelection() {
 
 /**
  * Confirma o recebimento da encomenda (usado pelo comitê demandante).
+ * Busca o último pedido com status "produzida e enviada" para este insumo e confirma.
  */
 function confirmReceipt(committeeId, inputMatId, outputMatId) {
-    updateOrderStatus(committeeId, committeeId, inputMatId, outputMatId, 'recebida pelo demandante');
+    fetch(`/api/committees/${committeeId}/orders/history/${inputMatId}`)
+        .then(r => r.json())
+        .then(orders => {
+            const pending = orders.find(o => o.orderStatus === 'produzida e enviada');
+            if (pending) {
+                updateOrderStatus(pending.orderId, 'recebida pelo demandante');
+            } else {
+                showErrorMessage('Nenhuma encomenda pendente de recebimento encontrada.');
+            }
+        })
+        .catch(err => {
+            console.error('Erro ao confirmar recebimento:', err);
+            showErrorMessage('Erro ao confirmar recebimento');
+        });
 }
 
 /**
@@ -3449,7 +3586,10 @@ function confirmReceipt(committeeId, inputMatId, outputMatId) {
  */
 function closeSupplierSelectionModal() {
     const modal = document.getElementById('supplierSelectionModal');
-    if (modal) modal.style.display = 'none';
+    if (modal) {
+        modal.style.display = 'none';
+        modal.style.zIndex = '';
+    }
     globalState.currentSupplierInputId = null;
 }
 
@@ -3524,5 +3664,255 @@ function filterWorkersList() {
 
 function closeWorkersModal() {
     const modal = document.getElementById('workersModal');
+    if (modal) modal.style.display = 'none';
+}
+
+// --- Histórico de Pedidos ---
+let _orderHistory = [];
+let _orderHistorySortDesc = true;
+let _orderHistoryInputMatId = null;
+
+function openOrderHistoryModal(matId) {
+    if (!pageState.id) return;
+    _orderHistoryInputMatId = matId;
+    _orderHistorySortDesc = true;
+
+    const modal = document.getElementById('orderHistoryModal');
+    const insumoName = document.getElementById('historyInsumoName');
+    const container = document.getElementById('orderHistoryList');
+    const searchInput = document.getElementById('historySearchInput');
+
+    if (!modal || !container) return;
+
+    const mat = pageState.materializations.find(m => m.id === matId);
+    if (insumoName) insumoName.textContent = mat ? mat.name : `Insumo #${matId}`;
+    // Fornecedor padrão
+    const defSupplierEl = document.getElementById('historyDefaultSupplier');
+    if (defSupplierEl) {
+        const sid = globalState.supplierChoices[matId];
+        if (sid && globalState.supplierNames[sid]) {
+            defSupplierEl.textContent = globalState.supplierNames[sid];
+        } else if (sid) {
+            defSupplierEl.textContent = 'Fornecedor #' + sid;
+        } else {
+            defSupplierEl.textContent = 'Nenhum';
+        }
+    }
+    if (searchInput) searchInput.value = '';
+    container.innerHTML = '<p style="color: var(--text-secondary, #666); font-style: italic;">Carregando...</p>';
+    modal.style.display = 'block';
+
+    fetch(`/api/committees/${pageState.id}/orders/history/${matId}`)
+        .then(r => r.json())
+        .then(orders => {
+            _orderHistory = orders || [];
+            renderOrderHistoryList(_orderHistory);
+        })
+        .catch(err => {
+            console.error('Erro ao carregar histórico:', err);
+            container.innerHTML = '<p style="color: var(--error-color);">Erro ao carregar histórico.</p>';
+        });
+}
+
+function renderOrderHistoryList(orders) {
+    const container = document.getElementById('orderHistoryList');
+    if (!container) return;
+
+    if (!orders || orders.length === 0) {
+        container.innerHTML = '<p style="color: var(--text-secondary, #666); font-style: italic;">Nenhum pedido encontrado.</p>';
+        return;
+    }
+
+    let list = [...orders];
+    if (_orderHistorySortDesc) {
+        list.sort((a, b) => (b.orderId || 0) - (a.orderId || 0));
+    } else {
+        list.sort((a, b) => (a.orderId || 0) - (b.orderId || 0));
+    }
+
+    let html = `<p style="margin-bottom:8px; color:var(--text-secondary,#888); font-size:0.85em;">${list.length} pedido(s)</p>`;
+    html += '<table style="width:100%; border-collapse:collapse; table-layout:auto;">';
+    html += '<thead><tr><th style="padding:5px 8px; border-bottom:1px solid var(--border-color);">ID</th><th style="padding:5px 8px; border-bottom:1px solid var(--border-color);">Data</th><th style="padding:5px 8px; border-bottom:1px solid var(--border-color);">Fornecedor</th><th style="padding:5px 8px; border-bottom:1px solid var(--border-color); text-align:right;">Qtd</th><th style="padding:5px 8px; border-bottom:1px solid var(--border-color); text-align:center;">Status</th><th style="padding:5px 8px; border-bottom:1px solid var(--border-color); text-align:center;">Ações</th></tr></thead><tbody>';
+    list.forEach(o => {
+        const dateStr = o.createdAt ? new Date(o.createdAt).toLocaleDateString('pt-BR') : '-';
+        const qty = parseFloat(o.quantity) || 0;
+        const qtyDisp = (Math.abs(qty) < 0.01 && qty !== 0) ? qty.toExponential(4) : qty.toFixed(4);
+        const unit = o.inputUnitName ? ` ${escapeHtml(o.inputUnitName)}` : '';
+        const badge = getOrderStatusBadge(o.orderStatus);
+        const isProduzidaEnviada = (o.orderStatus === 'produzida e enviada');
+        const actionHtml = isProduzidaEnviada
+            ? `<button class="btn btn-sm" style="padding:1px 6px; font-size:0.7em; white-space:nowrap;" onclick="var tr=this.closest('tr');this.style.display='none';tr.cells[4].innerHTML=getOrderStatusBadge('recebida pelo demandante');updateOrderStatus(${o.orderId}, 'recebida pelo demandante')">Confirmar Recebimento</button>`
+            : '';
+        html += `<tr>
+            <td style="padding:4px 8px; border-bottom:1px solid var(--border-color-light);">${o.orderId}</td>
+            <td style="padding:4px 8px; border-bottom:1px solid var(--border-color-light); font-size:0.85em;">${dateStr}</td>
+            <td style="padding:4px 8px; border-bottom:1px solid var(--border-color-light);">${escapeHtml(o.supplierName || 'Fornecedor #' + o.supplierInstanceId)}</td>
+            <td style="padding:4px 8px; border-bottom:1px solid var(--border-color-light); text-align:right;">${qtyDisp}${unit}</td>
+            <td style="padding:4px 8px; border-bottom:1px solid var(--border-color-light); text-align:center;">${badge}</td>
+            <td style="padding:4px 8px; border-bottom:1px solid var(--border-color-light); text-align:center;">${actionHtml}</td>
+        </tr>`;
+    });
+    html += '</tbody></table>';
+    container.innerHTML = html;
+}
+
+function filterOrderHistory() {
+    const term = (document.getElementById('historySearchInput')?.value || '').trim().toLowerCase();
+    if (!term) {
+        renderOrderHistoryList(_orderHistory);
+        return;
+    }
+    const filtered = _orderHistory.filter(o => {
+        const name = (o.supplierName || '').toLowerCase();
+        const idStr = String(o.orderId || '');
+        return name.includes(term) || idStr.includes(term);
+    });
+    renderOrderHistoryList(filtered);
+}
+
+function toggleOrderHistorySort() {
+    _orderHistorySortDesc = !_orderHistorySortDesc;
+    const icon = document.getElementById('historySortIcon');
+    if (icon) {
+        icon.className = _orderHistorySortDesc ? 'fas fa-sort-amount-down' : 'fas fa-sort-amount-up';
+    }
+    renderOrderHistoryList(_orderHistory);
+}
+
+function closeOrderHistoryModal() {
+    const modal = document.getElementById('orderHistoryModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function openSupplierSelectionFromHistory() {
+    if (_orderHistoryInputMatId != null) {
+        openSupplierSelectionModal(_orderHistoryInputMatId);
+    }
+}
+
+// --- Novo Pedido ---
+let _newOrderInputMatId = null;
+let _newOrderSupplierId = null;
+let _newOrderDefaultQty = 0;
+let _newOrderUnitName = '';
+
+function openNewOrderModal() {
+    if (!pageState.id || _orderHistoryInputMatId == null) return;
+
+    _newOrderInputMatId = _orderHistoryInputMatId;
+    _newOrderSupplierId = globalState.supplierChoices[_newOrderInputMatId] || null;
+
+    const modal = document.getElementById('newOrderModal');
+    const insumoName = document.getElementById('newOrderInsumoName');
+    const supplierName = document.getElementById('newOrderSupplierName');
+    const qtyInput = document.getElementById('newOrderQuantity');
+    const unitLabel = document.getElementById('newOrderUnitLabel');
+
+    if (!modal) return;
+
+    const mat = pageState.materializations.find(m => m.id === _newOrderInputMatId);
+    if (insumoName) insumoName.textContent = mat ? mat.name : `Insumo #${_newOrderInputMatId}`;
+
+    // Fornecedor padrão
+    updateNewOrderSupplierDisplay();
+
+    // Quantidade padrão: valor da coluna "Quantidade" da tabela
+    const qtyVal = getTechnologicalQuantityValue(mat);
+    _newOrderDefaultQty = parseFloat(qtyVal) || 0;
+    if (qtyInput) qtyInput.value = qtyVal;
+
+    // Unidade de medida
+    _newOrderUnitName = getMaterializationMeasurementUnitLabel(mat) || '';
+    if (unitLabel) unitLabel.textContent = _newOrderUnitName;
+
+    modal.style.display = 'block';
+}
+
+function updateNewOrderSupplierDisplay() {
+    const supplierName = document.getElementById('newOrderSupplierName');
+    if (!supplierName) return;
+    if (_newOrderSupplierId && globalState.supplierNames[_newOrderSupplierId]) {
+        supplierName.textContent = globalState.supplierNames[_newOrderSupplierId];
+    } else if (_newOrderSupplierId) {
+        supplierName.textContent = 'Fornecedor #' + _newOrderSupplierId;
+    } else {
+        supplierName.textContent = 'Não selecionado';
+    }
+}
+
+function openSupplierSelectionForNewOrder() {
+    if (_newOrderInputMatId == null) return;
+    globalState._newOrderCallback = function(supplierId) {
+        _newOrderSupplierId = supplierId;
+        updateNewOrderSupplierDisplay();
+    };
+    openSupplierModalForTarget(_newOrderInputMatId);
+}
+
+function openSupplierModalForTarget(matId) {
+    // Reusa o modal existente, mas com callback customizado
+    const origOnSelect = selectSupplier;
+    // Guarda estado atual e sobrescreve comportamento
+    globalState.currentSupplierInputId = matId;
+    openSupplierSelectionModal(matId);
+    // Interceptar o fechamento: ao selecionar, chamar o callback
+    globalState._supplierSelectInterceptor = true;
+}
+
+function confirmNewOrder() {
+    if (!_newOrderSupplierId) {
+        showErrorMessage('Selecione um fornecedor.');
+        return;
+    }
+
+    const qtyInput = document.getElementById('newOrderQuantity');
+    const quantity = qtyInput ? qtyInput.value : _newOrderDefaultQty;
+
+    if (!quantity || parseFloat(quantity) <= 0) {
+        showErrorMessage('Informe uma quantidade válida.');
+        return;
+    }
+
+    const payload = {
+        inputMaterializationId: _newOrderInputMatId,
+        outputMaterializationId: pageState.socialMaterializationId,
+        supplierInstanceId: _newOrderSupplierId,
+        quantity: parseFloat(quantity)
+    };
+
+    fetch(`/api/committees/${pageState.id}/orders/create`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+    })
+    .then(r => r.json())
+    .then(result => {
+        if (result.success) {
+            showSuccessMessage('Pedido criado com sucesso!');
+            closeNewOrderModal();
+            closeOrderHistoryModal();
+            // Atualizar estado
+            if (pageState.id) {
+                fetch(`/api/committees/${pageState.id}/state`)
+                    .then(r => r.json())
+                    .then(data => {
+                        globalState.supplierChoices = data.supplierChoices || {};
+                        globalState.supplierNames = data.supplierNames || {};
+                        globalState.orderStatuses = data.orderStatuses || {};
+                        updateTechnologicalMatrixTable();
+                    });
+            }
+        } else {
+            showErrorMessage(result.message || 'Erro ao criar pedido');
+        }
+    })
+    .catch(err => {
+        console.error('Erro ao criar pedido:', err);
+        showErrorMessage('Erro ao criar pedido');
+    });
+}
+
+function closeNewOrderModal() {
+    const modal = document.getElementById('newOrderModal');
     if (modal) modal.style.display = 'none';
 }

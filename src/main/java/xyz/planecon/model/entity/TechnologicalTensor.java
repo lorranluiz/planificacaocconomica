@@ -42,9 +42,6 @@ public class TechnologicalTensor {
     @Column(name = "supplier_instance_id")
     private Integer supplierInstanceId;
 
-    @Column(name = "order_status", length = 50)
-    private String orderStatus = "solicitada";
-
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
     

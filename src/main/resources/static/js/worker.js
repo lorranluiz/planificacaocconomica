@@ -407,7 +407,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 <td>${order.id}</td>
                 <td>${formattedDate}</td>
                 <td>${order.items.length} ${order.items.length > 1 ? 'itens' : 'item'} <span class="item-types">(${typeLabels})</span></td>
-                <td>ℳ ${order.total.toFixed(2)}</td>
+                <td>${order.total.toFixed(2)} h</td>
                 <td><span class="order-status ${statusClass}">${statusText}</span></td>
                 <td>
                     <div class="order-actions">
@@ -653,17 +653,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 redeemBtn.style.display = hrs > 0 ? 'inline-block' : 'none';
             }
             
-            // Participação social - Multiplicar pela escala socialWorkAndCostScale
+            // Participação social (comentada, mantida no código para possível reativação)
             if (data.estimatedIndividualParticipationInSocialWork !== undefined && 
                 data.estimatedIndividualParticipationInSocialWork !== null) {
                 const participation = parseFloat(data.estimatedIndividualParticipationInSocialWork) * socialWorkAndCostScale;
-                socialParticipation.textContent = `ℳ ${participation.toFixed(2)}`;
-                
-                // Atualizar a variável global para uso na loja
-                // Importante: manter o valor original aqui para cálculos posteriores
+                // socialParticipation.textContent = `${participation.toFixed(2)} h`;
                 availableSocialParticipation = parseFloat(data.estimatedIndividualParticipationInSocialWork);
             } else {
-                socialParticipation.textContent = 'ℳ 0.00';
+                // socialParticipation.textContent = '0.00 h';
                 availableSocialParticipation = 0;
             }
 
@@ -931,11 +928,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     imageUrl: null
                 }));
                 
-                // Atualizar label da escala no HTML
+                // Atualizar label da escala (comentado)
                 const scaleLabel = document.querySelector('.info-label-scale');
-                if (scaleLabel) {
-                    scaleLabel.textContent = `ℳ = %${socialWorkAndCostScale.toExponential(0).replace('+', '')}`;
-                }
+                // if (scaleLabel) { scaleLabel.textContent = ...; }
                 
                 filteredProducts = [...allProducts];
                 renderProducts();
@@ -981,7 +976,7 @@ function renderOrderHistory() {
             <td>${order.id}</td>
             <td>${formattedDate}</td>
             <td>${order.items.length} ${order.items.length > 1 ? 'itens' : 'item'}</td>
-            <td>ℳ ${order.total.toFixed(2)}</td>
+            <td>${order.total.toFixed(2)} h</td>
             <td><span class="order-status ${statusClass}">${statusText}</span></td>
             <td>
                 <div class="order-actions">
@@ -1331,7 +1326,7 @@ function viewOrderDetails(orderId) {
     document.getElementById('orderDetailStatus').innerHTML = 
         `<span class="order-status ${statusClass}">${statusText}</span>`;
     
-    document.getElementById('orderDetailTotal').textContent = `ℳ ${order.total.toFixed(2)}`;
+    document.getElementById('orderDetailTotal').textContent = `${order.total.toFixed(2)} h`;
     
     // Preencher a tabela de itens
     const itemsTableBody = document.getElementById('orderItemsTableBody');
@@ -1347,7 +1342,7 @@ function viewOrderDetails(orderId) {
             <td>${typeText}</td>
             <td>${item.quantity}</td>
             <td>${item.price.toFixed(2)} h</td>
-            <td>ℳ ${item.subtotal.toFixed(2)}</td>
+            <td>${item.subtotal.toFixed(2)} h</td>
         `;
         
         itemsTableBody.appendChild(row);
@@ -1390,13 +1385,13 @@ function redeemParticipation() {
             availableSocialParticipation = parseFloat(data.newParticipation);
         }
 
-        // Atualizar display de participação social somando ao valor anterior
-        if (data.newBalance !== undefined) {
-            const socialParticipationEl = document.getElementById('socialParticipation');
-            if (socialParticipationEl) {
-                socialParticipationEl.textContent = `ℳ ${parseFloat(data.newBalance).toFixed(2)}`;
-            }
-        }
+        // Atualizar display de participação social (comentado)
+        // if (data.newBalance !== undefined) {
+        //     const socialParticipationEl = document.getElementById('socialParticipation');
+        //     if (socialParticipationEl) {
+        //         socialParticipationEl.textContent = `${parseFloat(data.newBalance).toFixed(2)} h`;
+        //     }
+        // }
 
         // Zerar horas no ponto eletrônico e ocultar botão
         const workedHoursEl = document.getElementById('workedHours');
@@ -1436,7 +1431,7 @@ function cancelOrder(orderId) {
         return;
     }
 
-    if (!confirm(`Deseja cancelar e excluir o pedido #${orderId}? O valor de ℳ ${order.total.toFixed(2)} será ressarcido.`)) {
+    if (!confirm(`Deseja cancelar e excluir o pedido #${orderId}? O valor de ${order.total.toFixed(2)} h será ressarcido.`)) {
         return;
     }
 
@@ -1454,10 +1449,10 @@ function cancelOrder(orderId) {
         if (data.newParticipation !== undefined) {
             availableSocialParticipation = parseFloat(data.newParticipation);
         }
-        if (data.newBalance !== undefined) {
-            document.getElementById('socialParticipation').textContent =
-                `ℳ ${parseFloat(data.newBalance).toFixed(2)}`;
-        }
+        // if (data.newBalance !== undefined) {
+        //     document.getElementById('socialParticipation').textContent =
+        //         `${parseFloat(data.newBalance).toFixed(2)} h`;
+        // }
 
         // Remover pedido do histórico local
         orderHistory = orderHistory.filter(o => String(o.id) !== String(orderId));
@@ -1503,7 +1498,7 @@ function cancelOrder(orderId) {
                             <td>${order.id}</td>
                             <td>${formattedDate}</td>
                             <td>${order.items.length} ${order.items.length > 1 ? 'itens' : 'item'} <span class="item-types">(${typeLabels})</span></td>
-                            <td>ℳ ${order.total.toFixed(2)}</td>
+                            <td>${order.total.toFixed(2)} h</td>
                             <td><span class="order-status ${statusClass}">${statusText}</span></td>
                             <td>
                                 <div class="order-actions">

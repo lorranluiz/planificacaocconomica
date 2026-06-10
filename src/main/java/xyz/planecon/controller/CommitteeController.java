@@ -65,6 +65,9 @@ public class CommitteeController {
     @Autowired
     private CityRepository cityRepository;
 
+    @Autowired
+    private SupplyOrderRepository supplyOrderRepository;
+
     /**
      * Endpoint para salvar o estado completo de um comitê em uma única transação.
      * 
@@ -874,15 +877,23 @@ public class CommitteeController {
             List<CommitteeStateDTO.MaterializationStateDTO> materializationDTOs = getMaterializationsForCommittee(committee);
             committeeStateDTO.setMaterializations(materializationDTOs);
 
-            // 7.1 Construir escolhas de fornecedor e status a partir dos tensores tecnológicos
+            // 7.1 Construir escolhas de fornecedor a partir dos tensores tecnológicos
             Map<Integer, Integer> supplierChoices = new HashMap<>();
             Map<Integer, String> orderStatuses = new HashMap<>();
             List<TechnologicalTensor> tensors = technologicalTensorRepository.findByInstanceId(committee.getId());
             for (TechnologicalTensor tensor : tensors) {
                 if (tensor.getSupplierInstanceId() != null) {
                     supplierChoices.put(tensor.getInputSocialMaterialization().getId(), tensor.getSupplierInstanceId());
-                    orderStatuses.put(tensor.getInputSocialMaterialization().getId(),
-                        tensor.getOrderStatus() != null ? tensor.getOrderStatus() : "solicitada");
+                }
+            }
+            // Buscar último status de cada insumo do supply_order
+            for (TechnologicalTensor tensor : tensors) {
+                Integer inputId = tensor.getInputSocialMaterialization().getId();
+                List<SupplyOrder> history = supplyOrderRepository
+                    .findByOrderingInstanceIdAndInputMaterializationIdOrderByCreatedAtDesc(committee.getId(), inputId);
+                if (!history.isEmpty()) {
+                    orderStatuses.put(inputId, history.get(0).getOrderStatus() != null
+                        ? history.get(0).getOrderStatus() : "solicitada");
                 }
             }
             committeeStateDTO.setSupplierChoices(supplierChoices);
@@ -1680,31 +1691,25 @@ public class CommitteeController {
 
     /**
      * Endpoint para listar encomendas de produção recebidas por este comitê.
-     * Retorna todos os comitês que selecionaram este como fornecedor para algum insumo,
-     * com a quantidade demandada, status e unidade de medida.
+     * Lê da tabela supply_order.
      */
     @GetMapping("/{id}/incoming-orders")
     public ResponseEntity<?> getIncomingOrders(@PathVariable Integer id) {
         try {
-            // Buscar esta instância para verificar existência
             Optional<Instance> committeeOpt = instanceRepository.findById(id);
             if (!committeeOpt.isPresent()) {
                 return ResponseEntity.notFound().build();
             }
 
-            // Buscar todos os tensores onde este comitê é o fornecedor
-            List<TechnologicalTensor> supplierTensors = technologicalTensorRepository.findBySupplierInstanceId(id);
-
+            List<SupplyOrder> supplyOrders = supplyOrderRepository.findBySupplierInstanceIdOrderByCreatedAtDesc(id);
             List<Map<String, Object>> orders = new ArrayList<>();
 
-            for (TechnologicalTensor tensor : supplierTensors) {
-                Instance orderingCommittee = tensor.getInstance();
+            for (SupplyOrder so : supplyOrders) {
+                Instance orderingCommittee = so.getOrderingInstance();
                 if (orderingCommittee == null || orderingCommittee.getId().equals(id)) continue;
 
-                Integer inputMaterializationId = tensor.getInputSocialMaterialization().getId();
-                Integer outputMaterializationId = tensor.getOutputSocialMaterialization().getId();
+                Integer inputMaterializationId = so.getInputMaterialization().getId();
 
-                // Quantidade demandada = valor da coluna "Quantidade" do Vetor Tecnológico
                 Map<String, BigDecimal> quantities = orderingCommittee.getTechnologicalQuantitiesByMaterialization();
                 BigDecimal inputQuantityPerUnit = BigDecimal.ZERO;
                 if (quantities != null) {
@@ -1712,41 +1717,126 @@ public class CommitteeController {
                     if (q != null) inputQuantityPerUnit = q;
                 }
 
-                BigDecimal demandedQuantity = inputQuantityPerUnit;
-
                 String inputUnitName = "";
-                SocialMaterialization inputMat = tensor.getInputSocialMaterialization();
-                if (inputMat != null && inputMat.getMeasurementUnit() != null) {
-                    inputUnitName = inputMat.getMeasurementUnit().getName();
+                if (so.getInputMaterialization() != null && so.getInputMaterialization().getMeasurementUnit() != null) {
+                    inputUnitName = so.getInputMaterialization().getMeasurementUnit().getName();
                 }
 
                 Map<String, Object> order = new HashMap<>();
+                order.put("orderId", so.getId());
                 order.put("orderingCommitteeId", orderingCommittee.getId());
                 order.put("orderingCommitteeName", orderingCommittee.getCommitteeName());
                 order.put("inputMaterializationId", inputMaterializationId);
-                order.put("outputMaterializationId", outputMaterializationId);
-                order.put("demandedQuantity", demandedQuantity);
+                order.put("outputMaterializationId", so.getOutputMaterialization().getId());
+                order.put("demandedQuantity", so.getQuantity() != null ? so.getQuantity() : inputQuantityPerUnit);
                 order.put("inputUnitName", inputUnitName);
-                order.put("orderStatus", tensor.getOrderStatus() != null ? tensor.getOrderStatus() : "solicitada");
-                // Chave composta do tensor para identificação única
-                order.put("tensorInstanceId", tensor.getId().getInstanceId());
-                order.put("tensorInputId", tensor.getId().getInputSocialMaterializationId());
-                order.put("tensorOutputId", tensor.getId().getOutputSocialMaterializationId());
+                order.put("orderStatus", so.getOrderStatus() != null ? so.getOrderStatus() : "solicitada");
+                order.put("createdAt", so.getCreatedAt() != null ? so.getCreatedAt().toString() : "");
                 orders.add(order);
             }
 
             return ResponseEntity.ok(orders);
         } catch (Exception e) {
             logger.error("Erro ao buscar encomendas para comitê {}", id, e);
-            return ResponseEntity.badRequest().body(Map.of(
-                "success", false,
-                "message", e.getMessage()
-            ));
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
         }
     }
 
     /**
-     * Atualiza o status de uma encomenda (tensor tecnológico).
+     * Histórico de pedidos de um insumo específico de um comitê.
+     */
+    @GetMapping("/{id}/orders/history/{inputMatId}")
+    public ResponseEntity<?> getOrderHistory(
+            @PathVariable Integer id,
+            @PathVariable Integer inputMatId) {
+        try {
+            List<SupplyOrder> orders = supplyOrderRepository
+                .findByOrderingInstanceIdAndInputMaterializationIdOrderByCreatedAtDesc(id, inputMatId);
+
+            List<Map<String, Object>> result = new ArrayList<>();
+            for (SupplyOrder so : orders) {
+                String supplierName = "";
+                if (so.getSupplierInstance() != null) {
+                    supplierName = so.getSupplierInstance().getCommitteeName();
+                }
+                String inputUnitName = "";
+                if (so.getInputMaterialization() != null && so.getInputMaterialization().getMeasurementUnit() != null) {
+                    inputUnitName = so.getInputMaterialization().getMeasurementUnit().getName();
+                }
+                Map<String, Object> item = new HashMap<>();
+                item.put("orderId", so.getId());
+                item.put("supplierInstanceId", so.getSupplierInstance() != null ? so.getSupplierInstance().getId() : null);
+                item.put("supplierName", supplierName);
+                item.put("quantity", so.getQuantity());
+                item.put("inputUnitName", inputUnitName);
+                item.put("orderStatus", so.getOrderStatus());
+                item.put("createdAt", so.getCreatedAt() != null ? so.getCreatedAt().toString() : "");
+                result.add(item);
+            }
+
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            logger.error("Erro ao buscar histórico de pedidos", e);
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    /**
+     * Criar um novo pedido (encomenda) na tabela supply_order.
+     */
+    @PostMapping("/{id}/orders/create")
+    @Transactional
+    public ResponseEntity<?> createOrder(
+            @PathVariable Integer id,
+            @RequestBody Map<String, Object> payload) {
+        try {
+            Integer inputMatId = payload.get("inputMaterializationId") != null
+                ? Integer.valueOf(payload.get("inputMaterializationId").toString()) : null;
+            Integer outputMatId = payload.get("outputMaterializationId") != null
+                ? Integer.valueOf(payload.get("outputMaterializationId").toString()) : null;
+            Integer supplierId = payload.get("supplierInstanceId") != null
+                ? Integer.valueOf(payload.get("supplierInstanceId").toString()) : null;
+            BigDecimal quantity = payload.get("quantity") != null
+                ? new BigDecimal(payload.get("quantity").toString()) : BigDecimal.ZERO;
+
+            if (inputMatId == null || outputMatId == null || supplierId == null) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Dados insuficientes"));
+            }
+
+            Optional<Instance> committeeOpt = instanceRepository.findById(id);
+            if (!committeeOpt.isPresent()) return ResponseEntity.notFound().build();
+            Instance committee = committeeOpt.get();
+
+            Optional<SocialMaterialization> inputOpt = socialMaterializationRepository.findById(inputMatId);
+            Optional<SocialMaterialization> outputOpt = socialMaterializationRepository.findById(outputMatId);
+            Optional<Instance> supplierOpt = instanceRepository.findById(supplierId);
+
+            if (!inputOpt.isPresent() || !outputOpt.isPresent() || !supplierOpt.isPresent()) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Entidade não encontrada"));
+            }
+
+            SupplyOrder order = new SupplyOrder();
+            order.setOrderingInstance(committee);
+            order.setInputMaterialization(inputOpt.get());
+            order.setOutputMaterialization(outputOpt.get());
+            order.setSupplierInstance(supplierOpt.get());
+            order.setQuantity(quantity);
+            order.setOrderStatus("solicitada");
+            order.setCreatedAt(LocalDateTime.now());
+            supplyOrderRepository.save(order);
+
+            logger.info("Pedido criado: committee={}, input={}, supplier={}, qty={}",
+                id, inputMatId, supplierId, quantity);
+
+            return ResponseEntity.ok(Map.of("success", true, "orderId", order.getId()));
+        } catch (Exception e) {
+            logger.error("Erro ao criar pedido", e);
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    /**
+     * Atualiza o status de uma encomenda (supply_order).
      */
     @PutMapping("/{committeeId}/orders/status")
     @Transactional
@@ -1754,50 +1844,39 @@ public class CommitteeController {
             @PathVariable Integer committeeId,
             @RequestBody Map<String, Object> payload) {
         try {
-            Integer instanceId = payload.get("tensorInstanceId") != null
-                ? Integer.valueOf(payload.get("tensorInstanceId").toString()) : null;
-            Integer inputId = payload.get("tensorInputId") != null
-                ? Integer.valueOf(payload.get("tensorInputId").toString()) : null;
-            Integer outputId = payload.get("tensorOutputId") != null
-                ? Integer.valueOf(payload.get("tensorOutputId").toString()) : null;
+            Integer orderId = null;
+            if (payload.get("orderId") != null) {
+                orderId = Integer.valueOf(payload.get("orderId").toString());
+            }
             String newStatus = payload.get("orderStatus") != null
                 ? payload.get("orderStatus").toString() : null;
 
-            if (instanceId == null || inputId == null || outputId == null || newStatus == null) {
+            if (orderId == null || newStatus == null) {
                 return ResponseEntity.badRequest().body(Map.of(
                     "success", false,
-                    "message", "Dados insuficientes: tensorInstanceId, tensorInputId, tensorOutputId e orderStatus são obrigatórios"
+                    "message", "orderId e orderStatus são obrigatórios"
                 ));
             }
 
-            TechnologicalTensor.TechnologicalTensorId tensorId = new TechnologicalTensor.TechnologicalTensorId(
-                instanceId, inputId, outputId);
-
-            Optional<TechnologicalTensor> tensorOpt = technologicalTensorRepository.findById(tensorId);
-            if (!tensorOpt.isPresent()) {
+            Optional<SupplyOrder> orderOpt = supplyOrderRepository.findById(orderId);
+            if (!orderOpt.isPresent()) {
                 return ResponseEntity.notFound().build();
             }
 
-            TechnologicalTensor tensor = tensorOpt.get();
-            tensor.setOrderStatus(newStatus);
-            technologicalTensorRepository.save(tensor);
+            SupplyOrder order = orderOpt.get();
+            order.setOrderStatus(newStatus);
+            supplyOrderRepository.save(order);
 
-            logger.info("Status da encomenda atualizado: committee={}, input={}, output={}, status={}",
-                instanceId, inputId, outputId, newStatus);
-
+            logger.info("Status da encomenda atualizado: orderId={}, status={}", orderId, newStatus);
             return ResponseEntity.ok(Map.of("success", true, "orderStatus", newStatus));
         } catch (Exception e) {
             logger.error("Erro ao atualizar status da encomenda", e);
-            return ResponseEntity.badRequest().body(Map.of(
-                "success", false, "message", e.getMessage()
-            ));
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
         }
     }
 
     /**
      * Distribui horas de trabalho para os trabalhadores associados a este comitê.
-     * Calcula: total_horas = demandedQuantity * productionTime
-     *         horas_por_trabalhador = total_horas / num_trabalhadores
      */
     @PostMapping("/{committeeId}/distribute-hours")
     @Transactional
@@ -1805,47 +1884,47 @@ public class CommitteeController {
             @PathVariable Integer committeeId,
             @RequestBody Map<String, Object> payload) {
         try {
-            Integer tensorInstanceId = payload.get("tensorInstanceId") != null
-                ? Integer.valueOf(payload.get("tensorInstanceId").toString()) : null;
-            Integer tensorInputId = payload.get("tensorInputId") != null
-                ? Integer.valueOf(payload.get("tensorInputId").toString()) : null;
-            Integer tensorOutputId = payload.get("tensorOutputId") != null
-                ? Integer.valueOf(payload.get("tensorOutputId").toString()) : null;
-
-            if (tensorInstanceId == null || tensorInputId == null || tensorOutputId == null) {
-                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Dados do tensor obrigatórios"));
+            Integer orderId = null;
+            if (payload.get("orderId") != null) {
+                orderId = Integer.valueOf(payload.get("orderId").toString());
             }
-
-            // Verificar se o comitê existe
-            Optional<Instance> committeeOpt = instanceRepository.findById(committeeId);
-            if (!committeeOpt.isPresent()) {
-                return ResponseEntity.notFound().build();
-            }
-            Instance committee = committeeOpt.get();
-
-            // Obter demandedQuantity do payload
             BigDecimal demandedQuantity = payload.get("demandedQuantity") != null
                 ? new BigDecimal(payload.get("demandedQuantity").toString()) : BigDecimal.ZERO;
 
-            // Buscar productionTime do workers_proposal
+            if (orderId == null) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "orderId obrigatório"));
+            }
+
+            Optional<SupplyOrder> orderOpt = supplyOrderRepository.findById(orderId);
+            if (!orderOpt.isPresent()) {
+                return ResponseEntity.notFound().build();
+            }
+            SupplyOrder order = orderOpt.get();
+
+            // Usar quantity do supply_order se não veio no payload
+            if (demandedQuantity.compareTo(BigDecimal.ZERO) == 0 && order.getQuantity() != null) {
+                demandedQuantity = order.getQuantity();
+            }
+
+            Optional<Instance> committeeOpt = instanceRepository.findById(committeeId);
+            if (!committeeOpt.isPresent()) return ResponseEntity.notFound().build();
+
+            // Buscar productionTime
             WorkersProposal.WorkersProposalId wpId = new WorkersProposal.WorkersProposalId();
             wpId.setInstanceId(committeeId);
             Optional<WorkersProposal> wpOpt = workersProposalRepository.findById(wpId);
-            BigDecimal productionTime = BigDecimal.ONE; // fallback
+            BigDecimal productionTime = BigDecimal.ONE;
             if (wpOpt.isPresent() && wpOpt.get().getProductionTime() != null) {
                 productionTime = wpOpt.get().getProductionTime();
             }
 
-            // total_horas = demandedQuantity * productionTime
             BigDecimal totalHours = demandedQuantity.multiply(productionTime);
 
-            // Buscar trabalhadores associados a este comitê
             List<Instance> workers = instanceRepository.findByAssociatedWorkerCommitteeId(committeeId);
             if (workers.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Nenhum trabalhador associado a este comitê"));
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Nenhum trabalhador associado"));
             }
 
-            // Distribuir horas igualmente com precisão suficiente
             int workerCount = workers.size();
             BigDecimal hoursPerWorker = totalHours.divide(BigDecimal.valueOf(workerCount), 10, RoundingMode.HALF_UP);
 
@@ -1856,25 +1935,19 @@ public class CommitteeController {
                 instanceRepository.save(worker);
             }
 
+            // Atualizar status para "horas liberadas"
+            order.setOrderStatus("horas liberadas");
+            supplyOrderRepository.save(order);
+
             logger.info("Horas distribuídas: comitê={}, total_horas={}, workers={}, horas_por_worker={}",
                 committeeId, totalHours, workerCount, hoursPerWorker);
 
-            // Atualizar status da encomenda para "horas liberadas"
-            TechnologicalTensor.TechnologicalTensorId tensorId = new TechnologicalTensor.TechnologicalTensorId(
-                tensorInstanceId, tensorInputId, tensorOutputId);
-            technologicalTensorRepository.findById(tensorId).ifPresent(tensor -> {
-                tensor.setOrderStatus("horas liberadas");
-                technologicalTensorRepository.save(tensor);
-            });
-
             return ResponseEntity.ok(Map.of(
-                "success", true,
-                "totalHours", totalHours,
-                "workerCount", workerCount,
-                "hoursPerWorker", hoursPerWorker
+                "success", true, "totalHours", totalHours,
+                "workerCount", workerCount, "hoursPerWorker", hoursPerWorker
             ));
         } catch (Exception e) {
-            logger.error("Erro ao distribuir horas para comitê {}", committeeId, e);
+            logger.error("Erro ao distribuir horas", e);
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
         }
     }
