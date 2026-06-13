@@ -513,4 +513,39 @@ public class CouncilController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }
     }
+
+    /**
+     * Ajusta o saldo do conselho (crédito/débito) e registra transação.
+     */
+    @PutMapping("/{id}/balance")
+    @Transactional
+    public ResponseEntity<?> adjustBalance(@PathVariable Integer id, @RequestBody Map<String, Object> body) {
+        try {
+            Instance council = instanceRepository.findById(id).orElse(null);
+            if (council == null) return ResponseEntity.notFound().build();
+
+            BigDecimal amount = new BigDecimal(body.get("amount").toString());
+            String description = body.get("description") != null ? body.get("description").toString() : "Transação";
+            String sourceName = body.get("sourceName") != null ? body.get("sourceName").toString() : "";
+
+            BigDecimal currentBalance = council.getBalance() != null ? council.getBalance() : BigDecimal.ZERO;
+            BigDecimal newBalance = currentBalance.add(amount).setScale(10, RoundingMode.HALF_UP);
+            council.setBalance(newBalance);
+            instanceRepository.save(council);
+
+            CouncilTransaction ct = new CouncilTransaction();
+            ct.setCouncilId(id);
+            ct.setAmount(amount.abs());
+            ct.setTransactionType(amount.compareTo(BigDecimal.ZERO) >= 0 ? "CREDIT" : "DEBIT");
+            ct.setDescription(description);
+            ct.setSourceName(sourceName);
+            ct.setBalanceAfter(newBalance);
+            ct.setCreatedAt(java.time.LocalDateTime.now());
+            councilTransactionRepository.save(ct);
+
+            return ResponseEntity.ok(Map.of("success", true, "balance", newBalance));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
 }

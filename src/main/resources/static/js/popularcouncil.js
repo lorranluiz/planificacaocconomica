@@ -2269,16 +2269,36 @@ function updateCouncilOrderStatus(orderId, newStatus) {
 
 function deleteServiceOrder(orderId, btn) {
     if (!confirm('Remover este item?')) return;
+    // Obter dados da linha antes de remover
+    var row = btn.closest('tr');
+    var nameEl = row ? row.cells[0].querySelector('div') || row.cells[0] : null;
+    var itemName = nameEl ? nameEl.textContent.trim() : '';
+    var qtyText = row ? row.cells[2].textContent : '0';
+    var qty = parseFloat(qtyText) || 0;
+
     fetch('/api/committees/' + currentInstanceId + '/orders/' + orderId, { method: 'DELETE' })
         .then(function(r) { return r.json(); })
         .then(function(result) {
             if (result.success) {
-                var row = btn.closest('tr');
                 if (row) row.remove();
+                // Estornar valor ao saldo
+                if (qty > 0) adjustCouncilBalance(qty, 'Estorno: ' + (itemName || 'Item removido'));
                 showSuccess('Removido.');
             }
         })
         .catch(function() { showError('Erro ao remover.'); });
+}
+
+function adjustCouncilBalance(amount, description) {
+    if (!currentInstanceId) return;
+    fetch('/api/council/' + currentInstanceId + '/balance', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: amount, description: description, sourceName: '' })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) { if (data.success) loadCouncilBalance(); })
+    .catch(function(err) { console.error('Erro ao ajustar saldo:', err); });
 }
 
 // Função auxiliar para escapar HTML
@@ -2514,6 +2534,8 @@ function confirmAddService() {
         })
         .then(function(result) {
             addServiceToTable(_selectedServiceId, _selectedServiceName, validity, quantity, result.orderId, supplierId, _svcSupplierName);
+            // Debitar do saldo do conselho
+            adjustCouncilBalance(-quantity, 'Contratação de serviço: ' + _selectedServiceName);
             closeAddServiceModal();
             showSuccess('Serviço adicionado!');
         })
@@ -2703,6 +2725,8 @@ function saveProject(event) {
     })
     .then(function(data) {
         addProjectToTable(data.mat.id, name, investment, deadline, _projectSupplierId, _projectSupplierName, data.orderResult.orderId);
+        // Debitar do saldo do conselho
+        adjustCouncilBalance(-investment, 'Investimento em projeto: ' + name);
         closeAddProjectModal();
         showSuccess('Projeto Público criado com sucesso!');
     })
