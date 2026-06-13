@@ -55,6 +55,14 @@ function loadPreviousResults(instanceId) {
             
             // Verificar se temos um vetor de produção válido
             if (data.productionVector && data.productionVector.length > 0) {
+                // Sincronizar productNames e productIds com os do servidor (ordem correta)
+                if (data.productNames && data.productNames.length > 0) {
+                    productNames = data.productNames;
+                }
+                if (data.productIds && data.productIds.length > 0) {
+                    productIds = data.productIds;
+                }
+
                 // Armazenar os resultados
                 optimizationResults = data.optimizationResults || [];
                 

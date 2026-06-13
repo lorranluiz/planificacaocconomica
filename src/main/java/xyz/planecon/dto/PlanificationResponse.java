@@ -11,9 +11,11 @@ import java.util.List;
 @AllArgsConstructor
 public class PlanificationResponse {
     private Integer instanceId;
-    private Double[] productionVector;  // Vetor de produção calculado
-    private List<OptimizationResult> optimizationResults;  // Resultados de otimização
-    private Double totalSocialProductionCapacity; // c_total: capacidade produtiva mensal total de todos os comitês
+    private Double[] productionVector;
+    private List<OptimizationResult> optimizationResults;
+    private Double totalSocialProductionCapacity;
+    private String[] productNames;
+    private Integer[] productIds;
     
     public PlanificationResponse(Integer instanceId, Double[] productionVector, List<OptimizationResult> optimizationResults) {
         this.instanceId = instanceId;

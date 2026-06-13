@@ -642,6 +642,16 @@ public class PlanificationController {
                 productionVector,
                 optimizationResults
             );
+
+            // Popular productNames e productIds na mesma ordem do productionVector
+            String[] names = new String[materializations.size()];
+            Integer[] ids = new Integer[materializations.size()];
+            for (int i = 0; i < materializations.size(); i++) {
+                names[i] = materializations.get(i).getName();
+                ids[i] = materializations.get(i).getId();
+            }
+            response.setProductNames(names);
+            response.setProductIds(ids);
             
             return ResponseEntity.ok(response);
         } catch (Exception e) {
