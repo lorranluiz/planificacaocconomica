@@ -170,6 +170,14 @@ public class Instance {
     // Tempo de trabalho socialmente confirmado (horas distribuídas pelo comitê após encomenda concluída)
     @Column(name = "socially_confirmed_work_time", precision = 20, scale = 10)
     private BigDecimal sociallyConfirmedWorkTime;
+
+    // Taxa de arrecadação do Conselho Popular (10-70%, padrão 50)
+    @Column(name = "tax_rate", precision = 5, scale = 2)
+    private BigDecimal taxRate;
+
+    // Saldo do Conselho Popular (horas arrecadadas)
+    @Column(name = "balance", precision = 20, scale = 10)
+    private BigDecimal balance;
     
     // Relationships
     @JsonIgnoreProperties("instance")

@@ -19,6 +19,8 @@ public class SocialMaterializationDto {
     private Integer measurementUnitId;
     private String measurementUnitName;
     private BigDecimal standardQuantityPerUnit;
+    @JsonInclude(JsonInclude.Include.ALWAYS)
+    private BigDecimal validityDeadline;
 
     // Default constructor
     public SocialMaterializationDto() {
@@ -45,6 +47,7 @@ public class SocialMaterializationDto {
                 this.sector = new SectorRef(this.sectorId, this.sectorName);
             }
             this.standardQuantityPerUnit = materialization.getStandardQuantityPerUnit();
+            this.validityDeadline = materialization.getValidityDeadline();
             if (materialization.getMeasurementUnit() != null) {
                 this.measurementUnitId = materialization.getMeasurementUnit().getId();
                 this.measurementUnitName = materialization.getMeasurementUnit().getName();
@@ -133,6 +136,9 @@ public class SocialMaterializationDto {
     public void setStandardQuantityPerUnit(BigDecimal standardQuantityPerUnit) {
         this.standardQuantityPerUnit = standardQuantityPerUnit;
     }
+
+    public BigDecimal getValidityDeadline() { return validityDeadline; }
+    public void setValidityDeadline(BigDecimal v) { this.validityDeadline = v; }
 
     public static class SectorRef {
         private Integer id;

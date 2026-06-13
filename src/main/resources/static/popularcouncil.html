@@ -322,6 +322,47 @@
             font-size: 28px;
             font-weight: bold;
         }
+
+        /* Novos modais: Extrato, Serviços, Projetos */
+        #extractModal, #addServiceModal, #addProjectModal, #supplierSelectModal, #supplierInfoModal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        #extractModal .modal-content,
+        #addServiceModal .modal-content,
+        #addProjectModal .modal-content,
+        #supplierSelectModal .modal-content,
+        #supplierInfoModal .modal-content {
+            background-color: var(--card-bg, #fff);
+            margin: 8% auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+            opacity: 1;
+            transform: translateY(0);
+            transition: none;
+        }
+        #extractModal .close,
+        #addServiceModal .close,
+        #addProjectModal .close,
+        #supplierSelectModal .close,
+        #supplierInfoModal .close {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            color: #aaa;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -378,7 +419,8 @@
                     </table>
                 </div>
                 
-                <h2>Vetor de Demanda Final</h2>
+                <h2>Orçamento Público</h2>
+                <h3>Vetor Demanda</h3>
                 <p>O vetor de demanda final representa a quantidade de cada produto que precisa ser entregue aos consumidores finais.</p>
 
                 <div class="vector-actions">
@@ -401,10 +443,91 @@
                         </tbody>
                     </table>
                 </div>
+
+                <!-- Serviços Públicos -->
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <h3 style="margin: 0;">Serviços Públicos</h3>
+                        <button id="addServiceBtn" class="btn btn-sm btn-primary" onclick="openAddServiceModal()">
+                            <i class="fas fa-plus"></i> Adicionar Serviço Público
+                        </button>
+                    </div>
+                    <p style="margin-bottom: 10px;">Serviços públicos contratados por este conselho.</p>
+                    <div class="vector-container">
+                        <table id="servicesTable" class="editable-table">
+                            <thead>
+                                <tr>
+                                    <th>Serviço Público</th>
+                                    <th>Validade</th>
+                                    <th>Quantidade</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="5" class="text-center" style="color: var(--text-secondary);">Nenhum serviço público adicionado.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Projetos e Obras Públicas -->
+                <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border-color);">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                        <h3 style="margin: 0;">Projetos e Obras Públicas</h3>
+                        <button id="addProjectBtn" class="btn btn-sm btn-primary" onclick="openAddProjectModal()">
+                            <i class="fas fa-plus"></i> Adicionar Projeto Público
+                        </button>
+                    </div>
+                    <p style="margin-bottom: 10px;">Projetos e obras públicas deste conselho.</p>
+                    <div class="vector-container">
+                        <table id="projectsTable" class="editable-table">
+                            <thead>
+                                <tr>
+                                    <th>Projeto Público</th>
+                                    <th>Prazo</th>
+                                    <th>Investimento (h)</th>
+                                    <th>Status</th>
+                                    <th>Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr><td colspan="5" class="text-center" style="color: var(--text-secondary);">Nenhum projeto público adicionado.</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
                 
                 <div class="controls">
                     <span id="loadingSpinner" class="loading"></span>
                     <button id="saveButton" class="btn">Salvar Alterações</button>
+                </div>
+
+                <!-- Arrecadação Pública -->
+                <div id="revenueSection" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid var(--primary-color, #1976d2);">
+                    <h2>Arrecadação Pública</h2>
+                    <div style="display: flex; gap: 30px; flex-wrap: wrap; margin-bottom: 20px;">
+                        <div class="info-card" style="flex: 1; min-width: 200px; padding: 15px; background: var(--bg-light); border-radius: 8px;">
+                            <p style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px;">Saldo</p>
+                            <strong style="font-size: 1.5em;" id="councilBalanceDisplay">0,00 h</strong>
+                        </div>
+                        <div class="info-card" style="flex: 1; min-width: 200px; padding: 15px; background: var(--bg-light); border-radius: 8px;">
+                            <p style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px;">Taxa de Arrecadação</p>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <input type="number" id="taxRateInput" class="form-control" value="50" min="10" max="70" step="1" style="width: 70px; font-size: 1.2em;" onchange="saveTaxRate()" onfocus="showTaxSlider(true)">
+                                <span style="font-size: 1.2em;">%</span>
+                                <div id="taxSliderContainer" style="display: none; height: 120px; align-items: center;">
+                                    <input type="range" id="taxSlider" min="10" max="70" value="50" step="1" orient="vertical" style="writing-mode: vertical-lr; direction: rtl; width: 24px; height: 110px;" oninput="document.getElementById('taxRateInput').value=this.value" onchange="saveTaxRate();showTaxSlider(false)">
+                                </div>
+                            </div>
+                            <p style="font-size: 0.75em; color: var(--text-secondary); margin-top: 4px;">10% – 70%</p>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button id="btnShowExtract" class="btn btn-secondary" onclick="openExtractModal()">
+                            <i class="fas fa-history"></i> Histórico <span style="font-size: 0.75em; color: var(--text-secondary);">(Extrato)</span>
+                        </button>
+                    </div>
                 </div>
                 
                 <div id="results" class="results-container">
@@ -546,8 +669,114 @@
         </div>
     </div>
 
+    <!-- Modal de Extrato (Histórico de Transações) -->
+    <div id="extractModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <span class="close" onclick="closeExtractModal()">&times;</span>
+            <h3>Extrato de Transações</h3>
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <input type="text" id="extractSearchInput" class="form-control" placeholder="Buscar por nome..." style="flex: 1;" onkeyup="debounceSearch()">
+                <input type="date" id="extractDateStart" class="form-control" style="width: 140px;" onchange="resetAndLoadExtract()">
+                <input type="date" id="extractDateEnd" class="form-control" style="width: 140px;" onchange="resetAndLoadExtract()">
+            </div>
+            <div id="extractListContainer" style="max-height: 450px; overflow-y: auto;" onscroll="extractScrollHandler()">
+                <p style="color: var(--text-secondary); font-style: italic;">Carregando...</p>
+            </div>
+            <div id="extractLoadMore" style="text-align: center; padding: 8px; display: none;">
+                <span class="loading" style="display: inline-block;"></span>
+            </div>
+            <div class="modal-footer" style="margin-top: 10px;">
+                <button class="btn btn-secondary" onclick="closeExtractModal()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Adicionar Serviço Público -->
+    <div id="addServiceModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close" onclick="closeAddServiceModal()">&times;</span>
+            <h3>Adicionar Serviço Público</h3>
+            <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+                <div style="flex:1;"><label style="font-size:0.85em;">Validade (dias):</label><input type="number" id="svcValidity" class="form-control" step="any" placeholder="ex: 30"></div>
+                <div style="flex:1;"><label style="font-size:0.85em;">Quantidade (h):</label><input type="number" id="svcQuantity" class="form-control" step="any" placeholder="ex: 10"></div>
+            </div>
+            <div class="form-group" style="margin-bottom: 8px;">
+                <label style="font-size:0.85em;">Fornecedor:</label>
+                <div style="display:flex;gap:8px;align-items:center;">
+                    <span id="svcSupplierName" style="font-weight:500;">Não selecionado</span>
+                    <button type="button" class="btn btn-sm btn-secondary" onclick="openSupplierForService()">Selecionar</button>
+                </div>
+            </div>
+            <div style="margin-bottom: 8px; display: flex; gap: 6px;">
+                <input type="text" id="svcSearchInput" class="form-control" placeholder="Buscar serviço..." oninput="filterServiceList()" style="flex:1;">
+                <select id="svcSectorFilter" class="form-control" style="width:150px;" onchange="filterServiceList()"><option value="">Todos setores</option></select>
+            </div>
+            <div id="addServiceListContainer" style="max-height: 250px; overflow-y: auto;">
+                <p style="color: var(--text-secondary); font-style: italic;">Carregando...</p>
+            </div>
+            <div class="modal-footer" style="margin-top: 10px;">
+                <button class="btn btn-primary" onclick="confirmAddService()">Confirmar</button>
+                <button class="btn btn-secondary" onclick="closeAddServiceModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Cadastro de Projeto -->
+    <div id="addProjectModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close" onclick="closeAddProjectModal()">&times;</span>
+            <h3>Adicionar Projeto Público ou Obra Pública</h3>
+            <form id="projectForm" onsubmit="saveProject(event)">
+                <div class="form-group"><label>Nome:</label><input type="text" id="projectName" class="form-control" required></div>
+                <div class="form-group"><label>Tipo:</label><input type="text" class="form-control" value="PROJETO" disabled></div>
+                <div class="form-group"><label>Setor:</label><select id="projectSector" class="form-control" required></select></div>
+                <div class="form-group"><label>Investimento (h):</label><input type="number" id="projectInvestment" class="form-control" step="any" required></div>
+                <div class="form-group"><label>Prazo (dias):</label><input type="number" id="projectDeadline" class="form-control" step="any" required></div>
+                <div class="form-group"><label>Fornecedor:</label>
+                    <div style="display:flex;gap:8px;align-items:center;">
+                        <span id="projectSupplierName" style="font-weight:500;">Não selecionado</span>
+                        <button type="button" class="btn btn-sm btn-secondary" onclick="openSupplierForProject()">Selecionar</button>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-primary">Cadastrar Projeto</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeAddProjectModal()">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal de Seleção de Fornecedor para Projetos -->
+    <div id="supplierSelectModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close" onclick="closeSupplierSelectModal()">&times;</span>
+            <h3>Selecionar Fornecedor</h3>
+            <input type="text" id="supplierSearchInput" class="form-control" placeholder="Buscar por nome..." style="margin-bottom:10px;" oninput="filterSupplierList_pc()">
+            <div id="supplierSelectList" style="max-height: 350px; overflow-y: auto;">
+                <p style="color: var(--text-secondary);">Carregando...</p>
+            </div>
+            <div class="modal-footer" style="margin-top:10px;">
+                <button class="btn btn-secondary" onclick="closeSupplierSelectModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Informações do Fornecedor -->
+    <div id="supplierInfoModal" class="modal">
+        <div class="modal-content" style="max-width: 500px;">
+            <span class="close" onclick="closeSupplierInfoModal()">&times;</span>
+            <h3>Dados do Fornecedor</h3>
+            <div id="supplierInfoContent">
+                <p style="color:var(--text-secondary);">Carregando...</p>
+            </div>
+            <div class="modal-footer" style="margin-top:10px;">
+                <button class="btn btn-secondary" onclick="closeSupplierInfoModal()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/notifications.js"></script>
     <script src="js/popularcouncil-children.js"></script>
-    <script src="js/popularcouncil.js"></script>
+    <script src="js/popularcouncil.js?v=20260613n"></script>
 </body>
 </html>

@@ -45,6 +45,10 @@ public class SocialMaterialization {
     @Column(name = "standard_quantity_per_unit", precision = 16, scale = 6)
     private BigDecimal standardQuantityPerUnit;
 
+    // Validade (para Serviços) / Prazo (para Projetos)
+    @Column(name = "validity_deadline", precision = 16, scale = 6)
+    private BigDecimal validityDeadline;
+
     @ManyToOne
     @JoinColumn(name = "id_measurement_unit")
     @EqualsAndHashCode.Exclude

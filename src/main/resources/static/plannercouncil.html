@@ -318,6 +318,39 @@
             font-size: 28px;
             font-weight: bold;
         }
+
+        /* Modal de Extrato */
+        #extractModal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        #extractModal .modal-content {
+            background-color: var(--card-bg, #fff);
+            margin: 8% auto;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            position: relative;
+            opacity: 1;
+            transform: translateY(0);
+            transition: none;
+        }
+        #extractModal .close {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            color: #aaa;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -401,6 +434,33 @@
                     <button id="planifyButton" class="btn">Planificar</button>
                     <span id="loadingSpinner" class="loading"></span>
                     <button id="saveButton" class="btn">Salvar Alterações</button>
+                </div>
+
+                <!-- Arrecadação Pública -->
+                <div id="revenueSection" style="margin-top: 30px; padding-top: 20px; border-top: 2px solid var(--primary-color, #1976d2);">
+                    <h2>Arrecadação Pública</h2>
+                    <div style="display: flex; gap: 30px; flex-wrap: wrap; margin-bottom: 20px;">
+                        <div class="info-card" style="flex: 1; min-width: 200px; padding: 15px; background: var(--bg-light); border-radius: 8px;">
+                            <p style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px;">Saldo</p>
+                            <strong style="font-size: 1.5em;" id="councilBalanceDisplay">0,00 h</strong>
+                        </div>
+                        <div class="info-card" style="flex: 1; min-width: 200px; padding: 15px; background: var(--bg-light); border-radius: 8px;">
+                            <p style="font-size: 0.85em; color: var(--text-secondary); margin-bottom: 4px;">Taxa de Arrecadação</p>
+                            <div style="display: flex; align-items: center; gap: 6px;">
+                                <input type="number" id="taxRateInput" class="form-control" value="50" min="10" max="70" step="1" style="width: 70px; font-size: 1.2em;" onchange="saveTaxRate()" onfocus="showTaxSlider(true)">
+                                <span style="font-size: 1.2em;">%</span>
+                                <div id="taxSliderContainer" style="display: none; height: 120px; align-items: center;">
+                                    <input type="range" id="taxSlider" min="10" max="70" value="50" step="1" orient="vertical" style="writing-mode: vertical-lr; direction: rtl; width: 24px; height: 110px;" oninput="document.getElementById('taxRateInput').value=this.value" onchange="saveTaxRate();showTaxSlider(false)">
+                                </div>
+                            </div>
+                            <p style="font-size: 0.75em; color: var(--text-secondary); margin-top: 4px;">10% – 70%</p>
+                        </div>
+                    </div>
+                    <div style="margin-top: 15px;">
+                        <button id="btnShowExtract" class="btn btn-secondary" onclick="openExtractModal()">
+                            <i class="fas fa-history"></i> Histórico <span style="font-size: 0.75em; color: var(--text-secondary);">(Extrato)</span>
+                        </button>
+                    </div>
                 </div>
                 
                 <div id="results" class="results-container" style="display: none;">
@@ -545,8 +605,28 @@
         </div>
     </div>
 
+    <!-- Modal de Extrato (Histórico de Transações) -->
+    <div id="extractModal" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <span class="close" onclick="closeExtractModal()">&times;</span>
+            <h3>Extrato de Transações</h3>
+            <div style="display: flex; gap: 8px; margin-bottom: 12px;">
+                <input type="text" id="extractSearchInput" class="form-control" placeholder="Buscar por nome..." style="flex: 1;" onkeyup="debounceSearch()">
+            </div>
+            <div id="extractListContainer" style="max-height: 450px; overflow-y: auto;" onscroll="extractScrollHandler()">
+                <p style="color: var(--text-secondary); font-style: italic;">Carregando...</p>
+            </div>
+            <div id="extractLoadMore" style="text-align: center; padding: 8px; display: none;">
+                <span class="loading" style="display: inline-block;"></span>
+            </div>
+            <div class="modal-footer" style="margin-top: 10px;">
+                <button class="btn btn-secondary" onclick="closeExtractModal()">Fechar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/notifications.js"></script>
     <script src="js/plannercouncil-children.js"></script>
-    <script src="js/plannercouncil.js"></script>
+    <script src="js/plannercouncil.js?v=20260613e?v=20260613b"></script>
 </body>
 </html>

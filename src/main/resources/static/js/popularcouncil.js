@@ -6,6 +6,7 @@ let productNames = [];
 let productIds = [];
 let technologicalMatrix = [];
 let demandVector = [];
+let materializationTypeById = {};   // Cache: matId -> type string
 let currentOptimizationProductIndex = -1;
 const optimizationConfigs = {};
 let optimizationResults = [];
@@ -611,38 +612,46 @@ function renderDemandVector() {
             console.warn(`Índice fora dos limites: ${index}. Ignorando esta entrada.`);
             return;
         }
+
+        const isProjetos = (productIds[index] === 17);
         
         const tr = document.createElement('tr');
         
         // Formatar o valor para exibição
-        const formattedValue = value !== null && value !== undefined 
+        const formattedValue = isProjetos ? '1' : (value !== null && value !== undefined 
             ? value.toString().replace('.', ',') 
-            : '0';
+            : '0');
         
         // Célula com nome do produto
         const tdName = document.createElement('td');
         tdName.textContent = productNames[index] || `Produto #${index + 1}`;
         tr.appendChild(tdName);
         
-        // Célula com valor da demanda (editável)
+        // Célula com valor da demanda (editável, exceto Projetos)
         const tdValue = document.createElement('td');
         const input = document.createElement('input');
         input.type = 'text';
         input.value = formattedValue;
         input.className = 'form-control';
-        input.dataset.index = index;
-        input.onchange = function() {
-            const value = this.value.replace(',', '.'); // Normalizar para cálculo
-            updateDemandVectorElement(parseInt(this.dataset.index), value);
-        };
+        if (isProjetos) {
+            input.readOnly = true;
+            input.style.backgroundColor = 'var(--bg-light)';
+            input.title = 'Demanda fixa = 1 para Projetos Públicos';
+        } else {
+            input.dataset.index = index;
+            input.onchange = function() {
+                const value = this.value.replace(',', '.'); // Normalizar para cálculo
+                updateDemandVectorElement(parseInt(this.dataset.index), value);
+            };
+        }
         tdValue.appendChild(input);
         tr.appendChild(tdValue);
         
-        // Célula com botões de ação - AGORA INCLUINDO BOTÃO DE CONFIGURAR OTIMIZAÇÃO
+        // Célula com botões de ação
         const tdActions = document.createElement('td');
         tdActions.className = 'action-buttons';
         
-        // Adicionar botão de Configurar Otimização
+        // Botão de Configurar Otimização
         const configBtn = document.createElement('button');
         configBtn.className = 'action-btn config-btn';
         configBtn.title = 'Configurar parâmetros de otimização';
@@ -652,15 +661,17 @@ function renderDemandVector() {
         };
         tdActions.appendChild(configBtn);
         
-        // Adicionar botão para remover materialização
-        const removeButton = document.createElement('button');
-        removeButton.className = 'action-btn remove-btn';
-        removeButton.title = 'Remover';
-        removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
-        removeButton.onclick = function() {
-            removeMaterialization(productIds[index]);
-        };
-        tdActions.appendChild(removeButton);
+        // Botão para remover materialização (não para Projetos)
+        if (!isProjetos) {
+            const removeButton = document.createElement('button');
+            removeButton.className = 'action-btn remove-btn';
+            removeButton.title = 'Remover';
+            removeButton.innerHTML = '<i class="fas fa-trash-alt"></i>';
+            removeButton.onclick = function() {
+                removeMaterialization(productIds[index]);
+            };
+            tdActions.appendChild(removeButton);
+        }
         
         tr.appendChild(tdActions);
         tbody.appendChild(tr);
@@ -1034,8 +1045,8 @@ function addMaterializationToTable(materialization, instanceId) {
         newlyAddedMaterializationIds.push(materialization.id);
     }
     
-    // Adicionar ao vetor de demanda
-    demandVector.push(0);
+    // Adicionar ao vetor de demanda (1 para Projetos)
+    demandVector.push(materialization.id === 17 ? 1 : 0);
     
     // Re-renderizar vetor de demanda
     renderDemandVector();
@@ -1282,6 +1293,74 @@ function removeMaterialization(materializationId) {
     showSuccess('Materialização removida. Clique em "Salvar Alterações" para confirmar a exclusão no banco de dados.');
 }
 
+function loadMaterializationTypes() {
+    return fetch('/api/planification/available-materializations')
+        .then(function(r) { return r.json(); })
+        .then(function(mats) {
+            materializationTypeById = {};
+            (mats || []).forEach(function(m) { materializationTypeById[m.id] = m.type; });
+        })
+        .catch(function() { console.error('Erro ao carregar tipos'); });
+}
+
+function filterIndividualProjectsSync() {
+    // Remove individual PROJECT entries (except ID 17) from all arrays
+    var toRemove = [];
+    for (var i = 0; i < productIds.length; i++) {
+        var type = materializationTypeById[productIds[i]];
+        if (type === 'PROJECT' && productIds[i] !== 17) {
+            toRemove.push(i);
+        }
+    }
+    if (toRemove.length > 0) {
+        for (var j = toRemove.length - 1; j >= 0; j--) {
+            var idx = toRemove[j];
+            productIds.splice(idx, 1);
+            productNames.splice(idx, 1);
+            demandVector.splice(idx, 1);
+            if (technologicalMatrix && technologicalMatrix.length > idx) {
+                technologicalMatrix.splice(idx, 1);
+            }
+        }
+    }
+}
+
+function cleanupIndividualProjects() {
+    // Remove individual PROJECT materializations (except ID 17, the aggregated "Projetos Públicos")
+    // from productIds, productNames, demandVector, and technologicalMatrix
+    fetch('/api/planification/available-materializations')
+        .then(function(r) { return r.json(); })
+        .then(function(mats) {
+            var toRemove = [];
+            for (var i = 0; i < productIds.length; i++) {
+                var mat = (mats || []).find(function(m) { return m.id === productIds[i]; });
+                if (mat && mat.type === 'PROJECT' && productIds[i] !== 17) {
+                    toRemove.push(i);
+                }
+            }
+            if (toRemove.length > 0) {
+                console.log('Removendo projetos individuais:', toRemove.length);
+                for (var j = toRemove.length - 1; j >= 0; j--) {
+                    var idx = toRemove[j];
+                    var matId = productIds[idx];
+                    productIds.splice(idx, 1);
+                    productNames.splice(idx, 1);
+                    demandVector.splice(idx, 1);
+                    if (technologicalMatrix && technologicalMatrix.length > idx) {
+                        technologicalMatrix.splice(idx, 1);
+                    }
+                    // Delete from server if it was originally there
+                    if (currentInstanceId && originalMaterializationIds.indexOf(matId) !== -1) {
+                        fetch('/api/planification/demand-vector/' + matId + '/instance/' + currentInstanceId, { method: 'DELETE' });
+                    }
+                }
+                renderTechnologicalMatrix();
+                renderDemandVector();
+            }
+        })
+        .catch(function(err) { console.error('Erro ao limpar projetos:', err); });
+}
+
 // Modificando a função ensureMatrixDimensions para não tentar atualizar a matriz tecnológica
 function ensureMatrixDimensions() {
     const size = productIds.length;
@@ -1310,6 +1389,9 @@ function saveChanges() {
     try {
         // 1. Atualizar vetor de demanda com os dados atuais da interface
         updateDemandVectorFromUI();
+
+        // Filtrar projetos individuais antes de salvar (síncrono)
+        filterIndividualProjectsSync();
         
         // 2. Prepare all promises that will be executed
         const allPromises = [];
@@ -1518,6 +1600,9 @@ function logDemandVectorStatus() {
 // Mantém o restante do código dentro do evento DOMContentLoaded
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== DOMContentLoaded event fired in popularcouncil.js ===');
+    
+    // Pré-carregar tipos de materialização para filtrar projetos
+    loadMaterializationTypes();
     
     // Inicializar cabeçalho comum - APENAS UMA VEZ
     try {
@@ -1756,6 +1841,9 @@ document.addEventListener('DOMContentLoaded', function() {
                     newlyAddedMaterializationIds = [];
                 }
                 
+                // Filtrar projetos individuais — manter apenas o agregado "Projetos Públicos" (ID 17)
+                filterIndividualProjectsSync();
+                
                 // Garantir consistência dos dados
                 if (demandVector.length !== productNames.length || demandVector.length !== productIds.length) {
                     console.warn(`Inconsistência nos dados: demandVector(${demandVector.length}), productNames(${productNames.length}), productIds(${productIds.length})`);
@@ -1857,6 +1945,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Tentar carregar resultados anteriores, se existirem
                 return loadPreviousResults(instanceId);
             })
+            .then(() => {
+                // Carregar saldo e taxa do conselho
+                loadCouncilBalance();
+                // Carregar serviços e projetos salvos
+                loadServicesAndProjects();
+            })
             .catch(error => {
                 console.error('Erro ao carregar dados da instância:', error);
                 showError(`Erro ao carregar dados: ${error.message}`);
@@ -1868,6 +1962,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 
                 // Garantir que o botão de adicionar materialização esteja inicializado
                 initAddMaterializationButton();
+
+                // Inicializar botões das novas seções
+
             });
     }
 });
@@ -2093,4 +2190,565 @@ function ensureMatrixDimensions() {
     while (demandVector.length > size) {
         demandVector.pop();
     }
+}
+
+function loadServicesAndProjects() {
+    if (!currentInstanceId) return;
+
+    // Limpar tabelas imediatamente ao trocar de instância
+    var servicesTable = document.getElementById('servicesTable').querySelector('tbody');
+    var projectsTable = document.getElementById('projectsTable').querySelector('tbody');
+    if (servicesTable) servicesTable.innerHTML = '<tr><td colspan="5" class="text-center" style="color: var(--text-secondary);">Nenhum serviço público adicionado.</td></tr>';
+    if (projectsTable) projectsTable.innerHTML = '<tr><td colspan="5" class="text-center" style="color: var(--text-secondary);">Nenhum projeto público adicionado.</td></tr>';
+
+    fetch('/api/committees/' + currentInstanceId + '/outgoing-orders')
+        .then(function(r) { return r.json(); })
+        .then(function(orders) {
+            if (!orders || orders.length === 0) return;
+
+            var servicesTable = document.getElementById('servicesTable').querySelector('tbody');
+            var projectsTable = document.getElementById('projectsTable').querySelector('tbody');
+
+            orders.forEach(function(o) {
+                fetch('/api/social-materializations/full')
+                    .then(function(r) { return r.json(); })
+                    .then(function(mats) {
+                        var mat = (mats || []).find(function(m) { return m.id === o.inputMaterializationId; });
+                        var type = mat ? mat.type : '';
+                        var name = mat ? mat.name : ('ID#' + o.inputMaterializationId);
+                        var status = o.orderStatus || 'solicitada';
+                        var qty = parseFloat(o.quantity || 0).toFixed(4);
+                        var unit = o.inputUnitName || '';
+                        var deadline = mat && mat.validityDeadline ? parseFloat(mat.validityDeadline).toFixed(1) + ' dias' : '-';
+                        var actionsHtml = renderOrderActions(o.orderId, status);
+                        actionsHtml += ' <button class="btn btn-sm btn-secondary" onclick="deleteServiceOrder(' + o.orderId + ', this)">Remover</button>';
+
+                        if (type === 'SERVICE' || type === 'PROJECT') {
+                            var targetTable = type === 'SERVICE' ? servicesTable : projectsTable;
+                            targetTable.innerHTML = targetTable.innerHTML.replace(/Nenhum servi.*?\.|Nenhum projeto.*?\./g, '');
+                            var row = document.createElement('tr');
+                            row.setAttribute('data-order-id', o.orderId);
+                            var supplierHtml = o.supplierName ? '<i class="fas fa-truck supplier-icon" title="Fornecedor: ' + escapeHtml(o.supplierName) + '" onclick="event.stopPropagation();openSupplierInfo(' + (o.supplierInstanceId||0) + ')" style="cursor:pointer;margin-left:6px;color:var(--primary-color);"></i>' : '';
+                            row.innerHTML = '<td>' + escapeHtml(name) + supplierHtml + '</td>' +
+                                '<td>' + deadline + '</td>' +
+                                '<td>' + qty + ' ' + unit + '</td>' +
+                                '<td>' + getOrderStatusBadge(status) + '</td>' +
+                                '<td>' + actionsHtml + '</td>';
+                            targetTable.appendChild(row);
+                        }
+                    });
+            });
+        })
+        .catch(function(err) { console.error('Erro ao carregar serviços/projetos:', err); });
+}
+
+function renderOrderActions(orderId, status) {
+    if (status === 'produzida e enviada') {
+        return '<button class="btn btn-sm" style="padding:2px 8px;font-size:0.8em;" onclick="updateCouncilOrderStatus(' + orderId + ',\'recebida pelo demandante\')">Confirmar Recebimento</button>';
+    }
+    return '';
+}
+
+function updateCouncilOrderStatus(orderId, newStatus) {
+    fetch('/api/committees/' + currentInstanceId + '/orders/status', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: orderId, orderStatus: newStatus })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
+        if (result.success) {
+            showSuccess('Status atualizado.');
+            loadServicesAndProjects();
+        } else {
+            showError(result.message || 'Erro');
+        }
+    })
+    .catch(function() { showError('Erro ao atualizar status.'); });
+}
+
+function deleteServiceOrder(orderId, btn) {
+    if (!confirm('Remover este item?')) return;
+    fetch('/api/committees/' + currentInstanceId + '/orders/' + orderId, { method: 'DELETE' })
+        .then(function(r) { return r.json(); })
+        .then(function(result) {
+            if (result.success) {
+                var row = btn.closest('tr');
+                if (row) row.remove();
+                showSuccess('Removido.');
+            }
+        })
+        .catch(function() { showError('Erro ao remover.'); });
+}
+
+// Função auxiliar para escapar HTML
+function escapeHtml(text) {
+    if (!text) return '';
+    return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function getOrderStatusBadge(status) {
+    var colors = {
+        'solicitada': '#1976d2', 'aceita em produção': '#f57c00',
+        'produzida e enviada': '#388e3c', 'recebida pelo demandante': '#7b8c8d',
+        'recusada': '#c62828', 'horas liberadas': '#6a1b9a'
+    };
+    var labels = {
+        'solicitada': 'Solicitada', 'aceita em produção': 'Em Produção',
+        'produzida e enviada': 'Enviada', 'recebida pelo demandante': 'Recebida',
+        'recusada': 'Recusada', 'horas liberadas': 'Horas Liberadas'
+    };
+    var color = colors[status] || '#888';
+    var label = labels[status] || status;
+    return '<span style="display:inline-block;padding:2px 6px;border-radius:3px;font-size:0.8em;font-weight:500;background:' + color + '22;color:' + color + ';border:1px solid ' + color + '44;">' + label + '</span>';
+}
+
+function loadCouncilBalance() {
+    if (!currentInstanceId) return;
+    fetch('/api/council/' + currentInstanceId + '/balance')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            document.getElementById('councilBalanceDisplay').textContent = parseFloat(data.balance || 0).toFixed(4) + ' h';
+            if (data.taxRate != null) {
+                document.getElementById('taxRateInput').value = data.taxRate;
+                document.getElementById('taxSlider').value = data.taxRate;
+            }
+        })
+        .catch(function(err) { console.error('Erro ao carregar saldo:', err); });
+}
+
+function showTaxSlider(show) {
+    var c = document.getElementById('taxSliderContainer');
+    if (c) c.style.display = show ? 'block' : 'none';
+}
+
+function saveTaxRate() {
+    if (!currentInstanceId) return;
+    var rate = document.getElementById('taxRateInput').value;
+    document.getElementById('taxSlider').value = rate;
+    fetch('/api/council/' + currentInstanceId + '/tax-rate', {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taxRate: parseFloat(rate) })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) { if (data.success) showSuccess('Taxa: ' + data.taxRate + '%'); })
+    .catch(function(err) { console.error('Erro ao salvar taxa:', err); });
+}
+
+var _extractPage = 0, _extractHasMore = true, _extractLoading = false, _extractSearchTimeout = null;
+
+function openExtractModal() {
+    if (!currentInstanceId) return;
+    var modal = document.getElementById('extractModal');
+    if (!modal) return;
+    modal.style.display = 'block';
+    document.getElementById('extractSearchInput').value = '';
+    _extractPage = 0; _extractHasMore = true;
+    document.getElementById('extractListContainer').innerHTML = '<p style="color:var(--text-secondary);">Carregando...</p>';
+    loadExtractPage();
+}
+
+function closeExtractModal() { var m = document.getElementById('extractModal'); if (m) m.style.display = 'none'; }
+
+function debounceSearch() {
+    if (_extractSearchTimeout) clearTimeout(_extractSearchTimeout);
+    _extractSearchTimeout = setTimeout(resetAndLoadExtract, 300);
+}
+
+function resetAndLoadExtract() {
+    _extractPage = 0; _extractHasMore = true;
+    document.getElementById('extractListContainer').innerHTML = '';
+    loadExtractPage();
+}
+
+function loadExtractPage() {
+    if (!_extractHasMore || _extractLoading || !currentInstanceId) return;
+    _extractLoading = true;
+    document.getElementById('extractLoadMore').style.display = 'block';
+    var search = document.getElementById('extractSearchInput') ? document.getElementById('extractSearchInput').value : '';
+    var url = '/api/council/' + currentInstanceId + '/transactions?page=' + _extractPage + '&limit=30';
+    if (search) url += '&search=' + encodeURIComponent(search);
+    fetch(url).then(function(r) { return r.json(); }).then(function(data) {
+        _extractLoading = false;
+        document.getElementById('extractLoadMore').style.display = 'none';
+        var txs = data.transactions || [];
+        _extractHasMore = _extractPage < (data.totalPages - 1);
+        _extractPage++;
+        var c = document.getElementById('extractListContainer');
+        if (_extractPage === 1 && txs.length === 0) {
+            c.innerHTML = '<p style="color:var(--text-secondary);font-style:italic;">Nenhuma transação.</p>';
+            return;
+        }
+        renderExtractTransactions(txs, _extractPage > 1);
+    }).catch(function(err) { _extractLoading = false; console.error(err); });
+}
+
+function renderExtractTransactions(transactions, append) {
+    var c = document.getElementById('extractListContainer');
+    if (!c) return;
+    var curMonth = '', html = append ? c.innerHTML : '';
+    transactions.forEach(function(t) {
+        var d = new Date(t.createdAt);
+        var mk = d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        if (mk !== curMonth) {
+            curMonth = mk;
+            html += '<div style="padding:6px 8px;margin-top:8px;background:var(--bg-light);border-radius:4px;font-weight:600;font-size:0.85em;color:var(--primary-color);">' + mk.charAt(0).toUpperCase() + mk.slice(1) + '</div>';
+        }
+        var isCr = t.transactionType === 'CREDIT';
+        var color = isCr ? '#2e7d32' : '#c62828';
+        var pfx = isCr ? '+' : '-';
+        var amt = parseFloat(t.amount) || 0;
+        var ad = (Math.abs(amt) < 0.01 && amt !== 0) ? Math.abs(amt).toExponential(4) : Math.abs(amt).toFixed(4);
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid var(--border-color-light);"><div style="flex:1;"><div style="font-size:0.85em;word-break:break-word;">' + escapeHtml(t.description || t.sourceName || 'Transação') + '</div><div style="font-size:0.7em;color:var(--text-secondary);">' + d.toLocaleDateString('pt-BR') + '</div></div><div style="text-align:right;margin-left:16px;"><div style="color:' + color + ';font-weight:600;">' + pfx + ' ' + ad + ' h</div><div style="font-size:0.7em;color:var(--text-secondary);">Saldo: ' + parseFloat(t.balanceAfter || 0).toFixed(4) + ' h</div></div></div>';
+    });
+    c.innerHTML = html;
+}
+
+function extractScrollHandler() {
+    var c = document.getElementById('extractListContainer');
+    if (c && c.scrollTop + c.clientHeight >= c.scrollHeight - 50) loadExtractPage();
+}
+
+var _allServices = [];
+var _selectedServiceId = null;
+var _selectedServiceName = '';
+
+function openAddServiceModal() {
+    var modal = document.getElementById('addServiceModal');
+    var container = document.getElementById('addServiceListContainer');
+    if (!modal || !container) return;
+    _selectedServiceId = null; _selectedServiceName = '';
+    _svcSupplierId = null; _svcSupplierName = '';
+    document.getElementById('svcSupplierName').textContent = 'Não selecionado';
+    document.getElementById('svcValidity').value = '';
+    document.getElementById('svcQuantity').value = '';
+    document.getElementById('svcSearchInput').value = '';
+    container.innerHTML = '<p style="color:var(--text-secondary);font-style:italic;">Carregando...</p>';
+    modal.style.display = 'block';
+
+    fetch('/api/planification/available-materializations')
+        .then(function(r) { return r.json(); })
+        .then(function(mats) {
+            _allServices = (mats || []).filter(function(m) { return m.type === 'SERVICE'; });
+            // Popular filtro de setores
+            var sectors = [], sectorSel = document.getElementById('svcSectorFilter');
+            _allServices.forEach(function(s) { if (s.sectorName && sectors.indexOf(s.sectorName) === -1) sectors.push(s.sectorName); });
+            if (sectorSel) { sectorSel.innerHTML = '<option value="">Todos setores</option>'; sectors.forEach(function(n) { sectorSel.innerHTML += '<option value="'+n+'">'+n+'</option>'; }); }
+            renderServiceList(_allServices);
+        })
+        .catch(function(err) { container.innerHTML = '<p style="color:var(--error-color);">Erro: ' + (err.message || 'desconhecido') + '</p>'; });
+}
+
+function filterServiceList() {
+    var term = (document.getElementById('svcSearchInput')?.value || '').trim().toLowerCase();
+    var sector = document.getElementById('svcSectorFilter')?.value || '';
+    var filtered = _allServices.filter(function(s) {
+        var matchName = !term || (s.name || '').toLowerCase().includes(term);
+        var matchSector = !sector || s.sectorName === sector;
+        return matchName && matchSector;
+    });
+    renderServiceList(filtered);
+}
+
+function renderServiceList(list) {
+    var container = document.getElementById('addServiceListContainer');
+    if (!container) return;
+    if (!list || list.length === 0) { container.innerHTML = '<p style="color:var(--text-secondary);">Nenhum serviço encontrado.</p>'; return; }
+    var html = '<div>';
+    list.forEach(function(s) {
+        var sel = (_selectedServiceId === s.id) ? ' style="border:2px solid var(--primary-color);background:var(--bg-primary-light);"' : '';
+        html += '<div class="svc-item"' + sel + ' onclick="selectServiceItem(' + s.id + ',\'' + escapeHtml(s.name).replace(/'/g, "\\\\'") + '\')" style="cursor:pointer;padding:8px;margin-bottom:3px;border:1px solid var(--border-color);border-radius:4px;">' +
+            '<strong>' + escapeHtml(s.name) + '</strong><span style="font-size:0.8em;color:var(--text-secondary);margin-left:8px;">(' + (s.sectorName || '') + ')</span>' +
+        '</div>';
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function selectServiceItem(id, name) {
+    _selectedServiceId = id; _selectedServiceName = name;
+    renderServiceList(_allServices);
+}
+
+function confirmAddService() {
+    if (!_selectedServiceId) { showError('Selecione um serviço.'); return; }
+    var validity = parseFloat(document.getElementById('svcValidity').value) || 0;
+    var quantity = parseFloat(document.getElementById('svcQuantity').value) || 0;
+    if (quantity <= 0) { showError('Informe a quantidade (h).'); return; }
+    if (!currentInstanceId) { showError('Selecione um conselho.'); return; }
+    var supplierId = _svcSupplierId || currentInstanceId; // fallback: próprio conselho
+
+    // Buscar dados completos da materialização para o PUT
+    fetch('/api/social-materializations/full')
+        .then(function(r) { return r.json(); })
+        .then(function(mats) {
+            var mat = (mats || []).find(function(m) { return m.id === _selectedServiceId; });
+            if (!mat) throw new Error('Serviço não encontrado.');
+
+            // Criar supply_order
+            return fetch('/api/committees/' + currentInstanceId + '/orders/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    inputMaterializationId: _selectedServiceId,
+                    outputMaterializationId: _selectedServiceId,
+                    supplierInstanceId: supplierId,
+                    quantity: quantity
+                })
+            })
+            .then(function(r) { return r.json(); })
+            .then(function(result) {
+                if (!result.success) throw new Error(result.message || 'Erro');
+                // Salvar validity_deadline com todos os campos obrigatórios
+                return fetch('/api/social-materializations/' + _selectedServiceId, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        name: mat.name, type: mat.type,
+                        sectorId: mat.sectorId, measurementUnitId: mat.measurementUnitId,
+                        standardQuantityPerUnit: mat.standardQuantityPerUnit,
+                        validityDeadline: validity
+                    })
+                }).then(function() { return result; });
+            });
+        })
+        .then(function(result) {
+            addServiceToTable(_selectedServiceId, _selectedServiceName, validity, quantity, result.orderId, supplierId, _svcSupplierName);
+            closeAddServiceModal();
+            showSuccess('Serviço adicionado!');
+        })
+    .catch(function(err) { showError('Erro: ' + err.message); });
+}
+
+function addServiceToTable(svcId, svcName, validity, quantity, orderId, supplierId, supplierName) {
+    var table = document.getElementById('servicesTable').querySelector('tbody');
+    table.innerHTML = table.innerHTML.replace(/Nenhum servi.*?\./g, '');
+    var row = table.insertRow();
+    row.setAttribute('data-mat-id', svcId);
+    row.setAttribute('data-order-id', orderId || '');
+    var supplierHtml = supplierName ? '<i class="fas fa-truck supplier-icon" title="Fornecedor: ' + escapeHtml(supplierName) + '" onclick="event.stopPropagation();openSupplierInfo(' + supplierId + ')" style="cursor:pointer;margin-left:6px;color:var(--primary-color);"></i>' : '';
+    row.innerHTML = '<td>' + escapeHtml(svcName) + supplierHtml + '</td>' +
+        '<td>' + (validity || '-') + ' dias</td>' +
+        '<td>' + quantity.toFixed(4) + ' h</td>' +
+        '<td>' + getOrderStatusBadge('solicitada') + '</td>' +
+        '<td>' + renderOrderActions(orderId, 'solicitada') + ' <button class="btn btn-sm btn-secondary" onclick="deleteServiceOrder(' + (orderId||0) + ', this)">Remover</button></td>';
+    markDirty();
+}
+
+function closeAddServiceModal() {
+    var m = document.getElementById('addServiceModal');
+    if (m) m.style.display = 'none';
+}
+
+var _pageDirty = false;
+function markDirty() { _pageDirty = true; }
+
+var _projectSupplierId = null;
+var _projectSupplierName = '';
+
+function openAddProjectModal() {
+    var modal = document.getElementById('addProjectModal');
+    if (!modal) return;
+    document.getElementById('projectName').value = '';
+    document.getElementById('projectInvestment').value = '';
+    document.getElementById('projectDeadline').value = '';
+    _projectSupplierId = null;
+    _projectSupplierName = 'Não selecionado';
+    document.getElementById('projectSupplierName').textContent = 'Não selecionado';
+    // Load sectors
+    var sectorSelect = document.getElementById('projectSector');
+    sectorSelect.innerHTML = '<option value="">Carregando...</option>';
+    fetch('/api/sectors').then(function(r){return r.json();}).then(function(sectors){
+        sectorSelect.innerHTML = '<option value="">Selecione...</option>';
+        sectors.forEach(function(s){ sectorSelect.innerHTML += '<option value="'+s.id+'">'+escapeHtml(s.name)+'</option>'; });
+    });
+    modal.style.display = 'block';
+}
+
+function closeAddProjectModal() {
+    var m = document.getElementById('addProjectModal');
+    if (m) m.style.display = 'none';
+}
+
+var _supplierListPC = [];
+var _svcSupplierId = null;
+var _svcSupplierName = '';
+
+function openSupplierForService() {
+    _supplierCallback = function(id, name) {
+        _svcSupplierId = id; _svcSupplierName = name;
+        document.getElementById('svcSupplierName').textContent = name;
+    };
+    openSupplierListModal();
+}
+
+function openSupplierForProject() {
+    _supplierCallback = function(id, name) {
+        _projectSupplierId = id; _projectSupplierName = name;
+        document.getElementById('projectSupplierName').textContent = name;
+    };
+    openSupplierListModal();
+}
+
+function openSupplierListModal() {
+    var modal = document.getElementById('supplierSelectModal');
+    var list = document.getElementById('supplierSelectList');
+    var search = document.getElementById('supplierSearchInput');
+    if (!modal || !list) return;
+    if (search) search.value = '';
+    list.innerHTML = '<p style="color:var(--text-secondary);">Carregando...</p>';
+    modal.style.display = 'block';
+
+    fetch('/api/instances/committees')
+        .then(function(r) { return r.json(); })
+        .then(function(committees) {
+            _supplierListPC = committees || [];
+            renderSupplierListPC(_supplierListPC);
+        })
+        .catch(function() { list.innerHTML = '<p style="color:var(--error-color);">Erro ao carregar.</p>'; });
+}
+
+function renderSupplierListPC(list) {
+    var container = document.getElementById('supplierSelectList');
+    if (!container) return;
+    if (!list || list.length === 0) {
+        container.innerHTML = '<p style="color:var(--text-secondary);">Nenhum comitê encontrado.</p>';
+        return;
+    }
+    var html = '<div>';
+    list.forEach(function(c) {
+        html += '<div style="cursor:pointer;padding:8px;margin-bottom:3px;border:1px solid var(--border-color);border-radius:4px;" onclick="selectSupplierFromList(' + c.id + ',\'' + escapeHtml(c.name || '').replace(/'/g, "\\\\'") + '\')">' +
+            '<strong>' + escapeHtml(c.name || ('Comitê #' + c.id)) + '</strong>' +
+        '</div>';
+    });
+    html += '</div>';
+    container.innerHTML = html;
+}
+
+function filterSupplierList_pc() {
+    var term = (document.getElementById('supplierSearchInput')?.value || '').trim().toLowerCase();
+    if (!term) { renderSupplierListPC(_supplierListPC); return; }
+    var filtered = _supplierListPC.filter(function(c) {
+        return (c.name || '').toLowerCase().includes(term) || String(c.id).includes(term);
+    });
+    renderSupplierListPC(filtered);
+}
+
+function selectSupplierFromList(supplierId, supplierName) {
+    if (typeof _supplierCallback === 'function') {
+        _supplierCallback(supplierId, supplierName);
+    }
+    closeSupplierSelectModal();
+}
+
+function closeSupplierSelectModal() {
+    var m = document.getElementById('supplierSelectModal');
+    if (m) m.style.display = 'none';
+}
+
+function saveProject(event) {
+    event.preventDefault();
+    var name = document.getElementById('projectName').value.trim();
+    var sectorId = parseInt(document.getElementById('projectSector').value);
+    var investment = parseFloat(document.getElementById('projectInvestment').value);
+    var deadline = parseFloat(document.getElementById('projectDeadline').value);
+    if (!name || !sectorId || !investment || investment <= 0 || !deadline || deadline <= 0) {
+        showError('Preencha todos os campos corretamente.');
+        return;
+    }
+    if (!_projectSupplierId) { showError('Selecione um fornecedor.'); return; }
+
+    // Criar materialização social tipo PROJECT
+    fetch('/api/social-materializations', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            name: name, type: 'PROJECT', sectorId: sectorId,
+            standardQuantityPerUnit: investment, measurementUnitId: 4 // ID 4 = "h"
+        })
+    })
+    .then(function(r){return r.json();})
+    .then(function(mat){
+        // Atualizar validity_deadline via PUT
+        return fetch('/api/social-materializations/' + mat.id, {
+            method: 'PUT',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({
+                name: name, type: 'PROJECT', sectorId: sectorId,
+                standardQuantityPerUnit: investment, measurementUnitId: 4,
+                validityDeadline: deadline
+            })
+        }).then(function(){return mat;});
+    })
+    .then(function(mat){
+        // Criar supply_order
+        var orderPromise;
+        if (currentInstanceId && _projectSupplierId) {
+            orderPromise = fetch('/api/committees/'+currentInstanceId+'/orders/create', {
+                method: 'POST',
+                headers: {'Content-Type':'application/json'},
+                body: JSON.stringify({
+                    inputMaterializationId: mat.id,
+                    outputMaterializationId: mat.id,
+                    supplierInstanceId: _projectSupplierId,
+                    quantity: investment
+                })
+            }).then(function(r){ return r.json(); });
+        } else {
+            orderPromise = Promise.resolve({ orderId: null });
+        }
+        return orderPromise.then(function(orderResult) {
+            return { mat: mat, orderResult: orderResult };
+        });
+    })
+    .then(function(data) {
+        addProjectToTable(data.mat.id, name, investment, deadline, _projectSupplierId, _projectSupplierName, data.orderResult.orderId);
+        closeAddProjectModal();
+        showSuccess('Projeto Público criado com sucesso!');
+    })
+    .catch(function(err){ showError('Erro ao criar projeto: ' + err.message); });
+}
+function addProjectToTable(matId, name, investment, deadline, supplierId, supplierName, orderId) {
+    var table = document.getElementById('projectsTable').querySelector('tbody');
+    table.innerHTML = table.innerHTML.replace('Nenhum projeto público adicionado.', '');
+    var row = table.insertRow();
+    row.setAttribute('data-mat-id', matId);
+    row.setAttribute('data-order-id', orderId || '');
+    var supplierHtml = supplierName ? '<i class="fas fa-truck supplier-icon" title="Fornecedor: ' + escapeHtml(supplierName) + '" onclick="event.stopPropagation();openSupplierInfo(' + supplierId + ')" style="cursor:pointer;margin-left:6px;color:var(--primary-color);"></i>' : '';
+    row.innerHTML = '<td>' + escapeHtml(name) + supplierHtml + '</td>' +
+        '<td>' + deadline.toFixed(1) + ' dias</td>' +
+        '<td>' + investment.toFixed(4) + ' h</td>' +
+        '<td>' + getOrderStatusBadge('solicitada') + '</td>' +
+        '<td>' + renderOrderActions(orderId, 'solicitada') + ' <button class="btn btn-sm btn-secondary" onclick="deleteServiceOrder(' + (orderId||0) + ', this)">Remover</button></td>';
+    markDirty();
+}
+
+function openSupplierInfo(supplierId) {
+    if (!supplierId) return;
+    var modal = document.getElementById('supplierInfoModal');
+    var content = document.getElementById('supplierInfoContent');
+    if (!modal || !content) return;
+    content.innerHTML = '<p style="color:var(--text-secondary);">Carregando...</p>';
+    modal.style.display = 'block';
+
+    fetch('/api/instances/' + supplierId + '/worker')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var html = '<div style="line-height:1.8;">';
+            html += '<p><strong>Nome:</strong> ' + escapeHtml(data.committeeName || data.name || ('Comitê #' + supplierId)) + '</p>';
+            html += '<p><strong>ID:</strong> ' + supplierId + '</p>';
+            if (data.type) html += '<p><strong>Tipo:</strong> ' + escapeHtml(data.type) + '</p>';
+            if (data.parentInstanceName) html += '<p><strong>Conselho Associado:</strong> ' + escapeHtml(data.parentInstanceName) + '</p>';
+            if (data.city) html += '<p><strong>Cidade:</strong> ' + escapeHtml(data.city) + '</p>';
+            if (data.state) html += '<p><strong>Estado:</strong> ' + escapeHtml(data.state) + '</p>';
+            if (data.street) html += '<p><strong>Endereço:</strong> ' + escapeHtml(data.street) + (data.streetNumber ? ', ' + data.streetNumber : '') + '</p>';
+            html += '</div>';
+            content.innerHTML = html;
+        })
+        .catch(function() { content.innerHTML = '<p style="color:var(--error-color);">Erro ao carregar dados.</p>'; });
+}
+
+function closeSupplierInfoModal() {
+    var m = document.getElementById('supplierInfoModal');
+    if (m) m.style.display = 'none';
 }

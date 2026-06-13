@@ -8,12 +8,17 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.server.ResponseStatusException;
 import xyz.planecon.dto.EstimatesResponseDTO;
 import xyz.planecon.dto.InstanceDto;
 import xyz.planecon.dto.OptimizationConfigsResponseDTO;
 import xyz.planecon.model.entity.Instance;
 import xyz.planecon.model.entity.WorkersProposal;
+import xyz.planecon.model.entity.CouncilTransaction;
+import xyz.planecon.repository.CouncilTransactionRepository;
 import xyz.planecon.service.CouncilService;
 import xyz.planecon.repository.InstanceRepository;
 import xyz.planecon.repository.WorkersProposalRepository;
@@ -27,6 +32,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import java.util.HashMap;
 
 @RestController
 @RequestMapping("/api/council")
@@ -40,6 +49,9 @@ public class CouncilController {
 
     @Autowired
     private WorkersProposalRepository workersProposalRepository;
+
+    @Autowired
+    private CouncilTransactionRepository councilTransactionRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(CouncilController.class);
 
@@ -431,6 +443,73 @@ public class CouncilController {
             return ResponseEntity.ok(Map.of("updated", updates.size(), "details", updates));
         } catch (Exception e) {
             logger.error("Erro ao processar redeem-all-workers: {}", e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * Retorna saldo e taxa do conselho.
+     */
+    @GetMapping("/{id}/balance")
+    public ResponseEntity<?> getCouncilBalance(@PathVariable Integer id) {
+        try {
+            Instance council = instanceRepository.findById(id).orElse(null);
+            if (council == null) return ResponseEntity.notFound().build();
+            Map<String, Object> result = new HashMap<>();
+            result.put("balance", council.getBalance() != null ? council.getBalance() : BigDecimal.ZERO);
+            result.put("taxRate", council.getTaxRate() != null ? council.getTaxRate() : new BigDecimal("50"));
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    /**
+     * Atualiza a taxa de arrecadação do conselho.
+     */
+    @PutMapping("/{id}/tax-rate")
+    @Transactional
+    public ResponseEntity<?> updateTaxRate(@PathVariable Integer id, @RequestBody Map<String, Object> body) {
+        try {
+            Instance council = instanceRepository.findById(id).orElse(null);
+            if (council == null) return ResponseEntity.notFound().build();
+            BigDecimal rate = new BigDecimal(body.get("taxRate").toString());
+            if (rate.compareTo(new BigDecimal("10")) < 0 || rate.compareTo(new BigDecimal("70")) > 0) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Taxa deve estar entre 10% e 70%"));
+            }
+            council.setTaxRate(rate);
+            instanceRepository.save(council);
+            return ResponseEntity.ok(Map.of("success", true, "taxRate", rate));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    /**
+     * Extrato de transações do conselho (paginado).
+     */
+    @GetMapping("/{id}/transactions")
+    public ResponseEntity<?> getTransactions(
+            @PathVariable Integer id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int limit,
+            @RequestParam(required = false) String search) {
+        try {
+            Page<CouncilTransaction> result;
+            if (search != null && !search.trim().isEmpty()) {
+                result = councilTransactionRepository.findByCouncilIdWithSearch(id, search.trim(),
+                    PageRequest.of(page, limit, Sort.by(Sort.Direction.DESC, "createdAt")));
+            } else {
+                result = councilTransactionRepository.findByCouncilIdOrderByCreatedAtDesc(id,
+                    PageRequest.of(page, limit));
+            }
+            Map<String, Object> response = new HashMap<>();
+            response.put("transactions", result.getContent());
+            response.put("totalPages", result.getTotalPages());
+            response.put("currentPage", page);
+            response.put("totalElements", result.getTotalElements());
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", e.getMessage()));
         }
     }

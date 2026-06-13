@@ -15,11 +15,13 @@ import xyz.planecon.model.entity.DemandVector;
 import xyz.planecon.model.entity.SocialMaterialization;
 import xyz.planecon.model.entity.OptimizationInputsResults;
 import xyz.planecon.model.enums.InstanceType;
+import xyz.planecon.model.enums.SocialMaterializationType;
 import xyz.planecon.repository.DemandVectorRepository;
 import xyz.planecon.repository.InstanceRepository;
 import xyz.planecon.repository.TechnologicalTensorRepository;
 import xyz.planecon.repository.SocialMaterializationRepository;
 import xyz.planecon.repository.OptimizationInputsResultsRepository;
+import xyz.planecon.repository.SupplyOrderRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -45,6 +47,9 @@ public class CouncilService {
 
     @Autowired
     private OptimizationInputsResultsRepository optimizationRepository;
+
+    @Autowired
+    private SupplyOrderRepository supplyOrderRepository;
 
     /**
      * Calcula estimativas de matriz tecnológica e vetor de demanda com base nas instâncias filhas
@@ -80,6 +85,14 @@ public class CouncilService {
 
         // 4. Buscar todas as materializações de uma vez para evitar múltiplas consultas
         List<SocialMaterialization> allMaterializations = materializationRepository.findAllById(allMaterializationIds);
+
+        // 4.1 Filtrar projetos individuais — manter apenas o agregado "Projetos" (ID 17)
+        // Projetos individuais já estão consolidados via technological_tensor do comitê
+        allMaterializations = allMaterializations.stream()
+            .filter(m -> m.getType() != SocialMaterializationType.PROJECT || m.getId() == 17)
+            .collect(Collectors.toList());
+
+        logger.info("Materializações após filtro de projetos: {}", allMaterializations.size());
 
         // 5. Calcular matriz tecnológica média usando apenas as instâncias filhas
         EstimatesResponseDTO.TechnologicalMatrixDTO techMatrix = calculateAverageTechnologicalMatrixFromChildren(councilId, allMaterializations);
@@ -124,6 +137,13 @@ public class CouncilService {
         for (Object[] row : childDemandsData) {
             Integer matId = ((Number) row[0]).intValue();
             materializationIds.add(matId);
+        }
+
+        // 3. Coletar IDs de materializações dos supply_orders (projetos e serviços)
+        List<Integer> supplyOrderMatIds = supplyOrderRepository.findInputMatIdsByCouncilChildren(councilId);
+        if (supplyOrderMatIds != null) {
+            materializationIds.addAll(supplyOrderMatIds);
+            logger.info("Adicionados {} IDs de supply_order (projetos/serviços)", supplyOrderMatIds.size());
         }
 
         return materializationIds;

@@ -6,6 +6,7 @@ let productNames = [];
 let productIds = [];
 let technologicalMatrix = [];
 let demandVector = [];
+let materializationTypeById = {};
 let currentOptimizationProductIndex = -1;
 const optimizationConfigs = {};
 let optimizationResults = [];
@@ -59,6 +60,11 @@ function loadPreviousResults(instanceId) {
                 
                 // Renderizar a tabela de produção
                 renderProductionVector(data.productionVector);
+                
+                // Armazenar para uso posterior (preserva dados existentes)
+                if (data.optimizationResults && data.optimizationResults.length > 0) {
+                    storeOptimizationResults(data.productionVector);
+                }
                 
                 // Mostrar a seção de resultados
                 document.getElementById('results').style.display = 'block';
@@ -653,9 +659,6 @@ function renderProductionVector(productionVector) {
     
     // 5. Garantir que o container de resultados esteja visível
     resultsContainer.style.display = 'block';
-    
-    // 6. Armazenar os resultados para uso posterior na otimização
-    storeOptimizationResults(productionVector);
 }
 
 // Function to render demand vector - moved to global scope
@@ -957,6 +960,9 @@ function calculateOrFetchOptimizationResults(instanceId, materializationId, prod
 document.addEventListener('DOMContentLoaded', function() {
     console.log('=== DOMContentLoaded event fired in plannercouncil.js ===');
     
+    // Pré-carregar tipos de materialização para filtrar projetos
+    loadMaterializationTypes();
+    
     // Inicializar cabeçalho comum - APENAS UMA VEZ
     try {
         ensureHeader();
@@ -1115,6 +1121,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 productNames = data.productNames;
                 productIds = data.productIds;
                 
+                // Filtrar projetos individuais
+                filterIndividualProjectsSync();
+                
                 // Renderizar a matriz na tabela - now uses global function
                 renderTechnologicalMatrix();
             });
@@ -1155,6 +1164,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 } else {
                     productIds = data.productIds;
                 }
+                
+                // Filtrar projetos individuais
+                filterIndividualProjectsSync();
                 
                 // Clear existing demand vector
                 demandVector = [];
@@ -1419,6 +1431,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 // Renderizar resultados de otimização
                 if (data.optimizationResults) {
                     optimizationResults = data.optimizationResults;
+                    window.lastPlanificationResults = data;
                     renderOptimizationResults(data.optimizationResults);
                 }
                 
@@ -1560,6 +1573,9 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             // 1. Atualizar variáveis com os dados atuais da interface
             updateMatrixAndVectorData();
+
+            // Filtrar projetos individuais antes de salvar (síncrono)
+            filterIndividualProjectsSync();
             
             // 2. Prepare all promises that will be executed
             const allPromises = [];
@@ -1608,84 +1624,22 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             }
             
-            // 4. Create promises to save/update each entry in the technological matrix
-            for (let i = 0; i < technologicalMatrix.length; i++) {
-                const rowId = productIds[i];
-                
-                for (let j = 0; j < technologicalMatrix[i].length; j++) {
-                    const colId = productIds[j];
-                    const value = technologicalMatrix[i][j];
-                    
-                    allPromises.push(
-                        fetch('/api/planification/technological-tensor', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json'
-                            },
-                            body: JSON.stringify({
-                                inputMaterializationId: rowId,
-                                outputMaterializationId: colId,
-                                instanceId: currentInstanceId,
-                                quantity: value
-                            })
-                        })
-                    );
-                }
-            }
+            // 4. O Conselho Planificador não salva sua própria matriz tecnológica nem vetor de demanda —
+            //    esses dados são sempre derivados das instâncias filhas via "Calcular Estimativas".
+            //    Salvar aqui causaria realimentação (feedback loop) nos cálculos subsequentes.
+            console.log("Pulando salvamento de technologicalMatrix e demandVector para o Conselho Planificador");
             
-            // 5. Create promises to save/update each entry in the demand vector
-            for (let i = 0; i < demandVector.length; i++) {
-                const materializationId = productIds[i];
-                const value = demandVector[i];
+            // 5. NOVO: Adicionar promessas para salvar os resultados de otimização
+            // Usar window.lastPlanificationResults como fallback
+            const resultsToSave = (optimizationResults && optimizationResults.length > 0)
+                ? optimizationResults
+                : (window.lastPlanificationResults && window.lastPlanificationResults.optimizationResults
+                    ? window.lastPlanificationResults.optimizationResults : null);
+
+            if (resultsToSave && resultsToSave.length > 0) {
+                console.log(`Salvando ${resultsToSave.length} resultados de otimização`);
                 
-                // Verificar se o ID de materialização e o valor são válidos
-                if (!materializationId || isNaN(materializationId) || materializationId <= 0) {
-                    console.error(`ID de materialização inválido no índice ${i}:`, materializationId);
-                    continue;
-                }
-                
-                console.log(`Salvando demanda para materialização ${materializationId}: ${value}`);
-                
-                // Criar um payload explícito para depuração mais clara
-                const demandPayload = {
-                    materializationId: materializationId,
-                    instanceId: currentInstanceId,
-                    demand: value  // Importante: use "demand" em vez de "quantity" no payload
-                };
-                
-                console.log(`Payload da demanda:`, demandPayload);
-                
-                const demandPromise = fetch('/api/planification/demand-vector', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(demandPayload)
-                }).then(response => {
-                    if (!response.ok) {
-                        console.error(`Erro ao salvar vetor de demanda para materialização ${materializationId}:`, response.statusText);
-                        // Tenta ler detalhes do erro do corpo da resposta
-                        return response.text().then(text => {
-                            console.error("Detalhes do erro:", text);
-                            return response;
-                        });
-                    }
-                    console.log(`Vetor de demanda para materialização ${materializationId} salvo com sucesso`);
-                    return response;
-                }).catch(error => {
-                    console.error(`Erro na requisição para salvar demanda:`, error);
-                    throw error;
-                });
-                
-                allPromises.push(demandPromise);
-            }
-            
-            // 6. NOVO: Adicionar promessas para salvar os resultados de otimização
-            if (optimizationResults && optimizationResults.length > 0) {
-                console.log(`Salvando ${optimizationResults.length} resultados de otimização`);
-                
-                // Para cada resultado de otimização, criar uma promessa para salvar
-                optimizationResults.forEach((result, index) => {
+                resultsToSave.forEach((result, index) => {
                     if (!result || !result.materializationId) {
                         console.warn(`Resultado de otimização inválido no índice ${index}:`, result);
                         return; // Pular este item
@@ -1788,25 +1742,6 @@ document.addEventListener('DOMContentLoaded', function() {
                         .then(res => {
                             if (res.ok) {
                                 console.log("Timestamp de estimativas planificadas atualizado no Conselho Planificador, tampered:", tampered);
-                                // Após salvar as estimativas, acionar o resgate automático para todos os trabalhadores
-                                return fetch(`/api/council/${currentInstanceId}/redeem-all-workers`, { method: 'POST' })
-                                    .then(rr => {
-                                        if (rr.ok) {
-                                            rr.json().then(summary => {
-                                                console.log('Redeem-all-workers concluído:', summary);
-                                                showNotification('Resgate automático para todos os trabalhadores concluído.', 'success');
-                                            }).catch(() => {
-                                                showNotification('Resgate automático concluído.', 'success');
-                                            });
-                                        } else {
-                                            console.warn('Falha no resgate automático de trabalhadores');
-                                            showNotification('Falha no resgate automático de trabalhadores.', 'warning');
-                                        }
-                                    })
-                                    .catch(err => {
-                                        console.error('Erro ao chamar redeem-all-workers:', err);
-                                        showNotification('Erro ao executar resgate automático.', 'error');
-                                    });
                             } else {
                                 console.warn("Falha ao atualizar timestamp de estimativas planificadas no Conselho Planificador");
                             }
@@ -1876,6 +1811,9 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(() => {
             // Tentar carregar resultados anteriores, se existirem
             return loadPreviousResults(instanceId);
+        })
+        .then(() => {
+            loadCouncilBalance();
         })
         .catch(error => {
             console.error('Erro ao carregar dados da instância:', error);
@@ -3176,4 +3114,147 @@ function storeOptimizationResults(results) {
             }
         });
     }
+}
+function loadMaterializationTypes() {
+    return fetch('/api/planification/available-materializations')
+        .then(function(r) { return r.json(); })
+        .then(function(mats) {
+            materializationTypeById = {};
+            (mats || []).forEach(function(m) { materializationTypeById[m.id] = m.type; });
+        })
+        .catch(function() { console.error('Erro ao carregar tipos'); });
+}
+
+function filterIndividualProjectsSync() {
+    var toRemove = [];
+    for (var i = 0; i < productIds.length; i++) {
+        var type = materializationTypeById[productIds[i]];
+        if (type === 'PROJECT' && productIds[i] !== 17) {
+            toRemove.push(i);
+        }
+    }
+    if (toRemove.length > 0) {
+        for (var j = toRemove.length - 1; j >= 0; j--) {
+            var idx = toRemove[j];
+            productIds.splice(idx, 1);
+            productNames.splice(idx, 1);
+            demandVector.splice(idx, 1);
+            if (technologicalMatrix && technologicalMatrix.length > idx) {
+                technologicalMatrix.splice(idx, 1);
+            }
+        }
+    }
+}
+
+function loadCouncilBalance() {
+    if (!currentInstanceId) return;
+    fetch('/api/council/' + currentInstanceId + '/balance')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            var el = document.getElementById('councilBalanceDisplay');
+            if (el) el.textContent = parseFloat(data.balance || 0).toFixed(4) + ' h';
+            var rateInput = document.getElementById('taxRateInput');
+            if (rateInput && data.taxRate != null) rateInput.value = data.taxRate;
+            var slider = document.getElementById('taxSlider');
+            if (slider && data.taxRate != null) slider.value = data.taxRate;
+        })
+        .catch(function(err) { console.error('Erro ao carregar saldo:', err); });
+}
+
+function showTaxSlider(show) {
+    var c = document.getElementById('taxSliderContainer');
+    if (c) c.style.display = show ? 'flex' : 'none';
+}
+
+function saveTaxRate() {
+    if (!currentInstanceId) return;
+    var rate = document.getElementById('taxRateInput').value;
+    var slider = document.getElementById('taxSlider');
+    if (slider) slider.value = rate;
+    fetch('/api/council/' + currentInstanceId + '/tax-rate', {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ taxRate: parseFloat(rate) })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) { if (data.success) showSuccess('Taxa: ' + data.taxRate + '%'); })
+    .catch(function(err) { console.error('Erro ao salvar taxa:', err); });
+}
+
+var _extractPage = 0, _extractHasMore = true, _extractLoading = false, _extractSearchTimeout = null;
+
+function openExtractModal() {
+    if (!currentInstanceId) return;
+    var modal = document.getElementById('extractModal');
+    if (!modal) return;
+    modal.style.display = 'block';
+    document.getElementById('extractSearchInput').value = '';
+    _extractPage = 0; _extractHasMore = true;
+    document.getElementById('extractListContainer').innerHTML = '<p style="color:var(--text-secondary);">Carregando...</p>';
+    loadExtractPage();
+}
+
+function closeExtractModal() { var m = document.getElementById('extractModal'); if (m) m.style.display = 'none'; }
+
+function debounceSearch() {
+    if (_extractSearchTimeout) clearTimeout(_extractSearchTimeout);
+    _extractSearchTimeout = setTimeout(resetAndLoadExtract, 300);
+}
+
+function resetAndLoadExtract() {
+    _extractPage = 0; _extractHasMore = true;
+    document.getElementById('extractListContainer').innerHTML = '';
+    loadExtractPage();
+}
+
+function loadExtractPage() {
+    if (!_extractHasMore || _extractLoading || !currentInstanceId) return;
+    _extractLoading = true;
+    document.getElementById('extractLoadMore').style.display = 'block';
+    var search = document.getElementById('extractSearchInput') ? document.getElementById('extractSearchInput').value : '';
+    var url = '/api/council/' + currentInstanceId + '/transactions?page=' + _extractPage + '&limit=30';
+    if (search) url += '&search=' + encodeURIComponent(search);
+    fetch(url).then(function(r) { return r.json(); }).then(function(data) {
+        _extractLoading = false;
+        document.getElementById('extractLoadMore').style.display = 'none';
+        var txs = data.transactions || [];
+        _extractHasMore = _extractPage < (data.totalPages - 1);
+        _extractPage++;
+        var c = document.getElementById('extractListContainer');
+        if (_extractPage === 1 && txs.length === 0) {
+            c.innerHTML = '<p style="color:var(--text-secondary);font-style:italic;">Nenhuma transação.</p>';
+            return;
+        }
+        renderExtractTransactions(txs, _extractPage > 1);
+    }).catch(function(err) { _extractLoading = false; console.error(err); });
+}
+
+function renderExtractTransactions(transactions, append) {
+    var c = document.getElementById('extractListContainer');
+    if (!c) return;
+    var curMonth = '', html = append ? c.innerHTML : '';
+    transactions.forEach(function(t) {
+        var d = new Date(t.createdAt);
+        var mk = d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+        if (mk !== curMonth) {
+            curMonth = mk;
+            html += '<div style="padding:6px 8px;margin-top:8px;background:var(--bg-light);border-radius:4px;font-weight:600;font-size:0.85em;color:var(--primary-color);">' + mk.charAt(0).toUpperCase() + mk.slice(1) + '</div>';
+        }
+        var isCr = t.transactionType === 'CREDIT';
+        var color = isCr ? '#2e7d32' : '#c62828';
+        var pfx = isCr ? '+' : '-';
+        var amt = parseFloat(t.amount) || 0;
+        var ad = (Math.abs(amt) < 0.01 && amt !== 0) ? Math.abs(amt).toExponential(4) : Math.abs(amt).toFixed(4);
+        html += '<div style="display:flex;justify-content:space-between;align-items:center;padding:8px;border-bottom:1px solid var(--border-color-light);"><div style="flex:1;"><div style="font-size:0.85em;word-break:break-word;">' + escapeHtml(t.description || t.sourceName || 'Transação') + '</div><div style="font-size:0.7em;color:var(--text-secondary);">' + d.toLocaleDateString('pt-BR') + '</div></div><div style="text-align:right;margin-left:16px;"><div style="color:' + color + ';font-weight:600;">' + pfx + ' ' + ad + ' h</div><div style="font-size:0.7em;color:var(--text-secondary);">Saldo: ' + parseFloat(t.balanceAfter || 0).toFixed(4) + ' h</div></div></div>';
+    });
+    c.innerHTML = html;
+}
+
+function extractScrollHandler() {
+    var c = document.getElementById('extractListContainer');
+    if (c && c.scrollTop + c.clientHeight >= c.scrollHeight - 50) loadExtractPage();
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 }

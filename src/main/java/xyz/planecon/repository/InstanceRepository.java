@@ -1,12 +1,14 @@
 package xyz.planecon.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import xyz.planecon.model.entity.*;
 import xyz.planecon.model.enums.InstanceType;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
@@ -105,6 +107,18 @@ public interface InstanceRepository extends JpaRepository<Instance, Integer> {
 
     @Query("SELECT i FROM Instance i WHERE i.associatedWorkerCommittee.id = :committeeId")
     List<Instance> findByAssociatedWorkerCommitteeId(@Param("committeeId") Integer committeeId);
+
+    /**
+     * Bulk update: adiciona horas a todos os trabalhadores de um comitê em uma única query nativa.
+     * Extremamente mais rápido que carregar e salvar entidades individualmente.
+     */
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = "UPDATE instance SET socially_confirmed_work_time = COALESCE(socially_confirmed_work_time, 0) + :hours " +
+           "WHERE id_associated_worker_committee = :committeeId AND type = 'WORKER'", nativeQuery = true)
+    int addHoursToCommitteeWorkers(@Param("committeeId") Integer committeeId, @Param("hours") BigDecimal hours);
+
+    @Query("SELECT COUNT(w) FROM Instance w WHERE w.associatedWorkerCommittee.id = :committeeId AND w.type = xyz.planecon.model.enums.InstanceType.WORKER")
+    int countWorkersByCommitteeId(@Param("committeeId") Integer committeeId);
 
     /**
      * Retorna conselhos populares "globais" (sem city_code), com coordenadas definidas.

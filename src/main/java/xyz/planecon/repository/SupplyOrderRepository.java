@@ -18,4 +18,16 @@ public interface SupplyOrderRepository extends JpaRepository<SupplyOrder, Intege
     List<SupplyOrder> findByOrderingInstanceIdAndInputMaterializationIdOrderByCreatedAtDesc(
             @Param("orderingId") Integer orderingInstanceId,
             @Param("inputId") Integer inputMaterializationId);
+
+    @Query("SELECT so FROM SupplyOrder so WHERE so.orderingInstance.id = :orderingId ORDER BY so.createdAt DESC")
+    List<SupplyOrder> findByOrderingInstanceIdOrderByCreatedAtDesc(@Param("orderingId") Integer orderingInstanceId);
+
+    @Query(value = 
+        "SELECT DISTINCT so.input_materialization_id FROM supply_order so " +
+        "JOIN instance i ON so.ordering_instance_id = i.id " +
+        "WHERE i.popular_council_associated_with_committee_or_worker = :councilId " +
+        "OR i.popular_council_associated_with_popular_council = :councilId " +
+        "OR so.ordering_instance_id = :councilId",
+        nativeQuery = true)
+    List<Integer> findInputMatIdsByCouncilChildren(@Param("councilId") Integer councilId);
 }

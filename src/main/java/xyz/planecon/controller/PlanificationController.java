@@ -302,6 +302,7 @@ public class PlanificationController {
      * Novo endpoint que busca o vetor de demanda diretamente sem depender de TechnologicalTensor
      * Este endpoint é especificamente para a página popularcouncil.js
      */
+    @Transactional(readOnly = true)
     @GetMapping("/demand-vector/by-instance/{instanceId}")
     public ResponseEntity<Map<String, Object>> getDemandVectorDirectlyByInstance(@PathVariable Integer instanceId) {
         logger.info("Buscando vetor de demanda diretamente para instância {}", instanceId);
@@ -592,8 +593,7 @@ public class PlanificationController {
                 Integer index = materializationToIndex.get(materializationId);
                 
                 if (index != null && config.getProductionGoal() != null) {
-                    // Converter de unidades para milhares (divisão por 1000)
-                    productionVector[index] = config.getProductionGoal().doubleValue() / 1000.0;
+                    productionVector[index] = config.getProductionGoal().doubleValue();
                     
                     // Adicionar resultado de otimização
                     SocialMaterialization materialization = materializations.get(index);

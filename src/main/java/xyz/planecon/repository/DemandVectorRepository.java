@@ -22,14 +22,12 @@ public interface DemandVectorRepository extends JpaRepository<DemandVector, Dema
     
     List<DemandVector> findBySocialMaterialization(SocialMaterialization socialMaterialization);
 
-    @Cacheable("demandVectors")
     @Query("SELECT dv FROM DemandVector dv WHERE dv.instance.id = :instanceId")
     List<DemandVector> findByInstanceId(@Param("instanceId") Integer instanceId);
     
     @Cacheable("demandVectors")
     List<DemandVector> findAll();
     
-    @Cacheable("demandVectors")
     @Query("SELECT dv FROM DemandVector dv JOIN FETCH dv.socialMaterialization JOIN FETCH dv.instance " +
            "WHERE dv.instance.id = :instanceId")
     List<DemandVector> findByInstanceIdWithJoinFetch(@Param("instanceId") Integer instanceId);

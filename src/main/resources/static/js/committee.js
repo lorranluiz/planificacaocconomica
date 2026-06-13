@@ -1273,6 +1273,7 @@ function initializePageState(committeeId) {
         
         // Atualizar o estado com dados do cache
         Object.assign(pageState, cachedState);
+        pageState.materializations = (pageState.materializations || []).filter(m => m.id !== 17);
         globalState.technologicalQuantities = {};
         (pageState.materializations || []).forEach(materialization => {
             if (materialization.quantity !== undefined && materialization.quantity !== null && materialization.quantity !== '') {
@@ -1323,7 +1324,8 @@ function initializePageState(committeeId) {
                 weeklyScale: 5
             };
             pageState.members = data.members || [];
-            pageState.materializations = data.materializations || [];
+            pageState.materializations = (data.materializations || [])
+                .filter(m => m.id !== 17); // Filtrar materialização genérica "Projetos"
             globalState.technologicalQuantities = {};
             pageState.materializations.forEach(materialization => {
                 if (materialization.quantity !== undefined && materialization.quantity !== null && materialization.quantity !== '') {
@@ -1359,6 +1361,7 @@ function initializePageState(committeeId) {
             // Atualizar a interface com os dados carregados
             updateAllUI();
             refreshTechnologicalMatrixMetadata();
+            fetchProjectsSummary().then(() => updateTechnologicalMatrixTable());
             
             // Ocultar indicador de carregamento
             if (loadingSpinner) loadingSpinner.style.display = 'none';
@@ -1827,6 +1830,55 @@ function updateTechnologicalMatrixTable() {
     // Armazenar Tempo Socialmente Necessário para Produzir Uma Unidade
     pageState.sociallyNecessaryTimePerUnit = temporalUnitProductDenominator;
 
+    // Linha especial "Projetos" (se houver projetos ativos)
+    if (pageState.projectsSummary && pageState.projectsSummary.hasActiveProjects) {
+        const ps = pageState.projectsSummary;
+        const tr = document.createElement('tr');
+        tr.classList.add('projects-row');
+        const qtyVal = parseFloat(ps.totalHours) || 0;
+        const qtyDisplay = formatNumberForInput(qtyVal);
+        // Proporção = 1 (quantidade / grandeza = qtyVal / qtyVal)
+        const projInputProportion = 1;
+        // Tempo = Quantidade (para Projetos)
+        const projProductionTime = qtyVal;
+        const projTemporal = projInputProportion * projProductionTime;
+        const totalTemporalWithProjects = totalTemporalProportion + projTemporal;
+        const projCostShare = totalTemporalWithProjects > 0 ? projTemporal / totalTemporalWithProjects : 0;
+        const denomWithProjects = totalTemporalWithProjects + (productProductionTime || 0);
+        const projUnitShare = denomWithProjects > 0 ? projTemporal / denomWithProjects : 0;
+        const projStandardQtyHtml = `<span class="technological-standard-quantity">x ${qtyDisplay} h</span>`;
+
+        tr.innerHTML = `<td><div class="mat-name-inline"><strong onclick="showProductPlan()" style="cursor:pointer; color:var(--primary-color);">Projetos Públicos</strong><i class="fas fa-hard-hat supplier-icon" title="Projetos Públicos ativos: ${ps.projectCount}" style="margin-left:8px; color:#e65100;"></i></div></td>
+            <td class="technological-quantity-cell">
+                <div class="technological-proportion-line">
+                    <input type="text" class="form-control" value="${qtyDisplay}" readonly tabindex="-1" aria-readonly="true">
+                    <span class="technological-unit-label">h</span>
+                </div>
+            </td>
+            <td class="technological-proportion-cell">
+                <div class="technological-proportion-line">
+                    <input type="text" class="form-control" value="${formatNumberForInput(projInputProportion)}" readonly tabindex="-1" aria-readonly="true">
+                    ${projStandardQtyHtml}
+                </div>
+            </td>
+            <td class="technological-production-time-cell">
+                <input type="text" class="form-control" value="${formatNumberForDisplay(projProductionTime)}" readonly tabindex="-1" aria-readonly="true" title="${qtyDisplay} h">
+            </td>
+            <td class="technological-temporal-proportion-cell">
+                <input type="text" class="form-control" value="${formatNumberForInput(projTemporal)}" readonly tabindex="-1" aria-readonly="true">
+            </td>
+            <td class="technological-product-proportion-cell">
+                <input type="text" class="form-control" value="${formatNumberForInput(projCostShare)}" readonly tabindex="-1" aria-readonly="true">
+            </td>
+            <td class="technological-product-proportion-cell">
+                <input type="text" class="form-control technological-temporal-proportion-unit-product-input" 
+                       value="${formatNumberForInput(projUnitShare)}"
+                       readonly tabindex="-1" aria-readonly="true">
+            </td>
+            <td><span style="font-size:0.8em; color:var(--text-secondary);">Prazo: ${parseFloat(ps.avgDeadline).toFixed(1)}</span></td>`;
+        tbody.appendChild(tr);
+    }
+
     inputMaterializations.forEach((mat, idx) => {
         const tr = document.createElement('tr');
         tr.dataset.materializationId = mat.id;
@@ -1995,6 +2047,33 @@ function saveCommitteeState() {
         // Escolhas de fornecedor
         supplierChoices: globalState.supplierChoices
     };
+
+    // Incluir materialização genérica "Projetos" (ID 17) se houver projetos ativos
+    // para que o Elemento Tecnológico seja salvo e usado na planificação
+    if (pageState.projectsSummary && pageState.projectsSummary.hasActiveProjects) {
+        const projRow = document.querySelector('tr.projects-row');
+        if (projRow) {
+            const coeffInput = projRow.querySelector('input[data-tensor-project-coeff]');
+            const unitShareInput = projRow.querySelector('.technological-temporal-proportion-unit-product-input');
+            const coeffValue = unitShareInput ? parseFloat(unitShareInput.value) : 0;
+            const qtyInput = projRow.querySelector('.technological-quantity-cell input');
+            const qtyValue = qtyInput ? parseFloat(qtyInput.value) : (parseFloat(pageState.projectsSummary.totalHours) || 0);
+
+            const projMat = {
+                id: 17, // ID fixo da materialização genérica "Projetos"
+                name: 'Projetos Públicos',
+                type: 'PROJECT',
+                quantity: qtyValue,
+                demand: 0,
+                stock: 0,
+                isNew: false,
+                isDeleted: false,
+                technologicalTensors: {}
+            };
+            projMat.technologicalTensors[pageState.socialMaterializationId] = coeffValue || 0;
+            committeeData.materializations = [...committeeData.materializations, projMat];
+        }
+    }
     
     // Salvar IDs de materializações que serão excluídas para atualizarmos a UI depois
     const deletedMaterializationIds = pageState.materializations
@@ -2909,6 +2988,9 @@ function showProductPlan() {
         return;
     }
 
+    // Buscar projects summary antes de abrir o modal
+    fetchProjectsSummary().then(() => {
+
     // Buscar a materialização principal do comitê
     const mainProduct = pageState.materializations.find(m => m.id === pageState.socialMaterializationId);
     if (!mainProduct) {
@@ -2986,6 +3068,7 @@ function showProductPlan() {
                 element.textContent = productName;
             });
         });
+    }); // close fetchProjectsSummary().then()
 }
 
 /**
@@ -3144,6 +3227,78 @@ function displayOptimizationResults(result) {
     }
 }
 
+function fetchProjectsSummary() {
+    if (!pageState.id) return Promise.resolve();
+    return fetch(`/api/committees/${pageState.id}/projects-summary`)
+        .then(r => r.json())
+        .then(data => {
+            pageState.projectsSummary = data;
+        })
+        .catch(err => {
+            console.error('Erro ao buscar projetos:', err);
+            pageState.projectsSummary = { hasActiveProjects: false, totalHours: 0, avgDeadline: 0, projectCount: 0 };
+        });
+}
+
+function fetchIncomingProjects() {
+    const projectsList = document.getElementById('incomingProjectsList');
+    if (!projectsList || !pageState.id) return;
+
+    fetch(`/api/committees/${pageState.id}/incoming-orders`)
+        .then(r => r.json())
+        .then(orders => {
+            // Filtrar apenas projetos (inputUnitName='h' é um heuristic, o backend já marca)
+            // Idealmente o backend retornaria o tipo, mas filtramos pelo que temos
+            const projects = orders.filter(o => {
+                // Projetos têm inputMaterialization com type=PROJECT - mas o incoming-orders não retorna type
+                // Heurística: se o comitê demandante é um conselho (nome contém "Conselho")
+                const name = (o.orderingCommitteeName || '').toLowerCase();
+                return name.includes('conselho');
+            });
+
+            if (!projects || projects.length === 0) {
+                projectsList.innerHTML = '<p style="color: var(--text-secondary, #666); font-style: italic;">Nenhum projeto recebido.</p>';
+                return;
+            }
+
+            let html = '<table class="incoming-orders-table" style="width:100%; border-collapse: collapse;">';
+            html += '<thead><tr>' +
+                '<th style="text-align:left; padding: 6px 8px; border-bottom: 1px solid var(--border-color, #444);">Conselho</th>' +
+                '<th style="text-align:left; padding: 6px 8px; border-bottom: 1px solid var(--border-color, #444);">Projeto Público</th>' +
+                '<th style="text-align:right; padding: 6px 8px; border-bottom: 1px solid var(--border-color, #444);">Investimento (h)</th>' +
+                '<th style="text-align:center; padding: 6px 8px; border-bottom: 1px solid var(--border-color, #444);">Status</th>' +
+                '<th style="text-align:center; padding: 6px 8px; border-bottom: 1px solid var(--border-color, #444);">Ações</th>' +
+                '</tr></thead><tbody>';
+            projects.forEach(order => {
+                const qty = parseFloat(order.demandedQuantity) || 0;
+                const qtyDisplay = (Math.abs(qty) < 0.01 && qty !== 0) ? qty.toExponential(4) : qty.toFixed(2);
+                const status = order.orderStatus || 'solicitada';
+                const statusBadge = getOrderStatusBadge(status);
+                let actionsHtml = '';
+                if (status === 'solicitada') {
+                    actionsHtml = `<button class="btn btn-sm" style="padding:2px 8px; font-size:0.8em;" onclick="updateOrderStatus(${order.orderId}, 'aceita em produção')">Aceitar</button>
+                        <button class="btn btn-sm btn-secondary" style="padding:2px 8px; font-size:0.8em;" onclick="updateOrderStatus(${order.orderId}, 'recusada')">Recusar</button>`;
+                } else if (status === 'aceita em produção') {
+                    actionsHtml = `<button class="btn btn-sm" style="padding:2px 8px; font-size:0.8em;" onclick="updateOrderStatus(${order.orderId}, 'produzida e enviada')">Enviar Produção</button>`;
+                } else if (status === 'recebida pelo demandante') {
+                    actionsHtml = `<button class="btn btn-sm" style="padding:2px 8px; font-size:0.8em;" onclick="distributeHours(${pageState.id}, ${order.orderId}, ${qty})">Liberar Horas</button>`;
+                }
+                html += `<tr>
+                    <td style="padding: 6px 8px; border-bottom: 1px solid var(--border-color-light, #333);">${escapeHtml(order.orderingCommitteeName || 'Conselho #' + order.orderingCommitteeId)}</td>
+                    <td style="padding: 6px 8px; border-bottom: 1px solid var(--border-color-light, #333); font-size:0.9em;">ID#${order.inputMaterializationId}</td>
+                    <td style="text-align:right; padding: 6px 8px; border-bottom: 1px solid var(--border-color-light, #333);">${qtyDisplay} h</td>
+                    <td style="text-align:center; padding: 6px 8px; border-bottom: 1px solid var(--border-color-light, #333);">${statusBadge}</td>
+                    <td style="text-align:center; padding: 6px 8px; border-bottom: 1px solid var(--border-color-light, #333);">${actionsHtml}</td>
+                </tr>`;
+            });
+            html += '</tbody></table>';
+            projectsList.innerHTML = html;
+        })
+        .catch(err => {
+            console.error('Erro ao buscar projetos:', err);
+        });
+}
+
 /**
  * Preenche a aba "Dessa Unidade Produtiva" com Produção Necessária e Participação Estimada
  */
@@ -3179,8 +3334,9 @@ function displayUnitPlanData(result) {
         fieldsContainer.style.display = 'none';
     }
 
-    // Buscar encomendas de produção
+    // Buscar encomendas de produção e projetos
     if (pageState.id) {
+        fetchIncomingProjects();
         fetchIncomingOrders();
     }
 }
@@ -3283,6 +3439,7 @@ function updateOrderStatus(orderId, newStatus) {
         if (result.success) {
             showSuccessMessage('Status atualizado com sucesso');
             fetchIncomingOrders();
+            fetchIncomingProjects();
             if (pageState.id) {
                 fetch(`/api/committees/${pageState.id}/state`)
                     .then(r => r.json())
@@ -3327,6 +3484,7 @@ function distributeHours(committeeId, orderId, demandedQuantity) {
                 : hTotal.toFixed(6);
             showSuccessMessage(`Horas distribuídas: ${hPerWorkerDisplay}h por trabalhador (${result.workerCount} trabalhadores, total ${hTotalDisplay}h)`);
             fetchIncomingOrders();
+            fetchIncomingProjects();
         } else {
             showErrorMessage(result.message || 'Erro ao distribuir horas');
         }

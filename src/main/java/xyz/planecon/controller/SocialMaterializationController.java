@@ -246,6 +246,15 @@ public class SocialMaterializationController {
                     .body(Map.of("message", "Materialização social não encontrada: " + id));
             }
 
+            // Atualizar validity_deadline se presente no payload
+            if (payload.containsKey("validityDeadline")) {
+                SocialMaterialization mat = socialMaterializationRepository.findById(id).orElse(null);
+                if (mat != null) {
+                    mat.setValidityDeadline(parseDecimal(payload.get("validityDeadline")));
+                    socialMaterializationRepository.save(mat);
+                }
+            }
+
             Map<String, Object> result = new HashMap<>();
             result.put("id", id);
             result.put("name", name);

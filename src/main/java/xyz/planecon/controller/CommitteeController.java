@@ -20,6 +20,7 @@ import xyz.planecon.model.entity.DemandVector.DemandVectorId;
 import xyz.planecon.model.enums.UserType;
 import xyz.planecon.model.enums.InstanceType;
 import xyz.planecon.model.enums.PronounType;
+import xyz.planecon.model.enums.SocialMaterializationType;
 import xyz.planecon.util.BrazilianStateUtil;
 import java.time.LocalDateTime;
 import java.util.*;
@@ -67,6 +68,9 @@ public class CommitteeController {
 
     @Autowired
     private SupplyOrderRepository supplyOrderRepository;
+
+    @Autowired
+    private CouncilTransactionRepository councilTransactionRepository;
 
     /**
      * Endpoint para salvar o estado completo de um comitê em uma única transação.
@@ -1920,34 +1924,169 @@ public class CommitteeController {
 
             BigDecimal totalHours = demandedQuantity.multiply(productionTime);
 
-            List<Instance> workers = instanceRepository.findByAssociatedWorkerCommitteeId(committeeId);
-            if (workers.isEmpty()) {
+            // --- Cadeia de arrecadação (otimizada com batch) ---
+            Instance committee = committeeOpt.get();
+            BigDecimal workersAmount = totalHours;
+            Instance currentCouncil = committee.getPopularCouncilAssociatedWithCommitteeOrWorker();
+
+            List<Instance> councilsToUpdate = new ArrayList<>();
+            List<CouncilTransaction> transactions = new ArrayList<>();
+
+            while (currentCouncil != null) {
+                BigDecimal taxRate = currentCouncil.getTaxRate() != null
+                    ? currentCouncil.getTaxRate() : BigDecimal.valueOf(50);
+                BigDecimal taxAmount = workersAmount.multiply(taxRate.divide(BigDecimal.valueOf(100), 10, RoundingMode.HALF_UP))
+                    .setScale(10, RoundingMode.HALF_UP);
+                workersAmount = workersAmount.subtract(taxAmount).setScale(10, RoundingMode.HALF_UP);
+
+                BigDecimal currentBalance = currentCouncil.getBalance() != null
+                    ? currentCouncil.getBalance() : BigDecimal.ZERO;
+                BigDecimal newBalance = currentBalance.add(taxAmount).setScale(10, RoundingMode.HALF_UP);
+                currentCouncil.setBalance(newBalance);
+                councilsToUpdate.add(currentCouncil);
+
+                CouncilTransaction ct = new CouncilTransaction();
+                ct.setCouncilId(currentCouncil.getId());
+                ct.setAmount(taxAmount);
+                ct.setTransactionType("CREDIT");
+                ct.setDescription("Arrecadação do comitê: " + (committee.getCommitteeName() != null ? committee.getCommitteeName() : "#" + committeeId));
+                ct.setSourceName(committee.getCommitteeName());
+                ct.setBalanceAfter(newBalance);
+                ct.setCreatedAt(LocalDateTime.now());
+                transactions.add(ct);
+
+                logger.info("Taxa aplicada: comitê={} → conselho={}, taxa={}%, valor={}, saldo_após={}",
+                    committeeId, currentCouncil.getId(), taxRate, taxAmount, newBalance);
+
+                // Subir hierarquia com guarda anti-loop
+                Instance parent = currentCouncil.getPopularCouncilAssociatedWithPopularCouncil();
+                if (parent != null && parent.getId().equals(currentCouncil.getId())) {
+                    logger.warn("Loop detectado na hierarquia: conselho {} referencia a si mesmo. Parando.", currentCouncil.getId());
+                    break;
+                }
+                currentCouncil = parent;
+            }
+
+            // Batch save: todas as atualizações de conselhos e transações de uma vez
+            if (!councilsToUpdate.isEmpty()) {
+                instanceRepository.saveAll(councilsToUpdate);
+            }
+            if (!transactions.isEmpty()) {
+                councilTransactionRepository.saveAll(transactions);
+            }
+
+            // --- Distribuir o restante aos trabalhadores (native SQL bulk update, 1 query) ---
+            int workerCount = instanceRepository.countWorkersByCommitteeId(committeeId);
+            if (workerCount == 0) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Nenhum trabalhador associado"));
             }
 
-            int workerCount = workers.size();
-            BigDecimal hoursPerWorker = totalHours.divide(BigDecimal.valueOf(workerCount), 10, RoundingMode.HALF_UP);
-
-            for (Instance worker : workers) {
-                BigDecimal current = worker.getSociallyConfirmedWorkTime() != null
-                    ? worker.getSociallyConfirmedWorkTime() : BigDecimal.ZERO;
-                worker.setSociallyConfirmedWorkTime(current.add(hoursPerWorker));
-                instanceRepository.save(worker);
-            }
+            BigDecimal hoursPerWorker = workersAmount.divide(BigDecimal.valueOf(workerCount), 10, RoundingMode.HALF_UP)
+                .setScale(10, RoundingMode.HALF_UP);
+            instanceRepository.addHoursToCommitteeWorkers(committeeId, hoursPerWorker);
 
             // Atualizar status para "horas liberadas"
             order.setOrderStatus("horas liberadas");
             supplyOrderRepository.save(order);
 
-            logger.info("Horas distribuídas: comitê={}, total_horas={}, workers={}, horas_por_worker={}",
-                committeeId, totalHours, workerCount, hoursPerWorker);
+            logger.info("Horas distribuídas: comitê={}, total={}, workers={}, worker_share={}, horas_por_worker={}",
+                committeeId, totalHours, workerCount, workersAmount, hoursPerWorker);
 
             return ResponseEntity.ok(Map.of(
                 "success", true, "totalHours", totalHours,
+                "workersAmount", workersAmount,
                 "workerCount", workerCount, "hoursPerWorker", hoursPerWorker
             ));
         } catch (Exception e) {
             logger.error("Erro ao distribuir horas", e);
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    /**
+     * Retorna resumo de projetos ativos atribuídos a este comitê.
+     */
+    @GetMapping("/{id}/projects-summary")
+    public ResponseEntity<?> getProjectsSummary(@PathVariable Integer id) {
+        try {
+            List<SupplyOrder> orders = supplyOrderRepository.findBySupplierInstanceIdOrderByCreatedAtDesc(id);
+
+            BigDecimal totalHours = BigDecimal.ZERO;
+            BigDecimal totalDeadline = BigDecimal.ZERO;
+            int count = 0;
+
+            for (SupplyOrder so : orders) {
+                SocialMaterialization mat = so.getInputMaterialization();
+                if (mat != null && mat.getType() == SocialMaterializationType.PROJECT) {
+                    String status = so.getOrderStatus();
+                    if (!"recusada".equals(status) && !"horas liberadas".equals(status)
+                            && !"recebida pelo demandante".equals(status)) {
+                        BigDecimal qty = so.getQuantity() != null ? so.getQuantity() : BigDecimal.ZERO;
+                        totalHours = totalHours.add(qty);
+                        if (mat.getValidityDeadline() != null) {
+                            totalDeadline = totalDeadline.add(mat.getValidityDeadline());
+                        }
+                        count++;
+                    }
+                }
+            }
+
+            BigDecimal avgDeadline = count > 0 && totalDeadline.compareTo(BigDecimal.ZERO) > 0
+                ? totalDeadline.divide(BigDecimal.valueOf(count), 2, RoundingMode.HALF_UP)
+                : BigDecimal.ZERO;
+
+            Map<String, Object> result = new HashMap<>();
+            result.put("hasActiveProjects", count > 0);
+            result.put("totalHours", totalHours);
+            result.put("avgDeadline", avgDeadline);
+            result.put("projectCount", count);
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            logger.error("Erro em projects-summary", e);
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    /**
+     * Retorna pedidos feitos POR esta instância (como demandante).
+     */
+    @GetMapping("/{id}/outgoing-orders")
+    public ResponseEntity<?> getOutgoingOrders(@PathVariable Integer id) {
+        try {
+            List<SupplyOrder> orders = supplyOrderRepository.findByOrderingInstanceIdOrderByCreatedAtDesc(id);
+            List<Map<String, Object>> result = new ArrayList<>();
+            for (SupplyOrder so : orders) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("orderId", so.getId());
+                item.put("inputMaterializationId", so.getInputMaterialization().getId());
+                item.put("outputMaterializationId", so.getOutputMaterialization().getId());
+                item.put("supplierInstanceId", so.getSupplierInstance() != null ? so.getSupplierInstance().getId() : null);
+                item.put("supplierName", so.getSupplierInstance() != null ? so.getSupplierInstance().getCommitteeName() : "");
+                item.put("quantity", so.getQuantity());
+                item.put("orderStatus", so.getOrderStatus());
+                item.put("createdAt", so.getCreatedAt() != null ? so.getCreatedAt().toString() : "");
+                String unitName = "";
+                if (so.getInputMaterialization().getMeasurementUnit() != null) {
+                    unitName = so.getInputMaterialization().getMeasurementUnit().getName();
+                }
+                item.put("inputUnitName", unitName);
+                result.add(item);
+            }
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{committeeId}/orders/{orderId}")
+    @Transactional
+    public ResponseEntity<?> deleteOrder(@PathVariable Integer committeeId, @PathVariable Integer orderId) {
+        try {
+            Optional<SupplyOrder> orderOpt = supplyOrderRepository.findById(orderId);
+            if (!orderOpt.isPresent()) return ResponseEntity.notFound().build();
+            supplyOrderRepository.deleteById(orderId);
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
         }
     }
