@@ -3336,6 +3336,7 @@ function displayUnitPlanData(result) {
 
     // Buscar encomendas de produção e projetos
     if (pageState.id) {
+        fetchOpenProjects();
         fetchIncomingProjects();
         fetchIncomingOrders();
     }
@@ -4073,4 +4074,153 @@ function confirmNewOrder() {
 function closeNewOrderModal() {
     const modal = document.getElementById('newOrderModal');
     if (modal) modal.style.display = 'none';
+}
+var _bidOrderId = null;
+
+function fetchOpenProjects() {
+    var list = document.getElementById('openProjectsList');
+    if (!list || !pageState.id) return;
+
+    fetch('/api/committees/open-projects')
+        .then(function(r) { return r.json(); })
+        .then(function(projects) {
+            // Also fetch this committee's bids
+            return Promise.all([
+                projects,
+                fetch('/api/committees/' + pageState.id + '/outgoing-orders').then(function(r){return r.json();}).catch(function(){return [];})
+            ]);
+        })
+        .then(function(results) {
+            var projects = results[0];
+            var outgoing = results[1];
+            // Mapa: orderId -> true se este comitê já deu lance
+            var bidMap = {};
+            (outgoing || []).forEach(function(o) {
+                // Check if this order has a bid from us by matching committeeId
+                // We'll check by seeing if the order has supplier = this committee
+            });
+
+            if (!projects || projects.length === 0) {
+                list.innerHTML = '<p style="color:var(--text-secondary,#666);font-style:italic;">Nenhum projeto aberto.</p>';
+                return;
+            }
+            // Fetch bids for all projects to check which ones we've bid on
+            return Promise.all(projects.map(function(p) {
+                return fetch('/api/council/' + (p.councilId || '0') + '/projects/' + p.orderId + '/bids').then(function(r){return r.json();}).catch(function(){return [];})
+                    .then(function(bids) { p.bids = bids; return p; });
+            }));
+        })
+        .then(function(projects) {
+            if (!projects || projects.length === 0) {
+                list.innerHTML = '<p style="color:var(--text-secondary,#666);font-style:italic;">Nenhum projeto aberto.</p>';
+                return;
+            }
+            var html = '<table style="width:100%;border-collapse:collapse;">';
+            html += '<thead><tr><th style="text-align:left;padding:6px 8px;">Conselho</th><th style="text-align:left;padding:6px 8px;">Projeto</th><th style="text-align:right;padding:6px 8px;">Investimento (h)</th><th style="text-align:center;padding:6px 8px;">Ações</th></tr></thead><tbody>';
+            projects.forEach(function(p) {
+                var myBid = (p.bids || []).find(function(b) { return b.committeeId === pageState.id; });
+                var actionsHtml = '';
+                if (myBid) {
+                    actionsHtml = '<button class="btn btn-sm" style="padding:2px 6px;font-size:0.7em;margin-right:3px;" onclick="editBid(' + p.orderId + ',\'' + escapeHtml(p.projectName) + '\',\'' + escapeHtml(p.councilName || '') + '\',' + parseFloat(p.quantity) + ',' + parseFloat(myBid.bidHours) + ')">Editar Lance</button>' +
+                        '<i class="fas fa-times" style="cursor:pointer;color:#c62828;font-size:0.9em;" onclick="removeBid(' + p.orderId + ')" title="Remover lance"></i>';
+                } else {
+                    actionsHtml = '<button class="btn btn-sm" style="padding:2px 6px;font-size:0.7em;" onclick="openBidModal(' + p.orderId + ',\'' + escapeHtml(p.projectName) + '\',\'' + escapeHtml(p.councilName || '') + '\',' + parseFloat(p.quantity) + ')">Dar Lance</button>';
+                }
+                html += '<tr><td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light);">' + escapeHtml(p.councilName || '-') + '</td>' +
+                    '<td style="padding:6px 8px;border-bottom:1px solid var(--border-color-light);">' + escapeHtml(p.projectName) + '</td>' +
+                    '<td style="text-align:right;padding:6px 8px;border-bottom:1px solid var(--border-color-light);">' + parseFloat(p.quantity).toFixed(2) + ' h</td>' +
+                    '<td style="text-align:center;padding:6px 8px;border-bottom:1px solid var(--border-color-light);">' + actionsHtml + '</td></tr>';
+            });
+            html += '</tbody></table>';
+            list.innerHTML = html;
+        })
+        .catch(function(err) { console.error('Erro ao buscar projetos abertos:', err); });
+}
+
+function openBidModal(orderId, projectName, councilName, maxBid, currentBid) {
+    _bidOrderId = orderId;
+    document.getElementById('bidProjectName').textContent = projectName;
+    document.getElementById('bidCouncilName').textContent = councilName + (maxBid ? ' — Lance máximo: ' + maxBid.toFixed(2) + ' h' : '');
+    document.getElementById('bidHours').value = currentBid ? currentBid.toFixed(2) : '';
+    document.getElementById('bidHours').max = maxBid || '';
+    document.getElementById('bidModal').style.display = 'block';
+}
+
+function closeBidModal() {
+    document.getElementById('bidModal').style.display = 'none';
+}
+
+function placeBid() {
+    var hours = parseFloat(document.getElementById('bidHours').value) || 0;
+    if (hours <= 0) { showErrorMessage('Informe as horas propostas.'); return; }
+    if (!_bidOrderId || !pageState.id) return;
+
+    fetch('/api/committees/' + pageState.id + '/projects/' + _bidOrderId + '/bid', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bidHours: hours })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
+        if (result.success) {
+            showSuccessMessage('Lance enviado com sucesso!');
+            closeBidModal();
+            // Atualizar botão imediatamente
+            var openList = document.getElementById('openProjectsList');
+            if (openList) fetchOpenProjects();
+        } else {
+            showErrorMessage(result.message || 'Erro ao enviar lance');
+        }
+    })
+    .catch(function() { showErrorMessage('Erro ao enviar lance.'); });
+}
+
+function editBid(orderId, projectName, councilName, maxBid, currentBid) {
+    openBidModal(orderId, projectName, councilName, maxBid, currentBid);
+    // Mudar o botão do modal para "Atualizar Lance"
+    var modalFooter = document.querySelector('#bidModal .modal-footer');
+    if (modalFooter) {
+        modalFooter.innerHTML = '<button class="btn btn-primary" onclick="updateBid()">Atualizar Lance</button>' +
+            '<button class="btn btn-secondary" onclick="closeBidModal()">Cancelar</button>';
+    }
+}
+
+function updateBid() {
+    var hours = parseFloat(document.getElementById('bidHours').value) || 0;
+    if (hours <= 0) { showErrorMessage('Informe as horas propostas.'); return; }
+    if (!_bidOrderId || !pageState.id) return;
+
+    fetch('/api/committees/' + pageState.id + '/projects/' + _bidOrderId + '/bid', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ bidHours: hours })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
+        if (result.success) {
+            showSuccessMessage('Lance atualizado!');
+            closeBidModal();
+            var openList = document.getElementById('openProjectsList');
+            if (openList) fetchOpenProjects();
+        } else {
+            showErrorMessage(result.message || 'Erro ao atualizar lance');
+        }
+    })
+    .catch(function() { showErrorMessage('Erro ao atualizar lance.'); });
+}
+
+function removeBid(orderId) {
+    if (!confirm('Remover seu lance deste projeto?')) return;
+    fetch('/api/committees/' + pageState.id + '/projects/' + orderId + '/bid', { method: 'DELETE' })
+        .then(function(r) { return r.json(); })
+        .then(function(result) {
+            if (result.success) {
+                showSuccessMessage('Lance removido.');
+                var openList = document.getElementById('openProjectsList');
+                if (openList) fetchOpenProjects();
+            } else {
+                showErrorMessage(result.message || 'Erro ao remover lance');
+            }
+        })
+        .catch(function() { showErrorMessage('Erro ao remover lance.'); });
 }

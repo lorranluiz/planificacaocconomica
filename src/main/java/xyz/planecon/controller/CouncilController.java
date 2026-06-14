@@ -18,7 +18,11 @@ import xyz.planecon.dto.OptimizationConfigsResponseDTO;
 import xyz.planecon.model.entity.Instance;
 import xyz.planecon.model.entity.WorkersProposal;
 import xyz.planecon.model.entity.CouncilTransaction;
+import xyz.planecon.model.entity.ProjectBid;
+import xyz.planecon.model.entity.SupplyOrder;
 import xyz.planecon.repository.CouncilTransactionRepository;
+import xyz.planecon.repository.ProjectBidRepository;
+import xyz.planecon.repository.SupplyOrderRepository;
 import xyz.planecon.service.CouncilService;
 import xyz.planecon.repository.InstanceRepository;
 import xyz.planecon.repository.WorkersProposalRepository;
@@ -31,6 +35,7 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Map;
 import java.util.ArrayList;
+import java.util.Optional;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -52,6 +57,12 @@ public class CouncilController {
 
     @Autowired
     private CouncilTransactionRepository councilTransactionRepository;
+
+    @Autowired
+    private ProjectBidRepository projectBidRepository;
+
+    @Autowired
+    private SupplyOrderRepository supplyOrderRepository;
 
     private static final Logger logger = LoggerFactory.getLogger(CouncilController.class);
 
@@ -544,6 +555,59 @@ public class CouncilController {
             councilTransactionRepository.save(ct);
 
             return ResponseEntity.ok(Map.of("success", true, "balance", newBalance));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    /**
+     * Lista lances de um projeto ordenados por menor custo (h).
+     */
+    @GetMapping("/{councilId}/projects/{orderId}/bids")
+    public ResponseEntity<?> getProjectBids(@PathVariable Integer councilId, @PathVariable Integer orderId) {
+        try {
+            List<ProjectBid> bids = projectBidRepository.findBySupplyOrderIdOrderByBidHoursAsc(orderId);
+            List<Map<String, Object>> result = new ArrayList<>();
+            for (ProjectBid b : bids) {
+                Map<String, Object> item = new HashMap<>();
+                item.put("bidId", b.getId());
+                item.put("committeeId", b.getCommitteeId());
+                item.put("committeeName", instanceRepository.findById(b.getCommitteeId())
+                    .map(Instance::getCommitteeName).orElse("Comitê #" + b.getCommitteeId()));
+                item.put("bidHours", b.getBidHours());
+                item.put("createdAt", b.getCreatedAt() != null ? b.getCreatedAt().toString() : "");
+                result.add(item);
+            }
+            return ResponseEntity.ok(result);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    /**
+     * Seleciona um comitê vencedor para o projeto.
+     */
+    @PutMapping("/{councilId}/projects/{orderId}/select-winner")
+    @Transactional
+    public ResponseEntity<?> selectProjectWinner(@PathVariable Integer councilId, @PathVariable Integer orderId,
+                                                  @RequestBody Map<String, Object> body) {
+        try {
+            Integer committeeId = Integer.valueOf(body.get("committeeId").toString());
+            Optional<SupplyOrder> orderOpt = supplyOrderRepository.findById(orderId);
+            if (!orderOpt.isPresent()) return ResponseEntity.notFound().build();
+            SupplyOrder order = orderOpt.get();
+            Optional<Instance> committeeOpt = instanceRepository.findById(committeeId);
+            if (!committeeOpt.isPresent()) return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Comitê não encontrado"));
+            order.setSupplierInstance(committeeOpt.get());
+
+            // Atualizar investimento para o valor do lance vencedor
+            Optional<ProjectBid> winningBid = projectBidRepository.findBySupplyOrderIdAndCommitteeId(orderId, committeeId);
+            if (winningBid.isPresent()) {
+                order.setQuantity(winningBid.get().getBidHours());
+            }
+
+            supplyOrderRepository.save(order);
+            return ResponseEntity.ok(Map.of("success", true));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
         }

@@ -2220,7 +2220,7 @@ function loadServicesAndProjects() {
                         var qty = parseFloat(o.quantity || 0).toFixed(4);
                         var unit = o.inputUnitName || '';
                         var deadline = mat && mat.validityDeadline ? parseFloat(mat.validityDeadline).toFixed(1) + ' dias' : '-';
-                        var actionsHtml = renderOrderActions(o.orderId, status);
+                        var actionsHtml = renderOrderActions(o.orderId, status, o.supplierInstanceId);
                         actionsHtml += ' <button class="btn btn-sm btn-secondary" onclick="deleteServiceOrder(' + o.orderId + ', this)">Remover</button>';
 
                         if (type === 'SERVICE' || type === 'PROJECT') {
@@ -2242,11 +2242,20 @@ function loadServicesAndProjects() {
         .catch(function(err) { console.error('Erro ao carregar serviços/projetos:', err); });
 }
 
-function renderOrderActions(orderId, status) {
+function renderOrderActions(orderId, status, supplierId) {
+    var html = '';
     if (status === 'produzida e enviada') {
-        return '<button class="btn btn-sm" style="padding:2px 8px;font-size:0.8em;" onclick="updateCouncilOrderStatus(' + orderId + ',\'recebida pelo demandante\')">Confirmar Recebimento</button>';
+        html += '<button class="btn btn-sm" style="padding:2px 8px;font-size:0.8em;" onclick="updateCouncilOrderStatus(' + orderId + ',\'recebida pelo demandante\')">Confirmar Recebimento</button> ';
     }
-    return '';
+    if (status === 'solicitada' && (supplierId === null || supplierId === undefined || supplierId === 0)) {
+        html += '<button class="btn btn-sm" style="padding:2px 8px;font-size:0.8em;" onclick="viewProjectBids(' + orderId + ')">Ver Lances</button> ';
+    }
+    return html;
+}
+
+// Update existing renderOrderActions calls to pass supplierId
+function renderOrderActionsOld(orderId, status) {
+    return renderOrderActions(orderId, status, null);
 }
 
 function updateCouncilOrderStatus(orderId, newStatus) {
@@ -2668,6 +2677,12 @@ function closeSupplierSelectModal() {
     if (m) m.style.display = 'none';
 }
 
+function selectLeilaoSupplier() {
+    _projectSupplierId = 0;
+    _projectSupplierName = 'Leilão (aberto para lances)';
+    document.getElementById('projectSupplierName').textContent = _projectSupplierName;
+}
+
 function saveProject(event) {
     event.preventDefault();
     var name = document.getElementById('projectName').value.trim();
@@ -2678,7 +2693,7 @@ function saveProject(event) {
         showError('Preencha todos os campos corretamente.');
         return;
     }
-    if (!_projectSupplierId) { showError('Selecione um fornecedor.'); return; }
+    if (_projectSupplierId === null || _projectSupplierId === undefined) { showError('Selecione um fornecedor ou Leilão.'); return; }
 
     // Criar materialização social tipo PROJECT
     fetch('/api/social-materializations', {
@@ -2703,9 +2718,9 @@ function saveProject(event) {
         }).then(function(){return mat;});
     })
     .then(function(mat){
-        // Criar supply_order
+        // Criar supply_order (supplierId=0 = Leilão)
         var orderPromise;
-        if (currentInstanceId && _projectSupplierId) {
+        if (currentInstanceId && (_projectSupplierId || _projectSupplierId === 0)) {
             orderPromise = fetch('/api/committees/'+currentInstanceId+'/orders/create', {
                 method: 'POST',
                 headers: {'Content-Type':'application/json'},
@@ -2775,4 +2790,54 @@ function openSupplierInfo(supplierId) {
 function closeSupplierInfoModal() {
     var m = document.getElementById('supplierInfoModal');
     if (m) m.style.display = 'none';
+}
+
+function viewProjectBids(orderId) {
+    var modal = document.getElementById('addServiceModal');
+    var container = document.getElementById('addServiceListContainer');
+    var titleEl = modal.querySelector('h3');
+    if (titleEl) titleEl.textContent = 'Lances do Projeto';
+    container.innerHTML = '<p style="color:var(--text-secondary);">Carregando lances...</p>';
+    modal.style.display = 'block';
+
+    fetch('/api/council/' + currentInstanceId + '/projects/' + orderId + '/bids')
+        .then(function(r) { return r.json(); })
+        .then(function(bids) {
+            if (!bids || bids.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-secondary);">Nenhum lance recebido.</p>';
+                return;
+            }
+            var html = '<p style="margin-bottom:8px;color:var(--text-secondary);font-size:0.85em;">' + bids.length + ' lance(s) — menor custo primeiro</p>';
+            html += '<div>';
+            bids.forEach(function(b) {
+                html += '<div style="cursor:pointer;padding:10px;margin-bottom:4px;border:1px solid var(--border-color);border-radius:4px;" onclick="selectBidWinner(' + orderId + ',' + b.committeeId + ',\'' + escapeHtml(b.committeeName || '') + '\',' + parseFloat(b.bidHours) + ')">' +
+                    '<strong>' + escapeHtml(b.committeeName || ('Comitê #' + b.committeeId)) + '</strong>' +
+                    '<span style="float:right;font-weight:600;color:var(--primary-color);">' + parseFloat(b.bidHours).toFixed(2) + ' h</span>' +
+                '</div>';
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        })
+        .catch(function() { container.innerHTML = '<p style="color:var(--error-color);">Erro ao carregar lances.</p>'; });
+}
+
+function selectBidWinner(orderId, committeeId, committeeName, bidHours) {
+    if (!confirm('Selecionar ' + committeeName + ' como vencedor com lance de ' + bidHours.toFixed(2) + ' h?')) return;
+
+    fetch('/api/council/' + currentInstanceId + '/projects/' + orderId + '/select-winner', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ committeeId: committeeId })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(result) {
+        if (result.success) {
+            showSuccess('Fornecedor selecionado!');
+            closeAddServiceModal();
+            loadServicesAndProjects();
+        } else {
+            showError(result.message || 'Erro ao selecionar');
+        }
+    })
+    .catch(function() { showError('Erro ao selecionar vencedor.'); });
 }

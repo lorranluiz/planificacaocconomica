@@ -670,6 +670,14 @@
                         </div>
                     </div>
 
+                    <!-- Projetos Públicos Abertos para Lances -->
+                    <div class="optimization-section" id="openProjectsSection" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color, #444);">
+                        <h4 style="margin-bottom: 10px;">Projetos Públicos Abertos para Lances</h4>
+                        <div id="openProjectsList">
+                            <p style="color: var(--text-secondary, #666); font-style: italic;">Nenhum projeto aberto.</p>
+                        </div>
+                    </div>
+
                     <!-- Encomendas de Projetos Públicos -->
                     <div class="optimization-section" id="incomingProjectsSection" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--border-color, #444);">
                         <h4 style="margin-bottom: 10px;">Encomendas de Projetos Públicos</h4>
@@ -1037,8 +1045,26 @@
         </div>
     </div>
 
+    <!-- Modal de Lance em Projeto -->
+    <div id="bidModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <span class="close" onclick="closeBidModal()">&times;</span>
+            <h3>Dar Lance em Projeto Público</h3>
+            <p style="margin-bottom:8px;">Projeto: <strong><span id="bidProjectName"></span></strong></p>
+            <p style="font-size:0.85em;color:var(--text-secondary);margin-bottom:10px;">Conselho: <span id="bidCouncilName"></span></p>
+            <div class="form-group">
+                <label for="bidHours">Horas propostas (h):</label>
+                <input type="number" id="bidHours" class="form-control" step="any" min="0.01" placeholder="Ex: 50.5">
+            </div>
+            <div class="modal-footer" style="margin-top:10px;">
+                <button class="btn btn-primary" onclick="placeBid()">Enviar Lance</button>
+                <button class="btn btn-secondary" onclick="closeBidModal()">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
     <script src="js/notifications.js"></script>
-    <script src="js/committee.js?v=20260613zc"></script>
+    <script src="js/committee.js?v=20260613zg"></script>
 
     <!-- Listener para navegação de volta quando dentro de modal -->
     <script>

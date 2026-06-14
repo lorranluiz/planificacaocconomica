@@ -72,6 +72,9 @@ public class CommitteeController {
     @Autowired
     private CouncilTransactionRepository councilTransactionRepository;
 
+    @Autowired
+    private ProjectBidRepository projectBidRepository;
+
     /**
      * Endpoint para salvar o estado completo de um comitê em uma única transação.
      * 
@@ -1803,7 +1806,7 @@ public class CommitteeController {
             BigDecimal quantity = payload.get("quantity") != null
                 ? new BigDecimal(payload.get("quantity").toString()) : BigDecimal.ZERO;
 
-            if (inputMatId == null || outputMatId == null || supplierId == null) {
+            if (inputMatId == null || outputMatId == null) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Dados insuficientes"));
             }
 
@@ -1813,9 +1816,8 @@ public class CommitteeController {
 
             Optional<SocialMaterialization> inputOpt = socialMaterializationRepository.findById(inputMatId);
             Optional<SocialMaterialization> outputOpt = socialMaterializationRepository.findById(outputMatId);
-            Optional<Instance> supplierOpt = instanceRepository.findById(supplierId);
 
-            if (!inputOpt.isPresent() || !outputOpt.isPresent() || !supplierOpt.isPresent()) {
+            if (!inputOpt.isPresent() || !outputOpt.isPresent()) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Entidade não encontrada"));
             }
 
@@ -1823,7 +1825,13 @@ public class CommitteeController {
             order.setOrderingInstance(committee);
             order.setInputMaterialization(inputOpt.get());
             order.setOutputMaterialization(outputOpt.get());
-            order.setSupplierInstance(supplierOpt.get());
+            if (supplierId != null && supplierId > 0) {
+                Optional<Instance> supplierOpt = instanceRepository.findById(supplierId);
+                if (!supplierOpt.isPresent()) {
+                    return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Fornecedor não encontrado"));
+                }
+                order.setSupplierInstance(supplierOpt.get());
+            }
             order.setQuantity(quantity);
             order.setOrderStatus("solicitada");
             order.setCreatedAt(LocalDateTime.now());
@@ -2085,6 +2093,119 @@ public class CommitteeController {
             Optional<SupplyOrder> orderOpt = supplyOrderRepository.findById(orderId);
             if (!orderOpt.isPresent()) return ResponseEntity.notFound().build();
             supplyOrderRepository.deleteById(orderId);
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    /**
+     * Lista projetos públicos abertos para lances (supplier_instance_id = NULL, type = PROJECT).
+     */
+    @Transactional(readOnly = true)
+    @GetMapping("/open-projects")
+    public ResponseEntity<?> getOpenProjects() {
+        try {
+            List<SupplyOrder> allOrders = supplyOrderRepository.findAll();
+            List<Map<String, Object>> open = new ArrayList<>();
+            for (SupplyOrder so : allOrders) {
+                if (so.getSupplierInstance() == null && so.getInputMaterialization() != null
+                        && so.getInputMaterialization().getType() == SocialMaterializationType.PROJECT
+                        && "solicitada".equals(so.getOrderStatus())) {
+                    Map<String, Object> item = new HashMap<>();
+                    item.put("orderId", so.getId());
+                    item.put("projectName", so.getInputMaterialization().getName());
+                    String councilName = "";
+                    Instance ordInst = so.getOrderingInstance();
+                    if (ordInst != null) {
+                        councilName = ordInst.getCommitteeName() != null ? ordInst.getCommitteeName()
+                            : ("Instância #" + ordInst.getId());
+                    }
+                    item.put("councilName", councilName);
+                    item.put("councilId", so.getOrderingInstance().getId());
+                    item.put("quantity", so.getQuantity());
+                    item.put("createdAt", so.getCreatedAt() != null ? so.getCreatedAt().toString() : "");
+                    open.add(item);
+                }
+            }
+            return ResponseEntity.ok(open);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    /**
+     * Comitê dá lance em um projeto aberto.
+     */
+    @PostMapping("/{committeeId}/projects/{orderId}/bid")
+    @Transactional
+    public ResponseEntity<?> placeBid(@PathVariable Integer committeeId, @PathVariable Integer orderId,
+                                       @RequestBody Map<String, Object> body) {
+        try {
+            BigDecimal bidHours = new BigDecimal(body.get("bidHours").toString());
+
+            // Validar se o lance não excede o investimento do projeto
+            Optional<SupplyOrder> orderOpt = supplyOrderRepository.findById(orderId);
+            if (!orderOpt.isPresent()) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Projeto não encontrado"));
+            }
+            SupplyOrder order = orderOpt.get();
+            if (order.getQuantity() != null && bidHours.compareTo(order.getQuantity()) > 0) {
+                return ResponseEntity.badRequest().body(Map.of("success", false,
+                    "message", "Lance excede o investimento máximo de " + order.getQuantity().toPlainString() + " h"));
+            }
+
+            // Verificar se já existe lance deste comitê
+            if (projectBidRepository.findBySupplyOrderIdAndCommitteeId(orderId, committeeId).isPresent()) {
+                return ResponseEntity.badRequest().body(Map.of("success", false,
+                    "message", "Este comitê já enviou um lance para este projeto"));
+            }
+
+            ProjectBid bid = new ProjectBid();
+            bid.setSupplyOrderId(orderId);
+            bid.setCommitteeId(committeeId);
+            bid.setBidHours(bidHours);
+            projectBidRepository.save(bid);
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/{committeeId}/projects/{orderId}/bid")
+    @Transactional
+    public ResponseEntity<?> updateBid(@PathVariable Integer committeeId, @PathVariable Integer orderId,
+                                       @RequestBody Map<String, Object> body) {
+        try {
+            BigDecimal bidHours = new BigDecimal(body.get("bidHours").toString());
+            Optional<ProjectBid> bidOpt = projectBidRepository.findBySupplyOrderIdAndCommitteeId(orderId, committeeId);
+            if (!bidOpt.isPresent()) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Lance não encontrado"));
+            }
+            Optional<SupplyOrder> orderOpt = supplyOrderRepository.findById(orderId);
+            if (orderOpt.isPresent() && orderOpt.get().getQuantity() != null
+                    && bidHours.compareTo(orderOpt.get().getQuantity()) > 0) {
+                return ResponseEntity.badRequest().body(Map.of("success", false,
+                    "message", "Lance excede o investimento máximo de " + orderOpt.get().getQuantity().toPlainString() + " h"));
+            }
+            ProjectBid bid = bidOpt.get();
+            bid.setBidHours(bidHours);
+            projectBidRepository.save(bid);
+            return ResponseEntity.ok(Map.of("success", true));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{committeeId}/projects/{orderId}/bid")
+    @Transactional
+    public ResponseEntity<?> removeBid(@PathVariable Integer committeeId, @PathVariable Integer orderId) {
+        try {
+            Optional<ProjectBid> bidOpt = projectBidRepository.findBySupplyOrderIdAndCommitteeId(orderId, committeeId);
+            if (!bidOpt.isPresent()) {
+                return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Lance não encontrado"));
+            }
+            projectBidRepository.delete(bidOpt.get());
             return ResponseEntity.ok(Map.of("success", true));
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
