@@ -2567,9 +2567,86 @@ function addServiceToTable(svcId, svcName, validity, quantity, orderId, supplier
 }
 
 function closeAddServiceModal() {
+    // Só limpar polling se o modal estiver mostrando lances
+    if (_currentBidsOrderId !== null) {
+        clearInterval(_bidsPollInterval);
+        _bidsPollInterval = null;
+        _currentBidsOrderId = null;
+    }
     var m = document.getElementById('addServiceModal');
     if (m) m.style.display = 'none';
 }
+
+var _bidsPollInterval = null;
+var _currentBidsOrderId = null;
+var _lastBidsSnapshot = null;
+
+function viewProjectBids(orderId) {
+    clearInterval(_bidsPollInterval);
+    _currentBidsOrderId = orderId;
+    var modal = document.getElementById('addServiceModal');
+    var container = document.getElementById('addServiceListContainer');
+    var titleEl = modal.querySelector('h3');
+    if (titleEl) titleEl.textContent = 'Lances do Projeto';
+    container.innerHTML = '<p style="color:var(--text-secondary);">Carregando lances...</p>';
+    modal.style.display = 'block';
+
+    fetchBids(orderId, true);
+
+    _bidsPollInterval = setInterval(function() {
+        fetchBids(orderId, false);
+    }, 5000);
+}
+
+function fetchBids(orderId, isFirstLoad) {
+    if (_currentBidsOrderId !== orderId) return;
+    fetch('/api/council/' + currentInstanceId + '/projects/' + orderId + '/bids')
+        .then(function(r) { return r.json(); })
+        .then(function(bids) {
+            if (_currentBidsOrderId !== orderId) return;
+            var container = document.getElementById('addServiceListContainer');
+            if (!container) return;
+
+            if (!bids || bids.length === 0) {
+                container.innerHTML = '<p style="color:var(--text-secondary);">Nenhum lance recebido.</p>';
+                return;
+            }
+            redrawBids(container, bids, orderId);
+        })
+        .catch(function() {
+            if (isFirstLoad) {
+                var c = document.getElementById('addServiceListContainer');
+                if (c) c.innerHTML = '<p style="color:var(--error-color);">Erro ao carregar lances.</p>';
+            }
+        });
+}
+
+function redrawBids(container, bids, orderId) {
+    var html = '<p style="margin-bottom:8px;color:var(--text-secondary);font-size:0.85em;" id="bidsCount">' + bids.length + ' lance(s) - menor custo primeiro <span style="font-size:0.7em;opacity:0.5;">(atualizado: ' + new Date().toLocaleTimeString() + ')</span></p>';
+    html += '<div id="bidsList">';
+    bids.forEach(function(b) {
+        html += '<div class="bid-item" data-committee="' + b.committeeId + '" data-order="' + orderId + '" data-name="' + escapeHtml(b.committeeName || '').replace(/"/g, '&quot;') + '" data-hours="' + parseFloat(b.bidHours) + '" style="cursor:pointer;padding:10px;margin-bottom:4px;border:1px solid var(--border-color);border-radius:4px;transition:background-color 0.4s;">' +
+            '<strong>' + escapeHtml(b.committeeName || ('Comit\u00ea #' + b.committeeId)) + '</strong>' +
+            '<span class="bid-hours" style="float:right;font-weight:600;color:var(--primary-color);">' + parseFloat(b.bidHours).toFixed(2) + ' h</span>' +
+        '</div>';
+    });
+    html += '</div>';
+    container.innerHTML = html;
+
+    // Attach click handlers via DOM (avoids inline onclick escaping issues)
+    var items = container.querySelectorAll('.bid-item');
+    items.forEach(function(item) {
+        item.addEventListener('click', function() {
+            var cid = parseInt(item.getAttribute('data-committee'));
+            var oid = parseInt(item.getAttribute('data-order'));
+            var name = item.getAttribute('data-name');
+            var hours = parseFloat(item.getAttribute('data-hours'));
+            selectBidWinner(oid, cid, name, hours);
+        });
+    });
+}
+
+
 
 var _pageDirty = false;
 function markDirty() { _pageDirty = true; }
@@ -2792,52 +2869,3 @@ function closeSupplierInfoModal() {
     if (m) m.style.display = 'none';
 }
 
-function viewProjectBids(orderId) {
-    var modal = document.getElementById('addServiceModal');
-    var container = document.getElementById('addServiceListContainer');
-    var titleEl = modal.querySelector('h3');
-    if (titleEl) titleEl.textContent = 'Lances do Projeto';
-    container.innerHTML = '<p style="color:var(--text-secondary);">Carregando lances...</p>';
-    modal.style.display = 'block';
-
-    fetch('/api/council/' + currentInstanceId + '/projects/' + orderId + '/bids')
-        .then(function(r) { return r.json(); })
-        .then(function(bids) {
-            if (!bids || bids.length === 0) {
-                container.innerHTML = '<p style="color:var(--text-secondary);">Nenhum lance recebido.</p>';
-                return;
-            }
-            var html = '<p style="margin-bottom:8px;color:var(--text-secondary);font-size:0.85em;">' + bids.length + ' lance(s) — menor custo primeiro</p>';
-            html += '<div>';
-            bids.forEach(function(b) {
-                html += '<div style="cursor:pointer;padding:10px;margin-bottom:4px;border:1px solid var(--border-color);border-radius:4px;" onclick="selectBidWinner(' + orderId + ',' + b.committeeId + ',\'' + escapeHtml(b.committeeName || '') + '\',' + parseFloat(b.bidHours) + ')">' +
-                    '<strong>' + escapeHtml(b.committeeName || ('Comitê #' + b.committeeId)) + '</strong>' +
-                    '<span style="float:right;font-weight:600;color:var(--primary-color);">' + parseFloat(b.bidHours).toFixed(2) + ' h</span>' +
-                '</div>';
-            });
-            html += '</div>';
-            container.innerHTML = html;
-        })
-        .catch(function() { container.innerHTML = '<p style="color:var(--error-color);">Erro ao carregar lances.</p>'; });
-}
-
-function selectBidWinner(orderId, committeeId, committeeName, bidHours) {
-    if (!confirm('Selecionar ' + committeeName + ' como vencedor com lance de ' + bidHours.toFixed(2) + ' h?')) return;
-
-    fetch('/api/council/' + currentInstanceId + '/projects/' + orderId + '/select-winner', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ committeeId: committeeId })
-    })
-    .then(function(r) { return r.json(); })
-    .then(function(result) {
-        if (result.success) {
-            showSuccess('Fornecedor selecionado!');
-            closeAddServiceModal();
-            loadServicesAndProjects();
-        } else {
-            showError(result.message || 'Erro ao selecionar');
-        }
-    })
-    .catch(function() { showError('Erro ao selecionar vencedor.'); });
-}

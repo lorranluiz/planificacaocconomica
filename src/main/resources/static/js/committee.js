@@ -4081,44 +4081,33 @@ function fetchOpenProjects() {
     var list = document.getElementById('openProjectsList');
     if (!list || !pageState.id) return;
 
+    var currentCommitteeId = pageState.id;
+    list.innerHTML = '<p style="color:var(--text-secondary,#666);font-style:italic;">Carregando...</p>';
+
     fetch('/api/committees/open-projects')
         .then(function(r) { return r.json(); })
         .then(function(projects) {
-            // Also fetch this committee's bids
-            return Promise.all([
-                projects,
-                fetch('/api/committees/' + pageState.id + '/outgoing-orders').then(function(r){return r.json();}).catch(function(){return [];})
-            ]);
-        })
-        .then(function(results) {
-            var projects = results[0];
-            var outgoing = results[1];
-            // Mapa: orderId -> true se este comitê já deu lance
-            var bidMap = {};
-            (outgoing || []).forEach(function(o) {
-                // Check if this order has a bid from us by matching committeeId
-                // We'll check by seeing if the order has supplier = this committee
-            });
-
+            if (pageState.id !== currentCommitteeId) return;
             if (!projects || projects.length === 0) {
                 list.innerHTML = '<p style="color:var(--text-secondary,#666);font-style:italic;">Nenhum projeto aberto.</p>';
                 return;
             }
-            // Fetch bids for all projects to check which ones we've bid on
             return Promise.all(projects.map(function(p) {
-                return fetch('/api/council/' + (p.councilId || '0') + '/projects/' + p.orderId + '/bids').then(function(r){return r.json();}).catch(function(){return [];})
+                return fetch('/api/council/' + (p.councilId || '0') + '/projects/' + p.orderId + '/bids')
+                    .then(function(r){return r.json();}).catch(function(){return [];})
                     .then(function(bids) { p.bids = bids; return p; });
             }));
         })
         .then(function(projects) {
-            if (!projects || projects.length === 0) {
+            if (pageState.id !== currentCommitteeId || !projects) return;
+            if (projects.length === 0) {
                 list.innerHTML = '<p style="color:var(--text-secondary,#666);font-style:italic;">Nenhum projeto aberto.</p>';
                 return;
             }
             var html = '<table style="width:100%;border-collapse:collapse;">';
             html += '<thead><tr><th style="text-align:left;padding:6px 8px;">Conselho</th><th style="text-align:left;padding:6px 8px;">Projeto</th><th style="text-align:right;padding:6px 8px;">Investimento (h)</th><th style="text-align:center;padding:6px 8px;">Ações</th></tr></thead><tbody>';
             projects.forEach(function(p) {
-                var myBid = (p.bids || []).find(function(b) { return b.committeeId === pageState.id; });
+                var myBid = (p.bids || []).find(function(b) { return b.committeeId == pageState.id; });
                 var actionsHtml = '';
                 if (myBid) {
                     actionsHtml = '<button class="btn btn-sm" style="padding:2px 6px;font-size:0.7em;margin-right:3px;" onclick="editBid(' + p.orderId + ',\'' + escapeHtml(p.projectName) + '\',\'' + escapeHtml(p.councilName || '') + '\',' + parseFloat(p.quantity) + ',' + parseFloat(myBid.bidHours) + ')">Editar Lance</button>' +
@@ -4144,11 +4133,15 @@ function openBidModal(orderId, projectName, councilName, maxBid, currentBid) {
     document.getElementById('bidHours').value = currentBid ? currentBid.toFixed(2) : '';
     document.getElementById('bidHours').max = maxBid || '';
     document.getElementById('bidModal').style.display = 'block';
+    // Resetar footer para botão padrão
+    var mf = document.querySelector('#bidModal .modal-footer');
+    if (mf) mf.innerHTML = '<button class="btn btn-primary" onclick="placeBid()">Enviar Lance</button><button class="btn btn-secondary" onclick="closeBidModal()">Cancelar</button>';
 }
 
 function closeBidModal() {
     document.getElementById('bidModal').style.display = 'none';
 }
+
 
 function placeBid() {
     var hours = parseFloat(document.getElementById('bidHours').value) || 0;
@@ -4174,6 +4167,7 @@ function placeBid() {
     })
     .catch(function() { showErrorMessage('Erro ao enviar lance.'); });
 }
+
 
 function editBid(orderId, projectName, councilName, maxBid, currentBid) {
     openBidModal(orderId, projectName, councilName, maxBid, currentBid);
