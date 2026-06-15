@@ -1796,6 +1796,25 @@ public class CommitteeController {
                 }
             }
 
+            // Informações de redução de produção (Plano B)
+            if (optimizationConfig.getCo2ScaleFactor() != null) {
+                BigDecimal scale = optimizationConfig.getCo2ScaleFactor();
+                optimizationData.put("co2ScaleFactor", scale);
+                if (scale.compareTo(BigDecimal.ONE) < 0) {
+                    optimizationData.put("isProductionReduced", true);
+                    BigDecimal reductionPct = BigDecimal.ONE.subtract(scale)
+                        .multiply(BigDecimal.valueOf(100))
+                        .setScale(2, RoundingMode.HALF_UP);
+                    optimizationData.put("productionReductionPct", reductionPct);
+                } else {
+                    optimizationData.put("isProductionReduced", false);
+                    optimizationData.put("productionReductionPct", BigDecimal.ZERO);
+                }
+            } else {
+                optimizationData.put("isProductionReduced", false);
+                optimizationData.put("productionReductionPct", BigDecimal.ZERO);
+            }
+
             logger.info("Dados de otimização central obtidos com sucesso para comitê {} e materialização {}", committeeId, materializationId);
             
             return ResponseEntity.ok(optimizationData);

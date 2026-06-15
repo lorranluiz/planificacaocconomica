@@ -667,12 +667,27 @@
                     <p id="unitPlanEmptyMessage" style="color: var(--text-secondary, #666); font-style: italic; margin-top: 10px; display: none;">Dados ainda não disponíveis. É necessário que o Conselho Planificador tenha executado uma planificação.</p>
                     <div id="unitPlanFieldsContainer" style="display: none;">
                         <div class="optimization-section">
-                            <p><strong>Produção Necessária:</strong> <span id="unitRequiredProduction">—</span> unidades</p>
+                            <p><strong>Produção Necessária Otimizada (unidades):</strong> <span id="unitRequiredProduction">—</span></p>
+                            <p><strong>Produção Necessária Otimizada (quantidade física):</strong> <span id="unitRequiredProductionPhysical">—</span></p>
+                            <p><strong>Produção Localmente Necessária (quantidade física):</strong> <span id="unitLocalProductionPhysical" title="Produção com base na demanda recebida diretamente localmente">—</span> <span id="unitLocalProductionPhysicalDelta" style="font-size:0.9em;"></span></p>
+                            <p style="font-size: 0.75em; color: var(--text-secondary, #666); margin-top: 2px;">Produção com base na demanda recebida diretamente localmente</p>
+                            <p id="unitUtilizationStatus" style="font-size: 0.85em; margin-top: 4px; font-weight: bold;"></p>
                             <p><strong>Participação Estimada no Cálculo da Planificação (mensal)*:</strong> <span id="unitEstimatedParticipation">—</span></p>
                             <p><strong>Participação Estimada Localmente (mensal)*:</strong> <span id="unitLocalParticipation">—</span></p>
                             <p><strong>Tempo Estimado para Conclusão*:</strong> <span id="unitLocalTimeToComplete">—</span></p>
                             <p style="font-size: 0.75em; color: var(--text-secondary, #666); margin-top: 2px;">* Dados locais: calculados a partir das encomendas de produção e projetos públicos pendentes do próprio comitê.</p>
                             <p style="font-size: 0.8em; color: var(--text-secondary, #666); margin-top: 6px;">* Cota individual da Participação Social Estimada em 1 mês, estimativa do que um produtor receberá em 1 mês de trabalho nessa unidade produtiva.</p>
+                        </div>
+
+                        <!-- CO2: Limite de emissão e redução de produção -->
+                        <div id="unitCo2Section" class="optimization-section" style="display: none; border-left: 3px solid #4caf50;">
+                            <h4 style="margin-bottom: 8px;"><i class="fas fa-leaf"></i> Emissão de CO₂</h4>
+                            <p><strong>Limite de Emissão desta unidade (mensal):</strong> <span id="unitCo2Limit">—</span></p>
+                            <p><strong>Emissão desta unidade (mensal):</strong> <span id="unitCo2LocalEmission">—</span> <span id="unitCo2LocalEmissionDelta" style="font-size:0.9em;"></span></p>
+                            <p id="unitCo2LocalEmissionStatus" style="font-size: 0.85em; margin-top: 4px; font-weight: bold;"></p>
+                            <p id="unitCo2ReductionInfo" style="display: none; color: #e67e22; font-weight: bold; margin-top: 6px;">
+                                <i class="fas fa-exclamation-triangle"></i> Produção otimizada reduzida em <span id="unitCo2ReductionPct">—</span> para atender ao teto de CO₂ da jurisdição.
+                            </p>
                         </div>
                     </div>
 

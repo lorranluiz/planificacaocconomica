@@ -1817,7 +1817,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         productionTime: result.productionTime || 1,
                         weeklyScale: result.weeklyScale || 5,
                         nightShift: result.nightShift || false,
-                        totalMaterializationCapacity: result.totalMaterializationCapacity || 0
+                        totalMaterializationCapacity: result.totalMaterializationCapacity || 0,
+                        co2Allocated: result.co2Allocated || 0
                     };
                     
                     console.log(`Salvando resultado de otimização para materialização ${result.materializationId}:`, payload);

@@ -328,6 +328,10 @@ public class OptimizationConfigController {
             if (payload.containsKey("totalMaterializationCapacity")) {
                 optimization.setTotalMaterializationCapacity(getBigDecimalValue(payload, "totalMaterializationCapacity", null));
             }
+            // CO2 alocado a esta materialização
+            if (payload.containsKey("co2Allocated")) {
+                optimization.setCo2Allocated(getBigDecimalValue(payload, "co2Allocated", null));
+            }
             
             // Definir período de emprego total (pode ser calculado com base em outros campos)
             optimization.setTotalEmploymentPeriodSeconds(86400L); // 1 dia em segundos como valor padrão

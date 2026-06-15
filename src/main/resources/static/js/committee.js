@@ -3296,9 +3296,16 @@ function fetchIncomingProjects() {
                 } else if (status === 'recebida pelo demandante') {
                     actionsHtml = `<button class="btn btn-sm" style="padding:2px 8px; font-size:0.8em;" onclick="distributeHours(${pageState.id}, ${order.orderId}, ${qty})">Liberar Horas</button>`;
                 }
+                var projectName = '';
+                var meta = globalState.materializationMetadataById[order.inputMaterializationId];
+                if (meta && meta.name) {
+                    projectName = escapeHtml(meta.name);
+                } else {
+                    projectName = 'ID#' + order.inputMaterializationId;
+                }
                 html += `<tr>
                     <td style="padding: 6px 8px; border-bottom: 1px solid var(--border-color-light, #333);">${escapeHtml(order.orderingCommitteeName || 'Conselho #' + order.orderingCommitteeId)}</td>
-                    <td style="padding: 6px 8px; border-bottom: 1px solid var(--border-color-light, #333); font-size:0.9em;">ID#${order.inputMaterializationId}</td>
+                    <td style="padding: 6px 8px; border-bottom: 1px solid var(--border-color-light, #333); font-size:0.9em;">${projectName}</td>
                     <td style="text-align:right; padding: 6px 8px; border-bottom: 1px solid var(--border-color-light, #333);">${qtyDisplay} h</td>
                     <td style="text-align:center; padding: 6px 8px; border-bottom: 1px solid var(--border-color-light, #333);">${statusBadge}</td>
                     <td style="text-align:center; padding: 6px 8px; border-bottom: 1px solid var(--border-color-light, #333);">${actionsHtml}</td>
@@ -3335,6 +3342,22 @@ function displayUnitPlanData(result) {
             requiredProdEl.textContent = (Math.abs(reqProd) < 0.01 && reqProd !== 0)
                 ? reqProd.toExponential(4)
                 : parseFloat(reqProd).toFixed(2);
+        }
+
+        // Produção Necessária em quantidade física (unidade * standardQuantityPerUnit)
+        var physicalProdEl = document.getElementById('unitRequiredProductionPhysical');
+        if (physicalProdEl && pageState.socialMaterializationId) {
+            var meta = globalState.materializationMetadataById[pageState.socialMaterializationId];
+            if (meta && meta.standardQuantityPerUnit != null) {
+                var stdQty = parseFloat(meta.standardQuantityPerUnit);
+                var physicalQty = reqProd * stdQty;
+                var unitName = meta.measurementUnitName || '';
+                physicalProdEl.textContent = (Math.abs(physicalQty) < 0.01 && physicalQty !== 0)
+                    ? physicalQty.toExponential(4) + (unitName ? ' ' + unitName : '')
+                    : parseFloat(physicalQty.toFixed(2)).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 6}) + (unitName ? ' ' + unitName : '');
+                // Salvar para uso no cálculo de utilização da unidade
+                pageState.optimizedPhysicalQty = physicalQty;
+            }
         }
         
         // Participação Estimada (mensal): exibição em horas (h) — valor planificado
@@ -3389,6 +3412,32 @@ function displayUnitPlanData(result) {
             limitEl.textContent = (Math.abs(co2Val) < 0.01 && co2Val !== 0)
                 ? co2Val.toExponential(4) : co2Val.toFixed(2);
         }
+
+        // Atualizar seção de CO2 na modal "Dessa Unidade Produtiva"
+        var unitCo2Section = document.getElementById('unitCo2Section');
+        var unitCo2LimitEl = document.getElementById('unitCo2Limit');
+        var unitCo2ReductionInfo = document.getElementById('unitCo2ReductionInfo');
+        var unitCo2ReductionPctEl = document.getElementById('unitCo2ReductionPct');
+
+        if (unitCo2Section) {
+            unitCo2Section.style.display = 'block';
+        }
+        if (unitCo2LimitEl) {
+            unitCo2LimitEl.textContent = (Math.abs(co2Val) < 0.01 && co2Val !== 0)
+                ? co2Val.toExponential(4) + ' kg CO₂' : co2Val.toFixed(2) + ' kg CO₂';
+        }
+        if (result.isProductionReduced && unitCo2ReductionInfo) {
+            unitCo2ReductionInfo.style.display = 'block';
+            if (unitCo2ReductionPctEl && result.productionReductionPct != null) {
+                unitCo2ReductionPctEl.textContent = parseFloat(result.productionReductionPct).toFixed(1) + '%';
+            }
+        } else if (unitCo2ReductionInfo) {
+            unitCo2ReductionInfo.style.display = 'none';
+        }
+    } else {
+        // Esconder seção de CO2 se não houver dados
+        var unitCo2SectionOff = document.getElementById('unitCo2Section');
+        if (unitCo2SectionOff) unitCo2SectionOff.style.display = 'none';
     }
 
     // Buscar encomendas de produção e projetos
@@ -3396,6 +3445,7 @@ function displayUnitPlanData(result) {
         fetchOpenProjects();
         fetchIncomingProjects();
         fetchIncomingOrders();
+        fetchLocalProductionPhysical();
     }
 }
 
@@ -3458,6 +3508,159 @@ function fetchIncomingOrders() {
             if (ordersList) {
                 ordersList.innerHTML = '<p style="color: var(--text-secondary, #666); font-style: italic;">Erro ao carregar encomendas.</p>';
             }
+        });
+}
+
+// STATUS_ACEITO_NAO_FINALIZADO: define quais status de encomenda são considerados
+// "aceitos mas ainda não finalizados". Altere este array para modificar o critério.
+// Status atual: apenas encomendas em produção ativa são contabilizadas.
+var STATUS_ACEITO_NAO_FINALIZADO = ['aceita em produção'];
+
+function fetchLocalProductionPhysical() {
+    if (!pageState.id || !pageState.socialMaterializationId) return;
+
+    fetch('/api/committees/' + pageState.id + '/incoming-orders')
+        .then(function(r) { return r.json(); })
+        .then(function(orders) {
+            var totalUnits = 0;
+            (orders || []).forEach(function(o) {
+                if (STATUS_ACEITO_NAO_FINALIZADO.indexOf(o.orderStatus) >= 0) {
+                    totalUnits += parseFloat(o.demandedQuantity) || 0;
+                }
+            });
+
+            var el = document.getElementById('unitLocalProductionPhysical');
+            if (!el) return;
+
+            var meta = globalState.materializationMetadataById[pageState.socialMaterializationId];
+            var stdQty = meta && meta.standardQuantityPerUnit != null ? parseFloat(meta.standardQuantityPerUnit) : 1;
+            var physical = totalUnits * stdQty;
+            var unitName = (meta && meta.measurementUnitName) || '';
+
+            el.textContent = (Math.abs(physical) < 0.01 && physical !== 0)
+                ? physical.toExponential(4) + (unitName ? ' ' + unitName : '')
+                : parseFloat(physical.toFixed(2)).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 6}) + (unitName ? ' ' + unitName : '');
+
+            // Emissão local de CO2: totalUnits * co2EmissionFactor
+            var localCo2El = document.getElementById('unitCo2LocalEmission');
+            if (localCo2El) {
+                var co2Factor = null;
+                if (pageState.optimizationData && pageState.optimizationData.co2EmissionFactor != null) {
+                    co2Factor = parseFloat(pageState.optimizationData.co2EmissionFactor);
+                } else if (meta && meta.co2EmissionFactor != null) {
+                    co2Factor = parseFloat(meta.co2EmissionFactor);
+                }
+                if (co2Factor != null) {
+                    var localCo2 = totalUnits * co2Factor;
+
+                    // Converter emissão total para taxa mensal
+                    var wp = pageState.workerProposal || {};
+                    var wLimit = wp.planifiedWorkerLimit || wp.workerLimit || 100;
+                    var wHours = wp.planifiedWorkerHours || wp.workerHours || 8;
+                    var wScale = wp.planifiedWeeklyScale || wp.weeklyScale || 5;
+                    var prodTime = wp.planifiedProductionTime || wp.productionTime || 1;
+                    var totalPendingHours = totalUnits * prodTime;
+                    var monthlyCommitteeCapacity = wLimit * 4 * wScale * wHours;
+                    var pendingMonths = Math.max(1, Math.ceil(totalPendingHours / monthlyCommitteeCapacity));
+                    localCo2 = localCo2 / pendingMonths;
+
+                    localCo2El.textContent = (Math.abs(localCo2) < 0.01 && localCo2 !== 0)
+                        ? localCo2.toExponential(4) + ' kg CO₂'
+                        : parseFloat(localCo2.toFixed(2)).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 6}) + ' kg CO₂';
+
+                    // Delta e status da emissão vs limite
+                    var co2DeltaEl = document.getElementById('unitCo2LocalEmissionDelta');
+                    var co2StatusEl = document.getElementById('unitCo2LocalEmissionStatus');
+                    var co2LimitVal = pageState.optimizationData && pageState.optimizationData.co2AllocatedToCommittee != null
+                        ? parseFloat(pageState.optimizationData.co2AllocatedToCommittee) : null;
+
+                    if (co2LimitVal != null && co2LimitVal > 1e-9 && co2DeltaEl) {
+                        var co2Pct = ((localCo2 - co2LimitVal) / co2LimitVal) * 100;
+                        var co2Arrow = co2Pct >= 0 ? '<span style="color:#e74c3c;">&#9650;</span>' : '<span style="color:#27ae60;">&#9660;</span>';
+                        co2DeltaEl.innerHTML = co2Arrow + ' <span style="font-size:0.85em;">' + Math.abs(co2Pct).toFixed(1) + '%</span>';
+                    } else if (co2DeltaEl) {
+                        co2DeltaEl.innerHTML = '';
+                    }
+
+                    if (co2StatusEl) {
+                        co2StatusEl.style.padding = '6px 12px';
+                        co2StatusEl.style.borderRadius = '6px';
+                        co2StatusEl.style.display = 'inline-block';
+                        if (co2LimitVal == null || co2LimitVal <= 1e-9) {
+                            co2StatusEl.style.color = '#888';
+                            co2StatusEl.style.background = 'rgba(136,136,136,0.08)';
+                            co2StatusEl.style.borderLeft = '';
+                            co2StatusEl.textContent = 'Limite de emissão não definido';
+                        } else {
+                            var co2Pct = ((localCo2 - co2LimitVal) / co2LimitVal) * 100;
+                            if (co2Pct > 0) {
+                                co2StatusEl.style.color = '#b33224';
+                                co2StatusEl.style.background = 'rgba(231,76,60,0.10)';
+                                co2StatusEl.style.borderLeft = '3px solid #e74c3c';
+                                co2StatusEl.textContent = 'Emissão ' + Math.abs(co2Pct).toFixed(1) + '% acima do limite';
+                            } else if (co2Pct >= -25) {
+                                co2StatusEl.style.color = '#b85e08';
+                                co2StatusEl.style.background = 'rgba(230,126,34,0.10)';
+                                co2StatusEl.style.borderLeft = '3px solid #e67e22';
+                                co2StatusEl.textContent = 'Emissão próxima do limite';
+                            } else {
+                                co2StatusEl.style.color = '#1b7a3d';
+                                co2StatusEl.style.background = 'rgba(39,174,96,0.10)';
+                                co2StatusEl.style.borderLeft = '3px solid #27ae60';
+                                co2StatusEl.textContent = 'Emissão ' + Math.abs(co2Pct).toFixed(1) + '% abaixo do limite';
+                            }
+                        }
+                    }
+                }
+            }
+
+            // Calcular delta e status de utilização
+            var deltaEl = document.getElementById('unitLocalProductionPhysicalDelta');
+            var statusEl = document.getElementById('unitUtilizationStatus');
+            var optimized = pageState.optimizedPhysicalQty;
+
+            if (deltaEl && optimized != null && optimized > 1e-9) {
+                var pct = ((physical - optimized) / optimized) * 100;
+                var arrow = pct >= 0 ? '<span style="color:#27ae60;">&#9650;</span>' : '<span style="color:#e74c3c;">&#9660;</span>';
+                deltaEl.innerHTML = arrow + ' <span style="font-size:0.85em;">' + Math.abs(pct).toFixed(1) + '%</span>';
+            } else if (deltaEl) {
+                deltaEl.innerHTML = '';
+            }
+
+            if (statusEl) {
+                if (optimized == null || optimized <= 1e-9) {
+                    statusEl.style.color = '#888';
+                    statusEl.style.background = 'rgba(136,136,136,0.08)';
+                    statusEl.style.padding = '6px 12px';
+                    statusEl.style.borderRadius = '6px';
+                    statusEl.style.display = 'inline-block';
+                    statusEl.textContent = 'Unidade Produtiva sem meta de produção otimizada';
+                } else {
+                    var pct = ((physical - optimized) / optimized) * 100;
+                    statusEl.style.padding = '6px 12px';
+                    statusEl.style.borderRadius = '6px';
+                    statusEl.style.display = 'inline-block';
+                    if (pct >= -25 && pct <= 25) {
+                        statusEl.style.color = '#1b7a3d';
+                        statusEl.style.background = 'rgba(39,174,96,0.10)';
+                        statusEl.style.borderLeft = '3px solid #27ae60';
+                        statusEl.textContent = 'Unidade Produtiva bem utilizada';
+                    } else if (pct < -25) {
+                        statusEl.style.color = '#b85e08';
+                        statusEl.style.background = 'rgba(230,126,34,0.10)';
+                        statusEl.style.borderLeft = '3px solid #e67e22';
+                        statusEl.textContent = 'Unidade Produtiva subutilizada em ' + Math.abs(pct).toFixed(1) + '%';
+                    } else {
+                        statusEl.style.color = '#b33224';
+                        statusEl.style.background = 'rgba(231,76,60,0.10)';
+                        statusEl.style.borderLeft = '3px solid #e74c3c';
+                        statusEl.textContent = 'Unidade Produtiva sobrecarregada em ' + Math.abs(pct).toFixed(1) + '%';
+                    }
+                }
+            }
+        })
+        .catch(function(err) {
+            console.error('Erro ao calcular producao local:', err);
         });
 }
 

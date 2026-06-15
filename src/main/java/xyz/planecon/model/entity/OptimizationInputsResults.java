@@ -125,6 +125,10 @@ public class OptimizationInputsResults {
     // Preço-sombra do CO2 (horas de trabalho / kg CO2), variável dual da restrição de emissão
     @Column(name = "co2_shadow_price", precision = 20, scale = 10)
     private BigDecimal co2ShadowPrice;
+
+    // Fator de escala do Plano B: scale = co2Limit / leontiefCo2 (1.0 = sem redução)
+    @Column(name = "co2_scale_factor", precision = 20, scale = 10)
+    private BigDecimal co2ScaleFactor;
     
     @Transient // Adicionar esta anotação
     private Double minimumProductionTimeInDays;

@@ -2250,6 +2250,9 @@ function renderOrderActions(orderId, status, supplierId) {
     if (status === 'solicitada' && (supplierId === null || supplierId === undefined || supplierId === 0)) {
         html += '<button class="btn btn-sm" style="padding:2px 8px;font-size:0.8em;" onclick="viewProjectBids(' + orderId + ')">Ver Lances</button> ';
     }
+    if (status === 'solicitada' && supplierId && supplierId !== 0) {
+        html += '<button class="btn btn-sm" style="padding:2px 8px;font-size:0.8em;background:#27ae60;color:#fff;border-color:#27ae60;" onclick="showBidWinner(' + orderId + ')">Lance Escolhido</button> ';
+    }
     return html;
 }
 
@@ -2461,6 +2464,11 @@ function openAddServiceModal() {
     document.getElementById('svcSearchInput').value = '';
     container.innerHTML = '<p style="color:var(--text-secondary);font-style:italic;">Carregando...</p>';
     modal.style.display = 'block';
+    var titleEl = modal.querySelector('h3');
+    if (titleEl) titleEl.textContent = 'Adicionar Serviço Público';
+    // Restaurar footer (pode ter sido escondido pelo modal de lances)
+    var footer = modal.querySelector('.modal-footer');
+    if (footer) footer.style.display = '';
 
     fetch('/api/planification/available-materializations')
         .then(function(r) { return r.json(); })
@@ -2569,7 +2577,7 @@ function addServiceToTable(svcId, svcName, validity, quantity, orderId, supplier
         '<td>' + (validity || '-') + ' dias</td>' +
         '<td>' + quantity.toFixed(4) + ' h</td>' +
         '<td>' + getOrderStatusBadge('solicitada') + '</td>' +
-        '<td>' + renderOrderActions(orderId, 'solicitada') + ' <button class="btn btn-sm btn-secondary" onclick="deleteServiceOrder(' + (orderId||0) + ', this)">Remover</button></td>';
+        '<td>' + renderOrderActions(orderId, 'solicitada', supplierId) + ' <button class="btn btn-sm btn-secondary" onclick="deleteServiceOrder(' + (orderId||0) + ', this)">Remover</button></td>';
     markDirty();
 }
 
@@ -2595,6 +2603,9 @@ function viewProjectBids(orderId) {
     var container = document.getElementById('addServiceListContainer');
     var titleEl = modal.querySelector('h3');
     if (titleEl) titleEl.textContent = 'Lances do Projeto';
+    // Esconder footer do modal de adicionar serviço (modo leilão)
+    var footer = modal.querySelector('.modal-footer');
+    if (footer) footer.style.display = 'none';
     container.innerHTML = '<p style="color:var(--text-secondary);">Carregando lances...</p>';
     modal.style.display = 'block';
 
@@ -2650,6 +2661,62 @@ function redrawBids(container, bids, orderId) {
             var hours = parseFloat(item.getAttribute('data-hours'));
             selectBidWinner(oid, cid, name, hours);
         });
+    });
+}
+
+function selectBidWinner(orderId, committeeId, committeeName, bidHours) {
+    if (!confirm('Selecionar ' + committeeName + ' como vencedor com lance de ' + bidHours.toFixed(2) + ' h?')) return;
+
+    fetch('/api/council/' + currentInstanceId + '/projects/' + orderId + '/select-winner', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ committeeId: committeeId })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showNotification('Comit\u00ea ' + committeeName + ' selecionado como vencedor!', 'success');
+            var items = document.querySelectorAll('.bid-item');
+            items.forEach(function(item) {
+                var cid = parseInt(item.getAttribute('data-committee'));
+                if (cid === committeeId) {
+                    item.style.background = 'rgba(39,174,96,0.15)';
+                    item.style.borderColor = '#27ae60';
+                    item.style.cursor = 'default';
+                    var span = item.querySelector('.bid-hours');
+                    if (span) span.textContent = parseFloat(bidHours).toFixed(2) + ' h \u2714';
+                } else {
+                    item.style.opacity = '0.5';
+                    item.style.cursor = 'default';
+                    item.onclick = null;
+                }
+            });
+            clearInterval(_bidsPollInterval);
+            _bidsPollInterval = null;
+            _currentBidsOrderId = null;
+            markDirty();
+
+            // Atualizar a linha na tabela de projetos/serviços para mostrar "Lance Escolhido"
+            var tableRow = document.querySelector('tr[data-order-id="' + orderId + '"]');
+            if (tableRow) {
+                var actionTd = tableRow.querySelectorAll('td')[4];
+                if (actionTd) {
+                    // Adicionar ícone de fornecedor na coluna do nome se ainda não existir
+                    var nameTd = tableRow.querySelectorAll('td')[0];
+                    if (nameTd && !nameTd.querySelector('.supplier-icon')) {
+                        var iconHtml = '<i class="fas fa-truck supplier-icon" title="Fornecedor: ' + escapeHtml(committeeName).replace(/"/g, '&quot;') + '" onclick="event.stopPropagation();openSupplierInfo(' + committeeId + ')" style="cursor:pointer;margin-left:6px;color:var(--primary-color);"></i>';
+                        nameTd.innerHTML += iconHtml;
+                    }
+                    actionTd.innerHTML = renderOrderActions(orderId, 'solicitada', committeeId) + ' <button class="btn btn-sm btn-secondary" onclick="deleteServiceOrder(' + orderId + ', this)">Remover</button>';
+                }
+            }
+        } else {
+            showNotification('Erro ao selecionar vencedor: ' + (data.message || 'Erro desconhecido'), 'error');
+        }
+    })
+    .catch(function(err) {
+        console.error('Erro ao selecionar vencedor:', err);
+        showNotification('Erro ao selecionar vencedor.', 'error');
     });
 }
 
@@ -2842,7 +2909,7 @@ function addProjectToTable(matId, name, investment, deadline, supplierId, suppli
         '<td>' + deadline.toFixed(1) + ' dias</td>' +
         '<td>' + investment.toFixed(4) + ' h</td>' +
         '<td>' + getOrderStatusBadge('solicitada') + '</td>' +
-        '<td>' + renderOrderActions(orderId, 'solicitada') + ' <button class="btn btn-sm btn-secondary" onclick="deleteServiceOrder(' + (orderId||0) + ', this)">Remover</button></td>';
+        '<td>' + renderOrderActions(orderId, 'solicitada', supplierId) + ' <button class="btn btn-sm btn-secondary" onclick="deleteServiceOrder(' + (orderId||0) + ', this)">Remover</button></td>';
     markDirty();
 }
 
@@ -2873,6 +2940,50 @@ function openSupplierInfo(supplierId) {
 
 function closeSupplierInfoModal() {
     var m = document.getElementById('supplierInfoModal');
-    if (m) m.style.display = 'none';
+    if (m) {
+        m.style.display = 'none';
+        var titleEl = m.querySelector('h3');
+        if (titleEl) titleEl.textContent = 'Dados do Fornecedor';
+    }
+}
+
+function showBidWinner(orderId) {
+    var row = document.querySelector('tr[data-order-id="' + orderId + '"]');
+    if (!row) return;
+    var tds = row.querySelectorAll('td');
+    var projectName = tds[0].textContent.replace(/^\s+|\s+$/g, '').split('\n')[0].trim();
+    var deadline = tds[1].textContent.trim();
+    var investment = tds[2].textContent.trim();
+
+    // Extrair nome do fornecedor do ícone truck
+    var supplierName = '';
+    var truckIcon = tds[0].querySelector('.supplier-icon');
+    if (truckIcon) {
+        var title = truckIcon.getAttribute('title') || '';
+        var m = title.match(/Fornecedor:\s*(.+)/);
+        if (m) supplierName = m[1];
+    }
+
+    var modal = document.getElementById('supplierInfoModal');
+    var content = document.getElementById('supplierInfoContent');
+    if (!modal || !content) return;
+
+    var titleEl = modal.querySelector('h3');
+    if (titleEl) titleEl.textContent = 'Lance Escolhido';
+
+    var html = '<div style="line-height:1.8;">';
+    html += '<div style="margin-bottom:15px;padding:12px;background:var(--bg-light,#f5f5f5);border-radius:6px;border-left:3px solid var(--primary-color,#1976d2);">';
+    html += '<h4 style="margin-top:0;margin-bottom:8px;color:var(--primary-color,#1976d2);">Projeto Público</h4>';
+    html += '<p><strong>Nome:</strong> ' + escapeHtml(projectName) + '</p>';
+    html += '<p><strong>Prazo:</strong> ' + escapeHtml(deadline) + '</p>';
+    html += '<p><strong>Investimento:</strong> ' + escapeHtml(investment) + '</p>';
+    html += '</div>';
+    html += '<div style="padding:12px;background:rgba(39,174,96,0.08);border-radius:6px;border-left:3px solid #27ae60;">';
+    html += '<h4 style="margin-top:0;margin-bottom:8px;color:#27ae60;">Comitê Vencedor</h4>';
+    html += '<p><strong>Nome:</strong> ' + escapeHtml(supplierName || 'Não informado') + '</p>';
+    html += '</div>';
+    html += '</div>';
+    content.innerHTML = html;
+    modal.style.display = 'block';
 }
 

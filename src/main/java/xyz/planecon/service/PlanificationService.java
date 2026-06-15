@@ -448,6 +448,35 @@ public class PlanificationService {
             }
         }
 
+        // Persistir dados de CO2 nas entidades OptimizationInputsResults
+        if (emissionFactors != null) {
+            double leontiefCo2 = computeCo2(
+                MatrixOperations.calculateProductionVector(techMatrix, demandVector), emissionFactors);
+            double scale = (co2EmissionLimit != null && co2EmissionLimit > 0 && leontiefCo2 > 0)
+                ? co2EmissionLimit / leontiefCo2
+                : 1.0;
+            boolean hasReduction = slackSolution != null && scale < 0.9999;
+            // Recarregar entidades para garantir que estão no contexto de transação atual
+            List<OptimizationInputsResults> freshConfigs = optimizationRepository.findById_InstanceId(instanceId);
+            Map<Integer, OptimizationInputsResults> freshMap = new HashMap<>();
+            for (OptimizationInputsResults c : freshConfigs) {
+                freshMap.put(c.getId().getSocialMaterializationId(), c);
+            }
+            for (OptimizationResult result : optimizationResults) {
+                Integer matId = result.getMaterializationId();
+                OptimizationInputsResults entity = freshMap.get(matId);
+                if (entity != null && result.getCo2Allocated() != null) {
+                    entity.setCo2Allocated(BigDecimal.valueOf(result.getCo2Allocated()));
+                    if (hasReduction) {
+                        entity.setCo2ScaleFactor(BigDecimal.valueOf(scale));
+                    } else {
+                        entity.setCo2ScaleFactor(null); // limpar fator de redução anterior
+                    }
+                    optimizationRepository.save(entity);
+                }
+            }
+        }
+
         // Calcular capacidade produtiva mensal por materialização (c_total_i) e total (c_total)
         // c_trabalhador = 4 semanas * escala_semanal * carga_horária_diária
         // T_mensal = limite_trabalhadores * c_trabalhador
