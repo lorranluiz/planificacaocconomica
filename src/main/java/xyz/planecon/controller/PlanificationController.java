@@ -235,6 +235,15 @@ public class PlanificationController {
         result.put("matrix", matrix);
         result.put("productNames", productNames);
         result.put("productIds", productIds);
+
+        // Incluir fatores de emissão de CO2
+        BigDecimal[] emissionFactors = new BigDecimal[size];
+        for (int i = 0; i < materializations.size(); i++) {
+            SocialMaterialization mat = materializations.get(i);
+            int index = materializationToIndex.get(mat.getId());
+            emissionFactors[index] = mat.getCo2EmissionFactor() != null ? mat.getCo2EmissionFactor() : BigDecimal.ZERO;
+        }
+        result.put("emissionFactors", emissionFactors);
         
         return ResponseEntity.ok(result);
     }
@@ -623,8 +632,26 @@ public class PlanificationController {
                         config.getMinimumProductionTime().doubleValue(),
                         config.getNightShift(),
                         committeeCount, // Adicionar o número de comitês
-                        null // totalMaterializationCapacity
+                        null, // totalMaterializationCapacity
+                        null, // co2EmissionFactor
+                        null, // co2Allocated
+                        null, // co2ShadowPrice
+                        null, // originalDemand
+                        null, // originalProductionNeeded
+                        null, // adjustedProductionNeeded
+                        null  // adjustedDemand
                     );
+
+                    // Incluir dados de CO2 se disponíveis
+                    if (materialization.getCo2EmissionFactor() != null) {
+                        result.setCo2EmissionFactor(materialization.getCo2EmissionFactor().doubleValue());
+                    }
+                    if (config.getCo2Allocated() != null) {
+                        result.setCo2Allocated(config.getCo2Allocated().doubleValue());
+                    }
+                    if (config.getCo2ShadowPrice() != null) {
+                        result.setCo2ShadowPrice(config.getCo2ShadowPrice().doubleValue());
+                    }
                     
                     optimizationResults.add(result);
                 }
@@ -642,6 +669,25 @@ public class PlanificationController {
                 productionVector,
                 optimizationResults
             );
+
+            // Preencher dados de CO2 das configurações
+            double totalCo2 = 0.0;
+            for (OptimizationInputsResults config : configs) {
+                if (config.getCo2Allocated() != null) {
+                    totalCo2 += config.getCo2Allocated().doubleValue();
+                }
+            }
+            if (totalCo2 > 0) {
+                response.setTotalCo2Emissions(totalCo2);
+            }
+
+            // Buscar co2EmissionLimit da instância
+            Optional<Instance> instOpt = instanceRepository.findById(instanceId);
+            if (instOpt.isPresent() && instOpt.get().getCo2EmissionLimit() != null) {
+                BigDecimal limit = instOpt.get().getCo2EmissionLimit();
+                response.setCo2Limit(limit.doubleValue());
+                response.setCo2ConstraintBinding(totalCo2 >= limit.doubleValue() * 0.999);
+            }
 
             // Popular productNames e productIds na mesma ordem do productionVector
             String[] names = new String[materializations.size()];
@@ -971,6 +1017,15 @@ public class PlanificationController {
             result.put("productNames", productNames);
             result.put("productIds", productIds);
             result.put("instanceType", instance.getType().toString());
+
+            // Incluir fatores de emissão de CO2
+            BigDecimal[] emissionFactors = new BigDecimal[size];
+            for (int i = 0; i < materializations.size(); i++) {
+                SocialMaterialization mat = materializations.get(i);
+                int index = materializationToIndex.get(mat.getId());
+                emissionFactors[index] = mat.getCo2EmissionFactor() != null ? mat.getCo2EmissionFactor() : BigDecimal.ZERO;
+            }
+            result.put("emissionFactors", emissionFactors);
             
             return ResponseEntity.ok(result);
         } catch (Exception e) {

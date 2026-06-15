@@ -117,6 +117,14 @@ public class OptimizationInputsResults {
     // c_total_i: capacidade produtiva mensal total de todos os comitês desta materialização
     @Column(name = "total_materialization_capacity", precision = 38, scale = 10)
     private BigDecimal totalMaterializationCapacity;
+
+    // CO2 alocado a esta materialização (kg CO2), resultado da planificação
+    @Column(name = "co2_allocated", precision = 38, scale = 6)
+    private BigDecimal co2Allocated;
+
+    // Preço-sombra do CO2 (horas de trabalho / kg CO2), variável dual da restrição de emissão
+    @Column(name = "co2_shadow_price", precision = 20, scale = 10)
+    private BigDecimal co2ShadowPrice;
     
     @Transient // Adicionar esta anotação
     private Double minimumProductionTimeInDays;

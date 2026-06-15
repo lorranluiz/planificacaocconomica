@@ -27,6 +27,10 @@ let totalSocialProductionCapacity = null;
 // Total de horas trabalhadas de todos os trabalhadores (denominador para participação social)
 let totalWorkerHours = null;
 
+// Emissão de CO2: fatores por materialização e teto da jurisdição
+var emissionFactors = {};
+var co2EmissionLimit = 0;
+
 // Adicione esta função após a declaração de variáveis no início do arquivo
 function loadPreviousResults(instanceId) {
     console.log(`Carregando resultados anteriores da instância ${instanceId}...`);
@@ -124,6 +128,7 @@ function openOptimizationConfigModal(materializationId, productName) {
     document.getElementById('productionTime').value = '';
     document.getElementById('weeklyScale').value = '';
     document.getElementById('nightShift').checked = false;
+    document.getElementById('co2EmissionFactor').value = '0';
 
     // Verificar primeiro se temos dados de otimização nos resultados da planificação
     if (window.lastPlanificationResults && window.lastPlanificationResults.optimizationResults) {
@@ -140,6 +145,7 @@ function openOptimizationConfigModal(materializationId, productName) {
             document.getElementById('productionTime').value = result.productionTime || 1.0;
             document.getElementById('weeklyScale').value = result.weeklyScale || 5;
             document.getElementById('nightShift').checked = result.nightShift || false;
+            document.getElementById('co2EmissionFactor').value = emissionFactors[materializationId] || result.co2EmissionFactor || 0;
             
             // Esconder o spinner e mostrar a modal
             document.getElementById('optimizationModalSpinner').style.display = 'none';
@@ -175,6 +181,7 @@ function openOptimizationConfigModal(materializationId, productName) {
         document.getElementById('productionTime').value = data.productionTime || 1.0;
         document.getElementById('weeklyScale').value = data.weeklyScale || 5;
         document.getElementById('nightShift').checked = data.nightShift || false;
+        document.getElementById('co2EmissionFactor').value = emissionFactors[materializationId] || 0;
         
         // Esconder o spinner
         document.getElementById('optimizationModalSpinner').style.display = 'none';
@@ -216,13 +223,17 @@ function saveOptimizationConfig() {
         console.error("Nenhuma materialização selecionada para configuração");
         return;
     }
-    
+
     // Obter valores do formulário
     const workerLimit = document.getElementById('workerLimit').value;
     const workerHours = document.getElementById('workerHours').value;
     const productionTime = document.getElementById('productionTime').value;
     const weeklyScale = document.getElementById('weeklyScale').value;
     const nightShift = document.getElementById('nightShift').checked;
+    const co2Factor = parseFloat(document.getElementById('co2EmissionFactor').value) || 0;
+
+    // Armazenar fator de emissão localmente
+    emissionFactors[currentMaterializationId] = co2Factor;
     
     // Cria a configuração com valores verificados
     const config = {
@@ -394,6 +405,10 @@ function openOptimizationResultModal(index) {
             <h4>Dados de Produção</h4>
             <p><strong>Produção Necessária:</strong> ${formatNumber(result.productionNeeded, 6, true)} unidades</p>
             <p><strong>Total de Horas Necessárias:</strong> ${formatNumber(result.totalHours, 4, true)} horas</p>
+            ${result.originalDemand != null ? '<p style="margin-top:8px; padding-top:6px; border-top:1px dashed #ccc;"><strong>Demanda Original (sem ajuste):</strong> ' + formatNumber(result.originalDemand, 4, true) + '</p>' : ''}
+            ${result.adjustedDemand != null ? '<p><strong>Demanda Ajustada:</strong> ' + formatNumber(result.adjustedDemand, 4, true) + '</p>' : ''}
+            ${result.originalProductionNeeded != null ? '<p style="margin-top:8px; padding-top:6px; border-top:1px dashed #ccc;"><strong>Produção Necessária Original (Leontief):</strong> ' + formatNumber(result.originalProductionNeeded, 6, true) + ' unidades</p>' : ''}
+            ${result.adjustedProductionNeeded != null ? '<p><strong>Produção Necessária Ajustada:</strong> ' + formatNumber(result.adjustedProductionNeeded, 6, true) + ' unidades</p>' : ''}
         </div>
         
         <div class="optimization-section">
@@ -415,6 +430,19 @@ function openOptimizationResultModal(index) {
             <p><strong>Tempo Mínimo de Produção:</strong> ${formatNumber(result.minimumProductionTimeInDays, 4, true)} dias</p>
         </div>
     `;
+
+    // Adicionar seção de CO2 se houver dados
+    if (result.co2EmissionFactor != null || result.co2Allocated != null || result.co2ShadowPrice != null) {
+        contentHTML += `
+        <div class="optimization-section" style="border-left: 3px solid #4caf50;">
+            <h4>Dados de Emissão de CO₂</h4>
+            ${result.co2EmissionFactor != null ? '<p><strong>Fator de Emissão:</strong> ' + formatNumber(result.co2EmissionFactor, 6, true) + ' kg CO₂/unidade</p>' : ''}
+            ${result.co2Allocated != null ? '<p><strong>CO₂ Alocado:</strong> ' + formatNumber(result.co2Allocated, 4, true) + ' kg CO₂</p>' : ''}
+            ${result.co2ShadowPrice != null && result.co2ShadowPrice > 0 ? '<p><strong>Preço-Sombra do CO₂:</strong> ' + formatNumber(result.co2ShadowPrice, 6, true) + ' h/kg CO₂</p>' : ''}
+            ${result.co2ShadowPrice != null && result.co2ShadowPrice > 0 ? '<p style="font-size: 0.85em; color: var(--text-secondary);">(Custo marginal em horas de trabalho para reduzir 1 kg de CO₂)</p>' : ''}
+        </div>
+        `;
+    }
     
     document.getElementById('optimizationModalContent').innerHTML = contentHTML;
     
@@ -595,7 +623,7 @@ function updateDemandVectorFromUI() {
     return demandVector;
 }
 
-// Função corrigida para renderizar o vetor de produção SEM os botões de otimização
+// Função corrigida para renderizar o vetor de produção
 function renderProductionVector(productionVector) {
     const resultsContainer = document.getElementById('results');
     if (!resultsContainer) {
@@ -606,23 +634,44 @@ function renderProductionVector(productionVector) {
     // 1. Limpar o container de resultados
     resultsContainer.innerHTML = '';
     
+    // Detectar se é Plano B (LP com slack)
+    var isPlanB = window.lastPlanificationResults && window.lastPlanificationResults.optimizationFallbackReason === 'LP_INFEASIBLE';
+
     // 2. Criar elementos HTML para a tabela de produção
     const header = document.createElement('h2');
-    header.textContent = 'Resultados da Planificação';
+    header.textContent = 'Resultados da Planificação' + (isPlanB ? ' (Ajuste Automático de Demanda)' : '');
     resultsContainer.appendChild(header);
+
+    if (isPlanB) {
+        var infoP = document.createElement('p');
+        infoP.style.cssText = 'color: #e67e22; font-style: italic; margin-bottom: 10px;';
+        infoP.textContent = 'Produção e demanda reduzidas proporcionalmente para respeitar o teto de CO₂. A estrutura insumo-produto foi preservada — nenhum produto foi zerado.';
+        resultsContainer.appendChild(infoP);
+    }
     
     const table = document.createElement('table');
     table.className = 'data-table';
     
     // 3. Criar cabeçalho da tabela
     const thead = document.createElement('thead');
-    thead.innerHTML = `
-        <tr>
-            <th>Produto</th>
-            <th>Produção Necessária</th>
-            <th>Ações</th>
-        </tr>
-    `;
+    if (isPlanB) {
+        thead.innerHTML = '<tr>' +
+            '<th>Produto</th>' +
+            '<th>Demanda Otimizada sem Ajuste</th>' +
+            '<th>Produção Necessária</th>' +
+            '<th>Demanda Ajustada</th>' +
+            '<th>Produção Necessária Ajustada</th>' +
+            '<th>CO₂ Alocado (kg)</th>' +
+            '<th>Ações</th>' +
+            '</tr>';
+    } else {
+        thead.innerHTML = '<tr>' +
+            '<th>Produto</th>' +
+            '<th>Produção Necessária</th>' +
+            '<th>CO₂ Alocado (kg)</th>' +
+            '<th>Ações</th>' +
+            '</tr>';
+    }
     table.appendChild(thead);
     
     // 4. Criar corpo da tabela
@@ -644,20 +693,69 @@ function renderProductionVector(productionVector) {
             : value.toString().replace('.', ',');
     };
     
-    // Adicionar linhas para cada produto - APENAS com botão "Detalhes"
+    // Adicionar linhas para cada produto
     productionVector.forEach((production, index) => {
         if (index < productNames.length) {
             const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${productNames[index]}</td>
-                <td>${formatNumber(production)}</td>
-                <td class="action-buttons">
-                    <button class="action-btn details-btn" title="Ver detalhes de otimização"
-                        onclick="openOptimizationResultModal(${index})">
-                        <i class="fas fa-chart-bar"></i>
-                    </button>
-                </td>
-            `;
+
+            // Buscar dados de otimização para este produto
+            var optResult = optimizationResults ? optimizationResults.find(function(r) {
+                return r && r.materializationId === productIds[index];
+            }) : null;
+            var co2AllocatedVal = (optResult && optResult.co2Allocated != null) ? formatNumber(optResult.co2Allocated) : '—';
+
+            if (isPlanB) {
+                var origDemandRaw = (optResult && optResult.originalDemand != null) ? optResult.originalDemand : null;
+                var adjDemandRaw = (optResult && optResult.adjustedDemand != null) ? optResult.adjustedDemand : null;
+                var origProdRaw = (optResult && optResult.originalProductionNeeded != null) ? optResult.originalProductionNeeded : null;
+                var adjProdRaw = (optResult && optResult.adjustedProductionNeeded != null) ? optResult.adjustedProductionNeeded : null;
+
+                var origDemand = origDemandRaw != null ? formatNumber(origDemandRaw) : '—';
+                var origProd = origProdRaw != null ? formatNumber(origProdRaw) : formatNumber(production);
+
+                // Construir label de demanda ajustada com seta e percentual
+                var adjDemandLabel = (adjDemandRaw != null) ? formatNumber(adjDemandRaw) : '—';
+                if (adjDemandRaw != null && origDemandRaw != null && origDemandRaw > 0) {
+                    var demandPct = ((adjDemandRaw - origDemandRaw) / origDemandRaw * 100);
+                    var demandArrow = demandPct >= 0 ? '<span style="color:#27ae60;">&#9650;</span>' : '<span style="color:#e74c3c;">&#9660;</span>';
+                    adjDemandLabel += ' ' + demandArrow + ' <span style="font-size:0.85em;">' + Math.abs(demandPct).toFixed(1) + '%</span>';
+                }
+
+                // Construir label de produção ajustada com seta e percentual
+                var adjProdLabel = (adjProdRaw != null) ? formatNumber(adjProdRaw) : '—';
+                if (adjProdRaw != null && origProdRaw != null && origProdRaw > 0) {
+                    var prodPct = ((adjProdRaw - origProdRaw) / origProdRaw * 100);
+                    var prodArrow = prodPct >= 0 ? '<span style="color:#27ae60;">&#9650;</span>' : '<span style="color:#e74c3c;">&#9660;</span>';
+                    adjProdLabel += ' ' + prodArrow + ' <span style="font-size:0.85em;">' + Math.abs(prodPct).toFixed(1) + '%</span>';
+                }
+
+                // Destacar se a demanda foi reduzida
+                var demandStyle = '';
+                if (adjDemandRaw != null && origDemandRaw != null && adjDemandRaw < origDemandRaw * 0.999) {
+                    demandStyle = ' style="color: #e67e22; font-weight: bold;"';
+                }
+
+                tr.innerHTML = '<td>' + productNames[index] + '</td>' +
+                    '<td>' + origDemand + '</td>' +
+                    '<td>' + origProd + '</td>' +
+                    '<td' + demandStyle + '>' + adjDemandLabel + '</td>' +
+                    '<td>' + adjProdLabel + '</td>' +
+                    '<td>' + co2AllocatedVal + '</td>' +
+                    '<td class="action-buttons">' +
+                        '<button class="action-btn details-btn" title="Ver detalhes" onclick="openOptimizationResultModal(' + index + ')">' +
+                            '<i class="fas fa-chart-bar"></i>' +
+                        '</button>' +
+                    '</td>';
+            } else {
+                tr.innerHTML = '<td>' + productNames[index] + '</td>' +
+                    '<td>' + formatNumber(production) + '</td>' +
+                    '<td>' + co2AllocatedVal + '</td>' +
+                    '<td class="action-buttons">' +
+                        '<button class="action-btn details-btn" title="Ver detalhes de otimização" onclick="openOptimizationResultModal(' + index + ')">' +
+                            '<i class="fas fa-chart-bar"></i>' +
+                        '</button>' +
+                    '</td>';
+            }
             tbody.appendChild(tr);
         }
     });
@@ -1129,6 +1227,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 productNames = data.productNames;
                 productIds = data.productIds;
                 
+                // Carregar fatores de emissão de CO2 do servidor
+                if (data.emissionFactors && Array.isArray(data.emissionFactors)) {
+                    for (var i = 0; i < productIds.length && i < data.emissionFactors.length; i++) {
+                        emissionFactors[productIds[i]] = parseFloat(data.emissionFactors[i]) || 0;
+                    }
+                }
+                
                 // Filtrar projetos individuais
                 filterIndividualProjectsSync();
                 
@@ -1400,12 +1505,18 @@ document.addEventListener('DOMContentLoaded', function() {
             ensureMatrixDimensions();
             
             // Preparar o objeto com os dados da planificação
-            const planificationRequest = {
+            var emissionFactorsArray = productIds.map(function(pid) {
+                return emissionFactors[pid] || 0;
+            });
+
+            var planificationRequest = {
                 instanceId: currentInstanceId,
                 technologicalMatrix: technologicalMatrix,
                 demandVector: demandVector,
                 productNames: productNames,
-                materializationIds: productIds
+                materializationIds: productIds,
+                emissionFactors: emissionFactorsArray,
+                co2EmissionLimit: co2EmissionLimit || 0
             };
             
             console.log("Enviando requisição de planificação:", planificationRequest);
@@ -1433,19 +1544,42 @@ document.addEventListener('DOMContentLoaded', function() {
                 const results = document.getElementById('results');
                 results.style.display = 'block';
                 
-                // Renderizar o vetor de produção
-                renderProductionVector(data.productionVector);
-                
-                // Renderizar resultados de otimização
+                // Armazenar resultados de otimização ANTES de renderizar o vetor de produção
                 if (data.optimizationResults) {
                     optimizationResults = data.optimizationResults;
                     window.lastPlanificationResults = data;
+                }
+                
+                // Renderizar o vetor de produção (precisa de optimizationResults para coluna CO2)
+                renderProductionVector(data.productionVector);
+                
+                // Renderizar detalhes de otimização
+                if (data.optimizationResults) {
                     renderOptimizationResults(data.optimizationResults);
                 }
                 
                 // Armazenar capacidade produtiva total (c_total)
                 if (data.totalSocialProductionCapacity != null) {
                     totalSocialProductionCapacity = data.totalSocialProductionCapacity;
+                }
+
+                // Armazenar dados de CO2
+                if (data.co2ConstraintBinding) {
+                    showNotification('Atenção: O teto de emissão de CO₂ (' + formatNumber(data.co2Limit, 2) + ' kg) foi atingido. A produção foi ajustada para respeitar o limite.', 'warning', 8000);
+                }
+                if (data.totalCo2Emissions != null) {
+                    window.lastCo2Emissions = data.totalCo2Emissions;
+                }
+                if (data.co2Limit != null) {
+                    window.lastCo2Limit = data.co2Limit;
+                }
+
+                // Informar usuário quando o LP não foi usado
+                if (data.optimizationFallbackReason === 'LP_INFEASIBLE') {
+                    var scalePct = data.totalCo2Emissions && data.co2Limit ? ((data.co2Limit / data.totalCo2Emissions) * 100).toFixed(1) : '?';
+                    showNotification('As restrições de CO₂ são muito rigorosas para a demanda atual. Produção e demanda foram reduzidas proporcionalmente em ' + scalePct + '% para respeitar o teto de emissão, preservando a estrutura insumo-produto. Nenhum produto foi zerado.', 'warning', 12000);
+                } else if (data.optimizationFallbackReason === 'NO_CO2_CONSTRAINT') {
+                    showNotification('Não foi possível otimizar o resultado. Nenhum teto de emissão de CO₂ foi definido. Apenas se manteve às interrelações entre insumos e produtos.', 'info', 8000);
                 }
                 
                 // Rolar para os resultados
@@ -2982,6 +3116,7 @@ function openOptimizationConfigModal(materializationId, productName) {
         document.getElementById('productionTime').value = data.productionTime || 1.0;
         document.getElementById('weeklyScale').value = data.weeklyScale || 5;
         document.getElementById('nightShift').checked = data.nightShift || false;
+        document.getElementById('co2EmissionFactor').value = emissionFactors[materializationId] || 0;
         
         // Esconder o spinner
         document.getElementById('optimizationModalSpinner').style.display = 'none';
@@ -3167,6 +3302,16 @@ function loadCouncilBalance() {
             if (slider && data.taxRate != null) slider.value = data.taxRate;
         })
         .catch(function(err) { console.error('Erro ao carregar saldo:', err); });
+
+    // Carregar teto de CO2
+    fetch('/api/council/' + currentInstanceId + '/co2-limit')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+            co2EmissionLimit = parseFloat(data.co2EmissionLimit || 0);
+            var input = document.getElementById('co2EmissionLimitInput');
+            if (input) input.value = co2EmissionLimit;
+        })
+        .catch(function(err) { console.error('Erro ao carregar teto de CO₂:', err); });
 }
 
 function showTaxSlider(show) {
@@ -3186,6 +3331,23 @@ function saveTaxRate() {
     .then(function(r) { return r.json(); })
     .then(function(data) { if (data.success) showSuccess('Taxa: ' + data.taxRate + '%'); })
     .catch(function(err) { console.error('Erro ao salvar taxa:', err); });
+}
+
+function saveCo2Limit() {
+    if (!currentInstanceId) return;
+    var limitVal = document.getElementById('co2EmissionLimitInput').value;
+    co2EmissionLimit = parseFloat(limitVal) || 0;
+    fetch('/api/council/' + currentInstanceId + '/co2-limit', {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ co2EmissionLimit: co2EmissionLimit })
+    })
+    .then(function(r) { return r.json(); })
+    .then(function(data) {
+        if (data.success) {
+            showSuccess('Teto de CO₂: ' + co2EmissionLimit + ' kg');
+        }
+    })
+    .catch(function(err) { console.error('Erro ao salvar teto de CO₂:', err); });
 }
 
 function _parseCreatedAt(v) {

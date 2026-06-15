@@ -3166,6 +3166,19 @@ function displayOptimizationResults(result) {
             <p><strong>Tempo Mínimo de Produção:</strong> ${formatNumber(result.minimumProductionTimeInDays, 4, true)} dias</p>
         </div>
     `;
+
+    // Adicionar seção de CO2 se houver dados
+    if (result.co2EmissionFactor != null || result.co2Allocated != null || result.co2ShadowPrice != null) {
+        contentHTML += `
+        <div class="optimization-section" style="border-left: 3px solid #4caf50;">
+            <h4><i class="fas fa-leaf"></i> Dados de Emissão de CO₂</h4>
+            ${result.co2EmissionFactor != null ? '<p><strong>Fator de Emissão:</strong> ' + formatNumber(result.co2EmissionFactor, 6, true) + ' kg CO₂/unidade</p>' : ''}
+            ${result.co2Allocated != null ? '<p><strong>CO₂ Alocado (Materialização):</strong> ' + formatNumber(result.co2Allocated, 4, true) + ' kg CO₂</p>' : ''}
+            ${result.co2AllocatedToCommittee != null ? '<p><strong>CO₂ Alocado (Este Comitê):</strong> ' + formatNumber(result.co2AllocatedToCommittee, 4, true) + ' kg CO₂</p>' : ''}
+            ${result.co2ShadowPrice != null && result.co2ShadowPrice > 0 ? '<p><strong>Preço-Sombra do CO₂:</strong> ' + formatNumber(result.co2ShadowPrice, 6, true) + ' h/kg CO₂</p>' : ''}
+        </div>
+        `;
+    }
     
     // Inserir o HTML na modal
     modalContent.innerHTML = contentHTML;
@@ -3364,6 +3377,18 @@ function displayUnitPlanData(result) {
     } else {
         emptyMessage.style.display = 'block';
         fieldsContainer.style.display = 'none';
+    }
+
+    // Atualizar badge de CO2 no header do comitê
+    if (result.co2AllocatedToCommittee != null) {
+        var badgeEl = document.getElementById('co2Badge');
+        var limitEl = document.getElementById('co2LimitDisplay');
+        if (badgeEl) badgeEl.style.display = 'block';
+        if (limitEl) {
+            var co2Val = parseFloat(result.co2AllocatedToCommittee);
+            limitEl.textContent = (Math.abs(co2Val) < 0.01 && co2Val !== 0)
+                ? co2Val.toExponential(4) : co2Val.toFixed(2);
+        }
     }
 
     // Buscar encomendas de produção e projetos

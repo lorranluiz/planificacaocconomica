@@ -16,6 +16,10 @@ public class PlanificationResponse {
     private Double totalSocialProductionCapacity;
     private String[] productNames;
     private Integer[] productIds;
+    private Double totalCo2Emissions;
+    private Double co2Limit;
+    private Boolean co2ConstraintBinding;
+    private String optimizationFallbackReason; // null=LP OK, "LP_INFEASIBLE", "NO_CO2_CONSTRAINT"
     
     public PlanificationResponse(Integer instanceId, Double[] productionVector, List<OptimizationResult> optimizationResults) {
         this.instanceId = instanceId;
@@ -44,5 +48,16 @@ public class PlanificationResponse {
         private Boolean nightShift;       // Indica se usa turno noturno
         private Integer committeeCount;   // Número real de comitês (fábricas) existentes
         private Double totalMaterializationCapacity; // c_total_i: capacidade produtiva mensal total desta materialização
+
+        // Campos de CO2
+        private Double co2EmissionFactor;   // Fator de emissão (kg CO2/unidade)
+        private Double co2Allocated;        // CO2 alocado a este produto (kg)
+        private Double co2ShadowPrice;      // Preço-sombra do CO2 (horas/kg CO2)
+
+        // Plano B (LP com slack) — valores ajustados quando a restrição de CO2 força redução de demanda
+        private Double originalDemand;          // Demanda original y_i
+        private Double originalProductionNeeded; // Produção original do Leontief (antes do ajuste), em unidades
+        private Double adjustedProductionNeeded; // Produção ajustada x_i (LP relaxado, em unidades)
+        private Double adjustedDemand;           // Demanda ajustada y_i - s_i
     }
 }

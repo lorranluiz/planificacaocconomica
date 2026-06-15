@@ -587,6 +587,43 @@ public class CouncilController {
     /**
      * Seleciona um comitê vencedor para o projeto.
      */
+    @GetMapping("/{councilId}/co2-limit")
+    public ResponseEntity<?> getCo2Limit(@PathVariable Integer councilId) {
+        try {
+            Optional<Instance> instanceOpt = instanceRepository.findById(councilId);
+            if (instanceOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            Instance instance = instanceOpt.get();
+            return ResponseEntity.ok(Map.of(
+                "councilId", councilId,
+                "co2EmissionLimit", instance.getCo2EmissionLimit() != null ? instance.getCo2EmissionLimit() : BigDecimal.ZERO
+            ));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
+    @PutMapping("/{councilId}/co2-limit")
+    @Transactional
+    public ResponseEntity<?> setCo2Limit(@PathVariable Integer councilId, @RequestBody Map<String, Object> body) {
+        try {
+            Optional<Instance> instanceOpt = instanceRepository.findById(councilId);
+            if (instanceOpt.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+            Instance instance = instanceOpt.get();
+            Object limitObj = body.get("co2EmissionLimit");
+            BigDecimal limit = limitObj != null ? new BigDecimal(limitObj.toString()) : BigDecimal.ZERO;
+            instance.setCo2EmissionLimit(limit);
+            instanceRepository.save(instance);
+            logger.info("Teto de CO2 atualizado: councilId={}, limite={}", councilId, limit);
+            return ResponseEntity.ok(Map.of("success", true, "councilId", councilId, "co2EmissionLimit", limit));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
+
     @PutMapping("/{councilId}/projects/{orderId}/select-winner")
     @Transactional
     public ResponseEntity<?> selectProjectWinner(@PathVariable Integer councilId, @PathVariable Integer orderId,

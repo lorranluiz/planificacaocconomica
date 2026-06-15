@@ -227,7 +227,14 @@ public class OptimizationService {
                 minimumProductionTimeInDays,
                 nightShift,
                 committeeCount,
-                null
+                null,  // totalMaterializationCapacity
+                null,  // co2EmissionFactor
+                null,  // co2Allocated
+                null,  // co2ShadowPrice
+                null,  // originalDemand
+                null,  // originalProductionNeeded
+                null,  // adjustedProductionNeeded
+                null   // adjustedDemand
             );
             
             logger.info("Otimização concluída com sucesso para materialização {} ({})", 
@@ -398,7 +405,14 @@ public class OptimizationService {
                 minimumProductionTimeInDays,
                 nightShift,
                 committeeCount,
-                null
+                null,  // totalMaterializationCapacity
+                null,  // co2EmissionFactor
+                null,  // co2Allocated
+                null,  // co2ShadowPrice
+                null,  // originalDemand
+                null,  // originalProductionNeeded
+                null,  // adjustedProductionNeeded
+                null   // adjustedDemand
             );
             
         } catch (Exception e) {
@@ -482,7 +496,14 @@ public class OptimizationService {
             0.0,  // minimumProductionTimeInDays
             false, // nightShift
             0,    // committeeCount
-            null  // totalMaterializationCapacity
+            null, // totalMaterializationCapacity
+            null, // co2EmissionFactor
+            null, // co2Allocated
+            null, // co2ShadowPrice
+            null, // originalDemand
+            null, // originalProductionNeeded
+            null, // adjustedProductionNeeded
+            null  // adjustedDemand
         );
     }
 

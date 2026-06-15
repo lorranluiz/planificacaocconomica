@@ -53,6 +53,9 @@ public class PlanificationService {
     @Autowired
     private OptimizationService optimizationService;
 
+    @Autowired
+    private LinearProgrammingService linearProgrammingService;
+
     private static final Logger logger = LoggerFactory.getLogger(PlanificationService.class);
 
     @Autowired
@@ -62,13 +65,15 @@ public class PlanificationService {
         SocialMaterializationRepository socMatRepository,
         InstanceRepository instanceRepository,
         OptimizationInputsResultsRepository optimizationRepository,
-        OptimizationService optimizationService) {
+        OptimizationService optimizationService,
+        LinearProgrammingService linearProgrammingService) {
         this.tensorRepository = tensorRepository;
         this.demandVectorRepository = demandVectorRepository;
         this.socMatRepository = socMatRepository;
         this.instanceRepository = instanceRepository;
         this.optimizationRepository = optimizationRepository;
         this.optimizationService = optimizationService;
+        this.linearProgrammingService = linearProgrammingService;
     }
 
     @Transactional(readOnly = true)
@@ -233,7 +238,14 @@ public class PlanificationService {
                             config.getMinimumProductionTime().doubleValue(),
                             config.getNightShift(),
                             committeeCount,
-                            null // totalMaterializationCapacity
+                            null, // totalMaterializationCapacity
+                            null, // co2EmissionFactor
+                            null, // co2Allocated
+                            null, // co2ShadowPrice
+                            null, // originalDemand
+                            null, // originalProductionNeeded
+                            null, // adjustedProductionNeeded
+                            null  // adjustedDemand
                         );
 
                         optimizationResults.add(result);
@@ -264,15 +276,89 @@ public class PlanificationService {
         double[][] techMatrix = convertToDoublePrimitive(request.getTechnologicalMatrix());
         double[] demandVector = convertToDoublePrimitive(request.getDemandVector());
 
-        // Calcular o vetor de produção usando o modelo de Leontief
-        double[] productionVector = MatrixOperations.calculateProductionVector(techMatrix, demandVector);
+        // Extrair parâmetros de CO2 do request
+        Double[] emissionFactorsBoxed = request.getEmissionFactors();
+        Double co2EmissionLimit = request.getCo2EmissionLimit();
+        boolean hasCo2Constraint = co2EmissionLimit != null && co2EmissionLimit > 0
+            && emissionFactorsBoxed != null && emissionFactorsBoxed.length == demandVector.length;
 
-        // Carregar configurações existentes para usar nos cálculos de otimização
+        // Construir fatores de emissão como double[]
+        double[] emissionFactors = null;
+        if (hasCo2Constraint) {
+            emissionFactors = new double[emissionFactorsBoxed.length];
+            for (int i = 0; i < emissionFactorsBoxed.length; i++) {
+                emissionFactors[i] = emissionFactorsBoxed[i] != null ? emissionFactorsBoxed[i] : 0.0;
+            }
+        }
+
+        // Carregar configurações existentes para usar nos cálculos de otimização e LP
         Map<Integer, OptimizationInputsResults> existingConfigs = new HashMap<>();
         List<OptimizationInputsResults> configs = optimizationRepository.findById_InstanceId(instanceId);
-
         for (OptimizationInputsResults config : configs) {
             existingConfigs.put(config.getId().getSocialMaterializationId(), config);
+        }
+
+        // Construir tempos de trabalho socialmente necessário por produto (para função objetivo do LP)
+        double[] laborTimes = new double[demandVector.length];
+        for (int i = 0; i < demandVector.length; i++) {
+            Integer matId = request.getMaterializationIds()[i];
+            OptimizationInputsResults config = existingConfigs.get(matId);
+            if (config != null && config.getSociallyNecessaryTimePerUnit() != null) {
+                laborTimes[i] = config.getSociallyNecessaryTimePerUnit().doubleValue();
+            } else if (config != null && config.getProductionTime() != null) {
+                laborTimes[i] = config.getProductionTime().doubleValue();
+            } else {
+                laborTimes[i] = 1.0; // default: 1 hora por unidade
+            }
+        }
+
+        // Calcular o vetor de produção: LP com CO2 ou Leontief puro
+        double[] productionVector;
+        LinearProgrammingService.LPSolution lpSolution = null;
+        String fallbackReason = null;
+        // Plano B: LP com slack quando a restrição de CO2 é violada
+        LinearProgrammingService.SlackLPSolution slackSolution = null;
+        double[] adjustedDemandVector = null;
+        double[] originalLeontiefProduction = null; // referência pré-ajuste
+
+        if (hasCo2Constraint) {
+            logger.info("Executando LP-IO com restrição de CO2 (limite={} kg)", co2EmissionLimit);
+            lpSolution = linearProgrammingService.solve(
+                techMatrix, demandVector, laborTimes, emissionFactors, co2EmissionLimit);
+
+            if (lpSolution.isOptimal()) {
+                productionVector = lpSolution.getProductionVector();
+                if (lpSolution.isCo2ConstraintBinding()) {
+                    logger.info("Restrição de CO2 VINCULANTE: emissões={}, limite={}, preço-sombra={}",
+                        lpSolution.getTotalCo2Emissions(), co2EmissionLimit, lpSolution.getCo2ShadowPrice());
+                } else {
+                    logger.info("Restrição de CO2 NÃO vinculante. Solução LP = Leontief puro.");
+                }
+            } else {
+                // LP falhou (infactível por questões numéricas) — usa Leontief como base
+                logger.warn("LP-IO infactível. Calculando Leontief puro para verificar restrição de CO2.");
+                lpSolution = null;
+                productionVector = MatrixOperations.calculateProductionVector(techMatrix, demandVector);
+
+                // Verificar se a restrição de CO2 é violada na solução Leontief
+                double leontiefCo2 = computeCo2(productionVector, emissionFactors);
+                if (leontiefCo2 > co2EmissionLimit) {
+                    logger.info("CO2 Leontief ({} kg) > limite ({} kg). Executando Plano B: LP com slack.",
+                        leontiefCo2, co2EmissionLimit);
+                    // Salvar produção Leontief original para referência
+                    originalLeontiefProduction = productionVector.clone();
+                    slackSolution = linearProgrammingService.solveWithSlack(
+                        techMatrix, demandVector, laborTimes, emissionFactors, co2EmissionLimit);
+                    productionVector = slackSolution.getProductionVector();
+                    adjustedDemandVector = slackSolution.getAdjustedDemand();
+                    fallbackReason = "LP_INFEASIBLE";
+                } else {
+                    logger.info("CO2 Leontief ({} kg) <= limite ({} kg). Usando Leontief puro.", leontiefCo2, co2EmissionLimit);
+                }
+            }
+        } else {
+            productionVector = MatrixOperations.calculateProductionVector(techMatrix, demandVector);
+            fallbackReason = "NO_CO2_CONSTRAINT";
         }
 
         // Realizar otimização para cada produto
@@ -332,6 +418,36 @@ public class PlanificationService {
             }
         }
 
+        // Enriquecer resultados com dados de CO2 e Plano B
+        double co2ShadowPrice = lpSolution != null ? (lpSolution.getCo2ShadowPrice() != null ? lpSolution.getCo2ShadowPrice() : 0.0) : 0.0;
+        for (OptimizationResult result : optimizationResults) {
+            int idx = -1;
+            for (int k = 0; k < request.getMaterializationIds().length; k++) {
+                if (request.getMaterializationIds()[k].equals(result.getMaterializationId())) {
+                    idx = k;
+                    break;
+                }
+            }
+            if (idx >= 0) {
+                if (emissionFactors != null && idx < emissionFactors.length) {
+                    result.setCo2EmissionFactor(emissionFactors[idx]);
+                    result.setCo2Allocated(emissionFactors[idx] * (result.getProductionNeeded() / 1000.0));
+                }
+                if (lpSolution != null && lpSolution.isCo2ConstraintBinding()) {
+                    result.setCo2ShadowPrice(co2ShadowPrice);
+                }
+                // Plano B: popular demanda original e valores ajustados
+                if (slackSolution != null && adjustedDemandVector != null && idx < adjustedDemandVector.length) {
+                    result.setOriginalDemand(demandVector[idx]);
+                    result.setAdjustedDemand(adjustedDemandVector[idx]);
+                    result.setAdjustedProductionNeeded(productionVector[idx]);
+                    if (originalLeontiefProduction != null && idx < originalLeontiefProduction.length) {
+                        result.setOriginalProductionNeeded(originalLeontiefProduction[idx]);
+                    }
+                }
+            }
+        }
+
         // Calcular capacidade produtiva mensal por materialização (c_total_i) e total (c_total)
         // c_trabalhador = 4 semanas * escala_semanal * carga_horária_diária
         // T_mensal = limite_trabalhadores * c_trabalhador
@@ -363,6 +479,28 @@ public class PlanificationService {
             optimizationResults
         );
         response.setTotalSocialProductionCapacity(cTotal);
+
+        // Preencher campos de CO2 no response
+        if (lpSolution != null) {
+            response.setTotalCo2Emissions(lpSolution.getTotalCo2Emissions());
+            response.setCo2Limit(co2EmissionLimit);
+            response.setCo2ConstraintBinding(lpSolution.isCo2ConstraintBinding());
+        } else if (hasCo2Constraint) {
+            // Fallback: calcular emissões com o vetor Leontief
+            double totalCo2 = 0.0;
+            if (emissionFactors != null) {
+                for (int i = 0; i < productionVector.length && i < emissionFactors.length; i++) {
+                    totalCo2 += emissionFactors[i] * productionVector[i];
+                }
+            }
+            response.setTotalCo2Emissions(totalCo2);
+            response.setCo2Limit(co2EmissionLimit);
+            response.setCo2ConstraintBinding(totalCo2 > co2EmissionLimit);
+        }
+
+        // Informar frontend sobre o motivo do fallback (se houver)
+        response.setOptimizationFallbackReason(fallbackReason);
+
         return response;
     }
 
@@ -422,7 +560,26 @@ public class PlanificationService {
             0.0,  // minimumProductionTimeInDays
             false, // nightShift
             committeeCount,
-            null  // totalMaterializationCapacity
+            null, // totalMaterializationCapacity
+            null, // co2EmissionFactor
+            null, // co2Allocated
+            null, // co2ShadowPrice
+            null, // originalDemand
+            null, // originalProductionNeeded
+            null, // adjustedProductionNeeded
+            null  // adjustedDemand
         );
+    }
+
+    /**
+     * Calcula o total de emissões de CO2 para um vetor de produção.
+     */
+    private double computeCo2(double[] productionVector, double[] emissionFactors) {
+        if (emissionFactors == null) return 0.0;
+        double total = 0.0;
+        for (int i = 0; i < productionVector.length && i < emissionFactors.length; i++) {
+            total += emissionFactors[i] * productionVector[i];
+        }
+        return total;
     }
 }

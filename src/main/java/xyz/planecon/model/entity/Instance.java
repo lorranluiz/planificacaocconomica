@@ -178,6 +178,10 @@ public class Instance {
     // Saldo do Conselho Popular (horas arrecadadas)
     @Column(name = "balance", precision = 20, scale = 10)
     private BigDecimal balance;
+
+    // Teto máximo de emissão de CO2 da jurisdição (kg CO2), usado pelo Conselho Planificador
+    @Column(name = "co2_emission_limit", precision = 38, scale = 6)
+    private BigDecimal co2EmissionLimit;
     
     // Relationships
     @JsonIgnoreProperties("instance")

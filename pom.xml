@@ -101,6 +101,13 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-core</artifactId>
         </dependency>
+
+        <!-- ojAlgo - Otimização linear (programação linear para modelo LP-IO) -->
+        <dependency>
+            <groupId>org.ojalgo</groupId>
+            <artifactId>ojalgo</artifactId>
+            <version>55.0.0</version>
+        </dependency>
     </dependencies>
     
     <build>

@@ -49,6 +49,10 @@ public class SocialMaterialization {
     @Column(name = "validity_deadline", precision = 16, scale = 6)
     private BigDecimal validityDeadline;
 
+    // Fator de emissão de CO2: kg de CO2 por unidade padrão desta materialização
+    @Column(name = "co2_emission_factor", precision = 12, scale = 6)
+    private BigDecimal co2EmissionFactor;
+
     @ManyToOne
     @JoinColumn(name = "id_measurement_unit")
     @EqualsAndHashCode.Exclude

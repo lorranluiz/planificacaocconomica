@@ -1751,6 +1751,51 @@ public class CommitteeController {
                 optimizationData.put("sociallyNecessaryTimePerUnit", committeeOptConfig.getSociallyNecessaryTimePerUnit());
             }
 
+            // Incluir dados de CO2 se disponíveis na otimização do conselho central
+            if (optimizationConfig.getCo2Allocated() != null) {
+                optimizationData.put("co2Allocated", optimizationConfig.getCo2Allocated());
+            }
+            if (optimizationConfig.getCo2ShadowPrice() != null) {
+                optimizationData.put("co2ShadowPrice", optimizationConfig.getCo2ShadowPrice());
+            }
+
+            // Incluir fator de emissão da materialização
+            SocialMaterialization mat = materializationOpt.get();
+            if (mat.getCo2EmissionFactor() != null) {
+                optimizationData.put("co2EmissionFactor", mat.getCo2EmissionFactor());
+            }
+
+            // Dados de CO2 do conselho planificador
+            if (plannerCouncil.getCo2EmissionLimit() != null) {
+                optimizationData.put("co2EmissionLimit", plannerCouncil.getCo2EmissionLimit());
+            }
+
+            // Calcular alocação de CO2 do comitê (proporcional à capacidade)
+            if (optimizationConfig.getCo2Allocated() != null
+                    && optimizationConfig.getTotalMaterializationCapacity() != null
+                    && optimizationConfig.getTotalMaterializationCapacity().compareTo(BigDecimal.ZERO) > 0) {
+
+                if (wpOpt.isPresent()) {
+                    WorkersProposal wp = wpOpt.get();
+                    Integer wLimit = wp.getPlanifiedWorkerLimit();
+                    BigDecimal wHours = wp.getPlanifiedWorkerHours();
+                    Integer wScale = wp.getPlanifiedWeeklyScale();
+
+                    if (wLimit != null && wHours != null && wScale != null) {
+                        BigDecimal monthlyWorkerCap = BigDecimal.valueOf(4)
+                            .multiply(BigDecimal.valueOf(wScale))
+                            .multiply(wHours);
+                        BigDecimal monthlyCommitteeCap = BigDecimal.valueOf(wLimit)
+                            .multiply(monthlyWorkerCap);
+                        BigDecimal productivity = monthlyCommitteeCap.divide(
+                            optimizationConfig.getTotalMaterializationCapacity(), 10, RoundingMode.HALF_UP);
+                        BigDecimal co2ForCommittee = productivity.multiply(optimizationConfig.getCo2Allocated())
+                            .setScale(6, RoundingMode.HALF_UP);
+                        optimizationData.put("co2AllocatedToCommittee", co2ForCommittee);
+                    }
+                }
+            }
+
             logger.info("Dados de otimização central obtidos com sucesso para comitê {} e materialização {}", committeeId, materializationId);
             
             return ResponseEntity.ok(optimizationData);

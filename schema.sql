@@ -631,6 +631,8 @@ CREATE TABLE public.optimization_inputs_results (
     needed_factories_to_build integer,
     factory_daily_operating_hours numeric(10,2),
     total_materialization_capacity numeric(38,10),
+    co2_allocated numeric(38,6),
+    co2_shadow_price numeric(20,10),
     socially_necessary_time_per_unit numeric(10,2),
     CONSTRAINT optimization_inputs_results_total_employment_period_check CHECK ((total_employment_period >= 0))
 );
