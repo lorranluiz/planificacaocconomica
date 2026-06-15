@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import xyz.planecon.model.entity.Instance;
 import xyz.planecon.model.entity.SocialMaterialization;
 import xyz.planecon.model.enums.InstanceType;
+import xyz.planecon.model.enums.SocialMaterializationType;
 import xyz.planecon.repository.InstanceRepository;
 import xyz.planecon.model.entity.WorkerOrder;
 import xyz.planecon.model.entity.WorkerOrderItem;
@@ -658,6 +659,9 @@ public class InstanceController {
             // Para cada materialização, calcular o tempo de produção médio
             List<Map<String, Object>> products = new ArrayList<>();
             for (SocialMaterialization mat : materializations) {
+                // Pular materializações do tipo PROJECT (só Produtos e Serviços na loja)
+                if (mat.getType() == SocialMaterializationType.PROJECT) continue;
+
                 // Buscar comitês que produzem esta materialização
                 List<Instance> committees = instanceRepository.findByTypeAndSocialMaterializationId(
                     InstanceType.COMMITTEE, mat.getId());
