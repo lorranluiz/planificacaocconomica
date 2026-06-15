@@ -1598,6 +1598,7 @@ public class CommitteeController {
             // usando dados planificados do comitê e capacidades armazenadas
             BigDecimal requiredProductionForCommittee = null;
             BigDecimal estimatedParticipation = null;
+            BigDecimal estimatedParticipationHours = null;
             
             WorkersProposal.WorkersProposalId wpId = new WorkersProposal.WorkersProposalId();
             wpId.setInstanceId(committeeId);
@@ -1614,7 +1615,8 @@ public class CommitteeController {
                     BigDecimal monthlyWorkerCapacity = BigDecimal.valueOf(4)
                         .multiply(BigDecimal.valueOf(planifiedWeeklyScale))
                         .multiply(planifiedWorkerHours);
-                    
+                    estimatedParticipationHours = monthlyWorkerCapacity;
+
                     // T_mensal = limite_trabalhadores * c_trabalhador
                     BigDecimal monthlyCommitteeCapacity = BigDecimal.valueOf(planifiedWorkerLimit)
                         .multiply(monthlyWorkerCapacity);
@@ -1644,6 +1646,102 @@ public class CommitteeController {
             
             optimizationData.put("requiredProductionForCommittee", requiredProductionForCommittee);
             optimizationData.put("estimatedParticipation", estimatedParticipation);
+            optimizationData.put("estimatedParticipationHours", estimatedParticipationHours);
+
+            // Calcular Participação Estimada Localmente e Tempo para Conclusão
+            // Base: encomendas pendentes do próprio comitê (dados locais, sem planificação global)
+            BigDecimal estimatedLocalParticipationHours = null;
+            BigDecimal estimatedLocalTimeToComplete = null;
+            BigDecimal estimatedLocalTimeMonths = null;
+            String estimatedLocalTimeUnit = null;
+
+            if (wpOpt.isPresent()) {
+                WorkersProposal wpLocal = wpOpt.get();
+                Integer localWorkerLimit = wpLocal.getWorkerLimit();
+                Integer localWeeklyScale = wpLocal.getWeeklyScale();
+                BigDecimal localWorkerHours = wpLocal.getWorkerHours();
+                BigDecimal localProductionTime = wpLocal.getProductionTime();
+
+                if (localWorkerLimit != null && localWeeklyScale != null
+                        && localWorkerHours != null && localWorkerLimit > 0) {
+
+                    BigDecimal monthlyCapacityPerWorker = BigDecimal.valueOf(4)
+                            .multiply(BigDecimal.valueOf(localWeeklyScale))
+                            .multiply(localWorkerHours);
+                    BigDecimal monthlyCommitteeCapacity = BigDecimal.valueOf(localWorkerLimit)
+                            .multiply(monthlyCapacityPerWorker);
+
+                    List<SupplyOrder> allSupplierOrders = supplyOrderRepository
+                            .findBySupplierInstanceIdOrderByCreatedAtDesc(committeeId);
+
+                    List<String> terminalStatuses = List.of(
+                            "recusada", "horas liberadas", "recebida pelo demandante");
+
+                    BigDecimal totalPendingHours = BigDecimal.ZERO;
+                    for (SupplyOrder order : allSupplierOrders) {
+                        String status = order.getOrderStatus();
+                        if (status != null && terminalStatuses.contains(status)) continue;
+
+                        Instance orderingInst = order.getOrderingInstance();
+                        if (orderingInst != null && orderingInst.getId().equals(committeeId)) continue;
+
+                        SocialMaterialization inputMat = order.getInputMaterialization();
+                        BigDecimal qty = order.getQuantity() != null ? order.getQuantity() : BigDecimal.ZERO;
+
+                        if (inputMat != null && SocialMaterializationType.PROJECT.equals(inputMat.getType())) {
+                            totalPendingHours = totalPendingHours.add(qty);
+                        } else if (localProductionTime != null) {
+                            totalPendingHours = totalPendingHours.add(
+                                    qty.multiply(localProductionTime));
+                        }
+                    }
+
+                    if (totalPendingHours.compareTo(BigDecimal.ZERO) > 0) {
+                        BigDecimal hoursPerWorker = totalPendingHours.divide(
+                                BigDecimal.valueOf(localWorkerLimit), 10, RoundingMode.HALF_UP);
+
+                        if (hoursPerWorker.compareTo(monthlyCapacityPerWorker) > 0) {
+                            estimatedLocalParticipationHours = monthlyCapacityPerWorker
+                                    .setScale(2, RoundingMode.HALF_UP);
+                        } else {
+                            estimatedLocalParticipationHours = hoursPerWorker
+                                    .setScale(2, RoundingMode.HALF_UP);
+                        }
+
+                        BigDecimal ratio = totalPendingHours.divide(
+                                monthlyCommitteeCapacity, 10, RoundingMode.HALF_UP);
+                        if (ratio.compareTo(BigDecimal.valueOf(12)) >= 0) {
+                            BigDecimal years = ratio.divide(BigDecimal.valueOf(12), 10, RoundingMode.HALF_UP);
+                            int wholeYears = years.intValue();
+                            BigDecimal remainingMonths = ratio
+                                    .subtract(BigDecimal.valueOf(wholeYears * 12))
+                                    .setScale(0, RoundingMode.HALF_UP);
+                            estimatedLocalTimeToComplete = BigDecimal.valueOf(wholeYears);
+                            estimatedLocalTimeMonths = remainingMonths;
+                            estimatedLocalTimeUnit = "anos";
+                        } else if (ratio.compareTo(BigDecimal.ONE) >= 0) {
+                            estimatedLocalTimeToComplete = ratio.setScale(2, RoundingMode.HALF_UP);
+                            estimatedLocalTimeUnit = "meses";
+                        } else {
+                            BigDecimal days = ratio.multiply(BigDecimal.valueOf(30))
+                                    .setScale(0, RoundingMode.HALF_UP);
+                            if (days.compareTo(BigDecimal.ONE) >= 0) {
+                                estimatedLocalTimeToComplete = days;
+                                estimatedLocalTimeUnit = "dias";
+                            } else {
+                                estimatedLocalTimeToComplete = totalPendingHours
+                                        .setScale(0, RoundingMode.HALF_UP);
+                                estimatedLocalTimeUnit = "horas";
+                            }
+                        }
+                    }
+                }
+            }
+
+            optimizationData.put("estimatedLocalParticipationHours", estimatedLocalParticipationHours);
+            optimizationData.put("estimatedLocalTimeToComplete", estimatedLocalTimeToComplete);
+            optimizationData.put("estimatedLocalTimeMonths", estimatedLocalTimeMonths);
+            optimizationData.put("estimatedLocalTimeUnit", estimatedLocalTimeUnit);
 
             // Buscar Tempo Socialmente Necessário para Produzir Uma Unidade da linha do comitê
             OptimizationInputsResults committeeOptConfig = optimizationInputsResultsRepository

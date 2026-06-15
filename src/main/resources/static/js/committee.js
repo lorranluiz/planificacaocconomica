@@ -3324,10 +3324,42 @@ function displayUnitPlanData(result) {
                 : parseFloat(reqProd).toFixed(2);
         }
         
-        // Participação Estimada (mensal): multiplicar por 10^8 para exibição em ℳ (mesmo padrão de worker.html)
+        // Participação Estimada (mensal): exibição em horas (h) — valor planificado
         if (estimatedPartEl) {
-            const participationDisplay = parseFloat(result.estimatedParticipation) * 100000000;
-            estimatedPartEl.textContent = participationDisplay.toFixed(2);
+            const hours = result.estimatedParticipationHours;
+            if (hours != null) {
+                estimatedPartEl.textContent = parseFloat(hours).toFixed(2) + ' h';
+            }
+        }
+
+        // Participação Estimada Localmente (mensal): horas por trabalhador das encomendas pendentes
+        const localPartEl = document.getElementById('unitLocalParticipation');
+        if (localPartEl) {
+            const localHours = result.estimatedLocalParticipationHours;
+            if (localHours != null) {
+                localPartEl.textContent = parseFloat(localHours).toFixed(2) + ' h';
+            }
+        }
+
+        // Tempo Estimado para Conclusão
+        const localTimeEl = document.getElementById('unitLocalTimeToComplete');
+        if (localTimeEl) {
+            const timeVal = result.estimatedLocalTimeToComplete;
+            const timeUnit = result.estimatedLocalTimeUnit;
+            if (timeVal != null && timeUnit != null) {
+                if (timeUnit === 'anos') {
+                    const years = parseInt(timeVal) || 0;
+                    const months = parseInt(result.estimatedLocalTimeMonths) || 0;
+                    if (months > 0) {
+                        localTimeEl.textContent = years + ' anos e ' + months + ' meses';
+                    } else {
+                        localTimeEl.textContent = years + ' anos';
+                    }
+                } else {
+                    const decimals = timeUnit === 'meses' ? 2 : 0;
+                    localTimeEl.textContent = parseFloat(timeVal).toFixed(decimals) + ' ' + timeUnit;
+                }
+            }
         }
     } else {
         emptyMessage.style.display = 'block';
