@@ -2364,6 +2364,13 @@ function saveTaxRate() {
     .catch(function(err) { console.error('Erro ao salvar taxa:', err); });
 }
 
+function _parseCreatedAt(v) {
+    if (Array.isArray(v) && v.length >= 6) {
+        return new Date(v[0], v[1] - 1, v[2], v[3] || 0, v[4] || 0, v[5] || 0);
+    }
+    return new Date(v);
+}
+
 var _extractPage = 0, _extractHasMore = true, _extractLoading = false, _extractSearchTimeout = null;
 
 function openExtractModal() {
@@ -2417,7 +2424,7 @@ function renderExtractTransactions(transactions, append) {
     if (!c) return;
     var curMonth = '', html = append ? c.innerHTML : '';
     transactions.forEach(function(t) {
-        var d = new Date(t.createdAt);
+        var d = _parseCreatedAt(t.createdAt);
         var mk = d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
         if (mk !== curMonth) {
             curMonth = mk;
