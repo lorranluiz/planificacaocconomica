@@ -800,12 +800,13 @@ function renderDemandVector() {
     }
     tbody.innerHTML = '';
     
-    // Modificar cabeçalhos para incluir a coluna de ação
+    // Modificar cabeçalhos para incluir a coluna de ação e emissão de CO2
     const thead = demandVectorTable.querySelector('thead tr');
     if (thead) {
         thead.innerHTML = `
             <th>Produto</th>
             <th>Demanda Final</th>
+            <th>Emissão de CO₂ (kg/unid.)</th>
             <th>Ações</th>
         `;
     }
@@ -850,6 +851,23 @@ function renderDemandVector() {
         };
         tdValue.appendChild(input);
         tr.appendChild(tdValue);
+
+        // Célula com fator de emissão de CO2 (editável)
+        const tdCo2 = document.createElement('td');
+        const co2Input = document.createElement('input');
+        co2Input.type = 'text';
+        co2Input.className = 'form-control';
+        co2Input.style.width = '120px';
+        var currentEf = emissionFactors[productIds[index]];
+        co2Input.value = (currentEf != null && currentEf !== 0) ? parseFloat(currentEf).toString().replace('.', ',') : '0';
+        co2Input.dataset.index = index;
+        co2Input.onchange = function() {
+            var val = parseFloat(this.value.replace(',', '.')) || 0;
+            emissionFactors[productIds[parseInt(this.dataset.index)]] = val;
+            updateMatrixAndVectorData();
+        };
+        tdCo2.appendChild(co2Input);
+        tr.appendChild(tdCo2);
         
         // Célula com botões de ação - AGORA INCLUINDO BOTÃO DE CONFIGURAR OTIMIZAÇÃO
         const tdActions = document.createElement('td');
@@ -1786,6 +1804,13 @@ document.addEventListener('DOMContentLoaded', function() {
                         console.warn(`Resultado de otimização inválido no índice ${index}:`, result);
                         return; // Pular este item
                     }
+
+                    // Recalcular co2Allocated com o fator de emissão atual
+                    // (usuário pode ter editado o valor na tabela "Vetor de Demanda Final")
+                    var currentEf = emissionFactors[result.materializationId];
+                    if (currentEf != null && result.productionNeeded != null) {
+                        result.co2Allocated = parseFloat(currentEf) * (result.productionNeeded / 1000.0);
+                    }
                     
                     // Encontrar o valor de produção correspondente
                     const productionValue = index < demandVector.length ? demandVector[index] : null;
@@ -1849,6 +1874,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     
                     // Adicionar esta promessa à lista geral
                     allPromises.push(optimizationPromise);
+                });
+            }
+
+            // Salvar fatores de emissão de CO2 para cada materialização
+            if (productIds && productIds.length > 0) {
+                productIds.forEach(function(pid) {
+                    var efVal = emissionFactors[pid];
+                    if (efVal != null) {
+                        var efPromise = fetch('/api/social-materializations/' + pid + '/emission-factor', {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ emissionFactor: parseFloat(efVal) || 0 })
+                        })
+                        .then(function(r) {
+                            console.log('Fator de emissão salvo para matId=' + pid + ': ' + efVal);
+                            return r;
+                        })
+                        .catch(function(err) {
+                            console.error('Erro ao salvar fator de emissão matId=' + pid, err);
+                        });
+                        allPromises.push(efPromise);
+                    }
                 });
             }
             

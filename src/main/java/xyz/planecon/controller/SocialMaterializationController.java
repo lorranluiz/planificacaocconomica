@@ -352,6 +352,26 @@ public class SocialMaterializationController {
             return null;
         }
     }
+
+    /**
+     * Endpoint para atualizar o fator de emissão de CO2 de uma materialização social.
+     */
+    @PutMapping("/social-materializations/{id}/emission-factor")
+    public ResponseEntity<?> updateEmissionFactor(@PathVariable Integer id, @RequestBody Map<String, Object> body) {
+        try {
+            SocialMaterialization mat = socialMaterializationRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Materialização não encontrada: " + id));
+            Object efObj = body.get("emissionFactor");
+            BigDecimal ef = efObj != null ? new BigDecimal(efObj.toString()) : BigDecimal.ZERO;
+            mat.setCo2EmissionFactor(ef);
+            socialMaterializationRepository.save(mat);
+            logger.info("Fator de emissão atualizado: matId={}, co2EmissionFactor={}", id, ef);
+            return ResponseEntity.ok(Map.of("success", true, "materializationId", id, "emissionFactor", ef));
+        } catch (Exception e) {
+            logger.error("Erro ao atualizar fator de emissão: {}", e.getMessage());
+            return ResponseEntity.badRequest().body(Map.of("success", false, "message", e.getMessage()));
+        }
+    }
     
     /**
      * Converte uma entidade SocialMaterialization para DTO
