@@ -859,23 +859,17 @@ public class InstanceController {
                     .body(Map.of("error", "Não há horas no ponto eletrônico para resgatar"));
             }
 
-            // Mesma lógica do shop endpoint para totalSocialWork e totalWorkerHours
-            Instance plannerCouncil = instanceRepository.findById(1).orElse(null);
-
-            BigDecimal totalSocialWork = BigDecimal.ZERO;
-            if (plannerCouncil != null) {
-                if (plannerCouncil.getTotalSocialWork() != null
-                        && plannerCouncil.getTotalSocialWork().compareTo(BigDecimal.ZERO) > 0) {
-                    totalSocialWork = plannerCouncil.getTotalSocialWork();
-                } else if (plannerCouncil.getTotalSocialWorkOfThisJurisdiction() != null
-                        && plannerCouncil.getTotalSocialWorkOfThisJurisdiction() > 0) {
-                    totalSocialWork = BigDecimal.valueOf(plannerCouncil.getTotalSocialWorkOfThisJurisdiction());
-                }
-            }
-            if (totalSocialWork.compareTo(BigDecimal.ZERO) <= 0) {
+            // Horas efetivamente resgatáveis (limitadas ao que foi liberado pelo comitê)
+            BigDecimal redeemable = worker.getRedeemableHours() != null
+                ? worker.getRedeemableHours() : BigDecimal.ZERO;
+            BigDecimal redeemAmount = workerHours.min(redeemable);
+            if (redeemAmount.compareTo(BigDecimal.ZERO) <= 0) {
                 return ResponseEntity.badRequest()
-                    .body(Map.of("error", "Trabalho social total não disponível para calcular participação"));
+                    .body(Map.of("error", "Não há horas liberadas para resgate. Aguarde a confirmação de recebimento de encomendas do seu comitê."));
             }
+
+            // Mesma lógica do shop endpoint para totalWorkerHours
+            Instance plannerCouncil = instanceRepository.findById(1).orElse(null);
 
             BigDecimal totalWorkerHours = (plannerCouncil != null && plannerCouncil.getTotalWorkerHours() != null)
                 ? plannerCouncil.getTotalWorkerHours()
@@ -888,7 +882,7 @@ public class InstanceController {
             // increment = workerHours / totalWorkerHours × totalSocialWork  (anterior)
             // Agora: increment = workerHours / totalWorkerHours
             // Mantido como comentário acima a fórmula antiga para registro.
-            BigDecimal increment = workerHours
+            BigDecimal increment = redeemAmount
                 .divide(totalWorkerHours, 15, RoundingMode.HALF_UP);
 
             BigDecimal currentParticipation = worker.getEstimatedIndividualParticipationInSocialWork();
@@ -898,7 +892,8 @@ public class InstanceController {
             BigDecimal newParticipation = currentParticipation.add(increment);
 
             worker.setEstimatedIndividualParticipationInSocialWork(newParticipation);
-            worker.setHoursAtElectronicPoint(BigDecimal.ZERO);
+            worker.setHoursAtElectronicPoint(workerHours.subtract(redeemAmount));
+            worker.setRedeemableHours(redeemable.subtract(redeemAmount));
             instanceRepository.save(worker);
 
             // Escala: 1600000 / 4 = 400000 (%4e5)

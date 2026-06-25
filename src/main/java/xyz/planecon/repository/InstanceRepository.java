@@ -138,4 +138,38 @@ public interface InstanceRepository extends JpaRepository<Instance, Integer> {
      */
     @Query("SELECT SUM(i.hoursAtElectronicPoint) FROM Instance i WHERE i.type = xyz.planecon.model.enums.InstanceType.WORKER")
     java.math.BigDecimal sumWorkerHours();
+
+    /**
+     * Soma de horas no ponto eletrônico dos trabalhadores de um comitê específico.
+     */
+    @Query("SELECT COALESCE(SUM(i.hoursAtElectronicPoint), 0) FROM Instance i " +
+           "WHERE i.associatedWorkerCommittee.id = :committeeId AND i.type = xyz.planecon.model.enums.InstanceType.WORKER")
+    BigDecimal sumElectronicPointHoursByCommitteeId(@Param("committeeId") Integer committeeId);
+
+    /**
+     * Bulk update: incrementa redeemableHours de cada trabalhador proporcionalmente
+     * às horas no ponto eletrônico, conforme o ratio da ordem liberada.
+     */
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = "UPDATE instance SET redeemable_hours = COALESCE(redeemable_hours, 0) + " +
+           "(:ratio * COALESCE(hours_at_electronic_point, 0)) " +
+           "WHERE id_associated_worker_committee = :committeeId AND type = 'WORKER'",
+           nativeQuery = true)
+    int addRedeemableHoursToCommitteeWorkers(@Param("committeeId") Integer committeeId,
+                                              @Param("ratio") BigDecimal ratio);
+
+    /**
+     * Auto-resgate: quando a base igualitária é zero, as horas do ponto correspondentes
+     * ao ratio são convertidas diretamente em saldo confirmado e descontadas do ponto.
+     */
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query(value = "UPDATE instance SET " +
+           "socially_confirmed_work_time = COALESCE(socially_confirmed_work_time, 0) + " +
+           "(:ratio * COALESCE(hours_at_electronic_point, 0)), " +
+           "hours_at_electronic_point = COALESCE(hours_at_electronic_point, 0) - " +
+           "(:ratio * COALESCE(hours_at_electronic_point, 0)) " +
+           "WHERE id_associated_worker_committee = :committeeId AND type = 'WORKER'",
+           nativeQuery = true)
+    int autoRedeemHoursToCommitteeWorkers(@Param("committeeId") Integer committeeId,
+                                          @Param("ratio") BigDecimal ratio);
 }

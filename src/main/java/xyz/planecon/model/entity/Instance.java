@@ -171,6 +171,10 @@ public class Instance {
     @Column(name = "socially_confirmed_work_time", precision = 20, scale = 10)
     private BigDecimal sociallyConfirmedWorkTime;
 
+    // Horas resgatáveis no ponto eletrônico (liberadas após confirmação de recebimento)
+    @Column(name = "redeemable_hours", precision = 20, scale = 10)
+    private BigDecimal redeemableHours;
+
     // Taxa de arrecadação do Conselho Popular (10-70%, padrão 50)
     @Column(name = "tax_rate", precision = 5, scale = 2)
     private BigDecimal taxRate;

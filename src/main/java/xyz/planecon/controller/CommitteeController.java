@@ -2145,27 +2145,60 @@ public class CommitteeController {
                 councilTransactionRepository.saveAll(transactions);
             }
 
-            // --- Distribuir o restante aos trabalhadores (native SQL bulk update, 1 query) ---
+            // --- Distribuir o restante aos trabalhadores ---
+
             int workerCount = instanceRepository.countWorkersByCommitteeId(committeeId);
             if (workerCount == 0) {
                 return ResponseEntity.badRequest().body(Map.of("success", false, "message", "Nenhum trabalhador associado"));
             }
 
-            BigDecimal hoursPerWorker = workersAmount.divide(BigDecimal.valueOf(workerCount), 10, RoundingMode.HALF_UP)
+            // Calcular razão desta ordem em relação ao total de ordens aceitas
+            BigDecimal totalAcceptedQty = supplyOrderRepository
+                .sumAcceptedQuantitiesBySupplierId(committeeId);
+            totalAcceptedQty = totalAcceptedQty.add(demandedQuantity); // inclui esta ordem
+            BigDecimal ratio = BigDecimal.ZERO;
+            if (totalAcceptedQty.compareTo(BigDecimal.ZERO) > 0) {
+                ratio = demandedQuantity.divide(totalAcceptedQty, 10, RoundingMode.HALF_UP);
+            }
+
+            // Horas no ponto eletrônico a subtrair (proporcionais ao ratio)
+            BigDecimal totalElectronicHours = instanceRepository
+                .sumElectronicPointHoursByCommitteeId(committeeId);
+            BigDecimal electronicToSubtract = totalElectronicHours.multiply(ratio)
                 .setScale(10, RoundingMode.HALF_UP);
+
+            // Montante base para divisão igualitária
+            BigDecimal baseAmount = workersAmount.subtract(electronicToSubtract);
+            if (baseAmount.compareTo(BigDecimal.ZERO) <= 0) {
+                baseAmount = BigDecimal.ZERO;
+            }
+
+            BigDecimal hoursPerWorker = baseAmount.divide(BigDecimal.valueOf(workerCount), 10, RoundingMode.HALF_UP)
+                .setScale(10, RoundingMode.HALF_UP);
+
+            // Bulk update: horas base (native SQL, 1 query)
             instanceRepository.addHoursToCommitteeWorkers(committeeId, hoursPerWorker);
+
+            // Se base = 0, auto-resgate: horas do ponto viram saldo confirmado diretamente
+            // Caso contrário, acumulam como resgatáveis para resgate manual posterior
+            if (baseAmount.compareTo(BigDecimal.ZERO) == 0) {
+                instanceRepository.autoRedeemHoursToCommitteeWorkers(committeeId, ratio);
+            } else {
+                instanceRepository.addRedeemableHoursToCommitteeWorkers(committeeId, ratio);
+            }
 
             // Atualizar status para "horas liberadas"
             order.setOrderStatus("horas liberadas");
             supplyOrderRepository.save(order);
 
-            logger.info("Horas distribuídas: comitê={}, total={}, workers={}, worker_share={}, horas_por_worker={}",
-                committeeId, totalHours, workerCount, workersAmount, hoursPerWorker);
+            logger.info("Horas distribuídas: comitê={}, total={}, workers={}, baseAmount={}, hoursPerWorker={}, ratio={}, redeemableRatio={}",
+                committeeId, totalHours, workerCount, baseAmount, hoursPerWorker, ratio, ratio);
 
             return ResponseEntity.ok(Map.of(
                 "success", true, "totalHours", totalHours,
                 "workersAmount", workersAmount,
-                "workerCount", workerCount, "hoursPerWorker", hoursPerWorker
+                "workerCount", workerCount, "hoursPerWorker", hoursPerWorker,
+                "ratio", ratio, "baseAmount", baseAmount
             ));
         } catch (Exception e) {
             logger.error("Erro ao distribuir horas", e);

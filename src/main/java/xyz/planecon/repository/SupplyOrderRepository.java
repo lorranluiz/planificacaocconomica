@@ -6,6 +6,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import xyz.planecon.model.entity.SupplyOrder;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
@@ -30,4 +31,11 @@ public interface SupplyOrderRepository extends JpaRepository<SupplyOrder, Intege
         "OR so.ordering_instance_id = :councilId",
         nativeQuery = true)
     List<Integer> findInputMatIdsByCouncilChildren(@Param("councilId") Integer councilId);
+
+    /**
+     * Soma das quantidades das ordens aceitas em produção para um dado fornecedor.
+     */
+    @Query("SELECT COALESCE(SUM(so.quantity), 0) FROM SupplyOrder so " +
+           "WHERE so.supplierInstance.id = :supplierId AND so.orderStatus = 'aceita em produção'")
+    BigDecimal sumAcceptedQuantitiesBySupplierId(@Param("supplierId") Integer supplierId);
 }
